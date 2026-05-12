@@ -1,0 +1,900 @@
+{
+  "services": {
+    "tiles": [
+      {
+        "id": "pharmacy",
+        "icon": "local_pharmacy",
+        "title": "Nobetci Eczane",
+        "subtitle": "Bugunku nobetci eczane listesi, telefon ve rota",
+        "target": "pharmacy"
+      },
+      {
+        "id": "prayer",
+        "icon": "mosque",
+        "title": "Namaz Vakitleri",
+        "subtitle": "Guncel namaz vakitleri",
+        "target": "prayer"
+      },
+      {
+        "id": "weather",
+        "icon": "cloud",
+        "title": "Hava Durumu",
+        "subtitle": "Anlik hava ve 5 gunluk tahmin",
+        "target": "weather"
+      },
+      {
+        "id": "news_center",
+        "icon": "newspaper",
+        "title": "Haber Merkezi",
+        "subtitle": "Gunun son haberleri ve duyurular",
+        "target": "news"
+      },
+      {
+        "id": "outages",
+        "icon": "bolt",
+        "title": "Kesintiler",
+        "subtitle": "Planlı su ve elektrik kesinti duyuruları",
+        "target": "outages"
+      },
+      {
+        "id": "transport",
+        "icon": "commute",
+        "title": "Ulaşım Rehberi",
+        "subtitle": "Taksi, dolmuş ve güzergah bilgileri",
+        "target": "transport"
+      },
+      {
+        "id": "health",
+        "icon": "local_hospital",
+        "title": "Saglik Kurumlari",
+        "subtitle": "Devlet hastanesi, aile sagligi ve ozel klinikler",
+        "target": "health"
+      },
+      {
+        "id": "emergency",
+        "icon": "emergency",
+        "title": "Acil Numaralar",
+        "subtitle": "112, polis, itfaiye ve kritik destek hatlari",
+        "target": "emergency"
+      },
+      {
+        "id": "municipality",
+        "icon": "account_balance",
+        "title": "Belediye Birimleri",
+        "subtitle": "Mudurlukler, irtibat ve islem noktalari",
+        "target": "municipality"
+      }
+    ],
+    "healthFacilities": [
+      {
+        "name": "Duzici Devlet Hastanesi",
+        "type": "Devlet Hastanesi",
+        "address": "Irfanli Mah. Hastane Cad. No: 12",
+        "phone": "0328 876 10 10"
+      },
+      {
+        "name": "Merkez Aile Sagligi Merkezi",
+        "type": "Aile Sagligi",
+        "address": "Cumhuriyet Mah. Saglik Sok. No: 4",
+        "phone": "0328 876 20 30"
+      },
+      {
+        "name": "Duzici Agiz ve Dis Sagligi Birimi",
+        "type": "Dis Sagligi",
+        "address": "Sehitler Mah. Inonu Cad. No: 28",
+        "phone": "0328 876 33 44"
+      }
+    ],
+    "emergencyContacts": [
+      {
+        "name": "Acil Saglik",
+        "number": "112",
+        "icon": "medical_services"
+      },
+      {
+        "name": "Polis Imdat",
+        "number": "155",
+        "icon": "local_police"
+      },
+      {
+        "name": "Jandarma",
+        "number": "156",
+        "icon": "shield"
+      },
+      {
+        "name": "Itfaiye",
+        "number": "110",
+        "icon": "local_fire_department"
+      },
+      {
+        "name": "AFAD",
+        "number": "122",
+        "icon": "warning_amber"
+      }
+    ],
+    "municipalityUnits": [
+      {
+        "title": "Beyaz Masa",
+        "subtitle": "Talep ve sikayet yonetimi",
+        "phone": "0328 876 00 01"
+      },
+      {
+        "title": "Fen Isleri Mudurlugu",
+        "subtitle": "Yol, kaldirim ve altyapi",
+        "phone": "0328 876 00 12"
+      },
+      {
+        "title": "Temizlik Isleri",
+        "subtitle": "Atik ve cevre hizmetleri",
+        "phone": "0328 876 00 18"
+      },
+      {
+        "title": "Zabita Mudurlugu",
+        "subtitle": "Kent duzeni ve denetim",
+        "phone": "0328 876 00 24"
+      }
+    ],
+    "outages": [
+      {
+        "title": "İrfanlı Mah. Su Kesintisi",
+        "subtitle": "Ana boru arızası nedeniyle akşam 20:00'ye kadar.",
+        "type": "SU",
+        "status": "Devam Ediyor"
+      },
+      {
+        "title": "Cumhuriyet Mah. Elektrik Kesintisi",
+        "subtitle": "Şebeke yenileme çalışması (09:00 - 13:00).",
+        "type": "ELEKTRİK",
+        "status": "Tamamlandı"
+      }
+    ],
+    "transportation": {
+      "taxiStands": [
+        {
+          "name": "Düziçi Taksi Durağı",
+          "phone": "0328 876 32 00",
+          "address": "İstiklal Mah., Asaf Namlı Cad., No:5"
+        },
+        {
+          "name": "Düziçi Otogar Taksi",
+          "phone": "0328 876 07 07",
+          "address": "Üzümlü Mah., Düziçi Terminali"
+        },
+        {
+          "name": "Yarbaşı Taksi",
+          "phone": "0543 299 61 31",
+          "address": "Yarbaşı Beldesi, Atatürk Bulvarı"
+        }
+      ],
+      "dolmus": [
+        {
+          "route": "Merkez - Üzümlü - Karacaören",
+          "times": "07:00 - 19:00 (Her 20 dk)",
+          "stops": "Çarşı, Hastane, Terminal"
+        },
+        {
+          "route": "Merkez - Ellek - Yarbaşı",
+          "times": "07:15 - 18:30 (Her 30 dk)",
+          "stops": "Meydan, Okullar, Belde Merkezi"
+        }
+      ]
+    }
+  },
+  "explore": {
+    "cityServices": [
+      {
+        "id": "closed_roads",
+        "icon": "block",
+        "title": "Kapalı Yollar",
+        "subtitle": "Güncel yol kapanmaları ve kesintiler",
+        "color": "#E53935",
+        "target": "screen:outages"
+      },
+      {
+        "id": "hospital",
+        "icon": "local_hospital",
+        "title": "En Yakın Hastane",
+        "subtitle": "Devlet hastanesi, ASM ve klinikler",
+        "color": "#1E88E5",
+        "target": "screen:health"
+      },
+      {
+        "id": "pharmacy",
+        "icon": "local_pharmacy",
+        "title": "Nöbetçi Eczane",
+        "subtitle": "Bugünün açık eczaneleri",
+        "color": "#00897B",
+        "target": "screen:pharmacy"
+      },
+      {
+        "id": "taxi",
+        "icon": "local_taxi",
+        "title": "Taksi Çağır",
+        "subtitle": "Durak bilgileri ve tek tuşla arama",
+        "color": "#FFA726",
+        "target": "screen:taxi"
+      },
+      {
+        "id": "fuel",
+        "icon": "local_gas_station",
+        "title": "Akaryakıt",
+        "subtitle": "Güncel benzin, dizel ve LPG fiyatları",
+        "color": "#FF7043",
+        "target": "screen:fuel"
+      },
+      {
+        "id": "dolmus",
+        "icon": "directions_bus",
+        "title": "Dolmuş",
+        "subtitle": "Güzergahlar, duraklar ve saatler",
+        "color": "#43A047",
+        "target": "screen:transport"
+      },
+      {
+        "id": "travel_guide",
+        "icon": "hiking",
+        "title": "Gezi Rehberi",
+        "subtitle": "Doğa, termal ve tarihi mekanlar",
+        "color": "#66BB6A",
+        "target": "screen:explore_nature"
+      },
+      {
+        "id": "city_guide",
+        "icon": "location_city",
+        "title": "Şehir Rehberi",
+        "subtitle": "Ulaşım, restoran ve pratik bilgiler",
+        "color": "#5C6BC0",
+        "target": "screen:explore_city"
+      },
+      {
+        "id": "auto_gallery",
+        "icon": "directions_car",
+        "title": "Oto Galeri",
+        "subtitle": "Düziçi'deki araç galerileri",
+        "color": "#78909C",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Coşkun Oto Galeri",
+            "phone": "0542 242 83 71",
+            "address": "Üzümlü Mah., Düziçi"
+          },
+          {
+            "name": "Güzeller Oto Galeri",
+            "phone": "0533 437 01 80",
+            "address": "Refik Cesur Bulvarı, Düziçi"
+          },
+          {
+            "name": "Osmanlı Otomotiv",
+            "phone": "0505 314 93 47",
+            "address": "Şehit Ahmet Metlioğlu Cad., Düziçi"
+          },
+          {
+            "name": "Koylu Auto",
+            "phone": "0542 123 45 67",
+            "address": "Düziçi Merkez"
+          }
+        ]
+      },
+      {
+        "id": "real_estate",
+        "icon": "home_work",
+        "title": "Emlak İlanları",
+        "subtitle": "Satılık ve kiralık mülkler",
+        "color": "#8D6E63",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Merkez Emlak",
+            "phone": "0532 596 70 79",
+            "address": "Yeni Halkbank Üstü, Düziçi"
+          },
+          {
+            "name": "Düziçi Galeria Emlak",
+            "phone": "0542 585 60 10",
+            "address": "Refik Cesur Bulvarı No:463, Düziçi"
+          },
+          {
+            "name": "Düziçi Emlak Ofisi",
+            "phone": "0328 876 45 45",
+            "address": "Cumhuriyet Mah., Şehit Ahmet Metlioğlu Cad., No:22"
+          }
+        ]
+      },
+      {
+        "id": "local_market",
+        "icon": "storefront",
+        "title": "Yöresel Pazar",
+        "subtitle": "Pazar günleri, kurulma yerleri",
+        "color": "#AB47BC",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Pazartesi Pazarı",
+            "phone": "",
+            "address": "Mehmet Yalçın Pazar Yeri (Merkez)"
+          },
+          {
+            "name": "Çarşamba Pazarı",
+            "phone": "",
+            "address": "Kurtuluş Mahallesi"
+          },
+          {
+            "name": "Cuma Pazarı",
+            "phone": "",
+            "address": "İlçe Geneli Geleneksel Pazar Alanı"
+          }
+        ]
+      },
+      {
+        "id": "city_deals",
+        "icon": "sell",
+        "title": "Şehir Fırsatları",
+        "subtitle": "Kampanya ve indirimler",
+        "color": "#EC407A",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Düziçi Belediye İndirim Kartı",
+            "phone": "0328 876 00 01",
+            "address": "Belediye Binası"
+          },
+          {
+            "name": "Esnaf Kampanyaları",
+            "phone": "",
+            "address": "Çarşı merkezi esnafları"
+          }
+        ]
+      },
+      {
+        "id": "tutoring",
+        "icon": "school",
+        "title": "Özel Ders",
+        "subtitle": "Eğitmen ve dershane ilanları",
+        "color": "#7E57C2",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Boğaziçi Eğitim Kurumları",
+            "phone": "0328 876 12 34",
+            "address": "Refik Cesur Bulvarı, Düziçi"
+          },
+          {
+            "name": "Eğitim Bilimleri Kurs Merkezi",
+            "phone": "0328 876 56 78",
+            "address": "Yeşilova Mah., Lazlar Sok."
+          },
+          {
+            "name": "Çukurova Eğitim Kursu",
+            "phone": "0328 876 90 12",
+            "address": "Cumhuriyet Mah., Çiloğlu İşhanı"
+          }
+        ]
+      },
+      {
+        "id": "obituary",
+        "icon": "sentiment_very_dissatisfied",
+        "title": "Vefat Listesi",
+        "subtitle": "Taziye duyuruları",
+        "color": "#546E7A",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Belediye Cenaze Hizmetleri",
+            "phone": "0328 876 00 08",
+            "address": "www.duzici.bel.tr / Cenaze Bilgi Sistemi"
+          },
+          {
+            "name": "Düziçi Müftülüğü",
+            "phone": "0328 876 10 20",
+            "address": "Cumhuriyet Mah., Düziçi"
+          }
+        ]
+      },
+      {
+        "id": "handyman",
+        "icon": "handyman",
+        "title": "Ustalar",
+        "subtitle": "Tesisatçı, elektrikçi, boyacı",
+        "color": "#F4511E",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Düziçi Teknik Tesisat",
+            "phone": "0541 228 30 20",
+            "address": "Cumhuriyet Mah., Alçı Sok."
+          },
+          {
+            "name": "Gül Mekanik (Kombi/Tesisat)",
+            "phone": "0535 583 64 63",
+            "address": "Düziçi Geneli"
+          },
+          {
+            "name": "Düziçi Teknik Servis",
+            "phone": "0542 545 14 77",
+            "address": "Elektrik ve Teknik Hizmetler"
+          }
+        ]
+      },
+      {
+        "id": "classifieds",
+        "icon": "campaign",
+        "title": "İlanlar",
+        "subtitle": "Genel duyuru ve ilanlar",
+        "color": "#26A69A",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "İlan vermek için",
+            "phone": "0328 876 00 01",
+            "address": "Belediye Beyaz Masa"
+          },
+          {
+            "name": "Kayıp eşya bildirimi",
+            "phone": "155",
+            "address": "Düziçi Emniyet Müdürlüğü"
+          }
+        ]
+      },
+      {
+        "id": "veterinary",
+        "icon": "pets",
+        "title": "Veteriner",
+        "subtitle": "Veteriner klinikleri ve pet shop",
+        "color": "#8BC34A",
+        "target": "screen:directory",
+        "directoryData": [
+          {
+            "name": "Martoğlu Veteriner Kliniği",
+            "phone": "0541 215 65 54",
+            "address": "Cumhuriyet Mah., Çiçek Sok., 8"
+          },
+          {
+            "name": "Karkın Veteriner Kliniği",
+            "phone": "0541 218 94 07",
+            "address": "Aydınlar Cad., 48"
+          },
+          {
+            "name": "İlker Çömez (Veteriner)",
+            "phone": "0542 386 58 48",
+            "address": "Yeşilova Mah., Şehit Ahmet Metlioğlu Cad."
+          }
+        ]
+      },
+      {
+        "id": "dental",
+        "icon": "dentistry",
+        "title": "Diş Klinikleri",
+        "subtitle": "Ağız ve diş sağlığı merkezleri",
+        "color": "#29B6F6",
+        "target": "screen:health",
+        "directoryData": [
+          {
+            "name": "Öner Diş Polikliniği",
+            "phone": "0328 876 28 82",
+            "address": "Cumhuriyet Mah., Banı Cad. No:10"
+          },
+          {
+            "name": "Özel Düziçi Dental Polikliniği",
+            "phone": "0553 876 80 80",
+            "address": "Yeşilova Mah., Refik Cesur Bulvarı"
+          },
+          {
+            "name": "Serkan Can Muayenehanesi",
+            "phone": "0328 876 54 56",
+            "address": "İstiklal Mah., Dumlupınar Cad. No:13"
+          }
+        ]
+      }
+    ],
+    "categories": [
+      {
+        "id": "places",
+        "icon": "park",
+        "title": "Doğa ve termal",
+        "subtitle": "Şelale, kaplıca, baraj ve yayla – Düziçi turizminin omurgası",
+        "badge": "Doğa",
+        "places": [
+          {
+            "name": "Berke Barajı ve göl alanı",
+            "shortDescription": "Ceyhan üzerinde büyük su yapısı; manzara ve fotoğraf.",
+            "detail": "Berke Barajı, Ceyhan Nehri üzerinde Osmaniye-Düziçi sınırlarında yer alan büyük bir baraj ve hidroelektrik tesistir. Türkiye'nin sayılı yüksek barajlarından biri olarak anılır. Göl ve kıyı hatları doğa fotoğrafçılığı için çekicidir; baraj güvenlik ve İSG kurallarına, yasak işaret ve bariyerlere mutlaka uyulmalıdır.",
+            "address": "Ceyhan Nehri, Düziçi ilçe sınırı",
+            "tag": "BARAJ",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+          },
+          {
+            "name": "Düldül Dağı ve Dumanlı Yaylası",
+            "shortDescription": "Amanos silsilesinin zirvesi; yazın serin yayla ortamı.",
+            "detail": "Düldül Dağı (yaklaşık 2448 m), Amanos (Nur) Dağları'nın en yüksek tepelerinden biridir ve Düziçi'de yükselir. Dumanlı Yaylası, doğa gezileri ve serin iklim isteyen ziyaretçiler için öne çıkar. Yüksek rakımda hava çabuk değişir; yanınızda su, uygun kıyafet ve ilk yardım düşünün. Teleferik projesi uzun süredir gündemdedir; işletme durumu için güncel belediye ve basın duyurularını kontrol edin.",
+            "address": "Düldül Dağı, Düziçi",
+            "tag": "YAYLA",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG"
+          },
+          {
+            "name": "Karasu Şelalesi (Sabun Çayı)",
+            "shortDescription": "Düldül eteklerinde, Sabun Çayı üzerinde doğal şelale.",
+            "detail": "Karasu Şelalesi, Sabun Çayı üzerinde yer alan doğal bir çağlayandır; suyun yeşilimsi tonu kıyıdaki yosun ve bitki örtüsüyle ilişkilendirilir. İlçe merkezine birkaç kilometre uzaklıktaki kırsalda, yaz aylarında serinleme ve doğa yürüyüşleri için sık tercih edilen noktalardandır. Kıştan bahara eriyen kar etkisiyle debi artabilir; kaygan zemin ve derin göletlere karşı dikkatli olunmalıdır. Liste görseli Wikimedia Commons’ta yer alan Obruk Şelalesi (Saimbeyli, Adana) ile verilmiştir — Toros vadisi şelâle tipine örnektir; Karasu’nun bizzat fotoğrafı değildir.",
+            "address": "Sabun Çayı, Düldül Dağı etekleri (Düziçi)",
+            "tag": "ŞELALE",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+          },
+          {
+            "name": "Haruniye Kaplıcaları",
+            "shortDescription": "Düldül eteklerinde termal turizm merkezi.",
+            "detail": "Haruniye Kaplıcaları, Düldül Dağı eteklerinde yer alır; Türkiye Cumhuriyeti Osmaniye İli Düziçi İlçesi tanıtımına göre ilçe merkezine yaklaşık 15 km kuzeyde, Kuşçu köyü yöresindedir. Sıcak mineral suyu kalsiyum, magnezyum ve bikarbonat gibi bileşenler içerir. Tesisler, dinlenme ve termal turizm amaçlı ziyaret edilir; sağlık iddialarında kişisel hekim önerisi esastır.",
+            "address": "Kuşçu köyü yöresi, Düldül Dağı etekleri, Düziçi",
+            "tag": "TERMAL",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG"
+          }
+        ]
+      },
+      {
+        "id": "heritage",
+        "icon": "menu_book",
+        "title": "Tarih ve mimari",
+        "subtitle": "Kaleler, köprü ve kent merkezi mirası",
+        "badge": "Miras",
+        "places": [
+          {
+            "name": "Harun Reşit Kalesi",
+            "shortDescription": "Kurtbeyoğlu'da doğal kayalık üzerinde savunma yapısı.",
+            "detail": "Harun Reşit Kalesi, Düziçi ilçe merkezinin yaklaşık 3 km kuzeydoğusunda Kurtbeyoğlu Mahallesi civarında, doğal kayalık üzerine kurulu bir kale kalıntısıdır. 799 yılında Abbasi Halifesi Harun Reşit tarafından sınır uç kalesi olarak yaptırılmıştır. Kale Bizans, Selçuklu, Memlük ve Osmanlı dönemlerinde stratejik bir savunma noktası olmuştur. Bugün restorasyon çalışmalarıyla turizme kazandırılan kale, bölgenin tarihsel mirasının en önemli simgelerinden biridir.",
+            "address": "Kurtbeyoğlu Mahallesi, Düziçi (yaklaşık 3 km kuzeydoğu)",
+            "tag": "KALE",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg",
+            "videoUrl": "https://www.youtube.com/watch?v=J8fF0M5N1eA",
+            "gallery": [
+              "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=800",
+              "https://images.unsplash.com/photo-1572044162444-ad60f128b18a?q=80&w=800",
+              "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800"
+            ]
+          },
+          {
+            "name": "Saman ve Kurtlar kaleleri",
+            "shortDescription": "İlçe genelinde diğer kale ve sığınak izleri.",
+            "detail": "Düziçi coğrafyasında Saman Kalesi ve Kurtlar Kalesi gibi adlarla anılan savunma ve yerleşim izleri yer alır. Harun Reşit Kalesi'ne kıyasla erişim ve koruma düzeyi değişkendir; kırsal yollarda araç tipi ve hava koşullarını göz önünde bulundurun. Liste görseli Bahçe ilçesindeki Bahçe Kalesi’nden; Düziçi dışındaki bir Osmaniye ili tahkimât örneğidir.",
+            "address": "Düziçi kırsalı (köy ve yayla bağlantılı güzergâhlar)",
+            "tag": "TARİH",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg"
+          },
+          {
+            "name": "Taş Köprü (Fettahoğluları)",
+            "shortDescription": "Mehmet Bey tarafından yaptırıldığı anılan tarihî köprü.",
+            "detail": "Taş Köprü, Düziçi ve çevresinde Fettahoğluları ailesinden Mehmet Bey'e atfedilen taş işçiliği köprülerden biridir. Akarsu geçişlerinde tarihî ulaşım hattının parçasıdır. Trafik kapasitesi ve taşıt sınırı olabilir; köprü üzerinde yaya geçişinde dikkatli olun. Liste görseli Adana’daki Taşköprü’den (Seyhan üzerindeki tarihî taş köprü); Çukurova taş köprü geleneğini çağrıştırır; Düziçi’deki Taş Köprü ayrı bir yapıdır.",
+            "address": "Düziçi ilçe sınırları (akarsu geçidi; güzergâh için harita uygulaması önerilir)",
+            "tag": "KÖPRÜ",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Stone_Bridge_%28Adana%29.jpg/960px-Stone_Bridge_%28Adana%29.jpg"
+          }
+        ]
+      },
+      {
+        "id": "food",
+        "icon": "restaurant",
+        "title": "Lezzet ve çarşı",
+        "subtitle": "Yöreye özgü ürünler; mekan adı vermeden güvenilir arama ipuçları",
+        "badge": "Osmaniye",
+        "places": [
+          {
+            "name": "Osmaniye mutfağı ve Düziçi",
+            "shortDescription": "Bölgenin tarım ürünleri sofraya nasıl yansır?",
+            "detail": "Düziçi ovası ve çevresinde buğday, mısır, zeytin, yer fıstığı, narenciye ve nar üretimi yaygındır. Osmaniye ili genelinde peynir helvası ve künefe gibi tatlılar ile zeytinyağlı ve fırın kültürü bilinir. Restoran önerisi yapmadan önce güncel menü ve hijyen yorumları için arama motorunda “Düziçi restoran”, “Osmaniye künefe” gibi sorgular ve yerel sosyal medya sayfaları kullanılabilir. Liste görseli künefe tabağıdır (fotoğraf Almanya/Wiesbaden çekimi; yiyeceğin Osmaniye bağlamıyla ilişkisini göstermek içindir).",
+            "address": "Osmaniye ili, Düziçi merkez ve beldeler",
+            "tag": "YÖRE",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/K%C3%BCnefe%2C_Wiesbaden.jpg/960px-K%C3%BCnefe%2C_Wiesbaden.jpg"
+          },
+          {
+            "name": "Merkezde öğün ve çay",
+            "shortDescription": "Çarşı ve Atatürk Bulvarı hattı.",
+            "detail": "İlçe merkezinde Atatürk Bulvarı ve çarşı çevresinde gün içi çorba-ev yemeği sunan esnaf lokantaları, fırınlar ve çay ocakları bulunur. Ramazan, bayram ve hafta sonlarında yoğunluk artabilir; nakit-kart durumu için işletmeyi aramak pratik çözümdür. Liste görseli Osmaniye il merkezindeki tarihî pazar görünümünden; Düziçi çarşı dokusuna benzer esnaf yoğunluğunu çağrıştırır.",
+            "address": "Düziçi merkez, Atatürk Bulvarı ve çarşı mahalleleri",
+            "tag": "ESNAF",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
+          },
+          {
+            "name": "Köy kahvaltısı ve yayla sofrası",
+            "shortDescription": "Yayla ve köy yolları üzerindeki konaklama ve serpme kahvaltı.",
+            "detail": "Düldül ve kırsal köylere giden güzergâhlarda aile işletmeleri serpme kahvaltı ve yerel peynir-yoğurt sunabilir. Sezon dışı kapalı olan işletmeler olabilir; gidiş öncesi telefon ile teyit edin. Liste görseli Düldül Dağı kütlesinden.",
+            "address": "Kuşçu, Olukbaşı ve civar köy-yayla güzergâhları",
+            "tag": "KÖY",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG"
+          }
+        ]
+      },
+      {
+        "id": "guide",
+        "icon": "map",
+        "title": "Ulaşım ve pratik",
+        "subtitle": "Yol kodları, mesafeler ve bağlantılar",
+        "badge": "Rehber",
+        "places": [
+          {
+            "name": "Kara yolu ile Düziçi",
+            "shortDescription": "D.400 omurgası ve otoyol kavşağı seçenekleri.",
+            "detail": "Düziçi'ye ulaşım çoğunlukla D.400 kara yolu ve O-52 otoyolu bağlantı kollarıyla sağlanır. Osmaniye merkeze yaklaşık 33 km mesafe anılır (kaynaktan kaynağa birkaç km sapma olabilir). Navigasyon uygulamalarında hedefi “Düziçi, Osmaniye” olarak seçin. Liste görseli yakın bölge bağlamında Adana kent panoramiosudur (karayolu ile Çukurova’ya bağlı ulaşım hattı düşüncesi).",
+            "address": "D.400 · O-52 (K10 ve ilçeye bağlanan bağlantılar)",
+            "tag": "YOL",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Adana_-_panoramio_%284%29.jpg/960px-Adana_-_panoramio_%284%29.jpg"
+          },
+          {
+            "name": "Tren ve havaalanı bağlantıları",
+            "shortDescription": "Yarbaşı istasyonu; Adana ve Kahramanmaraş havalimanları.",
+            "detail": "Adana-Halep demiryolu hattında Yarbaşı tren istasyonu Düziçi ilçesi sınırları içindedir ve merkeze birkaç kilometre uzaklıktadır. Hava yolu kullananlar için yaklaşık mesafeler: Kahramanmaraş Havalimanı yaklaşık 90–95 km; Adana Şakirpaşa Havalimanı yaklaşık 115–120 km (trafik ve güzergâha bağlıdır). Güncel seferleri TCDD ve havayolu sitelerinden kontrol edin. Liste görseli Kahramanmaraş Havalimanı yeni terminalinden; metinde geçen Şakirpaşa hatırlatması ayrı güzergâhtır.",
+            "address": "Yarbaşı, Düziçi · K.Maraş AHL · Adana AHL",
+            "tag": "ULAŞIM",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg"
+          },
+          {
+            "name": "Resmî iletişim ve güncelleme",
+            "shortDescription": "Etkinlik ve güzergâh doğrulama için belediye ve kaymakamlık.",
+            "detail": "Festival tarihleri, yol yapımı veya güvenlik kapanmalarında gezi planı etkilenebilir. Güncel duyurular için Düziçi Belediyesi ve Düziçi Kaymakamlığı resmî internet siteleri ile yerel televizyon/radyo metinleri referans alınmalıdır. Liste görseli il merkezi Osmaniye kuşbakışı modelinden; idari referanslı duyurular il ve ilçe düzeyindedir.",
+            "address": "duzici.bel.tr · duzici.gov.tr",
+            "tag": "BİLGİ",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+          }
+        ]
+      }
+    ],
+    "suggestions": [
+      {
+        "title": "Termal ve doğa (1 gün)",
+        "subtitle": "Kuşçu kaplıcalardan Sabun Çayı şelalesine tam gün önerisi.",
+        "icon": "route",
+        "places": [
+          {
+            "name": "Haruniye Kaplıcaları",
+            "shortDescription": "Sabah termal molası",
+            "detail": "Düldül eteklerinde Kuşçu yöresinde termal tesiste kahvaltı sonrası veya öğle öncesi sakin başlangıç.",
+            "address": "Kuşçu köyü yöresi",
+            "tag": "1",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG"
+          },
+          {
+            "name": "Karasu Şelalesi",
+            "shortDescription": "Öğleden sonra doğa",
+            "detail": "Sabun Çayı vadisinde fotoğraf ve kısa yürüyüş; kaygan yüzeye ve yüzme riskine karşı dikkat. Liste görseli Obruk Şelalesi (Saimbeyli, Adana) örneğidir.",
+            "address": "Sabun Çayı",
+            "tag": "2",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+          },
+          {
+            "name": "Berke Barajı manzarası",
+            "shortDescription": "Gün batımına doğru çıkış (güvenli durak ile)",
+            "detail": "Güvenli fotoğraf noktalarından göl cephesini izleyin; güvenlik bölgesine girmeden olun.",
+            "address": "Ceyhan güzergâhına uygun seyir noktası",
+            "tag": "3",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+          }
+        ]
+      },
+      {
+        "title": "Kültür turu yarım gün",
+        "subtitle": "Kale ve Taş Köprü hattında kısa keşif.",
+        "icon": "route",
+        "places": [
+          {
+            "name": "Harun Reşit Kalesi",
+            "shortDescription": "Kuzeydoğu sırtları ve tarihî tahkimat",
+            "detail": "Kurtbeyoğlu yakınından kaleye ulaşım planlayın; kaya zemin uyarısı.",
+            "address": "Kurtbeyoğlu Mahallesi çevresi",
+            "tag": "1",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg"
+          },
+          {
+            "name": "Taş Köprü",
+            "shortDescription": "Kent içi veya çıkış yönünde köprü ziyareti",
+            "detail": "Harita üzerinde akarsu geçidini doğrulayarak ulaşın; taşıt sınırına dikkat.",
+            "address": "Düziçi (güzergâh harita ile)",
+            "tag": "2",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Stone_Bridge_%28Adana%29.jpg/960px-Stone_Bridge_%28Adana%29.jpg"
+          }
+        ]
+      },
+      {
+        "title": "Ailece doğada",
+        "subtitle": "Yayla ferahlığı ve güvenlik öncelikli kısa plan.",
+        "icon": "family_restroom",
+        "places": [
+          {
+            "name": "Dumanlı Yaylası çevresi",
+            "shortDescription": "Serinlik ve doğa için kısa rotalar.",
+            "detail": "Çocuklarla birlikte dik yamaçtan kaçının; araç yakıtını ve ilk yardımı yanınıza alın.",
+            "address": "Düldül kütlesi, Dumanlı Yaylası yolu",
+            "tag": "AİLE",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG"
+          },
+          {
+            "name": "Haruniye bölgesi dinlenmesi",
+            "shortDescription": "Tesisli ortam seçeneği.",
+            "detail": "Küçük çocuklu aileler için tesis altyapılı termal bölgelerde soyunma ve hijyen daha kolay olabilir; önceden arayarak teyit etmeniz iyi olur.",
+            "address": "Haruniye-Kuşçu yöresi",
+            "tag": "DİNLENME",
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG"
+          }
+        ]
+      }
+    ]
+  },
+  "media": {
+    "sponsors": [
+      {
+        "id": "yerel-firma-1",
+        "title": "Yerel Firma Kampanya",
+        "badge": "SPONSOR",
+        "imageUrl": "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=1200&q=80",
+        "targetUrl": "https://hepsiduzici.netlify.app/",
+        "isActive": true
+      },
+      {
+        "id": "duzici-medya",
+        "title": "Duzici Medya Ozel Icerik",
+        "badge": "MEDYA",
+        "imageUrl": "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1200&q=80",
+        "targetUrl": "https://www.instagram.com/hepsiduzici/",
+        "isActive": true
+      }
+    ]
+  },
+  "branding": {
+    "appName": "Hepsi Düziçi",
+    "tagline": "Akdeniz'in İncisi",
+    "logoUrl": "asset:assets/images/logo.png",
+    "primaryColor": "#C98B18",
+    "primaryDarkColor": "#8C5E0F",
+    "accentBlueColor": "#1F6FEB",
+    "splashBackgroundColor": "#0C0C0C"
+  },
+  "home": {
+    "headerMedia": [
+      {
+        "type": "video",
+        "title": "Düldül Dağı",
+        "url": "https://youtu.be/ZUKquT3ohBI"
+      },
+      {
+        "url": "assets/images/duzici_castle_header.png",
+        "type": "image",
+        "title": "Harun Reşit Kalesi"
+      },
+      {
+        "url": "assets/images/duldul_mountain_header.png",
+        "type": "image",
+        "title": "Düldül Dağı"
+      },
+      {
+        "type": "image",
+        "title": "Harun Reşit Kalesi",
+        "url": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/a8/15/45/harun-resit-kalesi.jpg?w=800&h=-1&s=1"
+      }
+    ],
+    "quickActions": [
+      {
+        "icon": "local_taxi",
+        "title": "Taksi Çagır",
+        "target": "screen:taxi",
+        "color": "#FBC02D"
+      },
+      {
+        "icon": "local_pharmacy",
+        "title": "Eczaneler",
+        "target": "screen:pharmacy",
+        "color": "#E53935"
+      },
+      {
+        "icon": "account_balance",
+        "title": "Belediye",
+        "target": "screen:municipality",
+        "color": "#1E88E5"
+      },
+      {
+        "icon": "directions_bus",
+        "title": "Dolmuslar",
+        "target": "screen:transport",
+        "color": "#43A047"
+      }
+    ]
+  },
+  "more": {
+    "sections": [
+      {
+        "title": "Hızlı Erişim",
+        "tiles": [
+          {
+            "icon": "article_rounded",
+            "title": "Tüm Haberler",
+            "subtitle": "Detaylı haber akışı",
+            "color": "#448AFF",
+            "target": "screen:news"
+          },
+          {
+            "icon": "local_pharmacy_rounded",
+            "title": "Nöbetçi Eczane",
+            "subtitle": "Tüm eczane listesi",
+            "color": "#009688",
+            "target": "screen:pharmacy"
+          },
+          {
+            "icon": "mosque_rounded",
+            "title": "Namaz Vakitleri",
+            "subtitle": "Günün tüm vakitleri",
+            "color": "#43A047",
+            "target": "screen:prayer"
+          },
+          {
+            "icon": "wb_sunny_rounded",
+            "title": "Hava Durumu",
+            "subtitle": "Anlık hava ve 5 günlük tahmin",
+            "color": "#039BE5",
+            "target": "screen:weather"
+          }
+        ]
+      },
+      {
+        "title": "Araçlar",
+        "tiles": [
+          {
+            "icon": "monetization_on_rounded",
+            "title": "Piyasa Verileri",
+            "subtitle": "Döviz, altın ve yerel fiyatlar",
+            "color": "#FB8C00",
+            "target": ""
+          },
+          {
+            "icon": "map_rounded",
+            "title": "Ulaşım ve Yol",
+            "subtitle": "Durak, rota ve yol bilgileri",
+            "color": "#3F51B5",
+            "target": ""
+          }
+        ]
+      },
+      {
+        "title": "Destek ve Ayarlar",
+        "tiles": [
+          {
+            "icon": "support_agent_rounded",
+            "title": "İletişim ve İş Birliği",
+            "subtitle": "Bize ulaşın, sponsor olun",
+            "color": "#9C27B0",
+            "target": ""
+          },
+          {
+            "icon": "settings_rounded",
+            "title": "Uygulama Ayarları",
+            "subtitle": "Bildirim ve uyarı seçenekleri",
+            "color": "#616161",
+            "target": "screen:notification_settings"
+          }
+        ]
+      }
+    ]
+  },
+  "news": {
+    "sources": [
+      {
+        "name": "Sabir Gazetesi",
+        "url": "https://www.sabirgazetesi.com/rss/duzici",
+        "filterDuzici": false,
+        "isActive": true
+      },
+      {
+        "name": "Hasret Gazetesi",
+        "url": "https://www.hasretgazetesi.com.tr/rss",
+        "filterDuzici": true,
+        "isActive": true
+      },
+      {
+        "name": "Google News",
+        "url": "https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
+        "filterDuzici": false,
+        "isActive": true
+      },
+      {
+        "name": "Google News Osmaniye",
+        "url": "https://news.google.com/rss/search?q=Osmaniye%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
+        "filterDuzici": false,
+        "isActive": true
+      }
+    ]
+  }
+}
