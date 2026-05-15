@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const cheerio = require('cheerio');
 const { getTagValue, stripHtml, extractImageUrlFromHtml } = require('../utils/helpers');
 
@@ -135,9 +134,6 @@ class EventService {
       console.log('[EventService] Refreshing events from sources...');
       const newsEvents = [];
       const bubiletEvents = [];
-
-      // Use global fetch (Node 18+) or fallback to node-fetch
-      const fetchFn = global.fetch || require('node-fetch');
 
       for (const city of this.CITIES) {
         try {
