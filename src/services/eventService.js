@@ -131,42 +131,55 @@ class EventService {
       return this.cache.items;
     }
 
-    console.log('[EventService] Refreshing events from sources...');
-    const newsEvents = [];
-    const bubiletEvents = [];
+    try {
+      console.log('[EventService] Refreshing events from sources...');
+      const newsEvents = [];
+      const bubiletEvents = [];
 
-    for (const city of this.CITIES) {
-      // News scraper
-      const items = await this.scrapeGoogleNewsEvents(city);
-      newsEvents.push(...items.slice(0, 5));
+      // Use global fetch (Node 18+) or fallback to node-fetch
+      const fetchFn = global.fetch || require('node-fetch');
 
-      // Bubilet scraper (YENİ!)
-      const bItems = await this.scrapeBubiletEvents(city);
-      bubiletEvents.push(...bItems);
+      for (const city of this.CITIES) {
+        try {
+          // News scraper
+          const items = await this.scrapeGoogleNewsEvents(city);
+          newsEvents.push(...items.slice(0, 5));
+
+          // Bubilet scraper
+          const bItems = await this.scrapeBubiletEvents(city);
+          bubiletEvents.push(...bItems);
+        } catch (cityErr) {
+          console.warn(`[EventService] Skipping city ${city} due to error:`, cityErr.message);
+        }
+      }
+
+      const manualEvents = this.getManualEvents();
+      const allItems = [...manualEvents, ...bubiletEvents, ...newsEvents];
+
+      const seen = new Set();
+      const uniqueItems = allItems.filter(e => {
+        const normalizedTitle = e.title.toLowerCase()
+          .replace(/konseri/gi, '')
+          .replace(/etkinliği/gi, '')
+          .trim();
+        const key = `${normalizedTitle}-${e.city}-${new Date(e.date).getDate()}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      uniqueItems.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      this.cache = {
+        fetchedAt: now,
+        items: uniqueItems,
+      };
+      return uniqueItems;
+    } catch (error) {
+      console.error('❌ EventService global error:', error.message);
+      // Fallback: Just return manual events if everything else fails
+      return this.getManualEvents();
     }
-
-    const manualEvents = this.getManualEvents();
-    const allItems = [...manualEvents, ...bubiletEvents, ...newsEvents];
-
-    const seen = new Set();
-    const uniqueItems = allItems.filter(e => {
-      const normalizedTitle = e.title.toLowerCase()
-        .replace(/konseri/gi, '')
-        .replace(/etkinliği/gi, '')
-        .trim();
-      const key = `${normalizedTitle}-${e.city}-${new Date(e.date).getDate()}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-
-    uniqueItems.sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    this.cache = {
-      fetchedAt: now,
-      items: uniqueItems,
-    };
-    return uniqueItems;
   }
 
   getManualEvents() {

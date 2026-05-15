@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const config = require('../config');
 
 class WeatherService {
@@ -18,8 +17,11 @@ class WeatherService {
     try {
       const url = `${config.WEATHER.API_URL}?latitude=${config.WEATHER.LAT}&longitude=${config.WEATHER.LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
       
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Weather API error');
+      // Use global fetch (Node 18+) or fallback to node-fetch if defined in global
+      const fetchFn = global.fetch || require('node-fetch');
+      const response = await fetchFn(url);
+      
+      if (!response.ok) throw new Error(`Weather API error: ${response.status}`);
       
       const raw = await response.json();
       const processed = this._processWeatherData(raw);
@@ -30,8 +32,26 @@ class WeatherService {
       return processed;
     } catch (error) {
       console.error('❌ Weather fetch error:', error.message);
-      if (this.cache.data) return this.cache.data; // Return stale cache on error
-      throw error;
+      
+      // If we have stale cache, use it
+      if (this.cache.data) return this.cache.data;
+      
+      // Safety Fallback (Never return 500)
+      return {
+        current: {
+          temp: 20,
+          feelsLike: 20,
+          humidity: 50,
+          windSpeed: 0,
+          condition: { text: 'Veri Bekleniyor', icon: 'cloud' },
+          code: 0,
+          isDay: true,
+        },
+        forecast: [],
+        location: 'Düziçi',
+        fetchedAt: new Date().toISOString(),
+        error: error.message
+      };
     }
   }
 
