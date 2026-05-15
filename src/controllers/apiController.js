@@ -173,6 +173,7 @@ class ApiController {
         items,
       });
     } catch (error) {
+      console.error('❌ getEvents error:', error);
       res.status(500).json({ ok: false, message: 'Etkinlikler alinamadi.', detail: error.message });
     }
   }
@@ -204,6 +205,7 @@ class ApiController {
       const data = await weatherService.getWeather();
       res.json({ ok: true, ...data });
     } catch (error) {
+      console.error('❌ getWeather error:', error);
       res.status(500).json({ ok: false, message: 'Hava durumu alinamadi.', detail: error.message });
     }
   }
