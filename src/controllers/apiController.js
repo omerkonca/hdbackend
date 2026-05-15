@@ -6,6 +6,7 @@ const financeService = require('../services/financeService');
 const fuelService = require('../services/fuelService');
 const eventService = require('../services/eventService');
 const outageService = require('../services/outageService');
+const weatherService = require('../services/weatherService');
 const config = require('../config');
 
 class ApiController {
@@ -195,6 +196,15 @@ class ApiController {
       res.json({ ok: true, message: 'Kesinti cache yenilendi.', count: items.length });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Kesinti cache yenilenemedi.', detail: error.message });
+    }
+  }
+
+  async getWeather(req, res) {
+    try {
+      const data = await weatherService.getWeather();
+      res.json({ ok: true, ...data });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Hava durumu alinamadi.', detail: error.message });
     }
   }
 }

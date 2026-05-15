@@ -616,10 +616,15 @@
       // Services
       const srvList = document.getElementById('servicesList');
       srvList.innerHTML = rawData.services.tiles.map((s, i) => `
-        <div class="list-item">
+        <div class="list-item" style="${s.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon">📦</div>
           <div class="list-item-content">
-            <div class="list-item-title">${escapeHtml(s.title)}</div>
+            <div class="list-item-title" style="display:flex; align-items:center; gap:10px">
+              ${escapeHtml(s.title)}
+              <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px; background:white; padding:2px 8px; border-radius:6px; border:1px solid var(--border)">
+                <input type="checkbox" ${s.isActive !== false ? 'checked' : ''} onchange="rawData.services.tiles[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif
+              </label>
+            </div>
             <div class="list-item-subtitle">${escapeHtml(s.target)}</div>
           </div>
           <button class="btn btn-danger" onclick="removeService(${i})">🗑️ Sil</button>
@@ -642,10 +647,16 @@
       const spList = document.getElementById('sponsorsList');
       const sponsors = (rawData.media && rawData.media.sponsors) ? rawData.media.sponsors : [];
       spList.innerHTML = sponsors.map((s, i) => `
-        <div class="list-item">
+        <div class="list-item" style="${s.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon" style="background-image: url('${escapeAttr(s.imageUrl)}'); background-size: cover; background-position: center;"></div>
           <div class="list-item-content">
-            <div class="list-item-title">${escapeHtml(s.title)} <span style="font-size:10px; background:var(--primary-soft); color:var(--primary); padding:2px 6px; border-radius:4px">${escapeHtml(s.badge)}</span></div>
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px">
+              ${escapeHtml(s.title)} 
+              <span style="font-size:10px; background:var(--primary-soft); color:var(--primary); padding:2px 6px; border-radius:4px">${escapeHtml(s.badge)}</span>
+              <label style="margin:0 0 0 auto; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px; background:white; padding:2px 8px; border-radius:6px; border:1px solid var(--border)">
+                <input type="checkbox" ${s.isActive !== false ? 'checked' : ''} onchange="rawData.media.sponsors[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif
+              </label>
+            </div>
             <div class="list-item-subtitle">${escapeHtml(s.targetUrl)}</div>
           </div>
           <button class="btn btn-danger" onclick="removeSponsor(${i})">🗑️ Sil</button>
@@ -665,17 +676,24 @@
       // Quick actions
       const qaList = document.getElementById('quickActionsList');
       qaList.innerHTML = rawData.home.quickActions.map((q, i) => `
-        <div class="list-item">
+        <div class="list-item" style="${q.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon" style="background:${escapeHtml(q.color || '#eee')}; color:white">⚡</div>
-          <div class="list-item-content" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px">
-            <input value="${escapeAttr(q.label || '')}" onchange="rawData.home.quickActions[${i}].label = this.value" placeholder="Etiket">
-            <input value="${escapeAttr(q.icon || '')}" onchange="rawData.home.quickActions[${i}].icon = this.value" placeholder="İkon adı">
-            <input value="${escapeAttr(q.color || '')}" onchange="rawData.home.quickActions[${i}].color = this.value" placeholder="#FFA726">
-            <input value="${escapeAttr(q.target || '')}" onchange="rawData.home.quickActions[${i}].target = this.value" placeholder="phone:0... / screen:news / url:https://...">
+          <div class="list-item-content">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:8px">
+              <input value="${escapeAttr(q.label || '')}" onchange="rawData.home.quickActions[${i}].label = this.value" placeholder="Etiket">
+              <input value="${escapeAttr(q.icon || '')}" onchange="rawData.home.quickActions[${i}].icon = this.value" placeholder="İkon adı">
+              <input value="${escapeAttr(q.color || '')}" onchange="rawData.home.quickActions[${i}].color = this.value" placeholder="#FFA726">
+              <input value="${escapeAttr(q.target || '')}" onchange="rawData.home.quickActions[${i}].target = this.value" placeholder="phone:0... / screen:news / url:https://...">
+            </div>
+            <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px">
+              <input type="checkbox" ${q.isActive !== false ? 'checked' : ''} onchange="rawData.home.quickActions[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif Görünsün
+            </label>
           </div>
-          <button class="btn btn-secondary" onclick="moveQuickAction(${i}, -1)">⬆</button>
-          <button class="btn btn-secondary" onclick="moveQuickAction(${i}, 1)">⬇</button>
-          <button class="btn btn-danger" onclick="removeQuickAction(${i})">🗑️</button>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <button class="btn btn-secondary" onclick="moveQuickAction(${i}, -1)" style="padding:4px 8px">⬆</button>
+            <button class="btn btn-secondary" onclick="moveQuickAction(${i}, 1)" style="padding:4px 8px">⬇</button>
+            <button class="btn btn-danger" onclick="removeQuickAction(${i})" style="padding:4px 8px">🗑️</button>
+          </div>
         </div>
       `).join('');
 
@@ -726,15 +744,22 @@
       const hmList = document.getElementById('headerMediaList');
       const headerMedia = (rawData.home && rawData.home.headerMedia) ? rawData.home.headerMedia : [];
       hmList.innerHTML = headerMedia.map((m, i) => `
-        <div class="list-item">
+        <div class="list-item" style="${m.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon">${m.type === 'video' ? '🎬' : '🖼️'}</div>
           <div class="list-item-content">
-            <div class="list-item-title">${escapeHtml(m.title || (m.type === 'video' ? 'Video' : 'Fotoğraf'))}</div>
+            <div class="list-item-title" style="display:flex; align-items:center; gap:10px">
+              ${escapeHtml(m.title || (m.type === 'video' ? 'Video' : 'Fotoğraf'))}
+              <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px; background:white; padding:2px 8px; border-radius:6px; border:1px solid var(--border)">
+                <input type="checkbox" ${m.isActive !== false ? 'checked' : ''} onchange="rawData.home.headerMedia[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif
+              </label>
+            </div>
             <div class="list-item-subtitle">${escapeHtml(m.url)}</div>
           </div>
-          <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, -1)">⬆</button>
-          <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, 1)">⬇</button>
-          <button class="btn btn-danger" onclick="removeHeaderMedia(${i})">🗑️ Sil</button>
+          <div style="display:flex; gap:4px">
+            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, -1)" style="padding:6px 10px">⬆</button>
+            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, 1)" style="padding:6px 10px">⬇</button>
+            <button class="btn btn-danger" onclick="removeHeaderMedia(${i})" style="padding:6px 10px">🗑️ Sil</button>
+          </div>
         </div>
       `).join('') || '<p style="color:var(--text-muted); text-align:center">Henüz vitrin medyası eklenmemiş.</p>';
     }
@@ -846,7 +871,7 @@
       if (!label || !icon) return showToast('İkon ve etiket gerekli', true);
       rawData.home = rawData.home || {};
       rawData.home.quickActions = Array.isArray(rawData.home.quickActions) ? rawData.home.quickActions : [];
-      rawData.home.quickActions.push({ id, icon, label, color, target });
+      rawData.home.quickActions.push({ id, icon, label, color, target, isActive: true });
       ['qaIcon','qaLabel','qaTarget','qaId'].forEach(x => document.getElementById(x).value = '');
       renderAll();
       showToast('Eklendi (Kaydetmeyi unutmayın)');
@@ -943,7 +968,7 @@
       if (!rawData.home) rawData.home = {};
       if (!rawData.home.headerMedia) rawData.home.headerMedia = [];
 
-      rawData.home.headerMedia.push({ type, title, url });
+      rawData.home.headerMedia.push({ type, title, url, isActive: true });
 
       document.getElementById('hmTitle').value = '';
       document.getElementById('hmUrl').value = '';

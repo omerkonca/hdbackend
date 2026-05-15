@@ -12,6 +12,7 @@ router.get('/finance', apiController.getFinance);
 router.get('/fuel', apiController.getFuel);
 router.get('/events', apiController.getEvents);
 router.get('/outages', apiController.getOutages);
+router.get('/weather', apiController.getWeather);
 router.use('/discover', require('./discoverRoutes'));
 
 // Admin endpoints

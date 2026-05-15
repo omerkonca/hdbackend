@@ -43,7 +43,14 @@ const config = {
   TR_MONTHS: [
     'Ocak', 'Subat', 'Mart', 'Nisan', 'Mayis', 'Haziran',
     'Temmuz', 'Agustos', 'Eylul', 'Ekim', 'Kasim', 'Aralik'
-  ]
+  ],
+
+  WEATHER: {
+    API_URL: 'https://api.open-meteo.com/v1/forecast',
+    LAT: 37.24,
+    LON: 36.45,
+    CACHE_TTL_MS: 1000 * 60 * 15, // 15 mins
+  }
 };
 
 module.exports = config;
