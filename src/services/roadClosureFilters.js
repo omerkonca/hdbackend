@@ -13,10 +13,10 @@ const OTHER_CITY_PATTERN =
   /\b(adana|sakarya|istanbul|ankara|izmir|bursa|antalya|kahramanmaraş|gaziantep|kocaeli)\b/i;
 
 const CLOSURE_STRONG_PATTERN =
-  /kapalı|kapali|kapanış|kapanis|kapatıld|kapatildi|trafik komisyon|güzergah|guzergah|şerit kapalı|yol çalış|asfalt (çalış|yenile)|yenileniyor|heyelan|kavşak düzen|geçici trafik düzen/i;
+  /yol kapalı|yol kapali|cadde kapalı|cadde kapali|şerit kapalı|kapanış|kapanis|kapatıld|kapatildi|trafik komisyon|güzergah|guzergah|yol çalış|asfalt (çalış|yenile)|yenileniyor|heyelan|kavşak düzen|geçici trafik düzen/i;
 
 const NOISE_PATTERN =
-  /motosiklet|sürücüye (ceza|para)|trafik uygulamasında \d+|otoyol.*bayram|bayram yoğunluğu|feribot kuyruğu|köprü geçiş(?!i)/i;
+  /kapalı sistem|kapali sistem|sulama altyap|ekmek fabrikas|hortum|maddi hasara yol aç|motosiklet|sürücüye (ceza|para)|trafik uygulamasında \d+|trafik denetim|otoyol.*bayram|bayram yoğunluğu|feribot kuyruğu|köprü geçiş(?!i)|çarpışt|yaraland|korkutan kaza|google news/i;
 
 function isDuziciArea(text) {
   return /d[uü]zi[cç]i|duzici|osmaniye il trafik|irfanlı|irfanli/i.test(text);

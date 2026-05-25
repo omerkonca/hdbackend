@@ -30,6 +30,15 @@ const cases = [
     expect: true,
   },
   {
+    label: 'Sulama kapali sistem',
+    item: {
+      title: 'Bostanlar Köyü Kapalı Sistem Sulama Altyapısı Hizmete Hazır',
+      kind: 'municipality',
+      source: 'BELEDİYE DUYURUSU',
+    },
+    expect: false,
+  },
+  {
     label: 'Bulvar yenileniyor',
     item: {
       title: 'Recep Tayyip Erdoğan Bulvarı Yenileniyor',
