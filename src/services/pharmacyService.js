@@ -10,70 +10,49 @@ class PharmacyService {
   }
 
   parseDutyPharmacyHtml(html) {
-    // Site, ardisik 3 nobetci eczaneyi (dun gece, bu gece, yarin gece) listeliyor.
-    // Her bloktan ONCE tarih basligi bulunuyor:
-    //   "30 Nisan Perşembe akşamından 1 Mayıs Cuma sabahına kadar."
-    // Bu yuzden once span'lari bul, sonra her span'in ONUNDEKI metinden
-    // baslangic gun adini (Pazartesi/.../Pazar) ayikla.
-    const TR_DAYS_RE = /(Pazartesi|Sal[ıi]|Çar[şs]amba|Per[şs]embe|Cuma|Cumartesi|Pazar)\s+ak[şs]am[ıi]ndan/i;
+    const bugunStartIdx = html.indexOf('id="nav-bugun"');
+    if (bugunStartIdx === -1) {
+      throw new Error('id="nav-bugun" bulunamadı.');
+    }
 
-    // Eczane bloklari: ad + adres + telefon.
-    const blockRegex = /<span class=["']isim["']>([^<]+)<\/span>[\s\S]*?<div class=['"]col-lg-6['"]>([\s\S]*?)<div[\s\S]*?<div class=['"]col-lg-3[^'"]*['"]>([^<]+)<\/div>/g;
+    const tableEndIdx = html.indexOf('</table>', bugunStartIdx);
+    if (tableEndIdx === -1) {
+      throw new Error('Tablo bitişi bulunamadı.');
+    }
 
+    const bugunHtml = html.substring(bugunStartIdx, tableEndIdx);
+
+    // Tarih aralığını parse et
+    const rangeRegex = /class=["']d-flex alert alert-warning[^>]*>([\s\S]*?)<\/div>/i;
+    const rangeMatch = bugunHtml.match(rangeRegex);
+    const dateRange = rangeMatch ? normalizeText(rangeMatch[1]) : '';
+
+    const nameRegex = /<span class=["']isim["']>([^<]+)<\/span>/g;
     const all = [];
-    let match;
-    while ((match = blockRegex.exec(html)) !== null) {
-      const before = html.slice(Math.max(0, match.index - 600), match.index);
-      const cleanedBefore = before.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
-      const dayMatch = cleanedBefore.match(TR_DAYS_RE);
-      const startDay = dayMatch ? this.normalizeDayName(dayMatch[1]) : '';
-      const rangeMatch = cleanedBefore.match(/((?:Pazartesi|Sal[ıi]|Çar[şs]amba|Per[şs]embe|Cuma|Cumartesi|Pazar)\s+ak[şs]am[ıi]ndan[^.]*?sabah[ıi]na\s+kadar)/i);
-      all.push({
-        startDay,
-        dateRange: rangeMatch ? rangeMatch[1].trim() : '',
-        name: normalizeText(match[1]),
-        address: normalizeText(match[2]),
-        phone: normalizeText(match[3]),
-      });
+    let nameMatch;
+
+    while ((nameMatch = nameRegex.exec(bugunHtml)) !== null) {
+      const name = normalizeText(nameMatch[1]);
+      const nameIdx = nameMatch.index;
+
+      const rest = bugunHtml.substring(nameIdx);
+      const detailRegex = /class=['"]col-lg-6['"]>([\s\S]*?)<\/div>[\s\S]*?class=['"]col-lg-3[^'"]*['"]>([\s\S]*?)<\/div>/;
+      const detailMatch = rest.match(detailRegex);
+
+      if (detailMatch) {
+        const address = normalizeText(detailMatch[1]);
+        const phone = normalizeText(detailMatch[2]);
+        all.push({
+          dateLabel: 'Bugün',
+          dateRange,
+          name,
+          address,
+          phone,
+        });
+      }
     }
 
-    if (all.length === 0) {
-      // Fallback for Duzici specifically if scraper is blocked
-      return [{
-        dateLabel: 'Bugün',
-        dateRange: 'Bugün 08:00 - Yarın 08:00',
-        name: 'Düziçi Eczanesi',
-        address: 'İrfanlı Mah. Dr. Devlet Bahçeli Bulvarı No:45',
-        phone: '0328 876 12 34',
-      }];
-    }
-
-    // Bugunun gun adina denk gelen blogu sec.
-    const todayDay = this.todayTurkishDayName(new Date());
-    let chosen = all.find((p) => p.startDay && p.startDay === todayDay);
-    if (!chosen) chosen = all[0];
-
-    return [{
-      dateLabel: 'Bugün',
-      dateRange: chosen.dateRange,
-      name: chosen.name,
-      address: chosen.address,
-      phone: chosen.phone,
-    }];
-  }
-
-  normalizeDayName(name) {
-    return String(name || '')
-      .toLocaleLowerCase('tr-TR')
-      .replace('ı', 'i')
-      .replace('ş', 's')
-      .replace('ç', 'c');
-  }
-
-  todayTurkishDayName(date) {
-    // 0: Pazar, 1: Pazartesi, ..., 6: Cumartesi
-    const days = ['pazar', 'pazartesi', 'sali', 'carsamba', 'persembe', 'cuma', 'cumartesi'];
-    return days[date.getDay()];
+    return all;
   }
 
   async scrapeDutyPharmacies() {

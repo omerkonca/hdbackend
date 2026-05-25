@@ -76,8 +76,22 @@ class FuelService {
       source = 'fallback';
     }
 
-    this.cache = { fetchedAt: now, items, source };
-    return items;
+    const prevItems = this.cache.items || [];
+    const enriched = items.map((item) => {
+      const prev = prevItems.find((p) => p.code === item.code);
+      if (!prev || !Number.isFinite(prev.price)) {
+        return { ...item, change: null, previousPrice: null };
+      }
+      const change = Number((item.price - prev.price).toFixed(2));
+      return {
+        ...item,
+        change: change === 0 ? null : change,
+        previousPrice: prev.price,
+      };
+    });
+
+    this.cache = { fetchedAt: now, items: enriched, source };
+    return enriched;
   }
 
   fallbackPrices() {

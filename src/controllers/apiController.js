@@ -124,11 +124,19 @@ class ApiController {
 
   async getFuel(req, res) {
     try {
-      const items = await fuelService.getPrices();
+      const force = req.query.refresh === '1';
+      const items = await fuelService.getPrices({ forceRefresh: force });
+      let region = 'Osmaniye / Düziçi';
+      try {
+        const data = await require('../services/fileService').readCityContent();
+        if (data?.fuel?.region) region = data.fuel.region;
+      } catch (_) {}
       res.setHeader('Cache-Control', 'public, max-age=600');
       res.json({
         ok: true,
         fetchedAt: new Date(fuelService.cache.fetchedAt).toISOString(),
+        source: fuelService.cache.source || 'unknown',
+        region,
         items,
       });
     } catch (error) {

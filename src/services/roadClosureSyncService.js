@@ -16,13 +16,22 @@ class RoadClosureSyncService {
       loadBaseline(),
     ]);
 
-    const byFp = new Map();
-    for (const item of [...baseline, ...belediye]) {
-      const fp = item.fingerprint || item.id;
-      if (!byFp.has(fp)) byFp.set(fp, item);
+    const byKey = new Map();
+    const mergeKey = (item) => {
+      const t = `${item.title}`.toLocaleLowerCase('tr-TR');
+      if (t.includes('trafik komisyon')) return 'trafik-komisyon';
+      if (t.includes('yenileniyor') && (t.includes('erdogan') || t.includes('erdoğan'))) {
+        return 'rte-bulvari';
+      }
+      return item.fingerprint || item.id;
+    };
+    for (const item of baseline) byKey.set(mergeKey(item), item);
+    for (const item of belediye) {
+      const key = mergeKey(item);
+      if (!byKey.has(key)) byKey.set(key, item);
     }
 
-    return Array.from(byFp.values()).filter((item) =>
+    return Array.from(byKey.values()).filter((item) =>
       isValidRoadClosureRecord({
         title: item.title,
         subtitle: item.subtitle,
