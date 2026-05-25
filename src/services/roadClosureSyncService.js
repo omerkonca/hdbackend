@@ -1,6 +1,6 @@
 const municipalityAnnouncementScraper = require('./municipalityAnnouncementScraper');
-const roadNewsScraper = require('./roadNewsScraper');
 const roadClosureStore = require('./roadClosureStore');
+const { isValidRoadClosureRecord } = require('./roadClosureFilters');
 
 class RoadClosureSyncService {
   constructor() {
@@ -10,17 +10,18 @@ class RoadClosureSyncService {
   }
 
   async _collectLive() {
-    const [belediye, haber] = await Promise.all([
-      municipalityAnnouncementScraper.fetchRoadRelatedAnnouncements({ max: 20 }),
-      roadNewsScraper.fetchRoadRelatedNews({ max: 8 }),
-    ]);
+    const belediye = await municipalityAnnouncementScraper.fetchRoadRelatedAnnouncements({
+      max: 20,
+    });
 
-    const byFp = new Map();
-    for (const item of [...belediye, ...haber]) {
-      const fp = item.fingerprint || item.id;
-      if (!byFp.has(fp)) byFp.set(fp, item);
-    }
-    return Array.from(byFp.values());
+    return belediye.filter((item) =>
+      isValidRoadClosureRecord({
+        title: item.title,
+        subtitle: item.subtitle,
+        source: item.source,
+        kind: item.kind,
+      }),
+    );
   }
 
   async sync({ force = false } = {}) {

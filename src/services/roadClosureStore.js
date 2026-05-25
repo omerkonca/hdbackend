@@ -1,5 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
+const { isValidRoadClosureRecord } = require('./roadClosureFilters');
 
 const STORE_PATH = path.resolve(__dirname, '../../data/road_closures_state.json');
 
@@ -26,8 +27,28 @@ class RoadClosureStore {
   /**
    * Canlı taramayla birleştir; siteden kaybolan duyuruları otomatik kapat.
    */
+  _filterValidItems(items) {
+    const out = {};
+    for (const [fp, item] of Object.entries(items)) {
+      if (item.kind === 'news') continue;
+      if (
+        !isValidRoadClosureRecord({
+          title: item.title,
+          subtitle: item.subtitle,
+          source: item.source,
+          kind: item.kind,
+        })
+      ) {
+        continue;
+      }
+      out[fp] = item;
+    }
+    return out;
+  }
+
   async sync(liveItems, { missedThreshold = 1 } = {}) {
-    const state = await this.load();
+    const loaded = await this.load();
+    const state = { ...loaded, items: this._filterValidItems(loaded.items) };
     const now = new Date().toISOString();
     const liveByFp = new Map();
     for (const item of liveItems) {

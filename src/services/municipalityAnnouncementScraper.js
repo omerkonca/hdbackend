@@ -4,11 +4,7 @@ const BASE = 'https://www.duzici.bel.tr';
 const DUYURULAR_URL = `${BASE}/duyurular`;
 const HABERLER_URL = `${BASE}/haberler`;
 
-const ROAD_KEYWORDS = [
-  'trafik', 'yol', 'bulvar', 'cadde', 'sokak', 'kavşak', 'kavsak',
-  'güzergah', 'guzergah', 'ulaşım', 'ulasim', 'asfalt', 'karayol', 'komisyon',
-  'şerit', 'serit', 'kapalı', 'kapali', 'çalışma', 'calisma', 'yenileniyor', 'yenileme',
-];
+const { isValidRoadClosureRecord } = require('./roadClosureFilters');
 
 const LOCATION_HINTS = [
   { keys: ['irfanlı', 'irfanli'], lat: 37.019, lng: 36.453, label: 'İrfanlı Mah.' },
@@ -33,8 +29,12 @@ const FETCH_OPTIONS = {
 };
 
 function isRoadRelated(title, summary = '') {
-  const text = `${title} ${summary}`.toLowerCase();
-  return ROAD_KEYWORDS.some((k) => text.includes(k));
+  return isValidRoadClosureRecord({
+    title,
+    subtitle: summary,
+    source: 'BELEDİYE DUYURUSU',
+    kind: 'municipality',
+  });
 }
 
 function resolveLocation(title, summary) {
@@ -176,7 +176,8 @@ class MunicipalityAnnouncementScraper {
   async fetchRoadRelatedAnnouncements({ max = 20 } = {}) {
     const collected = [];
     const seenFp = new Set();
-    const pages = [DUYURULAR_URL, HABERLER_URL, BASE];
+    // Yalnızca resmî duyurular (haber sayfası genel trafik başlıkları karıştırıyordu)
+    const pages = [DUYURULAR_URL];
 
     for (const pageUrl of pages) {
       try {
