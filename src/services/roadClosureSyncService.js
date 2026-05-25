@@ -24,6 +24,17 @@ class RoadClosureSyncService {
     );
   }
 
+  _filterPublicList(list) {
+    return list.filter((item) =>
+      isValidRoadClosureRecord({
+        title: item.title,
+        subtitle: item.subtitle,
+        source: item.source,
+        kind: item.kind,
+      }),
+    );
+  }
+
   async sync({ force = false } = {}) {
     const minInterval = 3 * 60 * 1000;
     if (!force && Date.now() - this.lastSyncAt < minInterval) {
@@ -36,9 +47,10 @@ class RoadClosureSyncService {
       const live = await this._collectLive();
       let state = await roadClosureStore.sync(live, { missedThreshold: 1 });
       state = roadClosureStore.applyLifecycle(state);
+      state = { ...state, items: roadClosureStore._filterValidItems(state.items) };
       await roadClosureStore.save(state);
 
-      const list = roadClosureStore.toPublicList(state);
+      const list = this._filterPublicList(roadClosureStore.toPublicList(state));
       this.cache = { data: list, fetchedAt: Date.now() };
       this.lastSyncAt = Date.now();
       console.log(
@@ -49,7 +61,7 @@ class RoadClosureSyncService {
       console.error('[road-closures] sync failed:', err.message);
       if (this.cache.data.length > 0) return this.cache.data;
       const state = roadClosureStore.applyLifecycle(await roadClosureStore.load());
-      const list = roadClosureStore.toPublicList(state);
+      const list = this._filterPublicList(roadClosureStore.toPublicList(state));
       this.cache = { data: list, fetchedAt: Date.now() };
       return list;
     } finally {
@@ -58,7 +70,8 @@ class RoadClosureSyncService {
   }
 
   async getRoadClosures(options = {}) {
-    return this.sync({ force: options.forceRefresh === true });
+    const list = await this.sync({ force: options.forceRefresh === true });
+    return this._filterPublicList(list);
   }
 }
 
