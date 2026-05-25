@@ -66,7 +66,8 @@ class RoadClosureStore {
         firstSeenAt: prev?.firstSeenAt || now,
         lastSeenAt: now,
         missedScans: 0,
-        autoManaged: true,
+        autoManaged:
+          prev?.autoManaged === false || live.autoManaged === false ? false : true,
       };
     }
 
@@ -102,7 +103,7 @@ class RoadClosureStore {
     for (const [fp, item] of Object.entries(state.items)) {
       let status = item.status || '';
       const lower = status.toLowerCase();
-      if (item.endAt) {
+      if (item.endAt && !/trafik komisyon/i.test(item.title || '')) {
         const end = new Date(item.endAt);
         end.setHours(0, 0, 0, 0);
         if (end < today && (lower.includes('devam') || lower.includes('aktif'))) {

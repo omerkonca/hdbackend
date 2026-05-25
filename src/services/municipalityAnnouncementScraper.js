@@ -57,12 +57,33 @@ function fingerprintFor(item) {
   return `belediye_${slugify(item.title)}`;
 }
 
+function isAnnouncementPath(url) {
+  if (!url) return false;
+  return /\/(duyurular|haberler)\/[^/]+$/i.test(url.replace(/\/$/, ''));
+}
+
 function extractListItems(html) {
   const items = [];
   const seen = new Set();
 
-  const anchorRegex = /<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
+  // Kart: <a href=".../haberler/slug"> içinde <h3 class="title"> veya img alt
+  const cardRegex =
+    /<a[^>]+href="([^"]+(?:duyurular|haberler)\/[^"?#]+)"[^>]*>([\s\S]*?)<\/a>/gi;
   let match;
+  while ((match = cardRegex.exec(html)) !== null) {
+    const url = toAbsoluteUrl(match[1]);
+    if (!url || !isAnnouncementPath(url) || seen.has(url)) continue;
+    const block = match[2];
+    const title =
+      stripHtml(block.match(/<h3[^>]*class="[^"]*title[^"]*"[^>]*>([\s\S]*?)<\/h3>/i)?.[1] || '') ||
+      stripHtml(block.match(/\balt="([^"]{12,220})"/i)?.[1] || '');
+    if (!title || title.length < 12) continue;
+    if (/başkan|belediye başkan|fotoğraf|video|e-belediye/i.test(title)) continue;
+    seen.add(url);
+    items.push({ title: normalizeText(title), url });
+  }
+
+  const anchorRegex = /<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
   while ((match = anchorRegex.exec(html)) !== null) {
     const href = match[1];
     const inner = stripHtml(match[2]);
@@ -71,6 +92,7 @@ function extractListItems(html) {
     const url = toAbsoluteUrl(href);
     if (!url || seen.has(url)) continue;
     if (!url.includes('duzici.bel.tr')) continue;
+    if (!isAnnouncementPath(url) && !inner.toLowerCase().includes('trafik komisyon')) continue;
     seen.add(url);
     items.push({ title: normalizeText(inner), url });
   }
@@ -112,11 +134,19 @@ function inferStatus(title, summary) {
   return 'Devam Ediyor';
 }
 
-function parseEndDate(text) {
-  const m = text.match(/(\d{1,2})[./](\d{1,2})[./](\d{4})/);
-  if (!m) return null;
-  const [, d, mo, y] = m;
-  return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+function parseEndDate(title, summary = '') {
+  const text = `${title} ${summary}`;
+  if (/trafik komisyon|sayılı karar/i.test(text) && !/bitiş|sona er|kapanış tarih/i.test(text)) {
+    return null;
+  }
+  const endMatch = text.match(
+    /(?:bitiş|sona er|kapanış)\s*(?:tarihi?)?\s*[:\-]?\s*(\d{1,2})[./](\d{1,2})[./](\d{4})/i,
+  );
+  if (endMatch) {
+    const [, d, mo, y] = endMatch;
+    return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+  }
+  return null;
 }
 
 async function fetchHtml(url) {
@@ -144,7 +174,7 @@ function announcementToRoadClosure(item, summary) {
   const severity = inferSeverity(item.title, summary);
   const status = inferStatus(item.title, summary);
   const fp = fingerprintFor(item);
-  const endAt = parseEndDate(`${item.title} ${summary}`);
+  const endAt = parseEndDate(item.title, summary);
 
   return {
     id: fp,
@@ -176,8 +206,7 @@ class MunicipalityAnnouncementScraper {
   async fetchRoadRelatedAnnouncements({ max = 20 } = {}) {
     const collected = [];
     const seenFp = new Set();
-    // Yalnızca resmî duyurular (haber sayfası genel trafik başlıkları karıştırıyordu)
-    const pages = [DUYURULAR_URL];
+    const pages = [DUYURULAR_URL, HABERLER_URL];
 
     for (const pageUrl of pages) {
       try {

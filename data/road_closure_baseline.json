@@ -1,0 +1,42 @@
+[
+  {
+    "id": "belediye_trafik_2025_27",
+    "fingerprint": "belediye_trafik_2025_27",
+    "title": "İl Trafik Komisyonu Kararı (2025/27)",
+    "subtitle": "İrfanlı Mahallesi güzergâhında trafik düzenlemesi",
+    "status": "Devam Ediyor",
+    "reason": "Osmaniye İl Trafik Komisyonu kararı",
+    "roadCode": "İrfanlı Mah.",
+    "address": "İrfanlı Mahallesi, Düziçi, Osmaniye",
+    "lat": 37.019,
+    "lng": 36.453,
+    "alternativeRoute": "Komisyon kararındaki işaret levhalarına uyun",
+    "severity": "partial",
+    "startAt": "2025-03-25",
+    "endAt": null,
+    "source": "BELEDİYE DUYURUSU",
+    "announcementUrl": "https://www.duzici.bel.tr/duyurular/il-trafik-komisyonun-25032025-ve-202527-sayili-karari",
+    "kind": "municipality",
+    "autoManaged": false
+  },
+  {
+    "id": "belediye_rte_bulvari",
+    "fingerprint": "belediye_haberler_recep-tayyip-erdogan-bulvari-yenileniyor",
+    "title": "Recep Tayyip Erdoğan Bulvarı Yenileniyor",
+    "subtitle": "Asfalt ve kaldırım yenileme çalışması",
+    "status": "Devam Ediyor",
+    "reason": "Belediye üstyapı projesi",
+    "roadCode": "R.T. Erdoğan Bulvarı",
+    "address": "Recep Tayyip Erdoğan Bulvarı, Düziçi, Osmaniye",
+    "lat": 37.0172,
+    "lng": 36.4565,
+    "alternativeRoute": "İstiklal ve Cumhuriyet mahalleleri üzerinden merkeze ulaşın",
+    "severity": "partial",
+    "startAt": null,
+    "endAt": null,
+    "source": "BELEDİYE DUYURUSU",
+    "announcementUrl": "https://www.duzici.bel.tr/haberler/recep-tayyip-erdogan-bulvari-yenileniyor",
+    "kind": "municipality",
+    "autoManaged": false
+  }
+]
