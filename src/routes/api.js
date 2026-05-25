@@ -12,6 +12,7 @@ router.get('/finance', apiController.getFinance);
 router.get('/fuel', apiController.getFuel);
 router.get('/events', apiController.getEvents);
 router.get('/outages', apiController.getOutages);
+router.get('/road-closures', apiController.getRoadClosures);
 router.get('/weather', apiController.getWeather);
 router.use('/discover', require('./discoverRoutes'));
 
@@ -25,5 +26,6 @@ router.post('/news/refresh', requireAdminToken, apiController.refreshNews);
 router.post('/finance/refresh', requireAdminToken, apiController.refreshFinance);
 router.post('/fuel/refresh', requireAdminToken, apiController.refreshFuel);
 router.post('/outages/refresh', requireAdminToken, apiController.refreshOutages);
+router.post('/road-closures/refresh', requireAdminToken, apiController.refreshRoadClosures);
 
 module.exports = router;

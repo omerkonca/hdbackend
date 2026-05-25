@@ -67,22 +67,84 @@
     ],
     "healthFacilities": [
       {
-        "name": "Duzici Devlet Hastanesi",
+        "name": "Düziçi Devlet Hastanesi",
         "type": "Devlet Hastanesi",
-        "address": "Irfanli Mah. Hastane Cad. No: 12",
-        "phone": "0328 876 10 10"
+        "address": "İrfanlı Mah. Hastane Cad. No: 12",
+        "phone": "0328 876 10 10",
+        "lat": 37.2452,
+        "lng": 36.4521,
+        "workingHours": "7/24 Açık",
+        "isEmergency": true
       },
       {
-        "name": "Merkez Aile Sagligi Merkezi",
-        "type": "Aile Sagligi",
-        "address": "Cumhuriyet Mah. Saglik Sok. No: 4",
-        "phone": "0328 876 20 30"
+        "name": "Düziçi 1 Nolu Aile Sağlığı Merkezi (ASM)",
+        "type": "Aile Sağlığı Merkezi",
+        "address": "Yeşilova Mah. 1. Sağlık Sokak No: 4",
+        "phone": "0328 876 20 30",
+        "lat": 37.2391,
+        "lng": 36.4475,
+        "workingHours": "Hafta içi 08:00 - 17:00",
+        "isEmergency": false
       },
       {
-        "name": "Duzici Agiz ve Dis Sagligi Birimi",
-        "type": "Dis Sagligi",
-        "address": "Sehitler Mah. Inonu Cad. No: 28",
-        "phone": "0328 876 33 44"
+        "name": "Düziçi 2 Nolu Aile Sağlığı Merkezi (ASM)",
+        "type": "Aile Sağlığı Merkezi",
+        "address": "İstiklal Mah. Asaf Namlı Caddesi No: 58",
+        "phone": "0328 876 40 50",
+        "lat": 37.2415,
+        "lng": 36.4562,
+        "workingHours": "Hafta içi 08:00 - 17:00",
+        "isEmergency": false
+      },
+      {
+        "name": "Düziçi 3 Nolu Aile Sağlığı Merkezi (ASM)",
+        "type": "Aile Sağlığı Merkezi",
+        "address": "Kurtuluş Mah. Şehit Ahmet Metlioğlu Cad. No: 110",
+        "phone": "0328 876 50 60",
+        "lat": 37.2334,
+        "lng": 36.4418,
+        "workingHours": "Hafta içi 08:00 - 17:00",
+        "isEmergency": false
+      },
+      {
+        "name": "Ellek Aile Sağlığı Merkezi",
+        "type": "Aile Sağlığı Merkezi",
+        "address": "Ellek Beldesi, Cumhuriyet Mahallesi",
+        "phone": "0328 873 50 12",
+        "lat": 37.2885,
+        "lng": 36.4820,
+        "workingHours": "Hafta içi 08:00 - 17:00",
+        "isEmergency": false
+      },
+      {
+        "name": "Yarbaşı Aile Sağlığı Merkezi",
+        "type": "Aile Sağlığı Merkezi",
+        "address": "Yarbaşı Beldesi, Atatürk Bulvarı No: 15",
+        "phone": "0328 875 22 33",
+        "lat": 37.1995,
+        "lng": 36.4310,
+        "workingHours": "Hafta içi 08:00 - 17:00",
+        "isEmergency": false
+      },
+      {
+        "name": "Düziçi Ağız ve Diş Sağlığı Merkezi",
+        "type": "Diş Sağlığı Merkezi",
+        "address": "Şehitler Mah. İnönü Cad. No: 28",
+        "phone": "0328 876 33 44",
+        "lat": 37.2430,
+        "lng": 36.4505,
+        "workingHours": "Hafta içi 08:30 - 17:00",
+        "isEmergency": false
+      },
+      {
+        "name": "Haruniye Aile Sağlığı Merkezi",
+        "type": "Aile Sağlığı Merkezi",
+        "address": "Kuşçu Köyü Yolu Üzeri, Haruniye Kaplıcaları Yakını",
+        "phone": "0328 876 10 20",
+        "lat": 37.2750,
+        "lng": 36.4950,
+        "workingHours": "Hafta içi 08:00 - 17:00",
+        "isEmergency": false
       }
     ],
     "emergencyContacts": [
@@ -132,6 +194,108 @@
         "title": "Zabita Mudurlugu",
         "subtitle": "Kent duzeni ve denetim",
         "phone": "0328 876 00 24"
+      }
+    ],
+    "roadClosures": [
+      {
+        "id": "belediye_trafik_2025_27",
+        "title": "İl Trafik Komisyonu Kararı (2025/27)",
+        "subtitle": "İrfanlı Mahallesi güzergâhında trafik düzenlemesi — 25.03.2025",
+        "status": "Devam Ediyor",
+        "reason": "Osmaniye İl Trafik Komisyonu kararı",
+        "roadCode": "İrfanlı Mah.",
+        "address": "İrfanlı Mahallesi, Düziçi",
+        "lat": 37.019,
+        "lng": 36.453,
+        "alternativeRoute": "Komisyon kararındaki işaret levhalarına uyun",
+        "severity": "partial",
+        "startAt": "2025-03-25",
+        "endAt": null,
+        "source": "BELEDİYE DUYURUSU",
+        "announcementUrl": "https://www.duzici.bel.tr/duyurular",
+        "kind": "municipality"
+      },
+      {
+        "id": "belediye_rte_bulvari",
+        "title": "Recep Tayyip Erdoğan Bulvarı Yenileniyor",
+        "subtitle": "Asfalt ve kaldırım yenileme çalışması",
+        "status": "Devam Ediyor",
+        "reason": "Belediye üstyapı projesi",
+        "roadCode": "R.T. Erdoğan Bulvarı",
+        "address": "Recep Tayyip Erdoğan Bulvarı, Düziçi",
+        "lat": 37.0172,
+        "lng": 36.4565,
+        "alternativeRoute": "İstiklal ve Cumhuriyet mahalleleri üzerinden merkeze ulaşın",
+        "severity": "partial",
+        "startAt": "2026-04-01",
+        "endAt": null,
+        "source": "BELEDİYE DUYURUSU",
+        "announcementUrl": "https://www.duzici.bel.tr/haberler",
+        "kind": "municipality"
+      },
+      {
+        "id": "rc_asaf_namli",
+        "title": "Asaf Namlı Caddesi",
+        "subtitle": "İstiklal Mah. kanalizasyon hattı yenilemesi",
+        "status": "Devam Ediyor",
+        "reason": "Altyapı çalışması",
+        "roadCode": "İlçe merkezi",
+        "address": "İstiklal Mah., Asaf Namlı Cad., Düziçi",
+        "lat": 37.0184,
+        "lng": 36.4518,
+        "alternativeRoute": "Cumhuriyet Mah. – Terminal güzergahı üzerinden dolanınız",
+        "severity": "partial",
+        "startAt": "2026-05-18",
+        "endAt": "2026-05-28",
+        "source": "Düziçi Belediyesi"
+      },
+      {
+        "id": "rc_d400_berke",
+        "title": "D.400 Berke Kavşağı Çıkışı",
+        "subtitle": "Kavşak düzenleme ve sinyalizasyon montajı",
+        "status": "Devam Ediyor",
+        "reason": "Karayolları bakım",
+        "roadCode": "D.400",
+        "address": "Berke Barajı yönü, Düziçi girişi",
+        "lat": 37.0312,
+        "lng": 36.4386,
+        "alternativeRoute": "Osmaniye merkez üzerinden D.825 ile Düziçi merkeze bağlanın",
+        "severity": "partial",
+        "startAt": "2026-05-22",
+        "endAt": "2026-05-26",
+        "source": "Karayolları 5. Bölge"
+      },
+      {
+        "id": "rc_duldul_yayla",
+        "title": "Düldül Yayla Yolu",
+        "subtitle": "Yamaç stabilizasyonu – tek şerit geçiş",
+        "status": "Devam Ediyor",
+        "reason": "Heyelan önlemi",
+        "roadCode": "İl yolu",
+        "address": "Düldül kütlesi, Dumanlı Yaylası yolu",
+        "lat": 37.0486,
+        "lng": 36.4012,
+        "alternativeRoute": "Yayla ziyareti için grup halinde gidiş; hava durumunu kontrol edin",
+        "severity": "partial",
+        "startAt": "2026-05-10",
+        "endAt": null,
+        "source": "Düziçi Kaymakamlığı"
+      },
+      {
+        "id": "rc_uzumlu_karacaoren",
+        "title": "Üzümlü – Karacaören Grup Yolu",
+        "subtitle": "Köprü üstü betonarme güçlendirme",
+        "status": "Devam Ediyor",
+        "reason": "Köprü bakımı",
+        "roadCode": "Grup yolu",
+        "address": "Üzümlü Mah. çıkışı, Karacaören yönü",
+        "lat": 37.0021,
+        "lng": 36.4715,
+        "alternativeRoute": "Merkez – Terminal – Hastane hattı dolmuş güzergahını kullanın",
+        "severity": "full",
+        "startAt": "2026-05-20",
+        "endAt": "2026-06-05",
+        "source": "Düziçi Belediyesi"
       }
     ],
     "outages": [
@@ -186,9 +350,9 @@
         "id": "closed_roads",
         "icon": "block",
         "title": "Kapalı Yollar",
-        "subtitle": "Güncel yol kapanmaları ve kesintiler",
+        "subtitle": "Haritalı güncel yol durumu ve alternatif güzergâh",
         "color": "#E53935",
-        "target": "screen:outages"
+        "target": "screen:closed_roads"
       },
       {
         "id": "hospital",

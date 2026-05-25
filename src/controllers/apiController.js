@@ -6,6 +6,7 @@ const financeService = require('../services/financeService');
 const fuelService = require('../services/fuelService');
 const eventService = require('../services/eventService');
 const outageService = require('../services/outageService');
+const roadClosureService = require('../services/roadClosureService');
 const weatherService = require('../services/weatherService');
 const config = require('../config');
 
@@ -197,6 +198,30 @@ class ApiController {
       res.json({ ok: true, message: 'Kesinti cache yenilendi.', count: items.length });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Kesinti cache yenilenemedi.', detail: error.message });
+    }
+  }
+
+  async getRoadClosures(req, res) {
+    try {
+      const force = req.query.refresh === '1';
+      const items = await roadClosureService.getRoadClosures({ forceRefresh: force });
+      res.json({
+        ok: true,
+        fetchedAt: new Date(roadClosureService.cache.fetchedAt || Date.now()).toISOString(),
+        items,
+        autoSync: true,
+      });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Kapalı yol verileri alinamadi.', detail: error.message });
+    }
+  }
+
+  async refreshRoadClosures(req, res) {
+    try {
+      const items = await roadClosureService.getRoadClosures({ forceRefresh: true });
+      res.json({ ok: true, message: 'Kapalı yol cache yenilendi.', count: items.length });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Kapalı yol cache yenilenemedi.', detail: error.message });
     }
   }
 
