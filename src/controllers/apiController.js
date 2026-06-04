@@ -67,7 +67,7 @@ class ApiController {
 
   async getNews(req, res) {
     try {
-      const max = Math.min(Number(req.query.max || 20), 50);
+      const max = Math.min(Number(req.query.max || 20), 150);
       const items = await newsService.getNews({ max });
       res.json({
         ok: true,
@@ -92,7 +92,7 @@ class ApiController {
 
   async refreshNews(req, res) {
     try {
-      const items = await newsService.getNews({ forceRefresh: true, max: 20 });
+      const items = await newsService.getNews({ forceRefresh: true, max: 150 });
       res.json({ ok: true, message: 'Haber cache yenilendi.', count: items.length });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Haber cache yenilenemedi.', detail: error.message });

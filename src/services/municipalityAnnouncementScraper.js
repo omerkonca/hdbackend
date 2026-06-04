@@ -37,6 +37,49 @@ function isRoadRelated(title, summary = '') {
   });
 }
 
+const OUTAGE_EXCLUDE = [
+  /trafik\s*komisyon/i,
+  /emlak\s*gelir/i,
+  /istimlak/i,
+  /e-?belediye/i,
+  /belediye\s*başkan/i,
+];
+
+const OUTAGE_HINTS = [
+  /su\s*kesint/i,
+  /elektrik\s*kesint/i,
+  /enerji\s*kesint/i,
+  /planl[ıi]\s*kesint/i,
+  /plans[ıi]z\s*kesint/i,
+  /içme\s*su.*kesint/i,
+  /icme\s*su.*kesint/i,
+  /su\s*verilem/i,
+  /şebeke\s*(yenileme|bakım|calisma)/i,
+  /sebeke\s*(yenileme|bakim|calisma)/i,
+  /trafo\s*bak/i,
+  /elektrik\s*şebek/i,
+  /elektrik\s*sebek/i,
+  /enerji\s*dağıtım/i,
+  /enerji\s*dagitim/i,
+  /vana\s*çalış/i,
+  /vana\s*calis/i,
+  /boru\s*hatt/i,
+  /scada.*kesint/i,
+];
+
+function isOutageRelated(title, summary = '') {
+  const text = `${title} ${summary}`.toLowerCase();
+  if (OUTAGE_EXCLUDE.some((r) => r.test(text))) return false;
+  return OUTAGE_HINTS.some((r) => r.test(text));
+}
+
+function inferOutageType(title, summary = '') {
+  const text = `${title} ${summary}`.toLowerCase();
+  if (/elektrik|enerji|trafo|şebeke|sebeke/.test(text)) return 'ELEKTRİK';
+  if (/su\s*kesint|içme\s*su|icme\s*su|vana|boru|scada/.test(text)) return 'SU';
+  return 'DİĞER';
+}
+
 function resolveLocation(title, summary) {
   const text = `${title} ${summary}`.toLowerCase();
   for (const hint of LOCATION_HINTS) {
@@ -202,7 +245,61 @@ function announcementToRoadClosure(item, summary) {
   };
 }
 
+function announcementToOutage(item, summary) {
+  const status = inferStatus(item.title, summary);
+  const title =
+    item.title.length > 88 ? `${item.title.slice(0, 85)}...` : item.title;
+  const subtitle = summary
+    ? summary.length > 200
+      ? `${summary.slice(0, 197)}...`
+      : summary
+    : 'Düziçi Belediyesi resmî duyurusu — detay için bağlantıyı açın.';
+
+  return {
+    title,
+    subtitle,
+    type: inferOutageType(item.title, summary),
+    status,
+    date: new Date().toISOString(),
+    source: 'Düziçi Belediyesi',
+    url: item.url || DUYURULAR_URL,
+  };
+}
+
 class MunicipalityAnnouncementScraper {
+  async fetchOutageAnnouncements({ max = 25 } = {}) {
+    const collected = [];
+    const seen = new Set();
+    const pages = [DUYURULAR_URL, HABERLER_URL];
+
+    for (const pageUrl of pages) {
+      try {
+        const html = await fetchHtml(pageUrl);
+        const items = extractListItems(html);
+        for (const item of items) {
+          let summary = item.summary || '';
+          if (!isOutageRelated(item.title, summary)) continue;
+
+          if (!summary && item.url) {
+            summary = await fetchDetailSummary(item.url);
+            if (!isOutageRelated(item.title, summary)) continue;
+          }
+
+          const fp = fingerprintFor(item);
+          if (seen.has(fp)) continue;
+          seen.add(fp);
+
+          collected.push(announcementToOutage(item, summary));
+          if (collected.length >= max) return collected;
+        }
+      } catch (err) {
+        console.warn('[belediye-kesinti]', pageUrl, err.message);
+      }
+    }
+
+    return collected;
+  }
+
   async fetchRoadRelatedAnnouncements({ max = 20 } = {}) {
     const collected = [];
     const seenFp = new Set();

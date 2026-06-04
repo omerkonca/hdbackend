@@ -22,6 +22,7 @@ app.use(cors());
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
 app.use(express.static(config.PATHS.PUBLIC_DIR));
+app.use('/assets', express.static(path.join(__dirname, '../../assets')));
 
 // Routes
 app.use('/api', apiRoutes);
@@ -37,18 +38,29 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'index.html'));
 });
 
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error('❌ Server Error:', err);
+  res.status(err.status || 500).json({ ok: false, message: err.message || 'Sunucu hatası oluştu.' });
+});
+
 // Start Server
-app.listen(config.PORT, () => {
+const server = app.listen(config.PORT, () => {
   console.log(`\n🚀 [city-content-api] running on http://localhost:${config.PORT}`);
   console.log(`🔑 [city-content-api] admin token: ${config.ADMIN_TOKEN}`);
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);
+
+  // Server timeout configuration (10 minutes) for large uploads
+  server.timeout = 600000;
+  server.headersTimeout = 605000;
+  server.keepAliveTimeout = 600000;
 
   // Initial Cache Warmup
   pharmacyService.getDutyPharmacies({ forceRefresh: true })
     .then(items => console.log(`[pharmacy] cache ready (${items.length} items)`))
     .catch(err => console.warn('[pharmacy] initial fetch failed:', err.message));
 
-  newsService.getNews({ forceRefresh: true, max: 20 })
+  newsService.getNews({ forceRefresh: true, max: 150 })
     .then(items => console.log(`[news] cache ready (${items.length} items)`))
     .catch(err => console.warn('[news] initial fetch failed:', err.message));
 
@@ -67,7 +79,7 @@ app.listen(config.PORT, () => {
   }, config.PHARMACY.CACHE_TTL_MS);
 
   setInterval(() => {
-    newsService.getNews({ forceRefresh: true, max: 20 }).catch(() => {});
+    newsService.getNews({ forceRefresh: true, max: 150 }).catch(() => {});
   }, config.NEWS.CACHE_TTL_MS);
 
   setInterval(() => {

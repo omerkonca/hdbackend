@@ -15,6 +15,7 @@ router.get('/outages', apiController.getOutages);
 router.get('/road-closures', apiController.getRoadClosures);
 router.get('/weather', apiController.getWeather);
 router.use('/discover', require('./discoverRoutes'));
+router.use('/places', require('./placesRoutes'));
 
 // Admin endpoints
 router.get('/admin/check', requireAdminToken, (req, res) => res.json({ ok: true, message: 'Token gecerli.' }));

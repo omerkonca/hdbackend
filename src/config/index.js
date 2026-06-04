@@ -26,7 +26,7 @@ const config = {
     CACHE_TTL_MS: 1000 * 60 * 10, // 10 mins
     SOURCES: [
       { url: 'https://www.sabirgazetesi.com/rss/duzici', name: 'Sabir Gazetesi', filterDuzici: false },
-      { url: 'https://www.hasretgazetesi.com.tr/rss', name: 'Hasret Gazetesi', filterDuzici: true },
+      { url: 'https://www.hasretgazetesi.com.tr/rss', name: 'Hasret Gazetesi', filterDuzici: false },
       {
         url: 'https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr',
         name: 'Google News',

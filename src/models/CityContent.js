@@ -6,7 +6,10 @@ const CityContentSchema = new mongoose.Schema({
   media: mongoose.Schema.Types.Mixed,
   branding: mongoose.Schema.Types.Mixed,
   home: mongoose.Schema.Types.Mixed,
-  more: mongoose.Schema.Types.Mixed
-}, { timestamps: true });
+  more: mongoose.Schema.Types.Mixed,
+  news: mongoose.Schema.Types.Mixed,
+  discover: mongoose.Schema.Types.Mixed,
+  trip: mongoose.Schema.Types.Mixed,
+}, { timestamps: true, strict: false });
 
 module.exports = mongoose.model('CityContent', CityContentSchema);

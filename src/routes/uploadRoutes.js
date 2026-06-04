@@ -21,7 +21,10 @@ if (config.CLOUDINARY.CLOUD_NAME && config.CLOUDINARY.API_KEY && config.CLOUDINA
     params: {
       folder: 'hepsiduzici-uploads',
       resource_type: 'auto', // Hem resim hem video için
-      allowed_formats: ['jpg', 'jpeg', 'png', 'mp4', 'mov', 'webp', 'heic'],
+      allowed_formats: [
+        'jpg', 'jpeg', 'png', 'mp4', 'mov', 'webp', 'heic', 'avi', '3gp', 'mkv', 'webm',
+        'JPG', 'JPEG', 'PNG', 'MP4', 'MOV', 'WEBP', 'HEIC', 'AVI', '3GP', 'MKV', 'WEBM'
+      ],
     },
   });
   console.log('☁️  Cloudinary storage initialized');
@@ -44,13 +47,25 @@ const upload = multer({
   limits: { fileSize: 500 * 1024 * 1024 }, // 500MB limit
 });
 
-router.post('/', requireAdminToken, upload.single('file'), (req, res) => {
+router.post('/', requireAdminToken, (req, res, next) => {
+  upload.single('file')(req, res, (err) => {
+    if (err) {
+      console.error('Upload Error:', err);
+      return res.status(400).json({ ok: false, message: err.message || 'Dosya yükleme hatası.' });
+    }
+    next();
+  });
+}, (req, res) => {
   if (!req.file) {
     return res.status(400).json({ ok: false, message: 'Dosya seçilmedi.' });
   }
   
-  // Cloudinary'den gelen URL'i kullan veya yerel path'i dön
-  const fileUrl = req.file.path || `/uploads/${req.file.filename}`;
+  // Cloudinary'de req.file.path bir web URL'idir (https://...). 
+  // Yerel disk storage'da ise absolute path'tir. O yüzden http ile başlayıp başlamadığına bakıyoruz.
+  const fileUrl = (req.file.path && req.file.path.startsWith('http')) 
+    ? req.file.path 
+    : `/uploads/${req.file.filename}`;
+    
   res.json({ ok: true, fileUrl, filename: req.file.filename || req.file.public_id });
 });
 

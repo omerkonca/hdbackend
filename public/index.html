@@ -191,9 +191,137 @@
       animation: slideIn 0.3s ease-out;
     }
     @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+    /* Mobile Menu Toggle Button */
+    .menu-toggle {
+      display: none !important;
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: #111827;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 16px;
+      border-radius: 10px;
+      z-index: 200;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Responsive rows and flex rows */
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .row > input, .row > select {
+      flex: 1;
+      min-width: 150px;
+    }
+    .row > button {
+      flex-shrink: 0;
+    }
+
+    .flex-row-responsive {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      body.authenticated .menu-toggle { display: flex !important; }
+      
+      aside {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.15);
+        width: 260px;
+      }
+      aside.open {
+        transform: translateX(0);
+      }
+      
+      main {
+        margin-left: 0;
+        padding: 80px 16px 24px 16px;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .page-header .row {
+        flex-direction: row;
+        width: 100%;
+        display: flex;
+        gap: 8px;
+      }
+      .page-header .row .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      
+      /* Grid forms collapse */
+      div[style*="grid-template-columns"], 
+      div[style*="display:grid"] {
+        grid-template-columns: 1fr !important;
+      }
+      div[style*="grid-template-columns"] > *, 
+      div[style*="display:grid"] > * {
+        grid-column: span 1 !important;
+      }
+      
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .row > input, .row > select, .row > button {
+        width: 100%;
+      }
+
+      /* List items buttons positioning - target only complex list items */
+      .list-item.complex {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .list-item.complex .list-item-icon {
+        margin-right: 0;
+        margin-bottom: 8px;
+        align-self: center;
+      }
+      .list-item.complex button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .flex-row-responsive {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .flex-row-responsive > input {
+        width: 100%;
+      }
+      .flex-row-responsive > button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Mobile Menu Button and Overlay -->
+  <button class="menu-toggle" id="menuToggleBtn" onclick="toggleSidebar()">☰ Menü</button>
+  <div id="sidebarOverlay" onclick="closeSidebar()" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:90;"></div>
+
   <!-- Sidebar -->
   <aside>
     <div class="logo">🏢 Hepsi Düziçi</div>
@@ -295,9 +423,23 @@
 
       <!-- Explore -->
       <div id="exploreView" class="view-section">
-        <div class="card">
+        <!-- Categories Container -->
+        <div class="card" id="exploreCategoriesContainer">
           <div class="section-title">🌍 Keşfet Kategorileri</div>
-          <div id="exploreList"></div>
+          <p style="color:var(--text-muted); font-size:13px">Düzenlemek istediğiniz kategoriyi seçip içindeki yerleri ve resim/videoları yönetebilirsiniz.</p>
+          <div id="exploreCategoriesList" style="margin-top:16px"></div>
+        </div>
+
+        <!-- Places Container -->
+        <div class="card" id="explorePlacesContainer" style="display:none">
+          <div class="section-title" id="explorePlacesTitle"></div>
+          <div id="explorePlacesList" style="margin-top:16px"></div>
+        </div>
+
+        <!-- Place Editor Container -->
+        <div class="card" id="explorePlaceEditorContainer" style="display:none">
+          <div class="section-title" id="explorePlaceEditorTitle"></div>
+          <div id="explorePlaceEditorForm" style="margin-top:16px"></div>
         </div>
       </div>
 
@@ -496,6 +638,9 @@
   <script>
     let rawData = null;
     let currentToken = '';
+    let currentExploreCategoryIndex = -1;
+    let currentExplorePlaceIndex = -1;
+    let tempPlaceGallery = [];
 
     // Login logic
     async function handleLogin() {
@@ -505,6 +650,7 @@
       try {
         const res = await fetch('/api/admin/check', { headers: { 'x-admin-token': pass } });
         if (res.ok) {
+          document.body.classList.add('authenticated');
           document.getElementById('loginView').style.display = 'none';
           document.getElementById('mainContent').style.display = 'block';
           document.getElementById('sideNav').style.display = 'flex';
@@ -521,6 +667,7 @@
 
     // View Management
     function switchView(view) {
+      if (typeof closeSidebar === 'function') closeSidebar();
       document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       
@@ -547,6 +694,13 @@
       
       if (view === 'json') {
         document.getElementById('jsonEditor').value = JSON.stringify(rawData, null, 2);
+      }
+      if (view === 'explore') {
+        currentExploreCategoryIndex = -1;
+        currentExplorePlaceIndex = -1;
+        document.getElementById('exploreCategoriesContainer').style.display = 'block';
+        document.getElementById('explorePlacesContainer').style.display = 'none';
+        document.getElementById('explorePlaceEditorContainer').style.display = 'none';
       }
     }
 
@@ -590,6 +744,11 @@
       rawData.more.sections = Array.isArray(rawData.more.sections) ? rawData.more.sections : [];
       rawData.news = rawData.news || {};
       rawData.news.sources = Array.isArray(rawData.news.sources) ? rawData.news.sources : [];
+      rawData.explore = rawData.explore || {};
+      if (!rawData.explore.categories && rawData.services && rawData.services.categories) {
+        rawData.explore.categories = rawData.services.categories;
+      }
+      rawData.explore.categories = Array.isArray(rawData.explore.categories) ? rawData.explore.categories : [];
 
       // Stats
       document.getElementById('statServices').textContent = (rawData.services.tiles || []).length;
@@ -632,22 +791,29 @@
       `).join('');
 
       // Explore
-      const expList = document.getElementById('exploreList');
-      expList.innerHTML = rawData.explore.categories.map((c, i) => `
-        <div class="list-item">
-          <div class="list-item-icon">📍</div>
-          <div class="list-item-content">
-            <div class="list-item-title">${escapeHtml(c.title)}</div>
-            <div class="list-item-subtitle">${escapeHtml(c.badge)}</div>
+      const expCatList = document.getElementById('exploreCategoriesList');
+      if (expCatList) {
+        expCatList.innerHTML = rawData.explore.categories.map((c, i) => `
+          <div class="list-item" style="cursor:pointer" onclick="selectExploreCategory(${i})">
+            <div class="list-item-icon">📍</div>
+            <div class="list-item-content">
+              <div class="list-item-title">${escapeHtml(c.title)}</div>
+              <div class="list-item-subtitle">${escapeHtml(c.badge || '')} | ${(c.places || []).length} Yer</div>
+            </div>
+            <span style="color:var(--primary); font-weight:bold; font-size:20px; padding-right:8px">➔</span>
           </div>
-        </div>
-      `).join('');
+        `).join('');
+      }
+
+      if (currentExploreCategoryIndex !== -1) {
+        renderPlacesList();
+      }
 
       // Sponsors
       const spList = document.getElementById('sponsorsList');
       const sponsors = (rawData.media && rawData.media.sponsors) ? rawData.media.sponsors : [];
       spList.innerHTML = sponsors.map((s, i) => `
-        <div class="list-item" style="${s.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
+        <div class="list-item complex" style="${s.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon" style="background-image: url('${escapeAttr(s.imageUrl)}'); background-size: cover; background-position: center;"></div>
           <div class="list-item-content">
             <div class="list-item-title" style="display:flex; align-items:center; gap:8px">
@@ -676,7 +842,7 @@
       // Quick actions
       const qaList = document.getElementById('quickActionsList');
       qaList.innerHTML = rawData.home.quickActions.map((q, i) => `
-        <div class="list-item" style="${q.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
+        <div class="list-item complex" style="${q.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon" style="background:${escapeHtml(q.color || '#eee')}; color:white">⚡</div>
           <div class="list-item-content">
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:8px">
@@ -708,7 +874,7 @@
             <button class="btn btn-danger" onclick="removeMoreSection(${si})">🗑️ Bölümü Sil</button>
           </div>
           ${(Array.isArray(s.tiles) ? s.tiles : []).map((t, ti) => `
-            <div class="list-item" style="margin-bottom:8px">
+            <div class="list-item complex" style="margin-bottom:8px">
               <div class="list-item-icon" style="background:${escapeHtml(t.color || '#eee')}; color:white">▦</div>
               <div class="list-item-content" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr; gap:6px">
                 <input value="${escapeAttr(t.title || '')}" onchange="rawData.more.sections[${si}].tiles[${ti}].title = this.value" placeholder="Başlık">
@@ -728,7 +894,7 @@
       const nsList = document.getElementById('newsSourcesList');
       // ... (existing news source render logic)
       nsList.innerHTML = rawData.news.sources.map((s, i) => `
-        <div class="list-item">
+        <div class="list-item complex">
           <div class="list-item-icon">📡</div>
           <div class="list-item-content" style="display:grid; grid-template-columns:1fr 2fr auto auto; gap:8px; align-items:center">
             <input value="${escapeAttr(s.name || '')}" onchange="rawData.news.sources[${i}].name = this.value" placeholder="Kaynak Adı">
@@ -744,7 +910,7 @@
       const hmList = document.getElementById('headerMediaList');
       const headerMedia = (rawData.home && rawData.home.headerMedia) ? rawData.home.headerMedia : [];
       hmList.innerHTML = headerMedia.map((m, i) => `
-        <div class="list-item" style="${m.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
+        <div class="list-item complex" style="${m.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon">${m.type === 'video' ? '🎬' : '🖼️'}</div>
           <div class="list-item-content">
             <div class="list-item-title" style="display:flex; align-items:center; gap:10px">
@@ -785,13 +951,15 @@
       renderAll();
       document.getElementById('emName').value = '';
       document.getElementById('emNum').value = '';
-      showToast('Eklendi (Kaydetmeyi unutmayın!)');
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
     }
 
     function removeEmergency(i) {
       rawData.services.emergencyContacts.splice(i, 1);
       renderAll();
-      showToast('Silindi');
+      showToast('Siliniyor...');
+      saveData();
     }
 
     function addService() {
@@ -802,13 +970,15 @@
       renderAll();
       document.getElementById('srvTitle').value = '';
       document.getElementById('srvTarget').value = '';
-      showToast('Eklendi');
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
     }
 
     function removeService(i) {
       rawData.services.tiles.splice(i, 1);
       renderAll();
-      showToast('Silindi');
+      showToast('Siliniyor...');
+      saveData();
     }
 
     // Sponsors
@@ -839,13 +1009,15 @@
       document.getElementById('spTarget').value = '';
 
       renderAll();
-      showToast('Sponsor eklendi (Kaydetmeyi unutmayın!)');
+      showToast('Sponsor eklendi, kaydediliyor...');
+      saveData();
     }
 
     function removeSponsor(i) {
       rawData.media.sponsors.splice(i, 1);
       renderAll();
-      showToast('Sponsor silindi');
+      showToast('Sponsor siliniyor...');
+      saveData();
     }
 
     // Branding
@@ -858,7 +1030,8 @@
       rawData.branding.primaryDarkColor = document.getElementById('brandPrimaryDark').value.toUpperCase();
       rawData.branding.accentBlueColor = document.getElementById('brandAccentBlue').value.toUpperCase();
       rawData.branding.splashBackgroundColor = document.getElementById('brandSplashBg').value.toUpperCase();
-      showToast('Forma yansıtıldı (Kaydetmeyi unutmayın)');
+      showToast('Forma yansıtıldı, kaydediliyor...');
+      saveData();
     }
 
     // Quick Actions
@@ -874,11 +1047,13 @@
       rawData.home.quickActions.push({ id, icon, label, color, target, isActive: true });
       ['qaIcon','qaLabel','qaTarget','qaId'].forEach(x => document.getElementById(x).value = '');
       renderAll();
-      showToast('Eklendi (Kaydetmeyi unutmayın)');
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
     }
     function removeQuickAction(i) {
       rawData.home.quickActions.splice(i, 1);
       renderAll();
+      saveData();
     }
     function moveQuickAction(i, delta) {
       const arr = rawData.home.quickActions;
@@ -886,6 +1061,7 @@
       if (j < 0 || j >= arr.length) return;
       [arr[i], arr[j]] = [arr[j], arr[i]];
       renderAll();
+      saveData();
     }
 
     // More Menu
@@ -897,11 +1073,13 @@
       rawData.more.sections.push({ title, tiles: [] });
       document.getElementById('moreSectionTitle').value = '';
       renderAll();
+      saveData();
     }
     function removeMoreSection(i) {
       if (!confirm('Bölümü ve içindeki tüm tile\'ları silmek istediğinize emin misiniz?')) return;
       rawData.more.sections.splice(i, 1);
       renderAll();
+      saveData();
     }
     function moveMoreSection(i, delta) {
       const arr = rawData.more.sections;
@@ -909,6 +1087,7 @@
       if (j < 0 || j >= arr.length) return;
       [arr[i], arr[j]] = [arr[j], arr[i]];
       renderAll();
+      saveData();
     }
     function addMoreTile(si) {
       rawData.more.sections[si].tiles = rawData.more.sections[si].tiles || [];
@@ -916,10 +1095,12 @@
         icon: 'tune_rounded', title: 'Yeni Tile', subtitle: '', color: '#448AFF', target: ''
       });
       renderAll();
+      saveData();
     }
     function removeMoreTile(si, ti) {
       rawData.more.sections[si].tiles.splice(ti, 1);
       renderAll();
+      saveData();
     }
 
     // News Sources
@@ -936,11 +1117,13 @@
       document.getElementById('newsSrcFilter').checked = false;
       document.getElementById('newsSrcActive').checked = true;
       renderAll();
-      showToast('Eklendi (Kaydetmeyi unutmayın)');
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
     }
     function removeNewsSource(i) {
       rawData.news.sources.splice(i, 1);
       renderAll();
+      saveData();
     }
 
     // Header Media (Vitrin)
@@ -974,7 +1157,8 @@
       document.getElementById('hmUrl').value = '';
       document.getElementById('hmFileInput').value = '';
       renderAll();
-      showToast('Vitrin eklendi (Kaydetmeyi unutmayın!)');
+      showToast('Vitrin eklendi, kaydediliyor...');
+      saveData();
     }
 
     async function uploadHeaderFile() {
@@ -1020,7 +1204,8 @@
     function removeHeaderMedia(i) {
       rawData.home.headerMedia.splice(i, 1);
       renderAll();
-      showToast('Silindi');
+      showToast('Siliniyor...');
+      saveData();
     }
 
     function moveHeaderMedia(i, delta) {
@@ -1029,6 +1214,7 @@
       if (j < 0 || j >= arr.length) return;
       [arr[i], arr[j]] = [arr[j], arr[i]];
       renderAll();
+      saveData();
     }
 
     // Extra Features
@@ -1046,6 +1232,379 @@
       else showToast('Hata!', true);
     }
 
+    // Explore Management
+    function selectExploreCategory(index) {
+      currentExploreCategoryIndex = index;
+      currentExplorePlaceIndex = -1;
+      
+      document.getElementById('exploreCategoriesContainer').style.display = 'none';
+      document.getElementById('explorePlacesContainer').style.display = 'block';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      
+      renderPlacesList();
+    }
+
+    function goBackToCategories() {
+      currentExploreCategoryIndex = -1;
+      currentExplorePlaceIndex = -1;
+      
+      document.getElementById('exploreCategoriesContainer').style.display = 'block';
+      document.getElementById('explorePlacesContainer').style.display = 'none';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      
+      renderAll();
+    }
+
+    function renderPlacesList() {
+      const category = rawData.explore.categories[currentExploreCategoryIndex];
+      document.getElementById('explorePlacesTitle').innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; width:100%">
+          <button class="btn btn-secondary" onclick="goBackToCategories()" style="padding:6px 12px">⬅ Geri</button>
+          <span>🌍 ${escapeHtml(category.title)} - Yerler</span>
+        </div>
+      `;
+
+      const places = category.places || [];
+      const placesList = document.getElementById('explorePlacesList');
+      
+      placesList.innerHTML = places.map((p, i) => `
+        <div class="list-item">
+          <div class="list-item-icon" style="background-image: url('${escapeAttr(p.image || p.imageUrl || '')}'); background-size: cover; background-position: center; width: 50px; height: 50px; border-radius: 8px;"></div>
+          <div class="list-item-content" style="margin-left: 12px;">
+            <div class="list-item-title">${escapeHtml(p.name)}</div>
+            <div class="list-item-subtitle">${escapeHtml(p.shortDescription || '')}</div>
+            <div style="font-size: 11px; margin-top: 4px; color: var(--text-muted);">
+              Etiket: ${escapeHtml(p.tag || '')} | Otopark: ${p.parking || 'yok'} | WC: ${p.restroom || 'yok'} | Ücret: ${p.entryFee || 'ucretsiz'}
+            </div>
+          </div>
+          <div style="display:flex; gap:8px">
+            <button class="btn btn-secondary" onclick="editPlace(${i})" style="padding:6px 12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deletePlace(${i})" style="padding:6px 12px">🗑️ Sil</button>
+          </div>
+        </div>
+      `).join('') + `
+        <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewPlace()">➕ Yeni Yer Ekle</button>
+      `;
+    }
+
+    function deletePlace(i) {
+      if (!confirm('Bu yeri silmek istediğinize emin misiniz?')) return;
+      const category = rawData.explore.categories[currentExploreCategoryIndex];
+      category.places.splice(i, 1);
+      renderPlacesList();
+      showToast('Yer siliniyor...');
+      saveData();
+    }
+
+    function createNewPlace() {
+      currentExplorePlaceIndex = -1;
+      tempPlaceGallery = [];
+      
+      document.getElementById('explorePlacesContainer').style.display = 'none';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'block';
+      
+      document.getElementById('explorePlaceEditorTitle').textContent = '➕ Yeni Yer Ekle';
+      renderPlaceForm(null);
+    }
+
+    function editPlace(i) {
+      currentExplorePlaceIndex = i;
+      const place = rawData.explore.categories[currentExploreCategoryIndex].places[i];
+      tempPlaceGallery = place.gallery ? [...place.gallery] : [];
+      
+      document.getElementById('explorePlacesContainer').style.display = 'none';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'block';
+      
+      document.getElementById('explorePlaceEditorTitle').textContent = `✏️ ${place.name} Düzenle`;
+      renderPlaceForm(place);
+    }
+
+    function renderPlaceForm(place) {
+      const p = place || {
+        name: '', shortDescription: '', detail: '', address: '', tag: '',
+        image: '', videoUrl: '', lat: '', lng: '', osmUrl: '',
+        parking: 'bilinmiyor', restroom: 'bilinmiyor', entryFee: 'bilinmiyor', entryFeeNote: ''
+      };
+
+      const formDiv = document.getElementById('explorePlaceEditorForm');
+      formDiv.innerHTML = `
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column: span 2">
+            <label>Yer Adı</label>
+            <input id="plName" value="${escapeAttr(p.name)}" placeholder="Örn: Karasu Şelalesi">
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label>Kısa Açıklama</label>
+            <input id="plShortDesc" value="${escapeAttr(p.shortDescription)}" placeholder="Örn: Sabun Çayı üzerinde yeşilimsi suyu ile ünlü şelale">
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label>Detaylı Açıklama</label>
+            <textarea id="plDetail" style="height:120px" placeholder="Mekan hakkındaki tüm detayları yazın...">${escapeHtml(p.detail)}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Adres / Konum Tarifi</label>
+            <input id="plAddress" value="${escapeAttr(p.address)}" placeholder="Örn: Sabun Çayı Mesire Alanı bitişiği, Düziçi">
+          </div>
+          <div class="form-group">
+            <label>Kategori Etiketi (Büyük Harfle)</label>
+            <input id="plTag" value="${escapeAttr(p.tag)}" placeholder="Örn: ŞELALE veya DOĞA veya TARİH">
+          </div>
+          <div class="form-group">
+            <label>Enlem (Latitude)</label>
+            <input id="plLat" type="number" step="any" value="${p.lat || ''}" placeholder="Örn: 37.2510">
+          </div>
+          <div class="form-group">
+            <label>Boylam (Longitude)</label>
+            <input id="plLng" type="number" step="any" value="${p.lng || ''}" placeholder="Örn: 36.4680">
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label>Harita / OpenStreetMap URL (Opsiyonel)</label>
+            <input id="plOsmUrl" value="${escapeAttr(p.osmUrl || p.googleMapsUrl || '')}" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Otopark Durumu</label>
+            <select id="plParking">
+              <option value="var" ${p.parking === 'var' ? 'selected' : ''}>Var</option>
+              <option value="yok" ${p.parking === 'yok' ? 'selected' : ''}>Yok</option>
+              <option value="sinirli" ${p.parking === 'sinirli' ? 'selected' : ''}>Sınırlı</option>
+              <option value="ucretli" ${p.parking === 'ucretli' ? 'selected' : ''}>Ücretli</option>
+              <option value="bilinmiyor" ${p.parking === 'bilinmiyor' ? 'selected' : ''}>Bilinmiyor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tuvalet (WC) Durumu</label>
+            <select id="plRestroom">
+              <option value="var" ${p.restroom === 'var' ? 'selected' : ''}>Var</option>
+              <option value="yok" ${p.restroom === 'yok' ? 'selected' : ''}>Yok</option>
+              <option value="bilinmiyor" ${p.restroom === 'bilinmiyor' ? 'selected' : ''}>Bilinmiyor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giriş Ücreti</label>
+            <select id="plEntryFee">
+              <option value="ucretsiz" ${p.entryFee === 'ucretsiz' ? 'selected' : ''}>Ücretsiz</option>
+              <option value="ucretli" ${p.entryFee === 'ucretli' ? 'selected' : ''}>Ücretli</option>
+              <option value="bilinmiyor" ${p.entryFee === 'bilinmiyor' ? 'selected' : ''}>Bilinmiyor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giriş Ücret Notu (Opsiyonel)</label>
+            <input id="plEntryFeeNote" value="${escapeAttr(p.entryFeeNote || '')}" placeholder="Örn: 20 TL veya Ücretsiz">
+          </div>
+
+          <!-- Ana Resim Yükleme -->
+          <div class="form-group" style="grid-column: span 2; border-top:1px solid var(--border); padding-top:16px;">
+            <label>Ana Fotoğraf URL</label>
+            <div class="flex-row-responsive" style="margin-bottom:8px">
+              <input id="plImage" value="${escapeAttr(p.image || p.imageUrl || '')}" onchange="updatePlImagePreview()" placeholder="assets/... veya https://...">
+              <input type="file" id="plImageFile" style="display:none" onchange="uploadPlaceFile('plImageFile', 'plImage')">
+              <button class="btn btn-secondary" onclick="document.getElementById('plImageFile').click()">⬆ Fotoğraf Yükle</button>
+            </div>
+            <div id="plImagePreview" style="max-width:200px; max-height:150px; overflow:hidden; border-radius:8px; border:1px solid var(--border); display:${p.image || p.imageUrl ? 'block' : 'none'}">
+              <img src="${escapeAttr(p.image || p.imageUrl || '')}" style="width:100%; height:auto">
+            </div>
+          </div>
+
+          <!-- Video Yükleme -->
+          <div class="form-group" style="grid-column: span 2; border-top:1px solid var(--border); padding-top:16px;">
+            <label>Tanıtım Videosu URL (YouTube veya MP4)</label>
+            <div class="flex-row-responsive" style="margin-bottom:8px">
+              <input id="plVideoUrl" value="${escapeAttr(p.videoUrl || '')}" placeholder="YouTube linki veya MP4 linki">
+              <input type="file" id="plVideoFile" style="display:none" onchange="uploadPlaceFile('plVideoFile', 'plVideoUrl')">
+              <button class="btn btn-secondary" onclick="document.getElementById('plVideoFile').click()">⬆ Video Yükle</button>
+            </div>
+          </div>
+
+          <!-- Galeri Resimleri -->
+          <div class="form-group" style="grid-column: span 2; border-top:1px solid var(--border); padding-top:16px;">
+            <label>Resim Galerisi (Kaydırılabilir Resimler)</label>
+            <div id="plGalleryList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:10px; margin-bottom:12px"></div>
+            <div class="flex-row-responsive">
+              <input type="file" id="plGalleryFile" style="display:none" onchange="uploadPlaceGalleryFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('plGalleryFile').click()">➕ Galeriye Resim Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="savePlaceChanges()">✓ Değişiklikleri Uygula</button>
+          <button class="btn btn-secondary" onclick="cancelPlaceEdit()">İptal</button>
+        </div>
+      `;
+      renderGalleryList();
+    }
+
+    function cancelPlaceEdit() {
+      document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      document.getElementById('explorePlacesContainer').style.display = 'block';
+    }
+
+    function updatePlImagePreview() {
+      const url = document.getElementById('plImage').value.trim();
+      const preview = document.getElementById('plImagePreview');
+      if (url) {
+        preview.style.display = 'block';
+        preview.querySelector('img').src = url;
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+
+    async function uploadPlaceFile(fileInputId, targetInputId) {
+      const fileInput = document.getElementById(fileInputId);
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Dosya yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          document.getElementById(targetInputId).value = url;
+          if (targetInputId === 'plImage') {
+            updatePlImagePreview();
+          }
+          showToast('Dosya yüklendi!');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
+    }
+
+    async function uploadPlaceGalleryFile() {
+      const fileInput = document.getElementById('plGalleryFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Galeri resmi yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          tempPlaceGallery.push(url);
+          renderGalleryList();
+          showToast('Galeri resmi eklendi!');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
+    }
+
+    function renderGalleryList() {
+      const list = document.getElementById('plGalleryList');
+      if (!list) return;
+      list.innerHTML = tempPlaceGallery.map((url, i) => `
+        <div style="position:relative; width:120px; height:90px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(url)}'); background-size:cover; background-position:center">
+          <button onclick="removeTempGalleryItem(${i})" style="position:absolute; top:4px; right:4px; border:none; background:rgba(239, 68, 68, 0.85); color:white; border-radius:50%; width:24px; height:24px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    function removeTempGalleryItem(i) {
+      tempPlaceGallery.splice(i, 1);
+      renderGalleryList();
+    }
+
+    function savePlaceChanges() {
+      const name = document.getElementById('plName').value.trim();
+      const shortDescription = document.getElementById('plShortDesc').value.trim();
+      const detail = document.getElementById('plDetail').value.trim();
+      const address = document.getElementById('plAddress').value.trim();
+      const tag = document.getElementById('plTag').value.trim();
+      const latVal = document.getElementById('plLat').value;
+      const lngVal = document.getElementById('plLng').value;
+      const lat = latVal !== '' ? parseFloat(latVal) : undefined;
+      const lng = lngVal !== '' ? parseFloat(lngVal) : undefined;
+      let image = document.getElementById('plImage').value.trim();
+      let videoUrl = document.getElementById('plVideoUrl').value.trim();
+      const osmUrl = document.getElementById('plOsmUrl').value.trim();
+      const parking = document.getElementById('plParking').value;
+      const restroom = document.getElementById('plRestroom').value;
+      const entryFee = document.getElementById('plEntryFee').value;
+      const entryFeeNote = document.getElementById('plEntryFeeNote').value.trim();
+
+      if (!name || !address || !tag) {
+        return showToast('Yer adı, adres ve etiket zorunludur!', true);
+      }
+
+      if (image.startsWith('/uploads/')) image = window.location.origin + image;
+      if (videoUrl.startsWith('/uploads/')) videoUrl = window.location.origin + videoUrl;
+
+      const category = rawData.explore.categories[currentExploreCategoryIndex];
+      
+      // Mevcut yer verilerini koruyarak üzerine yaz (merge)
+      const existingPlace = (currentExplorePlaceIndex !== -1) ? category.places[currentExplorePlaceIndex] : {};
+      const placeData = {
+        ...existingPlace,
+        name,
+        shortDescription,
+        detail,
+        address,
+        tag,
+        parking,
+        restroom,
+        entryFee,
+      };
+
+      // Sadece dolu alanları güncelle, boş bırakılan alanları silme
+      if (image) { placeData.image = image; placeData.imageUrl = image; }
+      if (videoUrl) { placeData.videoUrl = videoUrl; }
+      if (tempPlaceGallery.length > 0) { placeData.gallery = tempPlaceGallery; }
+      if (!isNaN(lat)) { placeData.lat = lat; }
+      if (!isNaN(lng)) { placeData.lng = lng; }
+      if (osmUrl) { placeData.osmUrl = osmUrl; }
+      if (entryFeeNote) { placeData.entryFeeNote = entryFeeNote; }
+
+      if (currentExplorePlaceIndex === -1) {
+        category.places = category.places || [];
+        category.places.push(placeData);
+        showToast('Yeni yer eklendi, kaydediliyor...');
+      } else {
+        category.places[currentExplorePlaceIndex] = placeData;
+        showToast('Yer güncellendi, kaydediliyor...');
+      }
+
+      cancelPlaceEdit();
+      renderPlacesList();
+      
+      // Otomatik kaydet — kullanıcının ayrıca "Tümünü Kaydet" basmasına gerek yok
+      saveData();
+    }
+
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
       t.textContent = msg;
@@ -1055,6 +1614,24 @@
     }
 
     document.getElementById('passInput').onkeydown = e => { if (e.key === 'Enter') handleLogin(); };
+
+    function toggleSidebar() {
+      const aside = document.querySelector('aside');
+      const overlay = document.getElementById('sidebarOverlay');
+      aside.classList.toggle('open');
+      if (aside.classList.contains('open')) {
+        overlay.style.display = 'block';
+      } else {
+        overlay.style.display = 'none';
+      }
+    }
+
+    function closeSidebar() {
+      const aside = document.querySelector('aside');
+      const overlay = document.getElementById('sidebarOverlay');
+      aside.classList.remove('open');
+      overlay.style.display = 'none';
+    }
   </script>
 </body>
 </html>

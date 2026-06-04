@@ -4,7 +4,7 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon --ignore data/ --ignore backups/ src/server.js"
   },
   "keywords": [],
   "author": "",

@@ -14,6 +14,12 @@ class FileService {
         const raw = await fs.readFile(config.PATHS.CITY_CONTENT, 'utf8');
         const jsonData = JSON.parse(raw);
         content = await CityContent.create(jsonData);
+      } else if (!this._isHealthyExplore(content)) {
+        console.warn('⚠️ MongoDB explore verisi bozuk — yerel JSON ile yeniden seed ediliyor.');
+        const raw = await fs.readFile(config.PATHS.CITY_CONTENT, 'utf8');
+        const jsonData = JSON.parse(raw);
+        await CityContent.deleteMany({});
+        content = await CityContent.create(jsonData);
       }
       
       return content;
@@ -31,7 +37,7 @@ class FileService {
       const existing = await CityContent.findOne();
       if (existing) {
         // Mongoose Mixed tiplerinde direct assignment bazen change tracking sorununa yol açar, 
-        // bu yüzden yeni bir döküman gibi kaydediyoruz veya overwrite ediyoruz.
+        // bu yüzden tüm alanları elle işaretliyoruz.
         Object.assign(existing, content);
         existing.markModified('services');
         existing.markModified('explore');
@@ -39,6 +45,9 @@ class FileService {
         existing.markModified('branding');
         existing.markModified('home');
         existing.markModified('more');
+        existing.markModified('news');
+        existing.markModified('discover');
+        existing.markModified('trip');
         await existing.save();
       } else {
         await CityContent.create(content);
@@ -78,6 +87,22 @@ class FileService {
       .filter((f) => f.endsWith('.json'))
       .sort()
       .reverse();
+  }
+
+  _isHealthyExplore(content) {
+    const explore = content?.explore;
+    if (!explore || typeof explore !== 'object') return false;
+    const categories = explore.categories;
+    if (!Array.isArray(categories) || categories.length === 0) return false;
+    const hasPlaces = categories.some(
+      (c) => Array.isArray(c?.places) && c.places.length > 0,
+    );
+    if (!hasPlaces) return false;
+    const services = explore.cityServices;
+    if (!Array.isArray(services)) return false;
+    const vet = services.find((s) => s?.id === 'veterinary');
+    if (vet && typeof vet.directoryData === 'string') return false;
+    return true;
   }
 
   isValidCityContent(payload) {

@@ -963,7 +963,10 @@
             "detail": "Düziçi'nin en yoğun ticaret alanı Kurtuluş ve Cumhuriyet mahallelerindedir. Çamiçi güzergâhındaki Recep Tayyip Erdoğan Bulvarı (eski Refik Cesur kesimi) çarşı girişinden Yeraltı Camii'ne kadar uzanır. Esnaf lokantaları, pastaneler, kırtasiye ve günlük ihtiyaç dükkanları bu bölgededir.",
             "address": "Kurtuluş / Cumhuriyet Mah., RTE Bulvarı, Düziçi",
             "tag": "MERKEZ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
+            "image": "https://images.unsplash.com/photo-1542810634-71277d95dcbb?w=960",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Düziçi Şehirlerarası Otogar",
@@ -971,7 +974,10 @@
             "detail": "Şehirlerarası otobüs ve minibüs seferleri Yarbaşı beldesindeki terminalden yapılır. Refik Cesur Bulvarı üzerinden merkeze yaklaşık 700 m mesafededir. Metro, Seç, Düziçi Seyahat gibi firmalar buradan hareket eder. İlçeler arası dolmuş aktarması için Ulaşım Rehberi ekranına bakın.",
             "address": "Yarbaşı Beldesi, Karacaören Mah., Refik Cesur Bulvarı yönü",
             "tag": "ULAŞIM",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "O-52 ve D-400 Gişe Kavşağı",
@@ -979,7 +985,10 @@
             "detail": "Düziçi'ye kara yolu ulaşımı çoğunlukla O-52 (Adana-Gaziantep) otoyolu ve D-400 üzerinden sağlanır. Gişe ve kavşak bölgesinden Osmaniye merkeze ~33 km, Adana yönüne otoyol bağlantısı vardır. Kanlı Geçit durağı Osmaniye hattında önemli bir ara duraktır.",
             "address": "D-400 · O-52, Düziçi giriş/çıkış",
             "tag": "ULAŞIM",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Yarbaşı Tren İstasyonu",
@@ -987,7 +996,13 @@
             "detail": "Osmanlı döneminden kalma Adana-Halep demiryolu hattı üzerindeki istasyon, Düziçi merkezine yaklaşık 6 km mesafededir. TCDD seferleri için güncel tarifeyi resmî kaynaklardan kontrol edin. İstasyon Yarbaşı belde merkezine yakındır.",
             "address": "Yarbaşı Beldesi, Düziçi",
             "tag": "ULAŞIM",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg",
+            "lat": 37.199,
+            "lng": 36.43,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.199,36.43"
           },
           {
             "name": "Ellek ve Yarbaşı Belde Minibüsleri",
@@ -995,7 +1010,10 @@
             "detail": "Ellek beldesi D-400 üzerinden; S.S. 130 Nolu Minibüsçüler Kooperatifi hatları işletir. Yarbaşı beldesi otogar ve tren istasyonu ile aynı güzergâh üzerindedir. Güncel saat ve ücretler için Ulaşım Rehberi'ndeki ilçe içi hatlara bakın.",
             "address": "Kurtuluş Çarşı kalkışlı, D-400 / Refik Cesur güzergâhı",
             "tag": "ULAŞIM",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Haftalık Pazar Yerleri",
@@ -1003,7 +1021,10 @@
             "detail": "Pazartesi pazarı Mehmet Yalçın Pazar Yeri (merkez), çarşamba pazarı Kurtuluş Mahallesi'nde, cuma pazarı ilçe genelinde geleneksel pazar alanında kurulur. Taze sebze, yer fıstığı ve yöresel ürünler için idealdir.",
             "address": "Düziçi merkez ve Kurtuluş Mah.",
             "tag": "PAZAR",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Düziçi Belediyesi İletişim",
@@ -1011,7 +1032,10 @@
             "detail": "Belediye birimleri, etkinlikler ve altyapı duyuruları için resmî web sitesi duzici.bel.tr kullanılır. Acil belediye hattı ve zabıta için Belediye Birimleri ekranından güncel telefonlara ulaşabilirsiniz.",
             "address": "Düziçi Belediyesi, ilçe merkezi",
             "tag": "RESMÎ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           }
         ]
       },
@@ -1029,7 +1053,14 @@
             "address": "Kurtbeyoğlu Mahallesi, Düziçi (3 km kuzeydoğu)",
             "tag": "KALE",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg",
-            "videoUrl": "https://www.youtube.com/watch?v=J8fF0M5N1eA"
+            "videoUrl": "https://www.youtube.com/watch?v=J8fF0M5N1eA",
+            "lat": 37.258,
+            "lng": 36.48,
+            "parking": "sinirli",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "entryFeeNote": "Kale ziyareti ücretsiz; kafe ayrı.",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.258,36.48"
           },
           {
             "name": "Saman Kalesi",
@@ -1037,7 +1068,13 @@
             "detail": "Saman Kalesi, Düziçi ilçe sınırları içinde kırsal alanda yer alan bir savunma yapısı kalıntısıdır. Selçuklu ve Osmanlı dönemlerinde stratejik önem taşıyan kale, bölgedeki diğer kalelerle birlikte savunma ağının bir parçası olmuştur. Günümüzde harabe hâlinde olup doğa yürüyüşü ile birleştirilerek ziyaret edilebilir. Erişim kırsal yollarladır, araç tipi ve hava koşullarını göz önünde bulundurun.",
             "address": "Düziçi kırsalı, köy yolları güzergâhı",
             "tag": "KALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg",
+            "lat": 37.265,
+            "lng": 36.435,
+            "parking": "sinirli",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.265,36.435"
           },
           {
             "name": "Kurtlar Kalesi",
@@ -1045,7 +1082,13 @@
             "detail": "Kurtlar Kalesi, Düziçi'nin dağlık bölgesinde yer alan bir kale kalıntısıdır. Stratejik konumu sayesinde çevredeki vadileri ve geçitleri kontrol altında tutmak amacıyla inşa edilmiştir. Kalıntılar günümüzde büyük ölçüde yıkık olsa da surlar ve burç temelleri hâlâ görülebilir. Ziyaret için trekking ayakkabısı ve su taşımak tavsiye edilir.",
             "address": "Düziçi dağlık bölge, yayla yolları güzergâhı",
             "tag": "KALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG",
+            "lat": 37.265,
+            "lng": 36.435,
+            "parking": "yok",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.265,36.435"
           }
         ]
       },
@@ -1062,7 +1105,13 @@
             "detail": "Taş Köprü, Düziçi çevresinde Fettahoğluları ailesinden Mehmet Bey'e atfedilen, taş işçiliği ile inşa edilmiş tarihi bir köprüdür. Akarsu geçişlerinde ticaret ve ulaşım hattının önemli parçası olmuştur. Osmanlı dönemine ait taş işçiliği ve mimari detaylar günümüzde hâlâ görülebilir. Köprü üzerinde yaya geçişinde dikkatli olunmalıdır.",
             "address": "Düziçi ilçe sınırları, akarsu geçidi",
             "tag": "KÖPRÜ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Stone_Bridge_%28Adana%29.jpg/960px-Stone_Bridge_%28Adana%29.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Stone_Bridge_%28Adana%29.jpg/960px-Stone_Bridge_%28Adana%29.jpg",
+            "lat": 37.245,
+            "lng": 36.46,
+            "parking": "sinirli",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.245,36.46"
           },
           {
             "name": "Düziçi Ulu Cami",
@@ -1070,7 +1119,13 @@
             "detail": "Düziçi Ulu Cami, ilçe merkezinde yer alan tarihi bir cami olup Osmanlı döneminde inşa edilmiştir. Klasik Osmanlı mimari özelliklerini taşıyan yapı, bölgenin dini ve kültürel yaşamının merkezi olma özelliğini sürdürmektedir. İç süslemeleri ve hat sanatı örnekleri görülmeye değerdir.",
             "address": "Cumhuriyet Mahallesi, Düziçi merkez",
             "tag": "CAMİ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg",
+            "lat": 37.24,
+            "lng": 36.446,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.24,36.446"
           },
           {
             "name": "Yarbaşı Tren İstasyonu",
@@ -1078,7 +1133,13 @@
             "detail": "Yarbaşı Tren İstasyonu, Osmanlı döneminde inşa edilen Adana-Halep demiryolu hattı üzerinde yer alan tarihi bir istasyondur. Düziçi ilçe merkezine 6 km mesafededir. Demiryolu mimarisi ve tarihi atmosferi ile dikkat çeker. Günümüzde TCDD tarafından hâlâ kullanılmaktadır.",
             "address": "Yarbaşı Beldesi, Düziçi",
             "tag": "TARİH",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg",
+            "lat": 37.199,
+            "lng": 36.43,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.199,36.43"
           },
           {
             "name": "Düziçi Çarşı ve Hamamları",
@@ -1086,7 +1147,13 @@
             "detail": "Düziçi'nin eski çarşı bölgesi, Osmanlı döneminden kalma esnaf geleneğini yansıtan tarihi bir ticaret alanıdır. Çarşıda geleneksel bakırcılar, attarlar ve yöresel ürün satıcıları bulunur. Civarındaki eski hamam kalıntıları da bölgenin kültürel mirasının parçasıdır.",
             "address": "Düziçi merkez, İstiklal ve Cumhuriyet Mahalleleri",
             "tag": "ÇARŞI",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg",
+            "lat": 37.234,
+            "lng": 36.442,
+            "parking": "sinirli",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.234,36.442"
           }
         ]
       },
@@ -1103,7 +1170,20 @@
             "detail": "Karasu Şelalesi, Düldül Dağı eteklerinde Sabun Çayı üzerinde yer alan doğal bir çağlayandır. Suyun yeşilimsi tonu, kıyıdaki yoğun yosun ve bitki örtüsünden kaynaklanır. Yaz aylarında serinleme ve doğa yürüyüşleri için sık tercih edilir. Kıştan bahara eriyen kar etkisiyle debi artar ve şelale çok daha görkemli bir hâl alır. Kaygan zemin ve derin göletlere karşı dikkatli olunmalıdır.",
             "address": "Sabun Çayı, Düldül Dağı etekleri, Düziçi",
             "tag": "ŞELALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+            "image": "/uploads/karasu_selalesi.jpg",
+            "gallery": [
+              "/uploads/karasu_selalesi.jpg",
+              "/uploads/karasu_2.jpg",
+              "/uploads/karasu_3.jpg"
+            ],
+            "videoUrl": "/uploads/karasu_video.mp4",
+            "lat": 37.251,
+            "lng": 36.468,
+            "parking": "var",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "entryFeeNote": "Doğa alanı; sezon dışı erişim zor olabilir.",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.468"
           },
           {
             "name": "Delioğlan Şelalesi",
@@ -1111,7 +1191,13 @@
             "detail": "Delioğlan Şelalesi, Düziçi ilçesinin kuzeyinde, yoğun orman örtüsü içinde yer alan doğal bir şelaledir. Etrafı çam ve meşe ağaçlarıyla çevrili olan şelale, özellikle ilkbahar ve yaz aylarında en güzel hâlini alır. Piknik alanları ve doğa yürüyüş parkurları mevcuttur. Temiz havası ve bozulmamış doğasıyla Düziçi'nin en popüler doğa noktalarından biridir. Ulaşım kısmen stabilize yoldur; arazi aracı tavsiye edilir.",
             "address": "Düziçi kuzeyi, orman içi yol güzergâhı",
             "tag": "ŞELALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG",
+            "lat": 37.265,
+            "lng": 36.475,
+            "parking": "sinirli",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.265,36.475"
           },
           {
             "name": "Yeşil Şelale",
@@ -1119,7 +1205,13 @@
             "detail": "Yeşil Şelale, Düziçi'nin dağlık bölgesinde yer alan ve adını kayalıklardaki yoğun yosun tabakasından alan doğal bir şelaledir. Su, yeşil yosunlarla kaplı kayaların üzerinden akarken büyüleyici bir görsel şölen sunar. Fotoğrafçılar ve doğa severler için kaçırılmaması gereken bir noktadır. Ulaşım orman yolu iledir; yağmurlu dönemlerde yol zorlayıcı olabilir.",
             "address": "Düziçi dağlık bölge, orman içi güzergâh",
             "tag": "ŞELALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG",
+            "lat": 37.27,
+            "lng": 36.48,
+            "parking": "yok",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.27,36.48"
           },
           {
             "name": "Sabun Çayı Vadisi",
@@ -1127,7 +1219,13 @@
             "detail": "Sabun Çayı, Düldül Dağı'nın eteklerinden doğarak Düziçi Ovası'na doğru akan önemli bir akarsudur. Vadi boyunca zengin bitki örtüsü, doğal havuzlar ve küçük çağlayanlar yer alır. Yürüyüş parkurları ve piknik alanları ile doğa tutkunları için ideal bir güzergâhtır. Vadide kuş gözlemciliği de yapılabilir.",
             "address": "Sabun Çayı vadisi, Düziçi",
             "tag": "VADİ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG",
+            "lat": 37.255,
+            "lng": 36.465,
+            "parking": "sinirli",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.255,36.465"
           },
           {
             "name": "Berke Barajı Göl Manzarası",
@@ -1135,7 +1233,13 @@
             "detail": "Berke Barajı, Ceyhan Nehri üzerinde Düziçi sınırlarında yer alan büyük bir baraj ve hidroelektrik santralidir. Türkiye'nin sayılı yüksek barajlarından biri olup göl ve kıyı hatları doğa fotoğrafçılığı için son derece çekicidir. Özellikle gün batımı saatlerinde muhteşem manzaralar sunar. Baraj güvenlik kurallarına uyulmalıdır.",
             "address": "Ceyhan Nehri, Düziçi ilçe sınırı",
             "tag": "BARAJ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG",
+            "lat": 37.2215,
+            "lng": 36.471,
+            "parking": "var",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
           },
           {
             "name": "Ceyhan Nehri Kıyıları",
@@ -1143,7 +1247,13 @@
             "detail": "Ceyhan Nehri, Düziçi'nin kuzey ve batı sınırlarını çizen Türkiye'nin önemli nehirlerinden biridir. Nehir kıyıları balık tutma, piknik ve doğa gözlemi için ideal alanlardır. Antik çağlardan beri yerleşim ve ulaşım hattı olarak kullanılan nehir, bölgenin ekolojik zenginliğinin de kaynağıdır.",
             "address": "Ceyhan Nehri kıyısı, Düziçi batı sınırı",
             "tag": "NEHİR",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG",
+            "lat": 37.22,
+            "lng": 36.47,
+            "parking": "sinirli",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.22,36.47"
           }
         ]
       },
@@ -1160,7 +1270,14 @@
             "detail": "Dumanlı Yaylası, Düldül Dağı eteklerinde yaklaşık 1400 metre rakımda yer alan Düziçi'nin en popüler yaylasıdır. Yazın serin havası, yemyeşil çayırları ve panoramik manzarasıyla binlerce ziyaretçi çeker. Yaylada kamp yapılabilir, yürüyüş parkurları mevcuttur. Yöresel yiyecekler sunan köy evleri ve çadır restoranlar da bulunur. Hava durumunu mutlaka kontrol edin; yüksek rakımda hava aniden değişebilir.",
             "address": "Düldül Dağı etekleri, Dumanlı Yaylası yolu, Düziçi",
             "tag": "YAYLA",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG",
+            "lat": 37.288,
+            "lng": 36.565,
+            "parking": "var",
+            "restroom": "sinirli",
+            "entryFee": "ucretsiz",
+            "entryFeeNote": "Yayla işletmelerinde WC ve otopark değişebilir.",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
           },
           {
             "name": "Düldül Dağı Zirvesi",
@@ -1168,7 +1285,10 @@
             "detail": "Düldül Dağı, 2448 metre yüksekliği ile Amanos (Nur) Dağları'nın en yüksek zirvesidir. Osmaniye ilinin en yüksek noktası olan dağ, Düziçi ilçesinde yükselir. Dağa planlanan üç istasyonlu, toplam 6 km uzunluğundaki teleferik projesi ile turizm potansiyelinin artırılması hedeflenmektedir. Zirveye trekking ile ulaşılabilir; deneyimli dağcılar için ideal bir rotadır. Yanınızda mutlaka yeterli su, sıcak kıyafet ve ilk yardım seti bulundurun.",
             "address": "Düldül Dağı, Düziçi (merkeze 8 km)",
             "tag": "DAĞ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Kuşçu Yaylası",
@@ -1176,7 +1296,10 @@
             "detail": "Kuşçu Yaylası, Düldül Dağı'nın güney eteklerinde, Haruniye Kaplıcaları'na yakın konumda yer alan sakin bir yayladır. Kırsal köy yaşamını deneyimlemek, taze dağ havası almak ve yöresel ürünler tatmak isteyenler için idealdir. Kaplıcalar ile kombine edilebilecek günübirlik veya konaklamalı programlar düzenlenebilir.",
             "address": "Kuşçu köyü yöresi, Düldül Dağı etekleri, Düziçi",
             "tag": "YAYLA",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           }
         ]
       },
@@ -1193,56 +1316,14 @@
             "detail": "Haruniye Kaplıcaları, Düziçi ilçe merkezine yaklaşık 15 km kuzeyde, Kuşçu köyü yöresinde Düldül Dağı eteklerinde yer almaktadır. Sıcak mineral suyu kalsiyum, magnezyum ve bikarbonat gibi bileşenler içerir. Romatizma, cilt hastalıkları ve kas ağrıları için faydalı olduğu söylenir. Tesislerde konaklama imkânı, açık ve kapalı havuzlar mevcuttur. Sağlık iddialarında kişisel hekim önerisi esastır.",
             "address": "Kuşçu köyü, Düldül Dağı etekleri, Düziçi (15 km kuzey)",
             "tag": "TERMAL",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG"
-          }
-        ]
-      },
-      {
-        "id": "food",
-        "icon": "restaurant",
-        "title": "Lezzet Durakları",
-        "subtitle": "Düziçi ve Osmaniye yöresinin eşsiz mutfak kültürü",
-        "badge": "Lezzet",
-        "places": [
-          {
-            "name": "Osmaniye Künefeleri",
-            "shortDescription": "Hatay'a rakip künefe geleneği; peynirli ve şerbetli.",
-            "detail": "Osmaniye ili ve Düziçi çevresinde künefe, en sevilen tatlılardan biridir. Özellikle tel kadayıf arasına konulan taze peynir ile hazırlanan künefe, şerbeti ile birlikte servis edilir. Çarşı merkezinde ve ana caddeler üzerinde birçok künefeci bulunmaktadır.",
-            "address": "Düziçi merkez ve Osmaniye geneli",
-            "tag": "TATLI",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/K%C3%BCnefe%2C_Wiesbaden.jpg/960px-K%C3%BCnefe%2C_Wiesbaden.jpg"
-          },
-          {
-            "name": "Esnaf Lokantaları",
-            "shortDescription": "Ev yemeği tadında çorba, kebap ve fırın yemekleri.",
-            "detail": "Düziçi merkez çarşısı ve Atatürk Bulvarı çevresinde onlarca esnaf lokantası yer alır. Günlük taze hazırlanan ev yemekleri, mercimek çorbası, kuru fasulye, et sote ve fırın kebabı en çok tercih edilen menülerdir. Öğle saatlerinde yoğunluk yaşanabilir.",
-            "address": "Düziçi merkez, Atatürk Bulvarı ve çarşı",
-            "tag": "ESNAF",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
-          },
-          {
-            "name": "Yayla ve Köy Kahvaltısı",
-            "shortDescription": "Serpme kahvaltı, taze peynir, yöresel bal ve tereyağı.",
-            "detail": "Dumanlı Yaylası ve çevre köylere giden güzergâhlarda aile işletmeleri serpme kahvaltı sunar. Taze keçi peyniri, süzme yoğurt, köy yumurtası, bal-kaymak ve gözleme menünün vazgeçilmezleridir. Sezon dışında kapalı olabilen mekanlar için önceden telefon ile teyit almanız tavsiye edilir.",
-            "address": "Kuşçu, Olukbaşı ve yayla güzergâhları",
-            "tag": "KÖY",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG"
-          },
-          {
-            "name": "Peynir Helvası",
-            "shortDescription": "Osmaniye'nin meşhur tatlısı; peynir ve un helvası karışımı.",
-            "detail": "Peynir Helvası, Osmaniye ve Düziçi'nin en bilinen yöresel tatlılarından biridir. Taze peynir, un, şeker ve tereyağı ile hazırlanır. Özellikle bayram ve özel günlerde yapılır. Çarşıdaki pastaneler ve şekerci dükkanlarında bulunabilir.",
-            "address": "Düziçi ve Osmaniye çarşıları",
-            "tag": "YÖRE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/K%C3%BCnefe%2C_Wiesbaden.jpg/960px-K%C3%BCnefe%2C_Wiesbaden.jpg"
-          },
-          {
-            "name": "Yer Fıstığı ve Narenciye Ürünleri",
-            "shortDescription": "Düziçi'nin tarım ürünleri: yer fıstığı, portakal, nar.",
-            "detail": "Düziçi, Osmaniye'nin en verimli tarım alanlarından birine sahiptir. Yer fıstığı üretiminde Türkiye'nin önde gelen ilçelerinden biridir. Ayrıca portakal, mandalina, nar ve zeytin üretimi de yaygındır. Yol kenarlarında köylülerin taze ürün sattığı tezgâhlar bulunur.",
-            "address": "Düziçi Ovası ve çevre köyler",
-            "tag": "YÖRE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG",
+            "lat": 37.262,
+            "lng": 36.495,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretli",
+            "entryFeeNote": "Kaplıca giriş ücreti işletmeye göre değişir; tadilat dönemlerinde kapalı olabilir.",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.262,36.495"
           }
         ]
       },
@@ -1259,7 +1340,13 @@
             "detail": "Düldül Dağı trekking rotası, Düziçi merkezinden başlayarak Dumanlı Yaylası üzerinden Amanos Dağları'nın en yüksek zirvesine (2448 m) ulaşan zorlu bir parkurdur. Toplam mesafe yaklaşık 15-20 km olup genellikle 2 günlük bir program ile tamamlanır. Rota boyunca çam ormanları, yayla çayırları ve kaya formasyonları geçilir. Deneyimli dağcılar için önerilir; rehber eşliğinde gidilmesi tavsiye edilir.",
             "address": "Düziçi merkez → Dumanlı Yaylası → Düldül Zirvesi",
             "tag": "ZORLU",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG",
+            "lat": 37.288,
+            "lng": 36.565,
+            "parking": "sinirli",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
           },
           {
             "name": "Sabun Çayı Vadisi Yürüyüşü",
@@ -1267,7 +1354,13 @@
             "detail": "Sabun Çayı vadisi boyunca uzanan bu rota, Karasu Şelalesi'ne kadar doğa içinde keyifli bir yürüyüş sunar. Yaklaşık 5-8 km uzunluğundaki parkur, orta zorluk seviyesindedir. Vadide kuş gözlemciliği yapılabilir ve doğal havuzlarda mola verilir. İlkbahar ve sonbahar en ideal dönemlerdir.",
             "address": "Sabun Çayı başlangıç noktası → Karasu Şelalesi",
             "tag": "ORTA",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG",
+            "lat": 37.251,
+            "lng": 36.468,
+            "parking": "var",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.468"
           },
           {
             "name": "Berke Barajı Çevre Yürüyüşü",
@@ -1275,7 +1368,13 @@
             "detail": "Berke Barajı çevresindeki toprak yollar ve patikalar, göl manzarası eşliğinde rahat bir yürüyüş imkânı sunar. Yaklaşık 6-10 km uzunluğundaki rota, düz ve hafif engebeli bir zeminde ilerler. Fotoğraf çekmek için harika noktalar içerir. Güneşten korunma ve su taşımak önerilir.",
             "address": "Berke Barajı çevresi, Düziçi",
             "tag": "KOLAY",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG",
+            "lat": 37.2215,
+            "lng": 36.471,
+            "parking": "var",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
           },
           {
             "name": "Haruniye-Kuşçu Doğa Yolu",
@@ -1283,7 +1382,13 @@
             "detail": "Haruniye Kaplıcaları'ndan başlayarak Kuşçu köyü üzerinden dağ eteklerine doğru uzanan bu doğa yolu, termal tesis ziyareti ile birleştirilebilir. Orman içi patikalar, çeşmeler ve köy evleri rotayı renklendirir. Yaklaşık 4-6 km'lik kolay bir parkurdur.",
             "address": "Haruniye Kaplıcaları → Kuşçu köyü → Dağ etekleri",
             "tag": "KOLAY",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG",
+            "lat": 37.262,
+            "lng": 36.495,
+            "parking": "sinirli",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.262,36.495"
           }
         ]
       },
@@ -1300,7 +1405,13 @@
             "detail": "Dumanlı Yaylası, Düziçi'nin en popüler kamp noktasıdır. Yaklaşık 1400 metre rakımda, serin havası ve geniş çayırları ile çadır kampı için idealdir. Yaz geceleri gökyüzü gözlemi için mükemmel koşullar sunar. Yakınında su kaynakları mevcuttur ancak kendi içme suyunuzu getirmeniz tavsiye edilir. Ateş yakarken orman yangını riskine karşı dikkatli olun.",
             "address": "Dumanlı Yaylası, Düldül Dağı etekleri, Düziçi",
             "tag": "KAMP",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG",
+            "lat": 37.288,
+            "lng": 36.565,
+            "parking": "var",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
           },
           {
             "name": "Berke Barajı Kıyısı Kamp",
@@ -1308,7 +1419,13 @@
             "detail": "Berke Barajı'nın uygun kıyı noktalarında kamp yapmak mümkündür. Göl manzarası eşliğinde balık tutma, yüzme (güvenli alanlarda) ve doğa fotoğrafçılığı yapılabilir. Barajın güvenlik sınırlarına dikkat edilmelidir. Karavan için geniş düz alanlar mevcuttur.",
             "address": "Berke Barajı kıyısı, uygun kamp noktaları",
             "tag": "KAMP",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG",
+            "lat": 37.2215,
+            "lng": 36.471,
+            "parking": "var",
+            "restroom": "yok",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
           },
           {
             "name": "Sabun Çayı Kamp ve Piknik Alanı",
@@ -1316,7 +1433,13 @@
             "detail": "Sabun Çayı vadisinde dere kenarında ağaçlıklı alanlar kamp ve piknik için uygun ortam sunar. Akan suyun sesi eşliğinde huzurlu bir gece geçirilebilir. Yaz aylarında derenin sığ bölümlerinde serinlenebilir. Çöpünüzü mutlaka toplayarak doğayı koruyun.",
             "address": "Sabun Çayı vadisi, Düziçi",
             "tag": "PİKNİK",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG",
+            "lat": 37.255,
+            "lng": 36.465,
+            "parking": "var",
+            "restroom": "sinirli",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.255,36.465"
           }
         ]
       },
@@ -1328,28 +1451,67 @@
         "badge": "Park",
         "places": [
           {
-            "name": "Düziçi Kent Parkı",
-            "shortDescription": "İlçe merkezinde aileler için düzenlenmiş park alanı.",
-            "detail": "Düziçi Kent Parkı, ilçe merkezinde yer alan, yürüyüş yolları, çocuk oyun alanları, spor aletleri ve oturma alanları ile donatılmış bir parktır. Akşam saatlerinde aydınlatmalı yürüyüş parkuru ile ilçe halkının en çok tercih ettiği sosyal alanlardandır.",
-            "address": "Düziçi merkez",
+            "name": "Harun Reşit Çocuk Parkı ve Millet Bahçesi",
+            "shortDescription": "Modern Çocuk Oyun Alanları, Spor Parkurları, Okuma ve İnternet Bölümleri",
+            "detail": "Eski Harun Reşit Çocuk Parkı'nın bütünüyle modernize edilmesi ve genişletilmesiyle ilçeye kazandırılmış çok amaçlı yeni bir sosyal yaşam alanıdır. İçerisinde çocukların güvenle enerjisini atabileceği yeni nesil oyun parkurları, spor alanları, gençler için internet ve okuma bölümleri ile dinlenme alanları yer alır. Merkezi konumuyla ilçe sakinlerinin günlük olarak en sık ziyaret ettiği modern sosyal merkezlerden biridir.\n\n• Çalışma Saatleri: 24 Saat Açık",
+            "address": "Refik Cesur Bulvarı, Merkez / Düziçi",
             "tag": "PARK",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=960",
+            "lat": 37.2395,
+            "lng": 36.4468,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "osmUrl": "https://www.openstreetmap.org/#map=17/37.2395/36.4468",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2395,36.4468"
           },
           {
-            "name": "Atatürk Parkı ve Çay Bahçeleri",
-            "shortDescription": "Çarşı merkezinde sosyal buluşma noktası.",
-            "detail": "Düziçi çarşı merkezinde yer alan Atatürk Parkı, çay bahçeleri ve gölgelik alanlarıyla ilçenin sosyal buluşma noktasıdır. Hafta sonları ve akşam saatlerinde hareketli bir atmosfer sunar. Çevresinde çay ocakları, pastaneler ve küçük dükkanlar yer alır.",
-            "address": "Cumhuriyet Mahallesi, Düziçi çarşı merkezi",
+            "name": "Eğitimci Bekir İlyas Kara Çocuk Köyü",
+            "shortDescription": "Geniş Yeşil Alanlar, Özel Tasarım Çocuk Oyun Grupları, Yürüyüş Yolları",
+            "detail": "Düziçi Belediyesi bünyesinde hizmet veren, çocukların fiziksel ve zihinsel gelişimini destekleyen tematik oyun grupları, geniş çim alanları ve düzenli yürüyüş yolları ile ilçenin en vizyoner rekreasyon alanıdır. Klasik park konseptinin ötesinde, akşamları düzenlenen yerel etkinlikler ve sosyal buluşmalarla mahalle kültürünün ve ailelerin bir araya geldiği en canlı odak noktasıdır.\n\n• Çalışma Saatleri: 09:00 - 22:00",
+            "address": "İrfanlı Mahallesi, Düziçi / Osmaniye",
             "tag": "PARK",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg"
+            "image": "https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=960",
+            "lat": 37.244,
+            "lng": 36.451,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "entryFeeNote": "Giriş ve oyun alanlarının kullanımı tamamen ücretsizdir. Belediye tarafından park içinde düzenlenen geleneksel çay ve fıstık ikramlı halk buluşmaları da halka açıktır.",
+            "osmUrl": "https://www.openstreetmap.org/#map=17/37.2440/36.4510",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451"
           },
           {
-            "name": "Düziçi Mesire Alanları",
-            "shortDescription": "Çam ormanı içinde piknik ve barbekü alanları.",
-            "detail": "Düziçi ilçesi çevresindeki çam ormanları içinde belediye tarafından düzenlenmiş mesire alanları mevcuttur. Masalar, çeşmeler ve barbekü alanları ile ailece piknik için idealdir. Hafta sonları ve bayram dönemlerinde yoğunluk yaşanabilir.",
-            "address": "Düziçi çevresi, orman içi mesire alanları",
+            "name": "Atatürk Parkı (Park Restorant)",
+            "shortDescription": "Park Restorant Sosyal Tesisi, Asırlık Ağaçlık Alanlar, Geniş Aile Masaları",
+            "detail": "Düziçi’nin en köklü ve bilinen yeşil dinlenme duraklarından biridir. İçerisinde yer alan Park Restorant tesisi sayesinde ailelerin hem güvenle yemek yiyip çay içebileceği hem de çocuklarının gölgelik alandaki parkta vakit geçirebileceği karma bir yapı sunar. Yoğun ağaçlık dokusu ve ferah atmosferiyle şehir merkezinde nefes almak isteyenlerin vazgeçilmez uğrak noktasıdır.\n\n• Çalışma Saatleri: 08:00 - 00:00",
+            "address": "Üzümlü Mahallesi / Uzun Banı Mahallesi (Mustafa Yalçın Caddesi güzergahı), Düziçi / Osmaniye",
+            "tag": "PARK",
+            "image": "https://images.unsplash.com/photo-1544816155-12df9643f363?w=960",
+            "lat": 37.24,
+            "lng": 36.446,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretsiz",
+            "entryFeeNote": "Park alanına giriş, çocuk oyun grupları ve yeşil alan kullanımı ücretsizdir. Restoran hizmetleri ücretlidir.",
+            "osmUrl": "https://www.openstreetmap.org/#map=17/37.2400/36.4460",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.24,36.446"
+          },
+          {
+            "name": "Sabun Çayı Mesire Alanı",
+            "shortDescription": "Buz Gibi Akan Akarsu, Su Üstü Kamelyalar, Mangal ve Barbekü Alanları",
+            "detail": "Düziçi’nin tüm Çukurova bölgesinde bilinen en popüler, en hareketli piknik ve rekreasyon alanıdır. Düldül Dağı'nın eteklerinden süzülen buz gibi Sabun Çayı'nın kenarına dizilmiş ahşap çardaklar, yaz aylarında muazzam bir serinlik sunar. Ailece mangal yakmak, suya girip serinlemek ve doğanın kalbinde tüm gün vakit geçirmek isteyenlerin vazgeçilmezidir. Hemen bitişiğinden kısa bir yürüyüşle bakir Karasu Şelalesi'ne de geçiş imkanı sunması burayı benzersiz kılar.\n\n• Çalışma Saatleri: 07:00 - 23:00 (Yaz sezonunda esnek)",
+            "address": "Gökçayır Köyü Yolu Üzeri, Sabun Çayı Vadisi, Düziçi / Osmaniye",
             "tag": "MESİRE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG"
+            "image": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=960",
+            "lat": 37.255,
+            "lng": 36.465,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretli",
+            "entryFeeNote": "Araçla giriş, otopark kullanımı ve çardakların kiralanması ücrete tabidir. Fiyatlar oldukça makul düzeydedir.",
+            "osmUrl": "https://www.openstreetmap.org/#map=17/37.2550/36.4650",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.255,36.465"
           }
         ]
       },
@@ -1366,7 +1528,14 @@
             "detail": "Karatepe-Aslantaş Açık Hava Müzesi, Osmaniye'nin en önemli arkeolojik alanıdır. Geç Hitit dönemine (MÖ 8. yüzyıl) ait Azatiwataya Kalesi'nin kalıntılarını barındırır. Fenikece ve Luvice çift dilli yazıtlar, aslan ve sfenks heykelleri, kabartmalar ile dünya arkeolojisinde önemli bir yere sahiptir. Aslantaş Barajı kıyısındaki orman içindeki konumu ile doğa ve tarih bir arada deneyimlenir. UNESCO Dünya Mirası geçici listesindedir.",
             "address": "Kadirli ilçesi, Aslantaş Barajı yanı, Osmaniye (merkeze 70 km)",
             "tag": "MÜZE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg",
+            "lat": 37.3,
+            "lng": 36.25,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretli",
+            "entryFeeNote": "Müze giriş ücreti güncel tarifeye göre.",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3,36.25"
           },
           {
             "name": "Aslantaş Barajı",
@@ -1374,7 +1543,13 @@
             "detail": "Aslantaş Barajı, Ceyhan Nehri üzerinde Kadirli ilçesi yakınlarında yer alan büyük bir baraj ve su toplama alanıdır. Baraj gölü etrafında piknik alanları, balık tutma noktaları ve yürüyüş parkurları mevcuttur. Karatepe-Aslantaş Açık Hava Müzesi'ne yakın konumu sayesinde kültürel ve doğal gezi bir arada planlanabilir. Gün batımı manzarası muhteşemdir.",
             "address": "Kadirli ilçesi, Ceyhan Nehri üzeri, Osmaniye",
             "tag": "BARAJ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG",
+            "lat": 37.3,
+            "lng": 36.25,
+            "parking": "var",
+            "restroom": "sinirli",
+            "entryFee": "ucretsiz",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3,36.25"
           },
           {
             "name": "Kastabala (Hierapolis) Antik Kenti",
@@ -1382,7 +1557,13 @@
             "detail": "Kastabala Antik Kenti, Osmaniye merkeze yaklaşık 10 km mesafede yer alan önemli bir arkeolojik alandır. Roma İmparatorluğu döneminde Hierapolis-Kastabala adıyla anılan kent; sütunlu cadde, tiyatro, hamam, bazilika ve nekropol kalıntılarını barındırır. Antik tiyatro iyi korunmuş olup 3000 kişi kapasitelidir. Perasia Artemis Tapınağı kalıntıları da alandadır.",
             "address": "Osmaniye merkez, Ceyhan Nehri yakını (10 km güneydoğu)",
             "tag": "ANTİK",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "lat": 37.07,
+            "lng": 36.25,
+            "parking": "var",
+            "restroom": "var",
+            "entryFee": "ucretli",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.07,36.25"
           },
           {
             "name": "Deve Mağarası",
@@ -1390,7 +1571,10 @@
             "detail": "Deve Mağarası, Osmaniye'nin Bahçe ilçesinde yer alan büyük bir karstik mağaradır. İçerisindeki sarkıt ve dikitler milyonlarca yıllık oluşumlarla şekillenmiştir. Mağaranın girişi geniş olup içeride geniş salonlar ve dar koridorlar bulunur. Yarasalara ev sahipliği yapan mağara, speleooji (mağaracılık) meraklıları için ilgi çekici bir destinasyondur. El feneri ve uygun ayakkabı şarttır.",
             "address": "Bahçe ilçesi, Osmaniye",
             "tag": "MAĞARA",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Hemite (Amouda) Kalesi",
@@ -1398,7 +1582,10 @@
             "detail": "Hemite Kalesi (Amouda Kalesi), Osmaniye'nin Bahçe ilçesinde dağ yamacında yer alan etkileyici bir ortaçağ kalesidir. Haçlı Seferleri döneminde stratejik öneme sahip olan kale, iyi korunmuş surları ve kuleleri ile dikkat çeker. Kaleden Amik Ovası'na doğru muhteşem bir panorama görülür. Tırmanış biraz zorlu olsa da manzara harcanan efora değer.",
             "address": "Bahçe ilçesi, dağ yamacı, Osmaniye",
             "tag": "KALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Bahçe Kalesi",
@@ -1406,7 +1593,10 @@
             "detail": "Bahçe Kalesi, Osmaniye'nin Bahçe ilçesi merkezine hâkim bir tepe üzerinde yer alır. Roma, Bizans ve Osmanlı dönemlerinde kullanılmış olan kale, stratejik konumu ile Amanos Dağları geçitlerini kontrol altında tutmuştur. Surlarından ilçe merkezini ve çevre dağları panoramik olarak görmek mümkündür.",
             "address": "Bahçe ilçesi merkez, tepe üzeri, Osmaniye",
             "tag": "KALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Toprakkale Kalesi",
@@ -1414,7 +1604,10 @@
             "detail": "Toprakkale (eski adı Til Hamdun) Kalesi, Osmaniye'nin Toprakkale ilçesinde yer alan tarihi bir kaledir. Haçlı Seferleri döneminde büyük stratejik öneme sahip olan kale, Çukurova'dan Suriye'ye uzanan ticaret yollarını kontrol etmiştir. Ermeni Kilikya Krallığı döneminde yeniden inşa edilmiştir. Kaleden çevredeki ovaya ve İskenderun Körfezi'ne doğru geniş manzara görülür.",
             "address": "Toprakkale ilçesi, Osmaniye",
             "tag": "KALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Zorkun Yaylası",
@@ -1422,7 +1615,10 @@
             "detail": "Zorkun Yaylası, Kadirli ilçesine bağlı olup yaklaşık 1500 metre rakımda yer alır. Osmaniye'nin en popüler yaylalarından biri olan Zorkun, yazın serin havası, çam ormanları ve kaynak suları ile tercih edilir. Yaylada kamp alanları, piknik tesisleri ve yürüyüş parkurları mevcuttur. Kış aylarında kar yağışı alır ve kayak potansiyeli taşır.",
             "address": "Kadirli ilçesi, Amanos Dağları, Osmaniye (Kadirli'ye 35 km)",
             "tag": "YAYLA",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Yarpuz Yaylası",
@@ -1430,7 +1626,10 @@
             "detail": "Yarpuz Yaylası, Kadirli ilçesi sınırlarında, Amanos Dağları'nın batı yamaçlarında yer alan bir yayladır. Adını bölgede yoğun olarak yetişen yarpuz bitkisinden alır. Doğal bitki örtüsü, temiz havası ve sessiz ortamıyla doğa kampçıları için mükemmel bir alternatiftir. Zorkun Yaylası'na yakın konumuyla iki yayla birlikte ziyaret edilebilir.",
             "address": "Kadirli ilçesi, Amanos Dağları batı yamaçları, Osmaniye",
             "tag": "YAYLA",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Osmaniye Kent Müzesi",
@@ -1438,7 +1637,10 @@
             "detail": "Osmaniye Kent Müzesi, il merkezinde yer alan ve şehrin tarihî, kültürel ve etnografik değerlerini sergileyen bir müzedir. Arkeolojik buluntular, geleneksel el sanatları, fotoğraf arşivleri ve multimedya sunumları ile ziyaretçilere Osmaniye'nin geçmişi hakkında kapsamlı bilgi verir. Girişi ücretsizdir.",
             "address": "Osmaniye il merkezi",
             "tag": "MÜZE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Osmaniye Arkeoloji Müzesi",
@@ -1446,7 +1648,10 @@
             "detail": "Osmaniye Arkeoloji Müzesi, il merkezinde yer alan ve bölgede yapılan kazılardan elde edilen arkeolojik eserleri sergileyen bir müzedir. Hitit, Roma, Bizans ve Osmanlı dönemlerine ait sikke, seramik, heykel ve kabartmalar müzenin önemli koleksiyonlarını oluşturur. Karatepe-Aslantaş ve Kastabala buluntularının bazıları burada sergilenmektedir.",
             "address": "Osmaniye il merkezi",
             "tag": "MÜZE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Olukbaşı Şelalesi",
@@ -1454,7 +1659,10 @@
             "detail": "Olukbaşı Şelalesi, Osmaniye merkeze yakın konumda yer alan ve ulaşımı kolay olan doğal bir şelaledir. Yeşillikler arasından dökülen su, doğal bir havuz oluşturur. Piknik alanları ve oturma yerleri mevcuttur. Hafta sonları yoğunluk yaşanabilir; erken saatlerde gitmek tavsiye edilir.",
             "address": "Osmaniye merkez çevresi",
             "tag": "ŞELALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Hasanbeyli İlçesi ve Çevresi",
@@ -1462,7 +1670,10 @@
             "detail": "Hasanbeyli, Osmaniye'nin Amanos Dağları geçidinde yer alan küçük bir ilçesidir. Tarihi Belen-Bahçe geçit yolu üzerinde konumlanan ilçe, Osmanlı ve Haçlı dönemlerinde stratejik öneme sahip olmuştur. Çevresindeki doğal güzellikleri, temiz havası ve sakin atmosferi ile günübirlik geziler için uygundur.",
             "address": "Hasanbeyli ilçesi, Amanos Dağları geçidi, Osmaniye",
             "tag": "İLÇE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Sumbas İlçesi ve Doğası",
@@ -1470,7 +1681,10 @@
             "detail": "Sumbas, Osmaniye'nin kuzeyinde yer alan, tarım ve hayvancılığın ön planda olduğu sakin bir ilçedir. Kırsal köy yaşamını deneyimlemek, taze hava almak ve doğa yürüyüşleri yapmak isteyenler için ideal bir destinasyondur. İlçe çevresinde zeytinlikler, narenciye bahçeleri ve küçük şelaleler keşfedilebilir.",
             "address": "Sumbas ilçesi, Osmaniye kuzey bölgesi",
             "tag": "İLÇE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_03.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Ceyhan Nehri Kanyonu",
@@ -1478,7 +1692,10 @@
             "detail": "Ceyhan Nehri, Osmaniye il sınırlarında derin vadiler ve kanyonlar oluşturur. Özellikle Kadirli ve Düziçi arasındaki bölgede nehrin oyduğu kayalıklar, doğa fotoğrafçılığı ve macera sporcuları için çekici manzaralar sunar. Kano ve rafting potansiyeli olan bölümleri mevcuttur. Güvenlik önlemlerine dikkat edilmelidir.",
             "address": "Ceyhan Nehri vadisi, Kadirli-Düziçi arası, Osmaniye",
             "tag": "KANYON",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG/960px-Berke_Baraj%C4%B1_-_Berke_Dam_01.JPG",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Kadirli Kalesi",
@@ -1486,7 +1703,10 @@
             "detail": "Kadirli Kalesi, Kadirli ilçe merkezinin üst kısmında bir tepe üzerinde yer alır. Roma ve Bizans dönemlerinden kalma sur kalıntıları görülebilir. Kaleden Kadirli Ovası'na ve çevre dağlara panoramik manzara sunar. Kolay bir tırmanışla ulaşılabilir.",
             "address": "Kadirli ilçesi merkez, tepe üzeri, Osmaniye",
             "tag": "KALE",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg/960px-Bah%C3%A7e%2C_Osmaniye_Bah%C3%A7e_kalesi.jpg",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Atik (Ulu) Cami – Osmaniye Merkez",
@@ -1494,7 +1714,10 @@
             "detail": "Atik Cami (Ulu Cami), Osmaniye il merkezinde bulunan şehrin en eski ibadet mekânıdır. Osmanlı dönemine ait klasik mimari özelliklere sahip olan cami, taş işçiliği ve hat sanatı örnekleri ile dikkat çeker. İl merkezini gezerken mutlaka uğranması gereken kültürel miras noktalarından biridir.",
             "address": "Osmaniye il merkezi, çarşı içi",
             "tag": "CAMİ",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           },
           {
             "name": "Osmaniye Şehir Ormanı ve Tabiat Parkı",
@@ -1502,7 +1725,10 @@
             "detail": "Osmaniye Şehir Ormanı, il merkezine yakın konumda geniş bir alan kaplayan düzenlenmiş bir tabiat parkıdır. İçerisinde yürüyüş parkurları, bisiklet yolları, piknik alanları, çocuk oyun alanları ve spor sahaları yer alır. Hafta sonları aileler için popüler bir destinasyondur. Girişi ücretsizdir.",
             "address": "Osmaniye il merkezi, şehir ormanı bölgesi",
             "tag": "PARK",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png"
+            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "parking": "bilinmiyor",
+            "restroom": "bilinmiyor",
+            "entryFee": "bilinmiyor"
           }
         ]
       }
