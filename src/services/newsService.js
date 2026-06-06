@@ -152,11 +152,66 @@ class NewsService {
       }));
       await supabase.from('news_items').upsert(rows);
       console.log(`[news] ${rows.length} news items synced to Supabase.`);
+
+      // Arka planda yeni eklenen veya tam metni bulunmayan haberleri pre-fetch et
+      this.preFetchFullTexts(items).catch(err => {
+        console.error('❌ Background news pre-fetch trigger error:', err.message);
+      });
     } catch (err) {
       console.error('❌ Supabase news cache sync failed:', err.message);
     }
 
     return items;
+  }
+
+  async preFetchFullTexts(items) {
+    const supabase = require('../utils/supabaseClient');
+    const urls = items.map(item => item.sourceUrl).filter(Boolean);
+    if (urls.length === 0) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('source_url, full_text')
+        .in('source_url', urls);
+      
+      if (error) throw error;
+
+      const cachedUrls = new Set(
+        (data || [])
+          .filter(row => row.full_text && row.full_text.trim().length > 0)
+          .map(row => row.source_url)
+      );
+
+      // Sadece veritabanında henüz tam metni (full_text) bulunmayan haberleri çekelim
+      const itemsToFetch = items.filter(item => item.sourceUrl && !cachedUrls.has(item.sourceUrl));
+
+      if (itemsToFetch.length === 0) return;
+
+      console.log(`[news] Arka planda ${itemsToFetch.length} adet yeni haberin tam metni çekiliyor...`);
+
+      // Aynı anda max 3 istek atarak kaynak siteleri ve kendi sunucumuzu yormayalım
+      const limit = 3;
+      for (let i = 0; i < itemsToFetch.length; i += limit) {
+        const chunk = itemsToFetch.slice(i, i + limit);
+        await Promise.all(chunk.map(async (item) => {
+          try {
+            const fullText = await this.fetchArticleFullText(item.sourceUrl);
+            if (fullText && fullText.trim().length > 0) {
+              await supabase
+                .from('news_items')
+                .update({ full_text: fullText })
+                .eq('source_url', item.sourceUrl);
+              console.log(`[news] Arka planda tam metin başarıyla önbelleğe alındı: ${item.sourceUrl}`);
+            }
+          } catch (e) {
+            console.error(`[news] Arka planda tam metin çekme başarısız (${item.sourceUrl}):`, e.message);
+          }
+        }));
+      }
+    } catch (err) {
+      console.error('❌ Arka plan haber önbellekleme kontrolü başarısız:', err.message);
+    }
   }
 
   async fetchArticleFullText(articleUrl) {
@@ -203,17 +258,36 @@ class NewsService {
       html = next;
     }
 
+    // 2.5) Haber spotunu/özetini (Genellikle h2 itemprop="description") bulup temizle
+    const spotCandidates = [
+      /<h2[^>]*itemprop\s*=\s*"description"[^>]*>([\s\S]*?)<\/h2>/i,
+      /<div[^>]*class\s*=\s*"[^"]*(?:article-spot|haber-spot|spot-haber|post-spot|entry-summary)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      /<h2[^>]*class\s*=\s*"[^"]*(?:spot|summary)[^"]*"[^>]*>([\s\S]*?)<\/h2>/i,
+    ];
+    let spot = '';
+    for (const re of spotCandidates) {
+      const m = html.match(re);
+      if (m && m[1]) {
+        spot = stripHtml(m[1]).trim();
+        if (spot.length > 10) break;
+      }
+    }
+    if (spot) {
+      spot = decodeXmlEntities(spot);
+    }
+
     // 3) Oncelikli secicilerle haber govdesini bul.
     const bodyCandidates = [
       /<div[^>]*itemprop\s*=\s*"articleBody"[^>]*>([\s\S]*?)<\/div>/i,
-      /<div[^>]*class\s*=\s*"[^"]*(?:article-body|entry-content|article-content|post-content|news-content|haber-icerik|haberDetay|haber-detay|content-body|article__body)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
+      /<div[^>]*property\s*=\s*"articleBody"[^>]*>([\s\S]*?)<\/div>/i,
+      /<div[^>]*class\s*=\s*"[^"]*(?:article-body|entry-content|article-content|post-content|news-content|haber-icerik|haberDetay|haber-detay|content-body|article__body|article-text)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
       /<article[^>]*>([\s\S]*?)<\/article>/i,
       /<main[^>]*>([\s\S]*?)<\/main>/i,
     ];
     let main = '';
     for (const re of bodyCandidates) {
       const m = html.match(re);
-      if (m && m[1] && m[1].replace(/<[^>]+>/g, '').trim().length > 200) {
+      if (m && m[1] && m[1].replace(/<[^>]+>/g, '').trim().length > 100) {
         main = m[1];
         break;
       }
@@ -252,7 +326,16 @@ class NewsService {
       return true;
     });
 
-    let text = cleaned.join('\n\n');
+    let finalBlocks = [...cleaned];
+    if (spot && spot.length > 15) {
+      // Eğer spot metni temizlenmiş paragrafların ilkinde zaten geçmiyorsa en başa ekle
+      const firstBlock = finalBlocks[0] || '';
+      if (!firstBlock.toLowerCase().includes(spot.slice(0, 15).toLowerCase())) {
+        finalBlocks.unshift(spot);
+      }
+    }
+
+    let text = finalBlocks.join('\n\n');
     if (text.length < 200) {
       text = normalizeText(stripHtml(main));
     }
