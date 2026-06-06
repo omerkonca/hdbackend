@@ -91,10 +91,11 @@ class ApiController {
           .from('news_items')
           .select('full_text')
           .eq('source_url', url)
-          .maybeSingle();
+          .order('created_at', { ascending: false })
+          .limit(1);
           
-        if (!error && data && data.full_text && data.full_text.trim().length > 0) {
-          return res.json({ ok: true, fullText: data.full_text });
+        if (!error && data && data.length > 0 && data[0].full_text && data[0].full_text.trim().length > 0) {
+          return res.json({ ok: true, fullText: data[0].full_text });
         }
       } catch (err) {
         console.error('❌ Supabase news read failed:', err.message);

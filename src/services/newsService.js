@@ -35,6 +35,7 @@ class NewsService {
   }
 
   parseNewsRss(xml, { max = 50, sourceName = '', filterDuzici = false } = {}) {
+    const crypto = require('crypto');
     const itemBlocks = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
     let parsed = itemBlocks
       .map((item, index) => {
@@ -45,8 +46,10 @@ class NewsService {
         const source = getTagValue(item, 'source') || sourceName;
         const imageUrl = this.extractImageFromItem(item);
         const summary = stripHtml(descriptionRaw);
+        
+        const urlHash = crypto.createHash('md5').update(link || '').digest('hex');
         return {
-          id: `news-${String(sourceName).replace(/\s/g, '-')}-${index}-${Date.parse(pubDate) || Date.now()}`,
+          id: `news-${urlHash}`,
           title,
           summary: summary || title,
           imageUrl: imageUrl || null,
@@ -179,7 +182,7 @@ class NewsService {
 
       const cachedUrls = new Set(
         (data || [])
-          .filter(row => row.full_text && row.full_text.trim().length > 0)
+          .filter(row => row.full_text && row.full_text.trim().length > 300)
           .map(row => row.source_url)
       );
 
@@ -212,6 +215,40 @@ class NewsService {
     } catch (err) {
       console.error('❌ Arka plan haber önbellekleme kontrolü başarısız:', err.message);
     }
+  }
+
+  extractContainerContent(html, regex) {
+    const match = html.match(regex);
+    if (!match) return null;
+    const startTag = match[0];
+    const tagMatch = startTag.match(/^<([a-z1-6]+)/i);
+    if (!tagMatch) return null;
+    const tagName = tagMatch[1].toLowerCase();
+    
+    const startIdx = html.indexOf(startTag);
+    const contentStartIdx = startIdx + startTag.length;
+    
+    const openToken = `<${tagName}`;
+    const closeToken = `</${tagName}>`;
+    
+    let openTags = 1;
+    let pos = contentStartIdx;
+    while (openTags > 0 && pos < html.length) {
+      const nextOpen = html.toLowerCase().indexOf(openToken, pos);
+      const nextClose = html.toLowerCase().indexOf(closeToken, pos);
+      
+      if (nextClose === -1) break;
+      
+      if (nextOpen !== -1 && nextOpen < nextClose) {
+        openTags++;
+        pos = nextOpen + openToken.length;
+      } else {
+        openTags--;
+        pos = nextClose + closeToken.length;
+      }
+    }
+    
+    return html.slice(contentStartIdx, pos - closeToken.length);
   }
 
   async fetchArticleFullText(articleUrl) {
@@ -260,16 +297,19 @@ class NewsService {
 
     // 2.5) Haber spotunu/özetini (Genellikle h2 itemprop="description") bulup temizle
     const spotCandidates = [
-      /<h2[^>]*itemprop\s*=\s*"description"[^>]*>([\s\S]*?)<\/h2>/i,
-      /<div[^>]*class\s*=\s*"[^"]*(?:article-spot|haber-spot|spot-haber|post-spot|entry-summary)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
-      /<h2[^>]*class\s*=\s*"[^"]*(?:spot|summary)[^"]*"[^>]*>([\s\S]*?)<\/h2>/i,
+      /<h2[^>]*itemprop\s*=\s*"description"[^>]*>/i,
+      /<div[^>]*class\s*=\s*"[^"]*(?:article-spot|haber-spot|spot-haber|post-spot|entry-summary)[^"]*">/i,
+      /<h2[^>]*class\s*=\s*"[^"]*(?:spot|summary)[^"]*">/i,
     ];
     let spot = '';
     for (const re of spotCandidates) {
-      const m = html.match(re);
-      if (m && m[1]) {
-        spot = stripHtml(m[1]).trim();
-        if (spot.length > 10) break;
+      const match = html.match(re);
+      if (match) {
+        const content = this.extractContainerContent(html, re);
+        if (content) {
+          spot = stripHtml(content).trim();
+          if (spot.length > 10) break;
+        }
       }
     }
     if (spot) {
@@ -278,18 +318,21 @@ class NewsService {
 
     // 3) Oncelikli secicilerle haber govdesini bul.
     const bodyCandidates = [
-      /<div[^>]*itemprop\s*=\s*"articleBody"[^>]*>([\s\S]*?)<\/div>/i,
-      /<div[^>]*property\s*=\s*"articleBody"[^>]*>([\s\S]*?)<\/div>/i,
-      /<div[^>]*class\s*=\s*"[^"]*(?:article-body|entry-content|article-content|post-content|news-content|haber-icerik|haberDetay|haber-detay|content-body|article__body|article-text)[^"]*"[^>]*>([\s\S]*?)<\/div>/i,
-      /<article[^>]*>([\s\S]*?)<\/article>/i,
-      /<main[^>]*>([\s\S]*?)<\/main>/i,
+      /<div[^>]*itemprop\s*=\s*"articleBody"[^>]*>/i,
+      /<div[^>]*property\s*=\s*"articleBody"[^>]*>/i,
+      /<div[^>]*class\s*=\s*"[^"]*(?:article-body|entry-content|article-content|post-content|news-content|haber-icerik|haberDetay|haber-detay|content-body|article__body|article-text)[^"]*>/i,
+      /<article[^>]*>/i,
+      /<main[^>]*>/i,
     ];
     let main = '';
     for (const re of bodyCandidates) {
-      const m = html.match(re);
-      if (m && m[1] && m[1].replace(/<[^>]+>/g, '').trim().length > 100) {
-        main = m[1];
-        break;
+      const match = html.match(re);
+      if (match) {
+        const content = this.extractContainerContent(html, re);
+        if (content && content.replace(/<[^>]+>/g, '').trim().length > 100) {
+          main = content;
+          break;
+        }
       }
     }
     if (!main) {
