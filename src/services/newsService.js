@@ -136,6 +136,26 @@ class NewsService {
       fetchedAt: now,
       items,
     };
+
+    // Supabase cache sync
+    try {
+      const supabase = require('../utils/supabaseClient');
+      const rows = items.map(item => ({
+        id: item.id,
+        title: item.title,
+        summary: item.summary,
+        image_url: item.imageUrl,
+        created_at: item.createdAt,
+        source_url: item.sourceUrl,
+        source_name: item.sourceName,
+        fetched_at: new Date().toISOString(),
+      }));
+      await supabase.from('news_items').upsert(rows);
+      console.log(`[news] ${rows.length} news items synced to Supabase.`);
+    } catch (err) {
+      console.error('❌ Supabase news cache sync failed:', err.message);
+    }
+
     return items;
   }
 

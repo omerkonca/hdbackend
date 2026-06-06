@@ -3,7 +3,8 @@ const path = require('path');
 const config = {
   PORT: Number(process.env.PORT || 5050),
   ADMIN_TOKEN: process.env.ADMIN_TOKEN || '123456',
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/hepsiduzici',
+  SUPABASE_URL: process.env.SUPABASE_URL || 'https://duehxbdlpwvbpqfjyjai.supabase.co',
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || 'sb_publishable_k-EcjTqZe_4kmwWLIEJX3Q_3cHt_szO',
   
   CLOUDINARY: {
     CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,

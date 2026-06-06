@@ -84,6 +84,29 @@ class PharmacyService {
       fetchedAt: now,
       pharmacies,
     };
+
+    // Supabase cache sync
+    try {
+      const supabase = require('../utils/supabaseClient');
+      // Delete old entries and insert fresh ones
+      await supabase.from('pharmacies').delete().gt('id', 0);
+      
+      const rows = pharmacies.map(p => ({
+        name: p.name,
+        address: p.address,
+        phone: p.phone,
+        date_label: p.dateLabel,
+        date_range: p.dateRange,
+        fetched_at: new Date().toISOString(),
+      }));
+      if (rows.length > 0) {
+        await supabase.from('pharmacies').insert(rows);
+        console.log(`[pharmacy] ${rows.length} pharmacies synced to Supabase.`);
+      }
+    } catch (err) {
+      console.error('❌ Supabase pharmacy cache sync failed:', err.message);
+    }
+
     return pharmacies;
   }
 }

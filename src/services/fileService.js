@@ -1,25 +1,34 @@
 const fs = require('fs/promises');
 const path = require('path');
 const config = require('../config');
-const CityContent = require('../models/CityContent');
+const supabase = require('../utils/supabaseClient');
 
 class FileService {
   async readCityContent() {
     try {
       // Önce veritabanına bak
-      let content = await CityContent.findOne().sort({ createdAt: -1 });
+      const { data, error } = await supabase
+        .from('city_contents')
+        .select('data')
+        .eq('id', 1)
+        .maybeSingle();
+      
+      if (error) {
+        throw error;
+      }
+
+      let content = data?.data;
       
       if (!content) {
         console.log('📦 Veritabanı boş, yerel JSON dosyasından seed ediliyor...');
         const raw = await fs.readFile(config.PATHS.CITY_CONTENT, 'utf8');
-        const jsonData = JSON.parse(raw);
-        content = await CityContent.create(jsonData);
+        content = JSON.parse(raw);
+        await this.writeCityContent(content);
       } else if (!this._isHealthyExplore(content)) {
-        console.warn('⚠️ MongoDB explore verisi bozuk — yerel JSON ile yeniden seed ediliyor.');
+        console.warn('⚠️ Supabase explore verisi bozuk — yerel JSON ile yeniden seed ediliyor.');
         const raw = await fs.readFile(config.PATHS.CITY_CONTENT, 'utf8');
-        const jsonData = JSON.parse(raw);
-        await CityContent.deleteMany({});
-        content = await CityContent.create(jsonData);
+        content = JSON.parse(raw);
+        await this.writeCityContent(content);
       }
       
       return content;
@@ -34,23 +43,12 @@ class FileService {
   async writeCityContent(content) {
     try {
       // Veritabanına kaydet (Veya güncelle)
-      const existing = await CityContent.findOne();
-      if (existing) {
-        // Mongoose Mixed tiplerinde direct assignment bazen change tracking sorununa yol açar, 
-        // bu yüzden tüm alanları elle işaretliyoruz.
-        Object.assign(existing, content);
-        existing.markModified('services');
-        existing.markModified('explore');
-        existing.markModified('media');
-        existing.markModified('branding');
-        existing.markModified('home');
-        existing.markModified('more');
-        existing.markModified('news');
-        existing.markModified('discover');
-        existing.markModified('trip');
-        await existing.save();
-      } else {
-        await CityContent.create(content);
+      const { error } = await supabase
+        .from('city_contents')
+        .upsert({ id: 1, data: content, updated_at: new Date().toISOString() });
+
+      if (error) {
+        throw error;
       }
       
       // Yedek olarak yerel dosyaya da yaz (Opsiyonel ama güvenli)

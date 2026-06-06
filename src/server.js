@@ -2,8 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const mongoose = require('mongoose');
 const config = require('./config');
+const supabase = require('./utils/supabaseClient');
 const apiRoutes = require('./routes/api');
 const pharmacyService = require('./services/pharmacyService');
 const newsService = require('./services/newsService');
@@ -12,10 +12,8 @@ const roadClosureService = require('./services/roadClosureService');
 
 const app = express();
 
-// Database Connection
-mongoose.connect(config.MONGODB_URI)
-  .then(() => console.log('✅ MongoDB connected'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+// Database connection check
+console.log('✅ Supabase initialized: URL =', config.SUPABASE_URL);
 
 // Middlewares
 app.use(cors());

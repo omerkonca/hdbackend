@@ -83,7 +83,36 @@ class ApiController {
     try {
       const url = req.query.url;
       if (!url) return res.status(400).json({ ok: false, message: 'url parametresi gerekli.' });
+      
+      // 1. Check if cached in Supabase news_items table
+      const supabase = require('../utils/supabaseClient');
+      try {
+        const { data, error } = await supabase
+          .from('news_items')
+          .select('full_text')
+          .eq('source_url', url)
+          .maybeSingle();
+          
+        if (!error && data && data.full_text && data.full_text.trim().length > 0) {
+          return res.json({ ok: true, fullText: data.full_text });
+        }
+      } catch (err) {
+        console.error('❌ Supabase news read failed:', err.message);
+      }
+
+      // 2. Fetch and parse on-the-fly from the source website
       const fullText = await newsService.fetchArticleFullText(url);
+      
+      // 3. Save/Update cache in Supabase background
+      if (fullText && fullText.trim().length > 0) {
+        supabase
+          .from('news_items')
+          .update({ full_text: fullText })
+          .eq('source_url', url)
+          .then(() => console.log(`[news] Full-text successfully cached in Supabase for: ${url}`))
+          .catch(e => console.error('❌ Failed to cache full-text in Supabase:', e.message));
+      }
+
       res.json({ ok: true, fullText });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Haber metni alinamadi.', detail: error.message });
