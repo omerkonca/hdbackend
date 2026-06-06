@@ -329,7 +329,7 @@
       <div class="nav-item active" onclick="switchView('dashboard')">🏠 Dashboard</div>
       <div class="nav-item" onclick="switchView('branding')">🎨 Marka & Tema</div>
       <div class="nav-item" onclick="switchView('quickActions')">⚡ Hızlı Erişim</div>
-      <div class="nav-item" onclick="switchView('headerMedia')">🖼️ Vitrin (Header)</div>
+      <div class="nav-item" onclick="switchView('headerMedia')">🖼️ Vitrin & Hikayeler</div>
       <div class="nav-item" onclick="switchView('moreMenu')">📑 Daha Fazla Menüsü</div>
       <div class="nav-item" onclick="switchView('newsSources')">📰 Haber Kaynakları</div>
       <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
@@ -525,11 +525,11 @@
         </div>
       </div>
 
-      <!-- Header Media (Vitrin) -->
+      <!-- Header Media (Vitrin & Hikayeler) -->
       <div id="headerMediaView" class="view-section">
         <div class="card">
-          <div class="section-title">🖼️ Ana Ekran Vitrin (Header Carousel)</div>
-          <p style="color:var(--text-muted); font-size:13px">Uygulamanın en üstündeki kaydırmalı alan. Fotoğraf (asset veya URL) veya YouTube videoları ekleyebilirsiniz.</p>
+          <div class="section-title">🖼️ Ana Ekran Vitrin & Hikaye Baloncukları (Instagram Stories)</div>
+          <p style="color:var(--text-muted); font-size:13px">Bu alandan eklediğiniz fotoğraflar ve videolar hem ana ekrandaki vitrinde gösterilir, hem de <b>Başlık (Title)</b> alanlarına göre gruplanarak Instagram tarzı hikaye baloncukları oluşturur. Aynı başlığı (örneğin <i>Karasu Şelalesi</i>) verdiğiniz tüm resimler tek bir baloncuk içinde sırayla ve süreli olarak oynatılır.</p>
           <div id="headerMediaList" style="margin-top:16px"></div>
           
           <div style="margin-top:30px; padding-top:20px; border-top:2px solid var(--bg)">
@@ -678,7 +678,7 @@
         dashboard: ['Dashboard', 'Genel uygulama durumu ve özet bilgiler.'],
         branding: ['Marka & Tema', 'Uygulama adı, logo ve renk paleti.'],
         quickActions: ['Hızlı Erişim', 'Ana ekrandaki yatay butonlar.'],
-        headerMedia: ['Vitrin (Header)', 'Ana ekranın en üstündeki kaydırmalı medya alanı.'],
+        headerMedia: ['Vitrin & Hikayeler', 'Ana ekranın üstündeki vitrin alanı ve Instagram tarzı hikaye baloncukları.'],
         moreMenu: ['Daha Fazla Menüsü', 'Daha Fazla sekmesinin tile listesi.'],
         newsSources: ['Haber Kaynakları', 'RSS akışlarını ve aktif kaynakları yönetin.'],
         emergency: ['Acil Numaralar', 'Kritik yardım hatlarını buradan güncelleyin.'],
@@ -913,21 +913,25 @@
         <div class="list-item complex" style="${m.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
           <div class="list-item-icon">${m.type === 'video' ? '🎬' : '🖼️'}</div>
           <div class="list-item-content">
-            <div class="list-item-title" style="display:flex; align-items:center; gap:10px">
-              ${escapeHtml(m.title || (m.type === 'video' ? 'Video' : 'Fotoğraf'))}
-              <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px; background:white; padding:2px 8px; border-radius:6px; border:1px solid var(--border)">
-                <input type="checkbox" ${m.isActive !== false ? 'checked' : ''} onchange="rawData.home.headerMedia[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif
-              </label>
+            <div style="display:grid; grid-template-columns: 2fr 3fr 1fr; gap:8px; margin-bottom:8px">
+              <input value="${escapeAttr(m.title || '')}" onchange="rawData.home.headerMedia[${i}].title = this.value; renderAll();" placeholder="Başlık / Hikaye Grubu (örn: Karasu Şelalesi)">
+              <input value="${escapeAttr(m.url || '')}" onchange="rawData.home.headerMedia[${i}].url = this.value; renderAll();" placeholder="Görsel / Video URL">
+              <select onchange="rawData.home.headerMedia[${i}].type = this.value; renderAll();">
+                <option value="image" ${m.type === 'image' ? 'selected' : ''}>Fotoğraf</option>
+                <option value="video" ${m.type === 'video' ? 'selected' : ''}>Video</option>
+              </select>
             </div>
-            <div class="list-item-subtitle">${escapeHtml(m.url)}</div>
+            <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px">
+              <input type="checkbox" ${m.isActive !== false ? 'checked' : ''} onchange="rawData.home.headerMedia[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif Görünsün
+            </label>
           </div>
-          <div style="display:flex; gap:4px">
-            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, -1)" style="padding:6px 10px">⬆</button>
-            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, 1)" style="padding:6px 10px">⬇</button>
-            <button class="btn btn-danger" onclick="removeHeaderMedia(${i})" style="padding:6px 10px">🗑️ Sil</button>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, -1)" style="padding:4px 8px">⬆</button>
+            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, 1)" style="padding:4px 8px">⬇</button>
+            <button class="btn btn-danger" onclick="removeHeaderMedia(${i})" style="padding:4px 8px">🗑️ Sil</button>
           </div>
         </div>
-      `).join('') || '<p style="color:var(--text-muted); text-align:center">Henüz vitrin medyası eklenmemiş.</p>';
+      `).join('') || '<p style="color:var(--text-muted); text-align:center">Henüz vitrin/hikaye medyası eklenmemiş.</p>';
     }
 
     function escapeHtml(s) {
