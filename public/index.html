@@ -542,7 +542,11 @@
             </div>
             <div class="form-group" style="grid-column: span 2">
               <label>Ana Ekran Üst Kartı Arka Plan Resmi (asset:... veya https://...)</label>
-              <input id="brandHeroCardBg" placeholder="asset:assets/images/duzici_castle_header.png">
+              <div style="display:flex; gap:10px; align-items:center">
+                <input id="brandHeroCardBg" placeholder="asset:assets/images/duzici_castle_header.png" style="flex:1">
+                <input type="file" id="brandHeroCardBgFile" style="display:none" onchange="uploadHeroCardBgFile()">
+                <button class="btn btn-secondary" onclick="document.getElementById('brandHeroCardBgFile').click()" style="white-space:nowrap">📤 Dosya Yükle</button>
+              </div>
             </div>
             <div class="form-group">
               <label>Ana Renk (Primary)</label>
@@ -1655,6 +1659,41 @@
       } else {
         preview.style.display = 'none';
       }
+    }
+
+    async function uploadHeroCardBgFile() {
+      const fileInput = document.getElementById('brandHeroCardBgFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük!', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          document.getElementById('brandHeroCardBg').value = url;
+          showToast('Arka plan görseli başarıyla yüklendi! Kaydetmek için lütfen en alttaki "✓ Forma Yansıt" butonuna tıklayıp, ardından en üstteki "💾 Tümünü Kaydet" butonuna basın.');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
     }
 
     async function uploadPlaceFile(fileInputId, targetInputId) {
