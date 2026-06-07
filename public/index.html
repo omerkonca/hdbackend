@@ -540,6 +540,10 @@
               <label>Logo URL (asset:... veya https://...)</label>
               <input id="brandLogoUrl" placeholder="asset:assets/images/logo.png">
             </div>
+            <div class="form-group" style="grid-column: span 2">
+              <label>Ana Ekran Üst Kartı Arka Plan Resmi (asset:... veya https://...)</label>
+              <input id="brandHeroCardBg" placeholder="asset:assets/images/duzici_castle_header.png">
+            </div>
             <div class="form-group">
               <label>Ana Renk (Primary)</label>
               <input id="brandPrimary" type="color">
@@ -956,6 +960,7 @@
       document.getElementById('brandAppName').value = b.appName || '';
       document.getElementById('brandTagline').value = b.tagline || '';
       document.getElementById('brandLogoUrl').value = b.logoUrl || '';
+      document.getElementById('brandHeroCardBg').value = b.heroCardBg || '';
       document.getElementById('brandPrimary').value = normalizeHex(b.primaryColor, '#C98B18');
       document.getElementById('brandPrimaryDark').value = normalizeHex(b.primaryDarkColor, '#8C5E0F');
       document.getElementById('brandAccentBlue').value = normalizeHex(b.accentBlueColor, '#1F6FEB');
@@ -1194,6 +1199,7 @@
       rawData.branding.appName = document.getElementById('brandAppName').value.trim();
       rawData.branding.tagline = document.getElementById('brandTagline').value.trim();
       rawData.branding.logoUrl = document.getElementById('brandLogoUrl').value.trim();
+      rawData.branding.heroCardBg = document.getElementById('brandHeroCardBg').value.trim();
       rawData.branding.primaryColor = document.getElementById('brandPrimary').value.toUpperCase();
       rawData.branding.primaryDarkColor = document.getElementById('brandPrimaryDark').value.toUpperCase();
       rawData.branding.accentBlueColor = document.getElementById('brandAccentBlue').value.toUpperCase();
