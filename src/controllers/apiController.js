@@ -8,6 +8,7 @@ const eventService = require('../services/eventService');
 const outageService = require('../services/outageService');
 const roadClosureService = require('../services/roadClosureService');
 const weatherService = require('../services/weatherService');
+const prayerService = require('../services/prayerService');
 const config = require('../config');
 
 class ApiController {
@@ -270,6 +271,16 @@ class ApiController {
     } catch (error) {
       console.error('❌ getWeather error:', error);
       res.status(500).json({ ok: false, message: 'Hava durumu alinamadi.', detail: error.message });
+    }
+  }
+
+  async getPrayerTimes(req, res) {
+    try {
+      const data = await prayerService.getPrayerTimes();
+      res.json({ ok: true, data });
+    } catch (error) {
+      console.error('❌ getPrayerTimes error:', error);
+      res.status(500).json({ ok: false, message: 'Namaz vakitleri alinamadi.', detail: error.message });
     }
   }
 }

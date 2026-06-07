@@ -14,6 +14,7 @@ router.get('/events', apiController.getEvents);
 router.get('/outages', apiController.getOutages);
 router.get('/road-closures', apiController.getRoadClosures);
 router.get('/weather', apiController.getWeather);
+router.get('/prayers', apiController.getPrayerTimes);
 router.use('/discover', require('./discoverRoutes'));
 router.use('/places', require('./placesRoutes'));
 
