@@ -15,6 +15,7 @@ router.get('/outages', apiController.getOutages);
 router.get('/road-closures', apiController.getRoadClosures);
 router.get('/weather', apiController.getWeather);
 router.get('/prayers', apiController.getPrayerTimes);
+router.get('/obituaries', apiController.getObituaries);
 router.use('/discover', require('./discoverRoutes'));
 router.use('/places', require('./placesRoutes'));
 
@@ -29,5 +30,6 @@ router.post('/finance/refresh', requireAdminToken, apiController.refreshFinance)
 router.post('/fuel/refresh', requireAdminToken, apiController.refreshFuel);
 router.post('/outages/refresh', requireAdminToken, apiController.refreshOutages);
 router.post('/road-closures/refresh', requireAdminToken, apiController.refreshRoadClosures);
+router.post('/obituaries/refresh', requireAdminToken, apiController.refreshObituaries);
 
 module.exports = router;

@@ -9,6 +9,7 @@ const outageService = require('../services/outageService');
 const roadClosureService = require('../services/roadClosureService');
 const weatherService = require('../services/weatherService');
 const prayerService = require('../services/prayerService');
+const obituaryService = require('../services/obituaryService');
 const config = require('../config');
 
 class ApiController {
@@ -18,7 +19,7 @@ class ApiController {
       const body = JSON.stringify(data);
       const etag = '"' + crypto.createHash('sha1').update(body).digest('hex') + '"';
       res.setHeader('ETag', etag);
-      res.setHeader('Cache-Control', 'public, max-age=30');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
       if (req.headers['if-none-match'] === etag) {
         return res.status(304).end();
       }
@@ -281,6 +282,32 @@ class ApiController {
     } catch (error) {
       console.error('❌ getPrayerTimes error:', error);
       res.status(500).json({ ok: false, message: 'Namaz vakitleri alinamadi.', detail: error.message });
+    }
+  }
+
+  async getObituaries(req, res) {
+    try {
+      const force = req.query.refresh === '1';
+      const items = await obituaryService.getObituaries({ forceRefresh: force });
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.json({
+        ok: true,
+        fetchedAt: new Date(obituaryService.cache.fetchedAt || Date.now()).toISOString(),
+        count: items.length,
+        items,
+      });
+    } catch (error) {
+      console.error('❌ getObituaries error:', error);
+      res.status(500).json({ ok: false, message: 'Vefat listesi alinamadi.', detail: error.message });
+    }
+  }
+
+  async refreshObituaries(req, res) {
+    try {
+      const items = await obituaryService.getObituaries({ forceRefresh: true });
+      res.json({ ok: true, message: 'Vefat listesi yenilendi.', count: items.length });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Vefat listesi yenilenemedi.', detail: error.message });
     }
   }
 }

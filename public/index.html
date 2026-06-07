@@ -674,9 +674,22 @@
     }
 
     function initStoryGroups() {
-      const raw = (rawData && rawData.home && rawData.home.headerMedia) ? rawData.home.headerMedia : [];
+      const definedBubbles = (rawData && rawData.home && rawData.home.storyBubbles) ? rawData.home.storyBubbles : [];
       const groups = [];
       const groupsMap = {};
+      
+      definedBubbles.forEach(b => {
+        const bubbleId = b.id;
+        const title = (b.title || '').trim();
+        groupsMap[bubbleId] = {
+          bubbleId: bubbleId,
+          title: title,
+          items: []
+        };
+        groups.push(groupsMap[bubbleId]);
+      });
+
+      const raw = (rawData && rawData.home && rawData.home.headerMedia) ? rawData.home.headerMedia : [];
       raw.forEach(item => {
         const title = (item.title || 'Vitrin / Tanıtım').trim();
         let bubbleId = item.bubbleId;
@@ -712,7 +725,13 @@
 
     function saveStoryGroupsToRawData() {
       const flat = [];
+      const bubbles = [];
+      
       storyGroups.forEach(g => {
+        bubbles.push({
+          id: g.bubbleId,
+          title: g.title
+        });
         g.items.forEach(item => {
           flat.push({
             id: item.id || 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
@@ -726,6 +745,7 @@
       });
       if (!rawData.home) rawData.home = {};
       rawData.home.headerMedia = flat;
+      rawData.home.storyBubbles = bubbles;
     }
 
     // Login logic

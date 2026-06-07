@@ -9,6 +9,7 @@ const pharmacyService = require('./services/pharmacyService');
 const newsService = require('./services/newsService');
 const eventService = require('./services/eventService');
 const roadClosureService = require('./services/roadClosureService');
+const obituaryService = require('./services/obituaryService');
 
 const app = express();
 
@@ -71,6 +72,10 @@ const server = app.listen(config.PORT, () => {
     .then(items => console.log(`[road-closures] otomatik sync hazır (${items.length} kayıt)`))
     .catch(err => console.warn('[road-closures] ilk sync başarısız:', err.message));
 
+  obituaryService.getObituaries({ forceRefresh: true })
+    .then(items => console.log(`[obituaries] cache ready (${items.length} items)`))
+    .catch(err => console.warn('[obituaries] initial fetch failed:', err.message));
+
   // Periodic Refresh
   setInterval(() => {
     pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});
@@ -87,4 +92,8 @@ const server = app.listen(config.PORT, () => {
   setInterval(() => {
     roadClosureService.sync({ force: true }).catch(() => {});
   }, 8 * 60 * 1000); // 8 dk — belediye + haber taraması
+
+  setInterval(() => {
+    obituaryService.getObituaries({ forceRefresh: true }).catch(() => {});
+  }, 30 * 60 * 1000); // 30 dk
 });

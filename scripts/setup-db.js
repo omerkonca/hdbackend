@@ -48,6 +48,27 @@ CREATE TABLE IF NOT EXISTS pharmacies (
   date_range TEXT,
   fetched_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 4. Vefat kayıtları
+CREATE TABLE IF NOT EXISTS obituary_items (
+  id TEXT PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  death_date TIMESTAMPTZ NOT NULL,
+  scope TEXT NOT NULL DEFAULT 'osmaniye',
+  detail TEXT DEFAULT '',
+  district TEXT DEFAULT '',
+  neighborhood TEXT DEFAULT '',
+  condolence_address TEXT DEFAULT '',
+  burial_place TEXT DEFAULT '',
+  age INT,
+  source TEXT DEFAULT '',
+  source_url TEXT DEFAULT '',
+  detail_url TEXT DEFAULT '',
+  fetched_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_obituary_items_death_date ON obituary_items(death_date DESC);
+CREATE INDEX IF NOT EXISTS idx_obituary_items_scope ON obituary_items(scope);
 `;
 
 async function run() {

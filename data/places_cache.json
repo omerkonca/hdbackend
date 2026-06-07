@@ -58,5 +58,20 @@
     "entryFeeNote": null,
     "source": "openstreetmap+wikipedia",
     "cachedAt": 1780491870568
+  },
+  "düziçi köy enstitüsü müzesi (eğitim tarihi müzesi)|37.244|36.451": {
+    "query": "Düziçi Köy Enstitüsü Müzesi (Eğitim Tarihi Müzesi)",
+    "name": "Düziçi Köy Enstitüsü Müzesi (Eğitim Tarihi Müzesi)",
+    "address": "",
+    "lat": 37.244,
+    "lng": 36.451,
+    "osmUrl": "https://www.openstreetmap.org/#map=17/37.244/36.451",
+    "photoSourceUrl": null,
+    "parking": "var",
+    "restroom": "yok",
+    "entryFee": "bilinmiyor",
+    "entryFeeNote": null,
+    "source": "openstreetmap+wikipedia",
+    "cachedAt": 1780840886721
   }
 }
