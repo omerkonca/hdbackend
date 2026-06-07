@@ -565,38 +565,14 @@
       <!-- Header Media (Vitrin & Hikayeler) -->
       <div id="headerMediaView" class="view-section">
         <div class="card">
-          <div class="section-title">🖼️ Ana Ekran Vitrin & Hikaye Baloncukları (Instagram Stories)</div>
-          <p style="color:var(--text-muted); font-size:13px">Bu alandan eklediğiniz fotoğraflar ve videolar hem ana ekrandaki vitrinde gösterilir, hem de <b>Başlık (Title)</b> alanlarına göre gruplanarak Instagram tarzı hikaye baloncukları oluşturur. Aynı başlığı (örneğin <i>Karasu Şelalesi</i>) verdiğiniz tüm resimler tek bir baloncuk içinde sırayla ve süreli olarak oynatılır.</p>
-          <div id="headerMediaList" style="margin-top:16px"></div>
-          
-          <div style="margin-top:30px; padding-top:20px; border-top:2px solid var(--bg)">
-            <h3>➕ Yeni Medya Ekle</h3>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px">
-              <div class="form-group">
-                <label>Medya Tipi</label>
-                <select id="hmType">
-                  <option value="image">Fotoğraf (Resim)</option>
-                  <option value="video">MP4 / YouTube Videosu</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Başlık (Opsiyonel)</label>
-                <input id="hmTitle" placeholder="Örn: Kale Manzarası">
-              </div>
-              <div class="form-group" style="grid-column: span 2">
-                <label>Bilgisayardan Dosya Yükle (MP4, JPG, PNG...)</label>
-                <div style="display:flex; gap:10px">
-                  <input type="file" id="hmFileInput" style="flex:1">
-                  <button class="btn btn-secondary" onclick="uploadHeaderFile()">⬆ Yükle</button>
-                </div>
-              </div>
-              <div class="form-group" style="grid-column: span 2">
-                <label>Veya Manuel URL / Adres</label>
-                <input id="hmUrl" placeholder="https://resim-adresi.com/gorsel.jpg veya YouTube Linki">
-              </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:14px">
+            <div>
+              <div class="section-title" style="margin:0">🖼️ Ana Ekran Hikaye Baloncukları (Instagram Stories)</div>
+              <p style="color:var(--text-muted); font-size:13px; margin:4px 0 0 0">Bu alandan eklediğiniz görsel ve videolar Instagram tarzı hikaye baloncukları halinde gruplanır. Her baloncuğun içine bilgisayardan yükleme yapabilir veya manuel URL ekleyebilirsiniz.</p>
             </div>
-            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px" onclick="addHeaderMedia()">Vitrini Listeye Ekle</button>
+            <button class="btn btn-primary" onclick="createStoryGroup()">➕ Yeni Baloncuk (Hikaye Grubu) Ekle</button>
           </div>
+          <div id="headerMediaList" style="margin-top:16px"></div>
         </div>
       </div>
 
@@ -678,6 +654,79 @@
     let currentExploreCategoryIndex = -1;
     let currentExplorePlaceIndex = -1;
     let tempPlaceGallery = [];
+    let storyGroups = [];
+
+    function slugify(text) {
+      const trMap = {
+        'ç': 'c', 'Ç': 'c', 'ğ': 'g', 'Ğ': 'g', 'ı': 'i', 'I': 'i', 'İ': 'i',
+        'ö': 'o', 'Ö': 'o', 'ş': 's', 'Ş': 's', 'ü': 'u', 'Ü': 'u'
+      };
+      let str = String(text || '').toLowerCase();
+      for (let key in trMap) {
+        str = str.replace(new RegExp(key, 'g'), trMap[key]);
+      }
+      return str
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '_')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+    }
+
+    function initStoryGroups() {
+      const raw = (rawData && rawData.home && rawData.home.headerMedia) ? rawData.home.headerMedia : [];
+      const groups = [];
+      const groupsMap = {};
+      raw.forEach(item => {
+        const title = (item.title || 'Vitrin / Tanıtım').trim();
+        let bubbleId = item.bubbleId;
+        
+        if (!bubbleId) {
+          const existingGroup = groups.find(g => g.title === title);
+          if (existingGroup) {
+            bubbleId = existingGroup.bubbleId;
+          } else {
+            bubbleId = slugify(title) + '_' + Math.random().toString(36).substring(2, 6);
+          }
+        }
+        
+        const itemId = item.id || 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+
+        if (!groupsMap[bubbleId]) {
+          groupsMap[bubbleId] = { 
+            bubbleId: bubbleId, 
+            title: title, 
+            items: [] 
+          };
+          groups.push(groupsMap[bubbleId]);
+        }
+        groupsMap[bubbleId].items.push({
+          id: itemId,
+          url: item.url,
+          type: item.type || 'image',
+          isActive: item.isActive !== false
+        });
+      });
+      storyGroups = groups;
+    }
+
+    function saveStoryGroupsToRawData() {
+      const flat = [];
+      storyGroups.forEach(g => {
+        g.items.forEach(item => {
+          flat.push({
+            id: item.id || 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+            bubbleId: g.bubbleId,
+            title: g.title,
+            url: item.url,
+            type: item.type,
+            isActive: item.isActive !== false
+          });
+        });
+      });
+      if (!rawData.home) rawData.home = {};
+      rawData.home.headerMedia = flat;
+    }
 
     // Login logic
     async function handleLogin() {
@@ -760,6 +809,7 @@
     async function loadData() {
       const res = await fetch('/api/city-content');
       rawData = await res.json();
+      initStoryGroups();
       renderAll();
     }
 
@@ -958,32 +1008,74 @@
         </div>
       `).join('');
 
-      // Header Media (Vitrin)
+      // Grouped Header Media (Vitrin/Stories)
       const hmList = document.getElementById('headerMediaList');
-      const headerMedia = (rawData.home && rawData.home.headerMedia) ? rawData.home.headerMedia : [];
-      hmList.innerHTML = headerMedia.map((m, i) => `
-        <div class="list-item complex" style="${m.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
-          <div class="list-item-icon">${m.type === 'video' ? '🎬' : '🖼️'}</div>
-          <div class="list-item-content">
-            <div style="display:grid; grid-template-columns: 2fr 3fr 1fr; gap:8px; margin-bottom:8px">
-              <input value="${escapeAttr(m.title || '')}" onchange="rawData.home.headerMedia[${i}].title = this.value; renderAll();" placeholder="Başlık / Hikaye Grubu (örn: Karasu Şelalesi)">
-              <input value="${escapeAttr(m.url || '')}" onchange="rawData.home.headerMedia[${i}].url = this.value; renderAll();" placeholder="Görsel / Video URL">
-              <select onchange="rawData.home.headerMedia[${i}].type = this.value; renderAll();">
-                <option value="image" ${m.type === 'image' ? 'selected' : ''}>Fotoğraf</option>
-                <option value="video" ${m.type === 'video' ? 'selected' : ''}>Video</option>
-              </select>
+      hmList.innerHTML = storyGroups.map((group, gi) => `
+        <div class="card" style="margin-bottom: 20px; border: 1px solid var(--border); padding: 18px; background: #fafafa; box-shadow:none">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #eee">
+            <div style="display:flex; flex-direction:column; gap:4px; flex:1">
+              <div style="display:flex; align-items:center; gap:8px">
+                <span style="font-size:20px">🎈</span>
+                <input value="${escapeAttr(group.title)}" 
+                       onchange="storyGroups[${gi}].title = this.value; saveStoryGroupsToRawData(); renderAll(); saveData();" 
+                       placeholder="Baloncuk Adı (örn: Yeşil Şelale)" 
+                       style="font-size:16px; font-weight:700; flex:1; border:none; background:transparent; border-bottom:1px dashed #bbb; outline:none">
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-left:28px">
+                <span>Benzersiz ID:</span>
+                <input value="${escapeAttr(group.bubbleId || '')}" 
+                       onchange="storyGroups[${gi}].bubbleId = slugify(this.value); saveStoryGroupsToRawData(); renderAll(); saveData();"
+                       style="font-family:monospace; font-size:11px; padding:2px 6px; border:1px solid var(--border); border-radius:4px; background:#f1f5f9; width:220px">
+              </div>
             </div>
-            <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px">
-              <input type="checkbox" ${m.isActive !== false ? 'checked' : ''} onchange="rawData.home.headerMedia[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif Görünsün
-            </label>
+            <div style="display:flex; gap:6px">
+              <button class="btn btn-secondary" onclick="moveStoryGroup(${gi}, -1)" style="padding:4px 8px">⬆</button>
+              <button class="btn btn-secondary" onclick="moveStoryGroup(${gi}, 1)" style="padding:4px 8px">⬇</button>
+              <button class="btn btn-danger" onclick="deleteStoryGroup(${gi})" style="padding:4px 10px; font-size:12px">🗑️ Baloncuğu Sil</button>
+            </div>
           </div>
-          <div style="display:flex; flex-direction:column; gap:4px">
-            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, -1)" style="padding:4px 8px">⬆</button>
-            <button class="btn btn-secondary" onclick="moveHeaderMedia(${i}, 1)" style="padding:4px 8px">⬇</button>
-            <button class="btn btn-danger" onclick="removeHeaderMedia(${i})" style="padding:4px 8px">🗑️ Sil</button>
+          
+          <div style="display:flex; flex-direction:column; gap:8px">
+            ${(group.items || []).map((item, ii) => `
+              <div class="list-item complex" style="margin-bottom:4px; background:white; ${item.isActive === false ? 'opacity: 0.6;' : ''}">
+                <div class="list-item-icon">${item.type === 'video' ? '🎬' : '🖼️'}</div>
+                <div class="list-item-content" style="display:grid; grid-template-columns: 3fr 1fr auto; gap:8px; align-items:center">
+                  <input value="${escapeAttr(item.url)}" onchange="storyGroups[${gi}].items[${ii}].url = this.value; saveStoryGroupsToRawData(); renderAll(); saveData();" placeholder="Görsel / Video URL">
+                  <select onchange="storyGroups[${gi}].items[${ii}].type = this.value; saveStoryGroupsToRawData(); renderAll(); saveData();" style="padding:6px; border:1px solid var(--border); border-radius:6px">
+                    <option value="image" ${item.type === 'image' ? 'selected' : ''}>Fotoğraf</option>
+                    <option value="video" ${item.type === 'video' ? 'selected' : ''}>Video</option>
+                  </select>
+                  <label style="margin:0; font-size:12px; display:flex; align-items:center; gap:4px">
+                    <input type="checkbox" ${item.isActive !== false ? 'checked' : ''} onchange="storyGroups[${gi}].items[${ii}].isActive = this.checked; saveStoryGroupsToRawData(); renderAll(); saveData();" style="width:auto"> Aktif
+                  </label>
+                </div>
+                <div style="display:flex; gap:4px">
+                  <button class="btn btn-secondary" onclick="moveStoryGroupItem(${gi}, ${ii}, -1)" style="padding:4px 8px">⬆</button>
+                  <button class="btn btn-secondary" onclick="moveStoryGroupItem(${gi}, ${ii}, 1)" style="padding:4px 8px">⬇</button>
+                  <button class="btn btn-danger" onclick="deleteStoryGroupItem(${gi}, ${ii})" style="padding:4px 8px">🗑️</button>
+                </div>
+              </div>
+            `).join('') || '<p style="color:var(--text-muted); font-size:12px; text-align:center; padding:10px">Bu baloncuğun içinde henüz hiç fotoğraf veya video yok.</p>'}
+          </div>
+          
+          <div style="margin-top:14px; padding-top:12px; border-top:1px dashed #eee; display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:10px; border-radius:8px">
+            <div class="form-group" style="margin:0">
+              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Bilgisayardan Dosya Yükle</label>
+              <div style="display:flex; gap:6px">
+                <input type="file" id="file_input_${gi}" style="font-size:12px; padding:2px; flex:1">
+                <button class="btn btn-secondary" onclick="uploadStoryFile(${gi})" style="font-size:11px; padding:4px 10px">⬆ Yükle</button>
+              </div>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Veya Manuel Link Ekle</label>
+              <div style="display:flex; gap:6px">
+                <input id="url_input_${gi}" placeholder="https://..." style="font-size:12px; flex:1">
+                <button class="btn btn-primary" onclick="addStoryUrl(${gi})" style="font-size:11px; padding:4px 10px">➕ Ekle</button>
+              </div>
+            </div>
           </div>
         </div>
-      `).join('') || '<p style="color:var(--text-muted); text-align:center">Henüz vitrin/hikaye medyası eklenmemiş.</p>';
+      `).join('') || '<p style="color:var(--text-muted); text-align:center">Henüz baloncuk eklenmemiş.</p>';
     }
 
     function escapeHtml(s) {
@@ -1182,50 +1274,68 @@
       saveData();
     }
 
-    // Header Media (Vitrin)
-    async function addHeaderMedia() {
-      const type = document.getElementById('hmType').value;
-      const title = document.getElementById('hmTitle').value.trim();
-      const fileInput = document.getElementById('hmFileInput');
-      let url = document.getElementById('hmUrl').value.trim();
-
-      // Eğer dosya seçilmişse ama henüz yüklenmemişse (URL boşsa), önce yükle
-      if (!url && fileInput.files.length > 0) {
-        showToast('Önce dosya yükleniyor, bekleyin...');
-        await uploadHeaderFile();
-        url = document.getElementById('hmUrl').value.trim();
-      }
-
-      if (!url) return showToast('Lütfen bir dosya seçin veya URL girin!', true);
-
-      // Otomatik tam URL'ye çevir (yerel upload ise)
-      if (url.startsWith('/uploads/')) {
-        const baseUrl = window.location.origin;
-        url = baseUrl + url;
-      }
-
-      if (!rawData.home) rawData.home = {};
-      if (!rawData.home.headerMedia) rawData.home.headerMedia = [];
-
-      rawData.home.headerMedia.push({ type, title, url, isActive: true });
-
-      document.getElementById('hmTitle').value = '';
-      document.getElementById('hmUrl').value = '';
-      document.getElementById('hmFileInput').value = '';
+    // Grouped Stories Bubble Management
+    function createStoryGroup() {
+      const title = prompt('Yeni Baloncuk (Hikaye Grubu) Adı girin:');
+      if (!title || !title.trim()) return;
+      const t = title.trim();
+      const generatedId = slugify(t) + '_' + Math.random().toString(36).substring(2, 6);
+      storyGroups.push({
+        bubbleId: generatedId,
+        title: t,
+        items: []
+      });
+      saveStoryGroupsToRawData();
       renderAll();
-      showToast('Vitrin eklendi, kaydediliyor...');
+      showToast('Baloncuk oluşturuldu! Kaydediliyor...');
       saveData();
     }
 
-    async function uploadHeaderFile() {
-      const fileInput = document.getElementById('hmFileInput');
-      if (fileInput.files.length === 0) return showToast('Dosya seçmediniz!', true);
+    function deleteStoryGroup(gi) {
+      if (!confirm(`"${storyGroups[gi].title}" baloncuğunu ve içindeki tüm medyaları silmek istediğinize emin misiniz?`)) return;
+      storyGroups.splice(gi, 1);
+      saveStoryGroupsToRawData();
+      renderAll();
+      showToast('Baloncuk silindi, kaydediliyor...');
+      saveData();
+    }
+
+    function moveStoryGroup(gi, delta) {
+      const j = gi + delta;
+      if (j < 0 || j >= storyGroups.length) return;
+      [storyGroups[gi], storyGroups[j]] = [storyGroups[j], storyGroups[gi]];
+      saveStoryGroupsToRawData();
+      renderAll();
+      saveData();
+    }
+
+    function deleteStoryGroupItem(gi, ii) {
+      storyGroups[gi].items.splice(ii, 1);
+      saveStoryGroupsToRawData();
+      renderAll();
+      showToast('Medya silindi, kaydediliyor...');
+      saveData();
+    }
+
+    function moveStoryGroupItem(gi, ii, delta) {
+      const arr = storyGroups[gi].items;
+      const j = ii + delta;
+      if (j < 0 || j >= arr.length) return;
+      [arr[ii], arr[j]] = [arr[j], arr[ii]];
+      saveStoryGroupsToRawData();
+      renderAll();
+      saveData();
+    }
+
+    async function uploadStoryFile(gi) {
+      const fileInput = document.getElementById(`file_input_${gi}`);
+      if (fileInput.files.length === 0) return showToast('Lütfen yüklemek için dosya seçin!', true);
       
       const file = fileInput.files[0];
       const formData = new FormData();
       formData.append('file', file);
-
-      showToast('Yükleniyor...');
+      
+      showToast('Dosya yükleniyor...');
       try {
         const res = await fetch('/api/upload', {
           method: 'POST',
@@ -1234,42 +1344,57 @@
         });
         
         if (res.status === 413) {
-           return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
+          return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
         }
-
+        
         const data = await res.json();
         if (data.ok) {
-          document.getElementById('hmUrl').value = data.fileUrl;
-          // Dosya tipini otomatik seç
-          const ext = file.name.split('.').pop().toLowerCase();
-          if (['mp4', 'mov', 'avi'].includes(ext)) {
-            document.getElementById('hmType').value = 'video';
-          } else {
-            document.getElementById('hmType').value = 'image';
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
           }
-          showToast('Dosya yüklendi! Şimdi "Ekle" butonuna basın.');
+          const ext = file.name.split('.').pop().toLowerCase();
+          const type = ['mp4', 'mov', 'avi'].includes(ext) ? 'video' : 'image';
+          
+          storyGroups[gi].items.push({
+            url,
+            type,
+            isActive: true
+          });
+          fileInput.value = '';
+          saveStoryGroupsToRawData();
+          renderAll();
+          showToast('Dosya yüklendi ve eklendi!');
+          saveData();
         } else {
-          showToast('Hata: ' + (data.message || 'Yükleme başarısız'), true);
+          showToast('Hata: ' + (data.message || 'Dosya yüklenemedi'), true);
         }
       } catch (e) {
         console.error(e);
-        showToast('Bağlantı hatası veya dosya çok büyük!', true);
+        showToast('Dosya yüklenirken bağlantı hatası oluştu!', true);
       }
     }
 
-    function removeHeaderMedia(i) {
-      rawData.home.headerMedia.splice(i, 1);
+    function addStoryUrl(gi) {
+      const urlInput = document.getElementById(`url_input_${gi}`);
+      const url = urlInput.value.trim();
+      if (!url) return showToast('Lütfen geçerli bir URL girin!', true);
+      
+      const lowercaseUrl = url.toLowerCase();
+      let type = 'image';
+      if (lowercaseUrl.includes('youtube.com') || lowercaseUrl.includes('youtu.be') || lowercaseUrl.endsWith('.mp4') || lowercaseUrl.endsWith('.mov') || lowercaseUrl.endsWith('.avi')) {
+        type = 'video';
+      }
+      
+      storyGroups[gi].items.push({
+        url,
+        type,
+        isActive: true
+      });
+      urlInput.value = '';
+      saveStoryGroupsToRawData();
       renderAll();
-      showToast('Siliniyor...');
-      saveData();
-    }
-
-    function moveHeaderMedia(i, delta) {
-      const arr = rawData.home.headerMedia;
-      const j = i + delta;
-      if (j < 0 || j >= arr.length) return;
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-      renderAll();
+      showToast('Medya eklendi!');
       saveData();
     }
 
