@@ -32,6 +32,11 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'hepsi-duzici-city-content-api', timestamp: new Date().toISOString() });
 });
 
+// Gizlilik politikasi (Google Play Store)
+app.get(['/gizlilik-politikasi', '/gizlilik-politikasi.html', '/privacy-policy'], (req, res) => {
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'gizlilik-politikasi.html'));
+});
+
 // Admin Panel redirect
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'index.html'));
