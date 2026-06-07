@@ -37,6 +37,11 @@ app.get(['/gizlilik-politikasi', '/gizlilik-politikasi.html', '/privacy-policy']
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'gizlilik-politikasi.html'));
 });
 
+// Yayıncı iletisim (Google Play Store - Haber uygulamalari beyani)
+app.get(['/iletisim', '/iletisim.html', '/contact'], (req, res) => {
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'iletisim.html'));
+});
+
 // Admin Panel redirect
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'index.html'));
