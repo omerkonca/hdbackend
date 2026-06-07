@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Hepsi Düziçi mobil uygulaması gizlilik politikası." />
+  <title>Gizlilik Politikası | Hepsi Düziçi</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #1a1f2e;
+      --muted: #5c6478;
+      --accent: #c98b18;
+      --border: #e5e8f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1117;
+        --card: #171b24;
+        --text: #f3f5fa;
+        --muted: #a8b0c2;
+        --border: #2a3142;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+      letter-spacing: -0.02em;
+    }
+    .meta {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+    h2 {
+      margin: 28px 0 10px;
+      font-size: 1.1rem;
+      color: var(--accent);
+    }
+    p, li { color: var(--text); }
+    ul { padding-left: 1.2rem; }
+    li { margin: 6px 0; }
+    a { color: var(--accent); }
+    .footer {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Hepsi Düziçi Gizlilik Politikası</h1>
+      <p class="meta">Son güncelleme: 7 Haziran 2026</p>
+
+      <p>
+        Hepsi Düziçi (“Uygulama”), Düziçi ve Osmaniye için yerel haber, etkinlik, hizmet ve şehir rehberi
+        sunan ücretsiz bir mobil uygulamadır. Bu politika, uygulamayı kullanırken hangi verilerin işlendiğini
+        açıklar.
+      </p>
+
+      <h2>1. Topladığımız Veriler</h2>
+      <p>Uygulama kullanıcı hesabı oluşturmanızı istemez. Aşağıdaki veriler sınırlı şekilde işlenebilir:</p>
+      <ul>
+        <li><strong>Konum bilgisi (isteğe bağlı):</strong> Nöbetçi eczane, sağlık kurumu ve harita özelliklerinde yakınınızdaki sonuçları göstermek için yalnızca siz izin verdiğinizde kullanılır.</li>
+        <li><strong>Cihazda saklanan tercihler:</strong> Onboarding durumu, bildirim ayarları ve favoriler gibi bilgiler cihazınızda yerel olarak saklanır.</li>
+        <li><strong>İnternet trafiği:</strong> Haber, hava durumu, eczane, namaz vakitleri ve benzeri içerikleri sunmak için sunucularımızla güvenli (HTTPS) bağlantı kurulur.</li>
+        <li><strong>Bildirim izni (isteğe bağlı):</strong> Yeni haber veya hatırlatmalar için sistem bildirim izni istenebilir.</li>
+      </ul>
+
+      <h2>2. Toplamadığımız Veriler</h2>
+      <ul>
+        <li>Ad, soyad, T.C. kimlik numarası veya ödeme bilgisi toplanmaz.</li>
+        <li>Uygulama içinde sosyal medya hesabı veya e-posta ile giriş zorunluluğu yoktur.</li>
+        <li>Reklam profili oluşturmak için kişisel veri satışı yapılmaz.</li>
+      </ul>
+
+      <h2>3. Verilerin Kullanım Amaçları</h2>
+      <ul>
+        <li>Yerel haber, etkinlik ve hizmet içeriklerini göstermek</li>
+        <li>Nöbetçi eczane ve konum tabanlı özellikleri çalıştırmak</li>
+        <li>Bildirim tercihlerinizi uygulamak</li>
+        <li>Uygulama performansını ve içerik güncelliğini sağlamak</li>
+      </ul>
+
+      <h2>4. Üçüncü Taraf Hizmetler</h2>
+      <p>Uygulama, içerik ve altyapı için aşağıdaki türde hizmetlerden yararlanabilir:</p>
+      <ul>
+        <li>Barındırma ve API sunucuları (ör. Render)</li>
+        <li>Veri tabanı hizmetleri (ör. Supabase)</li>
+        <li>Halka açık haber kaynakları, belediye ve kamu kaynaklı veriler</li>
+        <li>Harita ve hava durumu sağlayıcıları</li>
+      </ul>
+      <p>Bu hizmetlere yalnızca uygulama işlevlerini yerine getirmek için gerekli teknik istekler gönderilir.</p>
+
+      <h2>5. Veri Saklama ve Güvenlik</h2>
+      <ul>
+        <li>Kişisel hesap verisi tutulmadığı için verileriniz büyük ölçüde cihazınızda veya anonim teknik kayıtlarda kalır.</li>
+        <li>Sunucu iletişimi mümkün olduğunca HTTPS üzerinden şifrelenir.</li>
+        <li>Verilere yalnızca uygulamanın çalışması için gerekli minimum erişim sağlanır.</li>
+      </ul>
+
+      <h2>6. Haklarınız</h2>
+      <p>KVKK kapsamında:</p>
+      <ul>
+        <li>Hangi verilerin işlendiğini öğrenme</li>
+        <li>İşleme hakkında bilgi talep etme</li>
+        <li>Konum ve bildirim izinlerini cihaz ayarlarından geri alma</li>
+        <li>Uygulamayı cihazınızdan kaldırarak yerel verileri silme</li>
+      </ul>
+      <p>Talepleriniz için bizimle iletişime geçebilirsiniz.</p>
+
+      <h2>7. Çocukların Gizliliği</h2>
+      <p>
+        Uygulama genel kullanıcı kitlesine yöneliktir. Bilerek 13 yaş altı çocuklardan kişisel veri toplanmaz.
+      </p>
+
+      <h2>8. Politika Değişiklikleri</h2>
+      <p>
+        Bu politika zaman zaman güncellenebilir. Güncel sürüm bu sayfada yayımlanır. Önemli değişikliklerde
+        uygulama içinde bilgilendirme yapılabilir.
+      </p>
+
+      <h2>9. İletişim</h2>
+      <p>
+        Gizlilik ile ilgili sorularınız için:<br />
+        <strong>E-posta:</strong> <a href="mailto:destek@hepsiduzici.com">destek@hepsiduzici.com</a>
+      </p>
+
+      <div class="footer">
+        © 2026 Hepsi Düziçi · Paket adı: net.hepsiduzici.hepsi_duzici
+      </div>
+    </div>
+  </div>
+</body>
+</html>
