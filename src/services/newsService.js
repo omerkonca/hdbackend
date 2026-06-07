@@ -37,26 +37,18 @@ class NewsService {
     return '';
   }
 
-  isDuziciRelated(title, summary) {
-    const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
-    return /\b(duzici|yarbasi|ellek|atalan|duldul)\b/.test(text);
+  duziciKeywordRe() {
+    return /duzici|yarbasi|ellek|atalan|duldul/;
   }
 
-  inferNewsCategory(title = '', summary = '', sourceName = '') {
+  isDuziciRelated(title, summary) {
     const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
-    const source = normalizeForCompare(sourceName || '');
+    return this.duziciKeywordRe().test(text);
+  }
 
-    const hasDuzici = /\b(duzici|yarbasi|ellek|atalan|duldul)\b/.test(text);
-    const hasOtherDistrict = /\b(osmaniye|kadirli|bahce|sumbas|hasanbeyli|toprakkale|karacay|ceylan|duzgun|duzgunbel|duzkoy)\b/.test(text);
-    const hasOku = /\b(oku|korkut ata|osmaniye korkut)\b/.test(text);
-
-    if (hasDuzici) return 'Düziçi';
-    if (hasOtherDistrict || hasOku) return 'Osmaniye';
-
-    if (source.includes('google news osmaniye')) return 'Osmaniye';
-    if (source.includes('hasret') || source.includes('sabir')) return 'Düziçi';
-    if (source.includes('google news')) return 'Osmaniye';
-
+  inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
+    if (scope === 'osmaniye') return 'Osmaniye';
+    if (this.isDuziciRelated(title, summary)) return 'Düziçi';
     return 'Osmaniye';
   }
 
@@ -72,7 +64,7 @@ class NewsService {
     }
   }
 
-  parseNewsRss(xml, { max = 50, sourceName = '', filterDuzici = false } = {}) {
+  parseNewsRss(xml, { max = 50, sourceName = '', filterDuzici = false, scope = 'auto' } = {}) {
     const crypto = require('crypto');
     const itemBlocks = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
     let parsed = itemBlocks
@@ -95,11 +87,11 @@ class NewsService {
           createdAt: new Date(pubDate || Date.now()).toISOString(),
           sourceUrl: link || null,
           sourceName: resolvedSourceName,
-          category: this.inferNewsCategory(title, summary || title, resolvedSourceName),
+          category: this.inferNewsCategory(title, summary || title, resolvedSourceName, { scope }),
         };
       })
       .filter((x) => x.title && x.sourceUrl);
-    if (filterDuzici) {
+    if (filterDuzici || scope === 'duzici') {
       parsed = parsed.filter((x) => this.isDuziciRelated(x.title, x.summary));
     }
     return parsed.slice(0, max);
@@ -123,6 +115,7 @@ class NewsService {
             url: String(s.url),
             name: String(s.name || ''),
             filterDuzici: s.filterDuzici === true,
+            scope: String(s.scope || 'auto'),
           }));
         if (active.length > 0) return active;
       }
@@ -142,6 +135,7 @@ class NewsService {
           max: 25,
           sourceName: src.name,
           filterDuzici: src.filterDuzici === true,
+          scope: src.scope || 'auto',
         });
         allItems.push(...items);
       } catch (err) {
