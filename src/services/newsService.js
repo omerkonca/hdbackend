@@ -1,6 +1,14 @@
 const config = require('../config');
 const fileService = require('./fileService');
-const { getTagValue, stripHtml, extractImageUrlFromHtml, decodeXmlEntities, normalizeText } = require('../utils/helpers');
+const {
+  getTagValue,
+  stripHtml,
+  extractImageUrlFromHtml,
+  extractOgImageFromHtml,
+  decodeXmlEntities,
+  normalizeText,
+  normalizeForCompare,
+} = require('../utils/helpers');
 
 class NewsService {
   constructor() {
@@ -30,8 +38,38 @@ class NewsService {
   }
 
   isDuziciRelated(title, summary) {
-    const text = `${title || ''} ${summary || ''}`.toLowerCase();
-    return /d[uü]zi[cç]i|düzici|duzici/.test(text);
+    const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
+    return /\b(duzici|yarbasi|ellek|atalan|duldul)\b/.test(text);
+  }
+
+  inferNewsCategory(title = '', summary = '', sourceName = '') {
+    const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
+    const source = normalizeForCompare(sourceName || '');
+
+    const hasDuzici = /\b(duzici|yarbasi|ellek|atalan|duldul)\b/.test(text);
+    const hasOtherDistrict = /\b(osmaniye|kadirli|bahce|sumbas|hasanbeyli|toprakkale|karacay|ceylan|duzgun|duzgunbel|duzkoy)\b/.test(text);
+    const hasOku = /\b(oku|korkut ata|osmaniye korkut)\b/.test(text);
+
+    if (hasDuzici) return 'Düziçi';
+    if (hasOtherDistrict || hasOku) return 'Osmaniye';
+
+    if (source.includes('google news osmaniye')) return 'Osmaniye';
+    if (source.includes('hasret') || source.includes('sabir')) return 'Düziçi';
+    if (source.includes('google news')) return 'Osmaniye';
+
+    return 'Osmaniye';
+  }
+
+  async resolveArticleUrl(articleUrl) {
+    const url = String(articleUrl || '').trim();
+    if (!url || !url.startsWith('http')) return url;
+    if (!/news\.google\.com|google\.com\/url/i.test(url)) return url;
+    try {
+      const res = await fetch(url, { ...this.FETCH_OPTIONS, redirect: 'follow' });
+      return res.url || url;
+    } catch (_) {
+      return url;
+    }
   }
 
   parseNewsRss(xml, { max = 50, sourceName = '', filterDuzici = false } = {}) {
@@ -48,6 +86,7 @@ class NewsService {
         const summary = stripHtml(descriptionRaw);
         
         const urlHash = crypto.createHash('md5').update(link || '').digest('hex');
+        const resolvedSourceName = source || sourceName;
         return {
           id: `news-${urlHash}`,
           title,
@@ -55,7 +94,8 @@ class NewsService {
           imageUrl: imageUrl || null,
           createdAt: new Date(pubDate || Date.now()).toISOString(),
           sourceUrl: link || null,
-          sourceName: source || sourceName,
+          sourceName: resolvedSourceName,
+          category: this.inferNewsCategory(title, summary || title, resolvedSourceName),
         };
       })
       .filter((x) => x.title && x.sourceUrl);
@@ -122,10 +162,41 @@ class NewsService {
       const key = (item.sourceUrl || '') + (item.title || '');
       if (seen.has(key)) continue;
       seen.add(key);
-      merged.push(item);
+      merged.push({
+        ...item,
+        category: item.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
+      });
     }
     merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     return merged.slice(0, max);
+  }
+
+  async enrichItemsFromCache(items) {
+    const urls = items.map((item) => item.sourceUrl).filter(Boolean);
+    if (urls.length === 0) return items;
+
+    try {
+      const supabase = require('../utils/supabaseClient');
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('source_url, image_url, full_text, category')
+        .in('source_url', urls);
+      if (error) throw error;
+
+      const cacheByUrl = new Map((data || []).map((row) => [row.source_url, row]));
+      return items.map((item) => {
+        const cached = cacheByUrl.get(item.sourceUrl);
+        if (!cached) return item;
+        return {
+          ...item,
+          imageUrl: item.imageUrl || cached.image_url || null,
+          category: item.category || cached.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
+        };
+      });
+    } catch (err) {
+      console.error('❌ Supabase news cache read failed:', err.message);
+      return items;
+    }
   }
 
   async getNews({ forceRefresh = false, max = 20 } = {}) {
@@ -134,7 +205,8 @@ class NewsService {
     if (!forceRefresh && isFresh && this.cache.items.length > 0) {
       return this.cache.items.slice(0, max);
     }
-    const items = await this.scrapeNews({ max });
+    let items = await this.scrapeNews({ max: Math.max(max, 80) });
+    items = await this.enrichItemsFromCache(items);
     this.cache = {
       fetchedAt: now,
       items,
@@ -151,6 +223,7 @@ class NewsService {
         created_at: item.createdAt,
         source_url: item.sourceUrl,
         source_name: item.sourceName,
+        category: item.category,
         fetched_at: new Date().toISOString(),
       }));
       await supabase.from('news_items').upsert(rows);
@@ -164,7 +237,7 @@ class NewsService {
       console.error('❌ Supabase news cache sync failed:', err.message);
     }
 
-    return items;
+    return items.slice(0, max);
   }
 
   async preFetchFullTexts(items) {
@@ -175,45 +248,51 @@ class NewsService {
     try {
       const { data, error } = await supabase
         .from('news_items')
-        .select('source_url, full_text')
+        .select('source_url, full_text, image_url')
         .in('source_url', urls);
       
       if (error) throw error;
 
-      const cachedUrls = new Set(
-        (data || [])
-          .filter(row => row.full_text && row.full_text.trim().length > 300)
-          .map(row => row.source_url)
-      );
-
-      // Sadece veritabanında henüz tam metni (full_text) bulunmayan haberleri çekelim
-      const itemsToFetch = items.filter(item => item.sourceUrl && !cachedUrls.has(item.sourceUrl));
+      const cachedByUrl = new Map((data || []).map((row) => [row.source_url, row]));
+      const itemsToFetch = items.filter((item) => {
+        if (!item.sourceUrl) return false;
+        const cached = cachedByUrl.get(item.sourceUrl);
+        const hasText = cached?.full_text && cached.full_text.trim().length > 300;
+        const hasImage = (cached?.image_url && cached.image_url.trim()) || (item.imageUrl && item.imageUrl.trim());
+        return !hasText || !hasImage;
+      });
 
       if (itemsToFetch.length === 0) return;
 
-      console.log(`[news] Arka planda ${itemsToFetch.length} adet yeni haberin tam metni çekiliyor...`);
+      console.log(`[news] Arka planda ${itemsToFetch.length} adet haber detayi cekiliyor...`);
 
-      // Aynı anda max 3 istek atarak kaynak siteleri ve kendi sunucumuzu yormayalım
       const limit = 3;
       for (let i = 0; i < itemsToFetch.length; i += limit) {
         const chunk = itemsToFetch.slice(i, i + limit);
         await Promise.all(chunk.map(async (item) => {
           try {
-            const fullText = await this.fetchArticleFullText(item.sourceUrl);
-            if (fullText && fullText.trim().length > 0) {
+            const details = await this.fetchArticleDetails(item.sourceUrl);
+            const update = {};
+            if (details.fullText && details.fullText.trim().length > 0) {
+              update.full_text = details.fullText;
+            }
+            if (details.imageUrl && details.imageUrl.trim().length > 0) {
+              update.image_url = details.imageUrl;
+            }
+            if (Object.keys(update).length > 0) {
               await supabase
                 .from('news_items')
-                .update({ full_text: fullText })
+                .update(update)
                 .eq('source_url', item.sourceUrl);
-              console.log(`[news] Arka planda tam metin başarıyla önbelleğe alındı: ${item.sourceUrl}`);
+              console.log(`[news] Arka planda haber detayi onbellege alindi: ${item.sourceUrl}`);
             }
           } catch (e) {
-            console.error(`[news] Arka planda tam metin çekme başarısız (${item.sourceUrl}):`, e.message);
+            console.error(`[news] Arka planda haber detayi cekme basarisiz (${item.sourceUrl}):`, e.message);
           }
         }));
       }
     } catch (err) {
-      console.error('❌ Arka plan haber önbellekleme kontrolü başarısız:', err.message);
+      console.error('❌ Arka plan haber onbellekleme kontrolu basarisiz:', err.message);
     }
   }
 
@@ -251,16 +330,14 @@ class NewsService {
     return html.slice(contentStartIdx, pos - closeToken.length);
   }
 
-  async fetchArticleFullText(articleUrl) {
-    const url = String(articleUrl || '').trim();
+  async fetchArticleHtml(articleUrl) {
+    const resolvedUrl = await this.resolveArticleUrl(articleUrl);
+    const url = String(resolvedUrl || '').trim();
     if (!url || !url.startsWith('http')) {
       throw new Error('Gecersiz URL');
     }
     const res = await fetch(url, this.FETCH_OPTIONS);
     if (!res.ok) throw new Error(`Sayfa alinamadi: ${res.status}`);
-    // Bazi site sunuculari Content-Type'da UTF-8 yazsa da govdeyi
-    // Windows-1254 olarak gonderiyor. Once UTF-8 dene, bozulma cok ise
-    // 1254 ile yeniden coz.
     const buf = Buffer.from(await res.arrayBuffer());
     let html = new TextDecoder('utf-8', { fatal: false }).decode(buf);
     const replacementRatio = (html.match(/\uFFFD/g) || []).length / Math.max(html.length, 1);
@@ -268,11 +345,31 @@ class NewsService {
       try {
         html = new TextDecoder('windows-1254', { fatal: false }).decode(buf);
       } catch (_) {
-        // fallback: Latin-1 her zaman desteklenir.
         html = buf.toString('latin1');
       }
     }
+    return { html, resolvedUrl: url };
+  }
 
+  async fetchArticleImage(articleUrl) {
+    const { html } = await this.fetchArticleHtml(articleUrl);
+    const imageUrl = extractOgImageFromHtml(html);
+    return imageUrl || null;
+  }
+
+  async fetchArticleDetails(articleUrl) {
+    const { html } = await this.fetchArticleHtml(articleUrl);
+    const imageUrl = extractOgImageFromHtml(html) || null;
+    const fullText = this.parseArticleHtmlToText(html);
+    return { fullText, imageUrl };
+  }
+
+  async fetchArticleFullText(articleUrl) {
+    const { html } = await this.fetchArticleHtml(articleUrl);
+    return this.parseArticleHtmlToText(html);
+  }
+
+  parseArticleHtmlToText(html) {
     // 1) Tum sayfada gurultu olabilecek blok tag'leri ic icerik ile birlikte sil.
     const noiseTags = [
       'script', 'style', 'noscript', 'nav', 'header', 'footer', 'aside',

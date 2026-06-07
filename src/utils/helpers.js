@@ -69,6 +69,28 @@ function extractImageUrlFromHtml(input) {
   return imgMatch ? decodeXmlEntities(imgMatch[1]) : '';
 }
 
+function extractOgImageFromHtml(html) {
+  const source = String(html || '');
+  const patterns = [
+    /<meta[^>]+property=["']og:image(?::secure_url)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image(?::secure_url)?["']/i,
+    /<meta[^>]+name=["']twitter:image(?::src)?["'][^>]+content=["']([^"']+)["']/i,
+    /<meta[^>]+content=["']([^"']+)["'][^>]+name=["']twitter:image(?::src)?["']/i,
+    /<link[^>]+rel=["']image_src["'][^>]+href=["']([^"']+)["']/i,
+  ];
+  for (const re of patterns) {
+    const match = source.match(re);
+    if (match && match[1] && !/logo|icon|avatar|sprite|favicon/i.test(match[1])) {
+      return decodeXmlEntities(match[1]);
+    }
+  }
+  const fallback = extractImageUrlFromHtml(source);
+  if (fallback && !/logo|icon|avatar|sprite|favicon/i.test(fallback)) {
+    return fallback;
+  }
+  return '';
+}
+
 module.exports = {
   normalizeText,
   decodeXmlEntities,
@@ -76,5 +98,6 @@ module.exports = {
   slugify,
   getTagValue,
   stripHtml,
-  extractImageUrlFromHtml
+  extractImageUrlFromHtml,
+  extractOgImageFromHtml,
 };

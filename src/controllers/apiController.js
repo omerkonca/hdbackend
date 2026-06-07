@@ -91,32 +91,46 @@ class ApiController {
       try {
         const { data, error } = await supabase
           .from('news_items')
-          .select('full_text')
+          .select('full_text, image_url')
           .eq('source_url', url)
           .order('created_at', { ascending: false })
           .limit(1);
           
-        if (!error && data && data.length > 0 && data[0].full_text && data[0].full_text.trim().length > 0) {
-          return res.json({ ok: true, fullText: data[0].full_text });
+        if (!error && data && data.length > 0) {
+          const cached = data[0];
+          const hasText = cached.full_text && cached.full_text.trim().length > 0;
+          const hasImage = cached.image_url && cached.image_url.trim().length > 0;
+          if (hasText) {
+            return res.json({
+              ok: true,
+              fullText: cached.full_text,
+              imageUrl: hasImage ? cached.image_url : null,
+            });
+          }
         }
       } catch (err) {
         console.error('❌ Supabase news read failed:', err.message);
       }
 
       // 2. Fetch and parse on-the-fly from the source website
-      const fullText = await newsService.fetchArticleFullText(url);
+      const details = await newsService.fetchArticleDetails(url);
+      const fullText = details.fullText;
+      const imageUrl = details.imageUrl;
       
       // 3. Save/Update cache in Supabase background
-      if (fullText && fullText.trim().length > 0) {
+      if ((fullText && fullText.trim().length > 0) || (imageUrl && imageUrl.trim().length > 0)) {
+        const update = {};
+        if (fullText && fullText.trim().length > 0) update.full_text = fullText;
+        if (imageUrl && imageUrl.trim().length > 0) update.image_url = imageUrl;
         supabase
           .from('news_items')
-          .update({ full_text: fullText })
+          .update(update)
           .eq('source_url', url)
           .then(() => console.log(`[news] Full-text successfully cached in Supabase for: ${url}`))
           .catch(e => console.error('❌ Failed to cache full-text in Supabase:', e.message));
       }
 
-      res.json({ ok: true, fullText });
+      res.json({ ok: true, fullText, imageUrl: imageUrl || null });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Haber metni alinamadi.', detail: error.message });
     }
