@@ -351,6 +351,56 @@
         justify-content: center;
       }
     }
+
+    /* Grouped Sidebar Styles */
+    .menu-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #94a3b8;
+      margin: 18px 0 6px 12px;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-right: 12px;
+      transition: color 0.2s ease;
+      user-select: none;
+    }
+    .menu-group-title:hover {
+      color: var(--primary);
+    }
+    .menu-group-title .arrow {
+      font-size: 8px;
+      transition: transform 0.2s ease;
+      color: #94a3b8;
+    }
+    .menu-group-title.collapsed .arrow {
+      transform: rotate(-90deg);
+    }
+    .menu-group-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: max-height 0.3s ease, opacity 0.2s ease;
+      overflow: hidden;
+    }
+    .menu-group-items.collapsed {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    aside {
+      overflow-y: auto !important;
+    }
+    aside::-webkit-scrollbar {
+      width: 4px;
+    }
+    aside::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body>
@@ -363,17 +413,46 @@
     <div class="logo">🏢 Hepsi Düziçi</div>
     <div class="nav-menu" id="sideNav" style="display:none">
       <div class="nav-item active" onclick="switchView('dashboard')">🏠 Dashboard</div>
-      <div class="nav-item" onclick="switchView('branding')">🎨 Marka & Tema</div>
-      <div class="nav-item" onclick="switchView('quickActions')">⚡ Hızlı Erişim</div>
-      <div class="nav-item" onclick="switchView('headerMedia')">🖼️ Vitrin & Hikayeler</div>
-      <div class="nav-item" onclick="switchView('moreMenu')">📑 Daha Fazla Menüsü</div>
-      <div class="nav-item" onclick="switchView('newsSources')">📰 Haber Kaynakları</div>
-      <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
-      <div class="nav-item" onclick="switchView('services')">🛠️ Hizmetler</div>
-      <div class="nav-item" onclick="switchView('explore')">🌍 Keşfet</div>
-      <div class="nav-item" onclick="switchView('sponsors')">🤝 Sponsorlar</div>
-      <div class="nav-item" onclick="switchView('backups')">📦 Yedekler</div>
-      <div class="nav-item" onclick="switchView('json')" style="margin-top:20px; color:#6b7280">💻 Gelişmiş (JSON)</div>
+      
+      <!-- Ana Sayfa Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupHome')">🏠 Ana Sayfa Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupHome">
+        <div class="nav-item" onclick="switchView('branding')">🎨 Marka & Tema</div>
+        <div class="nav-item" onclick="switchView('quickActions')">⚡ Hızlı Erişim Butonları</div>
+        <div class="nav-item" onclick="switchView('headerMedia')">🖼️ Vitrin & Hikayeler</div>
+        <div class="nav-item" onclick="switchView('sponsors')">🤝 Sponsor & Reklamlar</div>
+      </div>
+
+      <!-- Haberler Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupNews')">📰 Haberler Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupNews">
+        <div class="nav-item" onclick="switchView('newsSources')">📡 Haber Kaynakları</div>
+        <div class="nav-item" onclick="refreshSystem('news')">🔄 Haberleri Yenile</div>
+      </div>
+
+      <!-- Keşfet Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupExplore')">🌍 Keşfet Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupExplore">
+        <div class="nav-item" onclick="switchView('explore')">🌍 Gezi Rehberi</div>
+        <div class="nav-item" onclick="switchView('autoGallery')">🚗 Oto Galeri İlanları</div>
+        <div class="nav-item" onclick="switchView('services')">🛠️ Şehir Hizmetleri</div>
+        <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
+        <div class="nav-item" onclick="switchView('moreMenu')">📑 Daha Fazla Menüsü</div>
+      </div>
+
+      <!-- Etkinlik Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupEvents')">📅 Etkinlik Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupEvents">
+        <div class="nav-item" onclick="switchView('events')">📅 Etkinlikler</div>
+      </div>
+
+      <!-- Sistem Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupSystem')">⚙️ Sistem <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupSystem">
+        <div class="nav-item" onclick="switchView('push')">📲 Toplu Bildirim</div>
+        <div class="nav-item" onclick="switchView('backups')">📦 Yedekler</div>
+        <div class="nav-item" onclick="switchView('json')" style="color:#94a3b8">💻 Gelişmiş (JSON)</div>
+      </div>
     </div>
     <div style="margin-top:auto; padding:16px; border-top:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:8px">
       <div id="lockStatus" style="font-size:12px; color:#9ca3af">🔒 Sistem Kilitli</div>
@@ -423,6 +502,34 @@
             <button class="btn btn-secondary" onclick="refreshSystem('pharmacies')">💊 Eczaneleri Tara</button>
             <button class="btn btn-secondary" onclick="refreshSystem('news')">📰 Haberleri Tara</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Push Notifications -->
+      <div id="pushView" class="view-section">
+        <div class="card">
+          <div class="section-title">📲 Toplu Push Bildirim</div>
+          <p style="color:var(--text-muted); font-size:14px; margin-top:0">
+            Uygulama yüklü tüm kullanıcılara anlık bildirim gönderin. Sadece bu yönetim panelinden kullanın.
+          </p>
+          <div id="pushStatusBox" style="margin:16px 0; padding:14px 16px; border-radius:12px; background:var(--primary-soft); font-size:14px; font-weight:600">
+            Durum yükleniyor...
+          </div>
+          <div class="row" style="margin-bottom:16px">
+            <button type="button" class="btn btn-secondary" onclick="applyPushTemplate('Günaydın Düziçi!', 'Hepsi Düziçi ile güne başlayın. Bugünün haberlerine göz atın.')">☀️ Günaydın</button>
+            <button type="button" class="btn btn-secondary" onclick="applyPushTemplate('Yeni özellik eklendi', 'Uygulamayı güncelleyin ve yeni özellikleri keşfedin.')">✨ Yeni özellik</button>
+            <button type="button" class="btn btn-secondary" onclick="applyPushTemplate('Önemli duyuru', 'Belediye ve şehir duyuruları için uygulamayı açın.')">📢 Duyuru</button>
+          </div>
+          <div class="form-group">
+            <label>Başlık</label>
+            <input id="pushTitle" placeholder="Bildirim başlığı">
+          </div>
+          <div class="form-group">
+            <label>Mesaj</label>
+            <textarea id="pushBody" rows="4" placeholder="Bildirim metni" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px"></textarea>
+          </div>
+          <div id="pushResult" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
+          <button type="button" class="btn btn-primary" id="pushSendBtn" onclick="sendPushNotification()">📤 Tüm kullanıcılara gönder</button>
         </div>
       </div>
 
@@ -477,6 +584,40 @@
         <div class="card" id="explorePlaceEditorContainer" style="display:none">
           <div class="section-title" id="explorePlaceEditorTitle"></div>
           <div id="explorePlaceEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Oto Galeri -->
+      <div id="autoGalleryView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="autoGalleryListContainer">
+          <div class="section-title">🚗 Oto Galeri İlanları</div>
+          <p style="color:var(--text-muted); font-size:13px">Düziçi oto galeri esnaflarının aktif ilanlarını buradan yönetebilirsiniz. Sahibinden.com tarzında listelenir.</p>
+          <div id="autoGalleryList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewVehicle()">➕ Yeni Araç İlanı Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="autoGalleryEditorContainer" style="display:none">
+          <div class="section-title" id="autoGalleryEditorTitle">✏️ İlan Düzenle</div>
+          <div id="autoGalleryEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Etkinlikler -->
+      <div id="eventsView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="eventsListContainer">
+          <div class="section-title">📅 Kültür & Sanat Etkinlikleri</div>
+          <p style="color:var(--text-muted); font-size:13px">Uygulamadaki etkinlikler sayfasında yer alacak manuel etkinlikleri yönetin. Otomatik çekilenlerin yanında sergilenir.</p>
+          <div id="eventsList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewEvent()">➕ Yeni Etkinlik Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="eventsEditorContainer" style="display:none">
+          <div class="section-title" id="eventsEditorTitle">✏️ Etkinlik Düzenle</div>
+          <div id="eventsEditorForm" style="margin-top:16px"></div>
         </div>
       </div>
 
@@ -671,6 +812,11 @@
     let currentExplorePlaceIndex = -1;
     let tempPlaceGallery = [];
     let storyGroups = [];
+    
+    // New variables
+    let currentVehicleIndex = -1;
+    let tempVehicleGallery = [];
+    let currentEventIndex = -1;
 
     function slugify(text) {
       const trMap = {
@@ -764,6 +910,74 @@
       rawData.home.storyBubbles = bubbles;
     }
 
+    async function loadPushStatus() {
+      const box = document.getElementById('pushStatusBox');
+      if (!box || !currentToken) return;
+      box.textContent = 'Durum yükleniyor...';
+      try {
+        const res = await fetch('/api/push/status', { headers: { 'x-admin-token': currentToken } });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          box.textContent = data.message || 'Push durumu alınamadı';
+          box.style.background = 'rgba(239,68,68,0.08)';
+          return;
+        }
+        box.style.background = data.fcmConfigured ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.08)';
+        box.textContent = data.fcmConfigured
+          ? `✅ FCM hazır · Kayıtlı cihaz: ${data.registeredDevices}`
+          : '⚠️ FCM yapılandırılmamış — Render\'da FIREBASE_SERVICE_ACCOUNT_JSON ekleyin';
+      } catch (e) {
+        box.textContent = 'Bağlantı hatası: push API yanıt vermedi';
+        box.style.background = 'rgba(239,68,68,0.08)';
+      }
+    }
+
+    function applyPushTemplate(title, body) {
+      document.getElementById('pushTitle').value = title;
+      document.getElementById('pushBody').value = body;
+    }
+
+    async function sendPushNotification() {
+      const title = document.getElementById('pushTitle').value.trim();
+      const body = document.getElementById('pushBody').value.trim();
+      const resultEl = document.getElementById('pushResult');
+      const btn = document.getElementById('pushSendBtn');
+      if (!title || !body) {
+        showToast('Başlık ve mesaj girin', true);
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Gönderiliyor...';
+      resultEl.textContent = '';
+      try {
+        const res = await fetch('/api/push/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-token': currentToken },
+          body: JSON.stringify({ title, body }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          resultEl.style.color = 'var(--success)';
+          resultEl.textContent = `Gönderildi: ${data.sent ?? 0} başarılı, ${data.failed ?? 0} başarısız (toplam ${data.total ?? 0})`;
+          showToast('Bildirim gönderildi');
+          document.getElementById('pushTitle').value = '';
+          document.getElementById('pushBody').value = '';
+          loadPushStatus();
+        } else {
+          resultEl.style.color = 'var(--danger)';
+          resultEl.textContent = data.message || 'Gönderilemedi';
+          showToast(data.message || 'Gönderilemedi', true);
+        }
+      } catch (e) {
+        resultEl.style.color = 'var(--danger)';
+        resultEl.textContent = 'Bağlantı hatası';
+        showToast('Bağlantı hatası', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📤 Tüm kullanıcılara gönder';
+      }
+    }
+
     // Login logic
     async function handleLogin() {
       const pass = document.getElementById('passInput').value;
@@ -802,14 +1016,35 @@
       showToast('Oturum kapatıldı.');
     }
 
+    // Toggle Menu Groups in Sidebar
+    function toggleMenuGroup(id) {
+      const el = document.getElementById(id);
+      const title = el.previousElementSibling;
+      el.classList.toggle('collapsed');
+      title.classList.toggle('collapsed');
+    }
+
     // View Management
     function switchView(view) {
       if (typeof closeSidebar === 'function') closeSidebar();
       document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       
-      document.getElementById(view + 'View').classList.add('active');
-      event.target.classList.add('active');
+      const targetView = document.getElementById(view + 'View');
+      if (targetView) targetView.classList.add('active');
+      
+      const clickedEl = (typeof event !== 'undefined' && event) ? event.target.closest('.nav-item') : null;
+      if (clickedEl) {
+        clickedEl.classList.add('active');
+      } else {
+        const items = document.querySelectorAll('.nav-item');
+        for (const item of items) {
+          if (item.getAttribute('onclick')?.includes(`switchView('${view}')`)) {
+            item.classList.add('active');
+            break;
+          }
+        }
+      }
       
       const titles = {
         dashboard: ['Dashboard', 'Genel uygulama durumu ve özet bilgiler.'],
@@ -822,13 +1057,19 @@
         services: ['Hizmetler', 'Ana ekrandaki hizmet kartlarını yönetin.'],
         explore: ['Keşfet', 'Şehir rehberi kategorilerini düzenleyin.'],
         sponsors: ['Sponsorlar', 'Uygulamadaki reklam ve sponsor alanları.'],
+        push: ['Toplu Bildirim', 'Tüm kullanıcılara push bildirim gönderin.'],
         backups: ['Yedekler', 'Veri güvenliği ve geri yükleme merkezi.'],
-        json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.']
+        json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.'],
+        autoGallery: ['Oto Galeri İlanları', 'Esnafların satılık/kiralık araç ilanlarını yönetin.'],
+        events: ['Kültür & Sanat Etkinlikleri', 'Düziçi ve çevre illerdeki sosyal etkinlikleri yönetin.']
       };
       
-      document.getElementById('viewTitle').textContent = titles[view][0];
-      document.getElementById('viewSubtitle').textContent = titles[view][1];
+      document.getElementById('viewTitle').textContent = titles[view] ? titles[view][0] : 'Yönetim Paneli';
+      document.getElementById('viewSubtitle').textContent = titles[view] ? titles[view][1] : '';
       
+      if (view === 'push') {
+        loadPushStatus();
+      }
       if (view === 'json') {
         document.getElementById('jsonEditor').value = JSON.stringify(rawData, null, 2);
       }
@@ -838,6 +1079,18 @@
         document.getElementById('exploreCategoriesContainer').style.display = 'block';
         document.getElementById('explorePlacesContainer').style.display = 'none';
         document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      }
+      if (view === 'autoGallery') {
+        currentVehicleIndex = -1;
+        document.getElementById('autoGalleryListContainer').style.display = 'block';
+        document.getElementById('autoGalleryEditorContainer').style.display = 'none';
+        renderAutoGallery();
+      }
+      if (view === 'events') {
+        currentEventIndex = -1;
+        document.getElementById('eventsListContainer').style.display = 'block';
+        document.getElementById('eventsEditorContainer').style.display = 'none';
+        renderEvents();
       }
     }
 
@@ -887,6 +1140,8 @@
         rawData.explore.categories = rawData.services.categories;
       }
       rawData.explore.categories = Array.isArray(rawData.explore.categories) ? rawData.explore.categories : [];
+      rawData.explore.autoVehicles = Array.isArray(rawData.explore.autoVehicles) ? rawData.explore.autoVehicles : [];
+      rawData.customEvents = Array.isArray(rawData.customEvents) ? rawData.customEvents : [];
 
       // Stats
       document.getElementById('statServices').textContent = (rawData.services.tiles || []).length;
@@ -1893,6 +2148,513 @@
       renderPlacesList();
       
       // Otomatik kaydet — kullanıcının ayrıca "Tümünü Kaydet" basmasına gerek yok
+      saveData();
+    }
+
+
+    // ─────────────────────────────────────────────
+    //  AUTO GALLERY MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderAutoGallery() {
+      const vehicles = rawData.explore.autoVehicles || [];
+      const list = document.getElementById('autoGalleryList');
+      if (!list) return;
+
+      if (vehicles.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz araç ilanı eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk ilanı oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = vehicles.map((v, i) => {
+        const badge = v.isPaid ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.3px">💎 ÖNE ÇIKAN</span>` : '';
+        const statusBadge = v.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        const thumb = v.images && v.images.length > 0 ? v.images[0] : (v.image || '');
+        return `
+        <div class="list-item" style="gap:16px; ${v.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
+            ${thumb ? `<img src="${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:28px">🚗</span>'}
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              ${escapeHtml(v.title || 'Başlıksız İlan')}
+              ${badge} ${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              ${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')} • ${escapeHtml(v.year || '')} • ${escapeHtml(v.km ? v.km + ' km' : '')}
+            </div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
+              ${v.price ? escapeHtml(v.price) + ' ₺' : ''}
+              ${v.contact ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 ${escapeHtml(v.contact)}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editVehicle(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteVehicle(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function createNewVehicle() {
+      currentVehicleIndex = -1;
+      tempVehicleGallery = [];
+      document.getElementById('autoGalleryListContainer').style.display = 'none';
+      document.getElementById('autoGalleryEditorContainer').style.display = 'block';
+      document.getElementById('autoGalleryEditorTitle').textContent = '➕ Yeni Araç İlanı Ekle';
+      renderVehicleForm(null);
+    }
+
+    function editVehicle(i) {
+      currentVehicleIndex = i;
+      const v = rawData.explore.autoVehicles[i];
+      tempVehicleGallery = v.images ? [...v.images] : (v.image ? [v.image] : []);
+      document.getElementById('autoGalleryListContainer').style.display = 'none';
+      document.getElementById('autoGalleryEditorContainer').style.display = 'block';
+      document.getElementById('autoGalleryEditorTitle').textContent = `✏️ ${v.title || 'İlan'} Düzenle`;
+      renderVehicleForm(v);
+    }
+
+    function deleteVehicle(i) {
+      if (!confirm('Bu ilanı silmek istediğinize emin misiniz?')) return;
+      rawData.explore.autoVehicles.splice(i, 1);
+      renderAutoGallery();
+      showToast('İlan siliniyor...');
+      saveData();
+    }
+
+    function cancelVehicleEdit() {
+      document.getElementById('autoGalleryEditorContainer').style.display = 'none';
+      document.getElementById('autoGalleryListContainer').style.display = 'block';
+      renderAutoGallery();
+    }
+
+    function renderVehicleForm(v) {
+      const d = v || { title:'', brand:'', model:'', year:'', km:'', price:'', fuelType:'benzin', gearType:'manuel', color:'', bodyType:'sedan', description:'', contact:'', sellerName:'', isPaid:false, isActive:true, images:[] };
+      const formDiv = document.getElementById('autoGalleryEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(201,139,24,0.06),rgba(201,139,24,0.02)); border:1px solid rgba(201,139,24,0.2); border-radius:12px; padding:16px; margin-bottom:20px; display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">💎</span>
+          <div style="flex:1">
+            <div style="font-weight:700; font-size:14px; color:#0f172a">Öne Çıkan İlan (Ücretli)</div>
+            <div style="font-size:12px; color:var(--text-muted)">Bu seçenek aktif edilirse ilan diğerlerinin önünde altın rozet ile gösterilir.</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
+            <input type="checkbox" id="vIsPaid" ${d.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>İlan Başlığı</label>
+            <input id="vTitle" value="${escapeAttr(d.title)}" placeholder="Örn: 2021 Honda Civic FC5 RS - Hatasız">
+          </div>
+          <div class="form-group">
+            <label>Marka</label>
+            <input id="vBrand" value="${escapeAttr(d.brand)}" placeholder="Honda, Toyota, BMW...">
+          </div>
+          <div class="form-group">
+            <label>Model</label>
+            <input id="vModel" value="${escapeAttr(d.model)}" placeholder="Civic, Corolla, 320i...">
+          </div>
+          <div class="form-group">
+            <label>Yıl</label>
+            <input id="vYear" type="number" value="${escapeAttr(d.year)}" placeholder="2021">
+          </div>
+          <div class="form-group">
+            <label>Kilometre</label>
+            <input id="vKm" type="number" value="${escapeAttr(d.km)}" placeholder="45000">
+          </div>
+          <div class="form-group">
+            <label>Fiyat (₺)</label>
+            <input id="vPrice" value="${escapeAttr(d.price)}" placeholder="850.000">
+          </div>
+          <div class="form-group">
+            <label>Renk</label>
+            <input id="vColor" value="${escapeAttr(d.color)}" placeholder="Beyaz, Siyah, Kırmızı...">
+          </div>
+          <div class="form-group">
+            <label>Yakıt Tipi</label>
+            <select id="vFuelType">
+              <option value="benzin" ${d.fuelType==='benzin'?'selected':''}>Benzin</option>
+              <option value="dizel" ${d.fuelType==='dizel'?'selected':''}>Dizel</option>
+              <option value="lpg" ${d.fuelType==='lpg'?'selected':''}>LPG</option>
+              <option value="hibrit" ${d.fuelType==='hibrit'?'selected':''}>Hibrit</option>
+              <option value="elektrik" ${d.fuelType==='elektrik'?'selected':''}>Elektrik</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Vites Tipi</label>
+            <select id="vGearType">
+              <option value="manuel" ${d.gearType==='manuel'?'selected':''}>Manuel</option>
+              <option value="otomatik" ${d.gearType==='otomatik'?'selected':''}>Otomatik</option>
+              <option value="yari_otomatik" ${d.gearType==='yari_otomatik'?'selected':''}>Yarı Otomatik</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Kasa Tipi</label>
+            <select id="vBodyType">
+              <option value="sedan" ${d.bodyType==='sedan'?'selected':''}>Sedan</option>
+              <option value="hatchback" ${d.bodyType==='hatchback'?'selected':''}>Hatchback</option>
+              <option value="suv" ${d.bodyType==='suv'?'selected':''}>SUV</option>
+              <option value="pickup" ${d.bodyType==='pickup'?'selected':''}>Pickup</option>
+              <option value="van" ${d.bodyType==='van'?'selected':''}>Minivan/Panelvan</option>
+              <option value="coupe" ${d.bodyType==='coupe'?'selected':''}>Coupe</option>
+              <option value="cabrio" ${d.bodyType==='cabrio'?'selected':''}>Cabrio</option>
+              <option value="kamyon" ${d.bodyType==='kamyon'?'selected':''}>Kamyon</option>
+              <option value="diger" ${d.bodyType==='diger'?'selected':''}>Diğer</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Açıklama</label>
+            <textarea id="vDescription" style="height:100px" placeholder="Araç hakkında detaylı bilgi...">${escapeHtml(d.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Satıcı Adı</label>
+            <input id="vSellerName" value="${escapeAttr(d.sellerName)}" placeholder="Ahmet Oto Galeri">
+          </div>
+          <div class="form-group">
+            <label>İletişim (Telefon)</label>
+            <input id="vContact" value="${escapeAttr(d.contact)}" placeholder="0555 123 45 67">
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="vIsActive" ${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>İlan Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+
+          <!-- Araç Fotoğrafları -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Araç Fotoğrafları</label>
+            <div id="vGalleryList" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin-bottom:12px"></div>
+            <div style="display:flex; gap:10px; align-items:center">
+              <input type="file" id="vGalleryFile" style="display:none" accept="image/*" multiple onchange="uploadVehicleGalleryFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('vGalleryFile').click()">📷 Fotoğraf Yükle</button>
+              <span style="font-size:12px; color:var(--text-muted)">veya URL girin:</span>
+              <input id="vGalleryUrl" placeholder="https://resim-url.jpg" style="flex:1">
+              <button class="btn btn-secondary" onclick="addVehicleGalleryUrl()">➕ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveVehicleChanges()">✓ İlanı Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelVehicleEdit()">İptal</button>
+        </div>
+      `;
+      renderVehicleGalleryList();
+    }
+
+    function renderVehicleGalleryList() {
+      const list = document.getElementById('vGalleryList');
+      if (!list) return;
+      list.innerHTML = tempVehicleGallery.map((url, i) => `
+        <div style="position:relative; width:110px; height:80px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(url)}'); background-size:cover; background-position:center; flex-shrink:0">
+          ${i === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">ANA</span>' : ''}
+          <button onclick="removeVehicleGalleryItem(${i})" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:12px; grid-column:span 3">Henüz fotoğraf eklenmedi.</p>';
+    }
+
+    function removeVehicleGalleryItem(i) {
+      tempVehicleGallery.splice(i, 1);
+      renderVehicleGalleryList();
+    }
+
+    function addVehicleGalleryUrl() {
+      const url = document.getElementById('vGalleryUrl').value.trim();
+      if (!url) return showToast('Lütfen bir URL girin', true);
+      tempVehicleGallery.push(url);
+      document.getElementById('vGalleryUrl').value = '';
+      renderVehicleGalleryList();
+    }
+
+    async function uploadVehicleGalleryFile() {
+      const fileInput = document.getElementById('vGalleryFile');
+      const files = Array.from(fileInput.files);
+      if (files.length === 0) return;
+      showToast('Fotoğraflar yükleniyor...');
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+          if (res.status === 413) { showToast('Dosya çok büyük!', true); continue; }
+          const data = await res.json();
+          if (data.ok) {
+            let url = data.fileUrl;
+            if (url.startsWith('/uploads/')) url = window.location.origin + url;
+            tempVehicleGallery.push(url);
+          }
+        } catch(e) { console.error(e); }
+      }
+      fileInput.value = '';
+      renderVehicleGalleryList();
+      showToast('Fotoğraflar yüklendi!');
+    }
+
+    function saveVehicleChanges() {
+      const title = document.getElementById('vTitle').value.trim();
+      const brand = document.getElementById('vBrand').value.trim();
+      const model = document.getElementById('vModel').value.trim();
+      const year = document.getElementById('vYear').value.trim();
+      const km = document.getElementById('vKm').value.trim();
+      const price = document.getElementById('vPrice').value.trim();
+      const color = document.getElementById('vColor').value.trim();
+      const fuelType = document.getElementById('vFuelType').value;
+      const gearType = document.getElementById('vGearType').value;
+      const bodyType = document.getElementById('vBodyType').value;
+      const description = document.getElementById('vDescription').value.trim();
+      const sellerName = document.getElementById('vSellerName').value.trim();
+      const contact = document.getElementById('vContact').value.trim();
+      const isPaid = document.getElementById('vIsPaid').checked;
+      const isActive = document.getElementById('vIsActive').checked;
+
+      if (!title || !brand) return showToast('İlan başlığı ve marka zorunludur!', true);
+
+      rawData.explore.autoVehicles = rawData.explore.autoVehicles || [];
+
+      const vehicleData = {
+        id: (currentVehicleIndex !== -1 ? rawData.explore.autoVehicles[currentVehicleIndex].id : null) || 'v_' + Date.now(),
+        title, brand, model, year, km, price, color,
+        fuelType, gearType, bodyType, description,
+        sellerName, contact, isPaid, isActive,
+        images: [...tempVehicleGallery],
+        image: tempVehicleGallery[0] || '',
+        createdAt: (currentVehicleIndex !== -1 ? rawData.explore.autoVehicles[currentVehicleIndex].createdAt : null) || new Date().toISOString()
+      };
+
+      if (currentVehicleIndex === -1) {
+        rawData.explore.autoVehicles.unshift(vehicleData); // yeniler öne çıksın
+        showToast('Yeni ilan eklendi, kaydediliyor...');
+      } else {
+        rawData.explore.autoVehicles[currentVehicleIndex] = vehicleData;
+        showToast('İlan güncellendi, kaydediliyor...');
+      }
+
+      cancelVehicleEdit();
+      saveData();
+    }
+
+    // ─────────────────────────────────────────────
+    //  CUSTOM EVENTS MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderEvents() {
+      const events = rawData.customEvents || [];
+      const list = document.getElementById('eventsList');
+      if (!list) return;
+
+      if (events.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz manuel etkinlik eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk etkinliği oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = events.map((ev, i) => {
+        const dateStr = ev.date ? new Date(ev.date).toLocaleDateString('tr-TR', {day:'2-digit', month:'long', year:'numeric'}) : '';
+        const statusBadge = ev.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        return `
+        <div class="list-item" style="${ev.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:70px; height:55px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:linear-gradient(135deg,#4f46e5,#7c3aed); display:flex; align-items:center; justify-content:center;">
+            ${ev.imageUrl ? `<img src="${escapeAttr(ev.imageUrl)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:24px">🎭</span>'}
+          </div>
+          <div class="list-item-content" style="margin-left:12px">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              ${escapeHtml(ev.title || 'Başlıksız Etkinlik')} ${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              📅 ${dateStr} ${ev.location ? '• 📍 ' + escapeHtml(ev.location) : ''}
+            </div>
+            ${ev.category ? `<div style="margin-top:3px"><span style="background:#ede9fe; color:#7c3aed; font-size:10px; font-weight:700; padding:1px 7px; border-radius:8px">${escapeHtml(ev.category)}</span></div>` : ''}
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editEvent(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteEvent(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function createNewEvent() {
+      currentEventIndex = -1;
+      document.getElementById('eventsListContainer').style.display = 'none';
+      document.getElementById('eventsEditorContainer').style.display = 'block';
+      document.getElementById('eventsEditorTitle').textContent = '➕ Yeni Etkinlik Ekle';
+      renderEventForm(null);
+    }
+
+    function editEvent(i) {
+      currentEventIndex = i;
+      const ev = rawData.customEvents[i];
+      document.getElementById('eventsListContainer').style.display = 'none';
+      document.getElementById('eventsEditorContainer').style.display = 'block';
+      document.getElementById('eventsEditorTitle').textContent = `✏️ ${ev.title || 'Etkinlik'} Düzenle`;
+      renderEventForm(ev);
+    }
+
+    function deleteEvent(i) {
+      if (!confirm('Bu etkinliği silmek istediğinize emin misiniz?')) return;
+      rawData.customEvents.splice(i, 1);
+      renderEvents();
+      showToast('Etkinlik siliniyor...');
+      saveData();
+    }
+
+    function cancelEventEdit() {
+      document.getElementById('eventsEditorContainer').style.display = 'none';
+      document.getElementById('eventsListContainer').style.display = 'block';
+      renderEvents();
+    }
+
+    function renderEventForm(ev) {
+      const d = ev || { title:'', date:'', endDate:'', location:'', description:'', category:'', imageUrl:'', ticketUrl:'', organizer:'', isActive:true };
+      // Format dates for input[type=date]
+      const toDateVal = (str) => { if (!str) return ''; try { return new Date(str).toISOString().split('T')[0]; } catch(e) { return ''; } };
+      const formDiv = document.getElementById('eventsEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>Etkinlik Başlığı</label>
+            <input id="evTitle" value="${escapeAttr(d.title)}" placeholder="Örn: Düziçi Geleneksel Kiraz Festivali">
+          </div>
+          <div class="form-group">
+            <label>Başlangıç Tarihi</label>
+            <input id="evDate" type="date" value="${toDateVal(d.date)}">
+          </div>
+          <div class="form-group">
+            <label>Bitiş Tarihi (Opsiyonel)</label>
+            <input id="evEndDate" type="date" value="${toDateVal(d.endDate)}">
+          </div>
+          <div class="form-group">
+            <label>Mekan / Konum</label>
+            <input id="evLocation" value="${escapeAttr(d.location)}" placeholder="Örn: Düziçi Kültür Merkezi">
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="evCategory">
+              <option value="konser" ${d.category==='konser'?'selected':''}>🎵 Konser & Müzik</option>
+              <option value="festival" ${d.category==='festival'?'selected':''}>🎉 Festival</option>
+              <option value="sergi" ${d.category==='sergi'?'selected':''}>🎨 Sergi & Sanat</option>
+              <option value="spor" ${d.category==='spor'?'selected':''}>⚽ Spor</option>
+              <option value="tiyatro" ${d.category==='tiyatro'?'selected':''}>🎭 Tiyatro & Sahne</option>
+              <option value="seminer" ${d.category==='seminer'?'selected':''}>📚 Seminer & Eğitim</option>
+              <option value="dini" ${d.category==='dini'?'selected':''}>🕌 Dini & Kültürel</option>
+              <option value="diger" ${d.category==='diger'?'selected':''}>📌 Diğer</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Açıklama</label>
+            <textarea id="evDescription" style="height:100px" placeholder="Etkinlik hakkında detaylı bilgi...">${escapeHtml(d.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Organizatör</label>
+            <input id="evOrganizer" value="${escapeAttr(d.organizer)}" placeholder="Düziçi Belediyesi">
+          </div>
+          <div class="form-group">
+            <label>Bilet / Detay URL (Opsiyonel)</label>
+            <input id="evTicketUrl" value="${escapeAttr(d.ticketUrl)}" placeholder="https://...">
+          </div>
+
+          <!-- Kapak Görseli -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Kapak Görseli</label>
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px">
+              <input id="evImageUrl" value="${escapeAttr(d.imageUrl)}" placeholder="https://resim-url.jpg veya dosya yükle" style="flex:1">
+              <input type="file" id="evImageFile" style="display:none" accept="image/*" onchange="uploadEventImageFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('evImageFile').click()">📷 Görsel Yükle</button>
+            </div>
+            <div id="evImagePreview" style="max-width:220px; max-height:130px; overflow:hidden; border-radius:10px; border:1px solid var(--border); ${d.imageUrl ? '' : 'display:none'}">
+              <img id="evImagePreviewImg" src="${escapeAttr(d.imageUrl)}" style="width:100%; height:auto">
+            </div>
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="evIsActive" ${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>Etkinlik Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveEventChanges()">✓ Etkinliği Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelEventEdit()">İptal</button>
+        </div>
+      `;
+
+      // Live preview
+      document.getElementById('evImageUrl').addEventListener('input', function() {
+        const url = this.value.trim();
+        const p = document.getElementById('evImagePreview');
+        const img = document.getElementById('evImagePreviewImg');
+        if (url) { p.style.display = 'block'; img.src = url; }
+        else { p.style.display = 'none'; }
+      });
+    }
+
+    async function uploadEventImageFile() {
+      const fileInput = document.getElementById('evImageFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      showToast('Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+        if (res.status === 413) return showToast('Dosya çok büyük!', true);
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) url = window.location.origin + url;
+          document.getElementById('evImageUrl').value = url;
+          document.getElementById('evImagePreview').style.display = 'block';
+          document.getElementById('evImagePreviewImg').src = url;
+          showToast('Görsel yüklendi!');
+        } else { showToast('Yükleme hatası!', true); }
+      } catch(e) { showToast('Bağlantı hatası!', true); }
+      fileInput.value = '';
+    }
+
+    function saveEventChanges() {
+      const title = document.getElementById('evTitle').value.trim();
+      const date = document.getElementById('evDate').value;
+      const endDate = document.getElementById('evEndDate').value;
+      const location = document.getElementById('evLocation').value.trim();
+      const category = document.getElementById('evCategory').value;
+      const description = document.getElementById('evDescription').value.trim();
+      const organizer = document.getElementById('evOrganizer').value.trim();
+      const ticketUrl = document.getElementById('evTicketUrl').value.trim();
+      const imageUrl = document.getElementById('evImageUrl').value.trim();
+      const isActive = document.getElementById('evIsActive').checked;
+
+      if (!title || !date) return showToast('Başlık ve tarih zorunludur!', true);
+
+      rawData.customEvents = rawData.customEvents || [];
+
+      const eventData = {
+        id: (currentEventIndex !== -1 ? rawData.customEvents[currentEventIndex].id : null) || 'ev_' + Date.now(),
+        title, date, location, category, description, organizer, ticketUrl, imageUrl, isActive,
+        source: 'manual'
+      };
+      if (endDate) eventData.endDate = endDate;
+
+      if (currentEventIndex === -1) {
+        rawData.customEvents.push(eventData);
+        showToast('Etkinlik eklendi, kaydediliyor...');
+      } else {
+        rawData.customEvents[currentEventIndex] = eventData;
+        showToast('Etkinlik güncellendi, kaydediliyor...');
+      }
+
+      cancelEventEdit();
       saveData();
     }
 

@@ -26,6 +26,7 @@ app.use('/assets', express.static(path.join(__dirname, '../../assets')));
 // Routes
 app.use('/api', apiRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/push', require('./routes/push'));
 
 // Health check
 app.get('/health', (req, res) => {
