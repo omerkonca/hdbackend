@@ -1,5 +1,5 @@
 const cheerio = require('cheerio');
-const { getTagValue, stripHtml, extractImageUrlFromHtml } = require('../utils/helpers');
+const { getTagValue, stripHtml, extractImageUrlFromHtml, fetchWithTimeout } = require('../utils/helpers');
 
 class EventService {
   constructor() {
@@ -23,7 +23,7 @@ class EventService {
     const url = `https://www.bubilet.com.tr/${slug}`;
     
     try {
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
@@ -82,7 +82,7 @@ class EventService {
     const url = `https://news.google.com/rss/search?q=${query}&hl=tr&gl=TR&ceid=TR:tr`;
     
     try {
-      const response = await fetch(url);
+      const response = await fetchWithTimeout(url);
       if (!response.ok) return [];
 
       const xml = await response.text();

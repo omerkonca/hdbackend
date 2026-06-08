@@ -23,6 +23,7 @@ router.use('/places', require('./placesRoutes'));
 router.get('/admin/check', requireAdminToken, (req, res) => res.json({ ok: true, message: 'Token gecerli.' }));
 router.get('/backups', requireAdminToken, apiController.getBackups);
 router.post('/city-content', requireAdminToken, apiController.updateCityContent);
+router.post('/city-content/update-branding', requireAdminToken, apiController.updateBrandingFields);
 router.post('/city-content/restore-last', requireAdminToken, apiController.restoreLastBackup);
 router.post('/pharmacies/refresh', requireAdminToken, apiController.refreshPharmacies);
 router.post('/news/refresh', requireAdminToken, apiController.refreshNews);

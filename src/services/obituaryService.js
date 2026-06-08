@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
 const supabase = require('../utils/supabaseClient');
+const { fetchWithTimeout } = require('../utils/helpers');
 
 const MONTHS = [
   '', 'ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran',
@@ -451,7 +452,7 @@ class ObituaryService {
 
   async fetchHtml(url) {
     try {
-      const res = await fetch(url, { headers: FETCH_HEADERS });
+      const res = await fetchWithTimeout(url, { headers: FETCH_HEADERS });
       if (!res.ok) return null;
       return res.text();
     } catch (err) {

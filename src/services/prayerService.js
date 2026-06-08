@@ -1,4 +1,5 @@
 const config = require('../config');
+const { fetchWithTimeout } = require('../utils/helpers');
 
 class PrayerService {
   constructor() {
@@ -19,7 +20,7 @@ class PrayerService {
 
     try {
       console.log('[prayer-service] Fetching fresh prayer times from Aladhan API...');
-      const response = await fetch(
+      const response = await fetchWithTimeout(
         'https://api.aladhan.com/v1/timingsByCity?city=Duzici&country=Turkey&method=13'
       );
       if (!response.ok) {

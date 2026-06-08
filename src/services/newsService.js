@@ -1,3 +1,4 @@
+const cheerio = require('cheerio');
 const config = require('../config');
 const fileService = require('./fileService');
 const {
@@ -8,6 +9,7 @@ const {
   decodeXmlEntities,
   normalizeText,
   normalizeForCompare,
+  fetchWithTimeout,
 } = require('../utils/helpers');
 
 class NewsService {
@@ -57,9 +59,42 @@ class NewsService {
     if (!url || !url.startsWith('http')) return url;
     if (!/news\.google\.com|google\.com\/url/i.test(url)) return url;
     try {
-      const res = await fetch(url, { ...this.FETCH_OPTIONS, redirect: 'follow' });
-      return res.url || url;
-    } catch (_) {
+      const response = await fetchWithTimeout(url, { headers: this.FETCH_OPTIONS.headers });
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      
+      const data = $('c-wiz[data-p]').attr('data-p');
+      if (!data) return url;
+      
+      const obj = JSON.parse(data.replace('%.@.', '["garturlreq",'));
+      const payload = {
+        'f.req': JSON.stringify([[
+          ['Fbv4je', JSON.stringify([...obj.slice(0, -6), ...obj.slice(-2)]), 'null', 'generic']
+        ]])
+      };
+
+      const postResponse = await fetchWithTimeout(
+        'https://news.google.com/_/DotsSplashUi/data/batchexecute',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+            'user-agent': this.FETCH_OPTIONS.headers['user-agent']
+          },
+          body: new URLSearchParams(payload).toString()
+        }
+      );
+
+      const rawText = await postResponse.text();
+      const cleanedText = rawText.replace(")]}'\n", "");
+      const outerArray = JSON.parse(cleanedText);
+      const innerDataStr = outerArray[0][2];
+      const innerArray = JSON.parse(innerDataStr);
+      const decodedUrl = innerArray[1];
+      
+      return decodedUrl || url;
+    } catch (err) {
+      console.warn('[news] Google News link decode failed, using original:', err.message);
       return url;
     }
   }
@@ -98,7 +133,7 @@ class NewsService {
   }
 
   async fetchRss(url) {
-    const res = await fetch(url, this.FETCH_OPTIONS);
+    const res = await fetchWithTimeout(url, this.FETCH_OPTIONS);
     if (!res.ok) throw new Error(`RSS alinamadi: ${res.status}`);
     return res.text();
   }
@@ -171,13 +206,19 @@ class NewsService {
 
     try {
       const supabase = require('../utils/supabaseClient');
-      const { data, error } = await supabase
-        .from('news_items')
-        .select('source_url, image_url, full_text, category')
-        .in('source_url', urls);
-      if (error) throw error;
+      const allData = [];
+      const chunkSize = 20;
+      for (let i = 0; i < urls.length; i += chunkSize) {
+        const chunk = urls.slice(i, i + chunkSize);
+        const { data, error } = await supabase
+          .from('news_items')
+          .select('source_url, image_url, full_text, category')
+          .in('source_url', chunk);
+        if (error) throw error;
+        if (data) allData.push(...data);
+      }
 
-      const cacheByUrl = new Map((data || []).map((row) => [row.source_url, row]));
+      const cacheByUrl = new Map((allData || []).map((row) => [row.source_url, row]));
       return items.map((item) => {
         const cached = cacheByUrl.get(item.sourceUrl);
         if (!cached) return item;
@@ -240,14 +281,19 @@ class NewsService {
     if (urls.length === 0) return;
 
     try {
-      const { data, error } = await supabase
-        .from('news_items')
-        .select('source_url, full_text, image_url')
-        .in('source_url', urls);
-      
-      if (error) throw error;
+      const allData = [];
+      const chunkSize = 20;
+      for (let i = 0; i < urls.length; i += chunkSize) {
+        const chunk = urls.slice(i, i + chunkSize);
+        const { data, error } = await supabase
+          .from('news_items')
+          .select('source_url, full_text, image_url')
+          .in('source_url', chunk);
+        if (error) throw error;
+        if (data) allData.push(...data);
+      }
 
-      const cachedByUrl = new Map((data || []).map((row) => [row.source_url, row]));
+      const cachedByUrl = new Map((allData || []).map((row) => [row.source_url, row]));
       const itemsToFetch = items.filter((item) => {
         if (!item.sourceUrl) return false;
         const cached = cachedByUrl.get(item.sourceUrl);
@@ -330,7 +376,7 @@ class NewsService {
     if (!url || !url.startsWith('http')) {
       throw new Error('Gecersiz URL');
     }
-    const res = await fetch(url, this.FETCH_OPTIONS);
+    const res = await fetchWithTimeout(url, this.FETCH_OPTIONS);
     if (!res.ok) throw new Error(`Sayfa alinamadi: ${res.status}`);
     const buf = Buffer.from(await res.arrayBuffer());
     let html = new TextDecoder('utf-8', { fatal: false }).decode(buf);

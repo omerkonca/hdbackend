@@ -548,6 +548,14 @@
                 <button class="btn btn-secondary" onclick="document.getElementById('brandHeroCardBgFile').click()" style="white-space:nowrap">📤 Dosya Yükle</button>
               </div>
             </div>
+            <div class="form-group" style="grid-column: span 2">
+              <label>Keşfet Ekranı Üst Kartı Arka Plan Resmi (asset:... veya https://...)</label>
+              <div style="display:flex; gap:10px; align-items:center">
+                <input id="brandExploreHeaderBg" placeholder="asset:assets/images/duzici_castle_header.png" style="flex:1">
+                <input type="file" id="brandExploreHeaderBgFile" style="display:none" onchange="uploadExploreHeaderBgFile()">
+                <button class="btn btn-secondary" onclick="document.getElementById('brandExploreHeaderBgFile').click()" style="white-space:nowrap">📤 Dosya Yükle</button>
+              </div>
+            </div>
             <div class="form-group">
               <label>Ana Renk (Primary)</label>
               <input id="brandPrimary" type="color">
@@ -965,6 +973,7 @@
       document.getElementById('brandTagline').value = b.tagline || '';
       document.getElementById('brandLogoUrl').value = b.logoUrl || '';
       document.getElementById('brandHeroCardBg').value = b.heroCardBg || '';
+      document.getElementById('brandExploreHeaderBg').value = b.exploreHeaderBg || '';
       document.getElementById('brandPrimary').value = normalizeHex(b.primaryColor, '#C98B18');
       document.getElementById('brandPrimaryDark').value = normalizeHex(b.primaryDarkColor, '#8C5E0F');
       document.getElementById('brandAccentBlue').value = normalizeHex(b.accentBlueColor, '#1F6FEB');
@@ -1204,6 +1213,7 @@
       rawData.branding.tagline = document.getElementById('brandTagline').value.trim();
       rawData.branding.logoUrl = document.getElementById('brandLogoUrl').value.trim();
       rawData.branding.heroCardBg = document.getElementById('brandHeroCardBg').value.trim();
+      rawData.branding.exploreHeaderBg = document.getElementById('brandExploreHeaderBg').value.trim();
       rawData.branding.primaryColor = document.getElementById('brandPrimary').value.toUpperCase();
       rawData.branding.primaryDarkColor = document.getElementById('brandPrimaryDark').value.toUpperCase();
       rawData.branding.accentBlueColor = document.getElementById('brandAccentBlue').value.toUpperCase();
@@ -1685,6 +1695,41 @@
             url = window.location.origin + url;
           }
           document.getElementById('brandHeroCardBg').value = url;
+          showToast('Arka plan görseli başarıyla yüklendi! Kaydetmek için lütfen en alttaki "✓ Forma Yansıt" butonuna tıklayıp, ardından en üstteki "💾 Tümünü Kaydet" butonuna basın.');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
+    }
+
+    async function uploadExploreHeaderBgFile() {
+      const fileInput = document.getElementById('brandExploreHeaderBgFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük!', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          document.getElementById('brandExploreHeaderBg').value = url;
           showToast('Arka plan görseli başarıyla yüklendi! Kaydetmek için lütfen en alttaki "✓ Forma Yansıt" butonuna tıklayıp, ardından en üstteki "💾 Tümünü Kaydet" butonuna basın.');
         } else {
           showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);

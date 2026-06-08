@@ -1,4 +1,5 @@
 const fileService = require('./fileService');
+const { fetchWithTimeout } = require('../utils/helpers');
 
 /**
  * Akaryakit fiyat servisi.
@@ -103,7 +104,7 @@ class FuelService {
   }
 
   async fetchHtml(url) {
-    const res = await fetch(url, {
+    const res = await fetchWithTimeout(url, {
       method: 'GET',
       headers: this.HEADERS,
       redirect: 'follow',

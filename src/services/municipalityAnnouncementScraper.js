@@ -1,4 +1,4 @@
-const { normalizeText, stripHtml, slugify } = require('../utils/helpers');
+const { normalizeText, stripHtml, slugify, fetchWithTimeout } = require('../utils/helpers');
 
 const BASE = 'https://www.duzici.bel.tr';
 const DUYURULAR_URL = `${BASE}/duyurular`;
@@ -193,7 +193,7 @@ function parseEndDate(title, summary = '') {
 }
 
 async function fetchHtml(url) {
-  const res = await fetch(url, FETCH_OPTIONS);
+  const res = await fetchWithTimeout(url, FETCH_OPTIONS);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.text();
 }

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { fetchWithTimeout } = require('../utils/helpers');
 
 const CACHE_PATH = path.resolve(__dirname, '../../data/places_cache.json');
 const CACHE_TTL_MS = 1000 * 60 * 60 * 24 * 3; // 3 gün
@@ -30,7 +31,7 @@ function osmHeaders() {
 async function nominatimSearch(query) {
   const q = encodeURIComponent(`${query} Düziçi Osmaniye Türkiye`);
   const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&addressdetails=1`;
-  const res = await fetch(url, { headers: osmHeaders() });
+  const res = await fetchWithTimeout(url, { headers: osmHeaders() });
   if (!res.ok) return null;
   const list = await res.json();
   const hit = list?.[0];
@@ -58,7 +59,7 @@ async function overpassAmenities(lat, lng) {
 );
 out body;
 `;
-  const res = await fetch('https://overpass-api.de/api/interpreter', {
+  const res = await fetchWithTimeout('https://overpass-api.de/api/interpreter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'User-Agent': UA },
     body: `data=${encodeURIComponent(q)}`,
@@ -127,7 +128,7 @@ async function wikipediaThumbnail(name) {
     for (const lang of ['tr', 'en']) {
       try {
         const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encoded}`;
-        const res = await fetch(url, { headers: osmHeaders() });
+        const res = await fetchWithTimeout(url, { headers: osmHeaders() });
         if (!res.ok) continue;
         const data = await res.json();
         const src = data.thumbnail?.source || data.originalimage?.source;
@@ -152,7 +153,7 @@ async function wikimediaThumbnail(name) {
       iiurlwidth: '900',
       format: 'json',
     });
-    const res = await fetch(`https://commons.wikimedia.org/w/api.php?${params}`, {
+    const res = await fetchWithTimeout(`https://commons.wikimedia.org/w/api.php?${params}`, {
       headers: osmHeaders(),
     });
     if (!res.ok) return null;
@@ -242,7 +243,7 @@ async function fetchPhotoBytes(photoSourceUrl) {
   if (!photoSourceUrl) {
     throw new Error('Fotoğraf URL yok');
   }
-  const res = await fetch(photoSourceUrl, {
+  const res = await fetchWithTimeout(photoSourceUrl, {
     headers: { 'User-Agent': UA },
     redirect: 'follow',
   });

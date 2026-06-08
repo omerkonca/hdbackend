@@ -1,4 +1,5 @@
 const config = require('../config');
+const { fetchWithTimeout } = require('../utils/helpers');
 
 class WeatherService {
   constructor() {
@@ -17,7 +18,7 @@ class WeatherService {
     try {
       const url = `${config.WEATHER.API_URL}?latitude=${config.WEATHER.LAT}&longitude=${config.WEATHER.LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
       
-      const response = await fetch(url);
+      const response = await fetchWithTimeout(url);
       
       if (!response.ok) throw new Error(`Weather API error: ${response.status}`);
       

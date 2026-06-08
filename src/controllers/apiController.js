@@ -44,6 +44,26 @@ class ApiController {
     }
   }
 
+  async updateBrandingFields(req, res) {
+    try {
+      const { heroCardBg, exploreHeaderBg } = req.body;
+      const content = await fileService.readCityContent();
+      if (!content.branding) {
+        content.branding = {};
+      }
+      if (heroCardBg !== undefined) content.branding.heroCardBg = heroCardBg;
+      if (exploreHeaderBg !== undefined) content.branding.exploreHeaderBg = exploreHeaderBg;
+      
+      await fileService.createBackupBeforeWrite();
+      await fileService.writeCityContent(content);
+      
+      return res.json({ ok: true, message: 'Branding guncellendi.', branding: content.branding });
+    } catch (error) {
+      console.error('❌ Branding guncelleme hatası:', error.message);
+      res.status(500).json({ ok: false, message: 'Branding guncellenemedi.', detail: error.message });
+    }
+  }
+
   async getDutyPharmacies(req, res) {
     try {
       const forceRefresh =

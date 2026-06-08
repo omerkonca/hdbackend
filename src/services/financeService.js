@@ -1,3 +1,5 @@
+const { fetchWithTimeout } = require('../utils/helpers');
+
 /**
  * Finansal kotasyon servisi.
  * - USD/TRY ve EUR/TRY: Frankfurter API (open.er-api fallback) ile gercek kur cekilir.
@@ -19,7 +21,7 @@ class FinanceService {
   // Frankfurter destekli kur cekimi: 1 USD/EUR -> TRY.
   async fetchFxRates() {
     try {
-      const res = await fetch('https://api.frankfurter.app/latest?from=USD&to=TRY,EUR', this.FETCH_OPTIONS);
+      const res = await fetchWithTimeout('https://api.frankfurter.app/latest?from=USD&to=TRY,EUR', this.FETCH_OPTIONS);
       if (!res.ok) throw new Error('frankfurter status ' + res.status);
       const data = await res.json();
       const usdTry = Number(data?.rates?.TRY);
@@ -31,7 +33,7 @@ class FinanceService {
     } catch (_) {}
     // Fallback: open.er-api.com.
     try {
-      const res = await fetch('https://open.er-api.com/v6/latest/USD', this.FETCH_OPTIONS);
+      const res = await fetchWithTimeout('https://open.er-api.com/v6/latest/USD', this.FETCH_OPTIONS);
       if (!res.ok) throw new Error('er-api status ' + res.status);
       const data = await res.json();
       const usdTry = Number(data?.rates?.TRY);
