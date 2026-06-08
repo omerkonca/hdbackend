@@ -46,11 +46,15 @@ class ApiController {
 
   async getDutyPharmacies(req, res) {
     try {
-      const pharmacies = await pharmacyService.getDutyPharmacies();
+      const forceRefresh =
+        req.query.refresh === '1' ||
+        req.query.refresh === 'true' ||
+        req.query.force === '1';
+      const pharmacies = await pharmacyService.getDutyPharmacies({ forceRefresh });
       res.json({
         ok: true,
         sourceUrl: config.PHARMACY.URL,
-        fetchedAt: new Date(pharmacyService.cache.fetchedAt).toISOString(),
+        fetchedAt: new Date(pharmacyService.cache.fetchedAt || Date.now()).toISOString(),
         pharmacies,
       });
     } catch (error) {
