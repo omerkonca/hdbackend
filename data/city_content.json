@@ -162,9 +162,16 @@
           {
             "icon": "support_agent_rounded",
             "color": "#9C27B0",
-            "title": "İletişim ve İş Birliği",
-            "target": "",
-            "subtitle": "Bize ulaşın, sponsor olun"
+            "title": "Bize Ulaşın",
+            "target": "screen:contact",
+            "subtitle": "E-posta ve yayıncı bilgileri"
+          },
+          {
+            "icon": "newspaper_rounded",
+            "color": "#1565C0",
+            "title": "Haber Kaynakları",
+            "target": "screen:news_sources",
+            "subtitle": "İçerik sağlayıcı yayıncılar"
           },
           {
             "icon": "settings_rounded",
