@@ -1747,7 +1747,7 @@
       "stations": [
         {
           "id": "fuel_opet_merkez",
-          "lat": 37.0172,
+          "lat": 37.2415,
           "lng": 36.4562,
           "name": "OPET Düziçi",
           "note": "Merkez güzergâh",
@@ -1757,7 +1757,7 @@
         },
         {
           "id": "fuel_po_terminal",
-          "lat": 37.0025,
+          "lat": 37.2285,
           "lng": 36.4708,
           "name": "Petrol Ofisi Terminal",
           "brand": "PO",
@@ -1766,7 +1766,7 @@
         },
         {
           "id": "fuel_shell_d400",
-          "lat": 37.0308,
+          "lat": 37.2308,
           "lng": 36.4395,
           "name": "Shell D.400 Giriş",
           "note": "Şehir girişi",
@@ -1776,8 +1776,8 @@
         },
         {
           "id": "fuel_total_yarbasi",
-          "lat": 37.0645,
-          "lng": 36.5178,
+          "lat": 37.1995,
+          "lng": 36.431,
           "name": "TotalEnergies Yarbaşı",
           "brand": "Total",
           "hours": "07:00 – 23:00",
@@ -1865,7 +1865,7 @@
     "roadClosures": [
       {
         "id": "belediye_trafik_2025_27",
-        "lat": 37.019,
+        "lat": 37.244,
         "lng": 36.453,
         "kind": "municipality",
         "endAt": null,
@@ -1883,7 +1883,7 @@
       },
       {
         "id": "belediye_rte_bulvari",
-        "lat": 37.0172,
+        "lat": 37.2415,
         "lng": 36.4565,
         "kind": "municipality",
         "endAt": null,
@@ -1901,7 +1901,7 @@
       },
       {
         "id": "rc_asaf_namli",
-        "lat": 37.0184,
+        "lat": 37.2415,
         "lng": 36.4518,
         "endAt": "2026-05-28",
         "title": "Asaf Namlı Caddesi",
@@ -1917,7 +1917,7 @@
       },
       {
         "id": "rc_d400_berke",
-        "lat": 37.0312,
+        "lat": 37.2312,
         "lng": 36.4386,
         "endAt": "2026-05-26",
         "title": "D.400 Berke Kavşağı Çıkışı",
@@ -1933,7 +1933,7 @@
       },
       {
         "id": "rc_duldul_yayla",
-        "lat": 37.0486,
+        "lat": 37.2486,
         "lng": 36.4012,
         "endAt": null,
         "title": "Düldül Yayla Yolu",
@@ -1949,7 +1949,7 @@
       },
       {
         "id": "rc_uzumlu_karacaoren",
-        "lat": 37.0021,
+        "lat": 37.228,
         "lng": 36.4715,
         "endAt": "2026-06-05",
         "title": "Üzümlü – Karacaören Grup Yolu",
@@ -2393,7 +2393,7 @@
       "taxiStands": [
         {
           "id": "taxi_merkez",
-          "lat": 37.0184,
+          "lat": 37.2415,
           "lng": 36.4518,
           "tag": "Merkez",
           "name": "Düziçi Taksi Durağı",
@@ -2403,7 +2403,7 @@
         },
         {
           "id": "taxi_otogar",
-          "lat": 37.0021,
+          "lat": 37.228,
           "lng": 36.4715,
           "tag": "Terminal",
           "name": "Düziçi Otogar Taksi",
@@ -2413,8 +2413,8 @@
         },
         {
           "id": "taxi_yarbasi",
-          "lat": 37.0648,
-          "lng": 36.5182,
+          "lat": 37.199,
+          "lng": 36.43,
           "tag": "Belde",
           "name": "Yarbaşı Taksi",
           "hours": "7/24",
@@ -2423,8 +2423,8 @@
         },
         {
           "id": "taxi_hastane",
-          "lat": 37.0158,
-          "lng": 36.4572,
+          "lat": 37.2452,
+          "lng": 36.4521,
           "tag": "Hastane",
           "name": "Devlet Hastanesi Taksi",
           "hours": "7/24",
@@ -2433,8 +2433,8 @@
         },
         {
           "id": "taxi_cumhuriyet",
-          "lat": 37.0155,
-          "lng": 36.455,
+          "lat": 37.24,
+          "lng": 36.446,
           "tag": "Çarşı",
           "name": "Cumhuriyet Meydanı Taksi",
           "hours": "06:00 – 24:00",
@@ -2453,7 +2453,7 @@
         },
         {
           "id": "taxi_uzumlu",
-          "lat": 37.0021,
+          "lat": 37.228,
           "lng": 36.468,
           "tag": "Mahalle",
           "name": "Üzümlü Mah. Taksi",
