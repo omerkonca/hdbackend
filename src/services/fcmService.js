@@ -42,6 +42,14 @@ async function sendMulticast(tokens, { title, body, data = {} }) {
     });
     sent += response.successCount;
     failed += response.failureCount;
+
+    if (response.failureCount > 0) {
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`[FCM] Send failed to token: ${batch[idx].substring(0, 30)}... Error:`, resp.error);
+        }
+      });
+    }
   }
 
   return { sent, failed };

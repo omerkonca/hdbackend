@@ -1,4 +1,6 @@
 const express = require('express');
+const admin = require('firebase-admin');
+const supabase = require('../utils/supabaseClient');
 const { requireAdminToken } = require('../middlewares/auth');
 const { isFcmConfigured, sendMulticast } = require('../services/fcmService');
 const {
@@ -86,6 +88,66 @@ router.get('/status', requireAdminToken, async (req, res) => {
     fcmConfigured: isFcmConfigured(),
     registeredDevices: tokens.length,
   });
+});
+
+router.get('/test-all', requireAdminToken, async (req, res) => {
+  try {
+    if (!isFcmConfigured()) {
+      return res.status(503).json({ ok: false, message: 'FCM is not configured' });
+    }
+    const { data: devices, error } = await supabase
+      .from('device_tokens')
+      .select('*')
+      .eq('marketing_opt_in', true);
+
+    if (error) {
+      return res.status(500).json({ ok: false, message: error.message });
+    }
+
+    const results = [];
+    for (const dev of devices) {
+      try {
+        const response = await admin.messaging().send({
+          token: dev.token,
+          notification: {
+            title: 'Test Bildirimi',
+            body: `Cihaz: ${dev.platform} (${dev.app_version})`,
+          },
+          data: {
+            route: 'screen:news',
+          },
+          apns: {
+            payload: {
+              aps: {
+                sound: 'default',
+                badge: 1,
+              },
+            },
+          },
+        });
+        results.push({
+          token: dev.token.substring(0, 15) + '...',
+          platform: dev.platform,
+          version: dev.app_version,
+          success: true,
+          response,
+        });
+      } catch (err) {
+        results.push({
+          token: dev.token.substring(0, 15) + '...',
+          platform: dev.platform,
+          version: dev.app_version,
+          success: false,
+          error: err.message,
+          code: err.code,
+        });
+      }
+    }
+
+    return res.json({ ok: true, results });
+  } catch (e) {
+    return res.status(500).json({ ok: false, message: e.message });
+  }
 });
 
 module.exports = router;
