@@ -45,7 +45,7 @@ app.get(['/iletisim', '/iletisim.html', '/contact'], (req, res) => {
 
 // Admin Panel redirect
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'index.html'));
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'admin.html'));
 });
 
 // Global Error Handler

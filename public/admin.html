@@ -1,0 +1,2721 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hepsi Düziçi | Kolay Yönetim Paneli</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #c98b18;
+      --primary-dark: #a06e10;
+      --primary-soft: rgba(201, 139, 24, 0.08);
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --danger: #ef4444;
+      --sidebar-width: 260px;
+      --radius: 16px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.03), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    aside {
+      width: var(--sidebar-width);
+      background: #0f172a;
+      color: white;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 32px;
+      padding-left: 12px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-menu { display: flex; flex-direction: column; gap: 6px; }
+    .nav-item {
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-item:hover { background: rgba(255, 255, 255, 0.04); color: #f8fafc; }
+    .nav-item.active { 
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+      color: white; 
+      box-shadow: 0 4px 14px rgba(201, 139, 24, 0.25);
+    }
+
+    /* Main Area */
+    main {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 40px;
+      max-width: 1200px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+    }
+
+    .page-title h1 { font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -0.8px; color: #0f172a; }
+    .page-title p { color: var(--text-muted); margin: 6px 0 0; font-size: 14px; }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      border: 1px solid #e2e8f0;
+      transition: box-shadow 0.2s ease;
+    }
+    .card:hover {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #0f172a;
+    }
+
+    /* Forms */
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      background: #f8fafc;
+      color: #0f172a;
+    }
+    input:focus, select:focus, textarea:focus { 
+      border-color: var(--primary); 
+      background: #ffffff;
+      box-shadow: 0 0 0 4px var(--primary-soft); 
+      outline: none;
+    }
+
+    /* List Items */
+    .list-item {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      background: #ffffff;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #e2e8f0;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+    .list-item:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      transform: translateY(-1px);
+    }
+    .list-item-icon {
+      width: 44px;
+      height: 44px;
+      background: #f1f5f9;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-right: 16px;
+      border: 1px solid #e2e8f0;
+    }
+    .list-item-content { flex: 1; }
+    .list-item-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; color: #0f172a; }
+    .list-item-subtitle { font-size: 12px; color: var(--text-muted); }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+    .btn-primary:hover { opacity: 0.95; }
+    .btn-secondary { background: #e2e8f0; color: #334155; }
+    .btn-secondary:hover { background: #cbd5e1; }
+    .btn-danger { background: #fee2e2; color: var(--danger); }
+    .btn-danger:hover { background: #fecaca; }
+
+    /* Tabs */
+    .view-section { display: none; }
+    .view-section.active { display: block; animation: slideUp 0.3s ease-out; }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Notifications */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      border-radius: 12px;
+      background: #1e293b;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      display: none;
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
+    /* Mobile Menu Toggle Button */
+    .menu-toggle {
+      display: none !important;
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      background: #111827;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 16px;
+      border-radius: 10px;
+      z-index: 200;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Responsive rows and flex rows */
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .row > input, .row > select {
+      flex: 1;
+      min-width: 150px;
+    }
+    .row > button {
+      flex-shrink: 0;
+    }
+
+    .flex-row-responsive {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      body.authenticated .menu-toggle { display: flex !important; }
+      
+      aside {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 10px 0 15px -3px rgba(0, 0, 0, 0.15);
+        width: 260px;
+      }
+      aside.open {
+        transform: translateX(0);
+      }
+      
+      main {
+        margin-left: 0;
+        padding: 80px 16px 24px 16px;
+      }
+      
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .page-header .row {
+        flex-direction: row;
+        width: 100%;
+        display: flex;
+        gap: 8px;
+      }
+      .page-header .row .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      
+      /* Grid forms collapse */
+      div[style*="grid-template-columns"], 
+      div[style*="display:grid"] {
+        grid-template-columns: 1fr !important;
+      }
+      div[style*="grid-template-columns"] > *, 
+      div[style*="display:grid"] > * {
+        grid-column: span 1 !important;
+      }
+      
+      .row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .row > input, .row > select, .row > button {
+        width: 100%;
+      }
+
+      /* List items buttons positioning - target only complex list items */
+      .list-item.complex {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+      }
+      .list-item.complex .list-item-icon {
+        margin-right: 0;
+        margin-bottom: 8px;
+        align-self: center;
+      }
+      .list-item.complex button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .flex-row-responsive {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .flex-row-responsive > input {
+        width: 100%;
+      }
+      .flex-row-responsive > button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Grouped Sidebar Styles */
+    .menu-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #94a3b8;
+      margin: 18px 0 6px 12px;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-right: 12px;
+      transition: color 0.2s ease;
+      user-select: none;
+    }
+    .menu-group-title:hover {
+      color: var(--primary);
+    }
+    .menu-group-title .arrow {
+      font-size: 8px;
+      transition: transform 0.2s ease;
+      color: #94a3b8;
+    }
+    .menu-group-title.collapsed .arrow {
+      transform: rotate(-90deg);
+    }
+    .menu-group-items {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: max-height 0.3s ease, opacity 0.2s ease;
+      overflow: hidden;
+    }
+    .menu-group-items.collapsed {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    aside {
+      overflow-y: auto !important;
+    }
+    aside::-webkit-scrollbar {
+      width: 4px;
+    }
+    aside::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Mobile Menu Button and Overlay -->
+  <button class="menu-toggle" id="menuToggleBtn" onclick="toggleSidebar()">☰ Menü</button>
+  <div id="sidebarOverlay" onclick="closeSidebar()" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:90;"></div>
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="logo">🏢 Hepsi Düziçi</div>
+    <div class="nav-menu" id="sideNav" style="display:none">
+      <div class="nav-item active" onclick="switchView('dashboard')">🏠 Dashboard</div>
+      
+      <!-- Ana Sayfa Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupHome')">🏠 Ana Sayfa Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupHome">
+        <div class="nav-item" onclick="switchView('branding')">🎨 Marka & Tema</div>
+        <div class="nav-item" onclick="switchView('quickActions')">⚡ Hızlı Erişim Butonları</div>
+        <div class="nav-item" onclick="switchView('headerMedia')">🖼️ Vitrin & Hikayeler</div>
+        <div class="nav-item" onclick="switchView('sponsors')">🤝 Sponsor & Reklamlar</div>
+      </div>
+
+      <!-- Haberler Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupNews')">📰 Haberler Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupNews">
+        <div class="nav-item" onclick="switchView('newsSources')">📡 Haber Kaynakları</div>
+        <div class="nav-item" onclick="refreshSystem('news')">🔄 Haberleri Yenile</div>
+      </div>
+
+      <!-- Keşfet Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupExplore')">🌍 Keşfet Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupExplore">
+        <div class="nav-item" onclick="switchView('explore')">🌍 Gezi Rehberi</div>
+        <div class="nav-item" onclick="switchView('autoGallery')">🚗 Oto Galeri İlanları</div>
+        <div class="nav-item" onclick="switchView('services')">🛠️ Şehir Hizmetleri</div>
+        <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
+        <div class="nav-item" onclick="switchView('moreMenu')">📑 Daha Fazla Menüsü</div>
+      </div>
+
+      <!-- Etkinlik Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupEvents')">📅 Etkinlik Düzenleme <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupEvents">
+        <div class="nav-item" onclick="switchView('events')">📅 Etkinlikler</div>
+      </div>
+
+      <!-- Sistem Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupSystem')">⚙️ Sistem <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupSystem">
+        <div class="nav-item" onclick="switchView('push')">📲 Toplu Bildirim</div>
+        <div class="nav-item" onclick="switchView('backups')">📦 Yedekler</div>
+        <div class="nav-item" onclick="switchView('json')" style="color:#94a3b8">💻 Gelişmiş (JSON)</div>
+      </div>
+    </div>
+    <div style="margin-top:auto; padding:16px; border-top:1px solid rgba(255,255,255,0.1); display:flex; flex-direction:column; gap:8px">
+      <div id="lockStatus" style="font-size:12px; color:#9ca3af">🔒 Sistem Kilitli</div>
+      <button id="logoutBtn" class="btn btn-secondary" style="background:rgba(255,255,255,0.08); color:#f3f4f6; font-size:11px; padding:6px 12px; border:none; display:none; justify-content:center; align-items:center" onclick="handleLogout()">🚪 Oturumu Kapat</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Login View -->
+    <div id="loginView" class="animate">
+      <div class="card" style="max-width: 450px; margin: 100px auto;">
+        <h2 style="text-align:center; margin-bottom:24px">Yönetim Paneline Giriş</h2>
+        <div class="form-group">
+          <label>Admin Şifresi</label>
+          <input type="password" id="passInput" placeholder="Şifrenizi giriniz..." autofocus>
+        </div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="handleLogin()">🔒 Kilidi Aç</button>
+        <div style="margin-top: 24px; text-align: center; font-size: 13px; display: flex; justify-content: center; gap: 16px;">
+          <a href="/iletisim.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">📞 Bize Ulaşın</a>
+          <span style="color: var(--text-muted);">|</span>
+          <a href="/gizlilik-politikasi.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">🔒 Gizlilik Politikası</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Authenticated Content -->
+    <div id="mainContent" style="display:none">
+      <div class="page-header">
+        <div class="page-title">
+          <h1 id="viewTitle">Dashboard</h1>
+          <p id="viewSubtitle">Genel uygulama durumu ve özet bilgiler.</p>
+        </div>
+        <div class="row">
+          <button class="btn btn-secondary" onclick="loadData()">🔄 Veriyi Yenile</button>
+          <button class="btn btn-primary" onclick="saveData()">💾 Tümünü Kaydet</button>
+        </div>
+      </div>
+
+      <!-- Sections -->
+      <!-- Dashboard -->
+      <div id="dashboardView" class="view-section active">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px; margin-bottom:24px">
+          <div class="card" style="margin:0"><div style="color:var(--text-muted); font-size:13px; font-weight:600">Toplam Hizmet</div><div id="statServices" style="font-size:32px; font-weight:800">0</div></div>
+          <div class="card" style="margin:0"><div style="color:var(--text-muted); font-size:13px; font-weight:600">Acil Numara</div><div id="statEmergency" style="font-size:32px; font-weight:800">0</div></div>
+          <div class="card" style="margin:0"><div style="color:var(--text-muted); font-size:13px; font-weight:600">Keşfet Yeri</div><div id="statExplore" style="font-size:32px; font-weight:800">0</div></div>
+        </div>
+        <div class="card">
+          <div class="section-title">🚀 Hızlı Güncellemeler</div>
+          <p>En sık kullanılan araçları buradan tek tıkla güncelleyebilirsiniz.</p>
+          <div class="row">
+            <button class="btn btn-secondary" onclick="refreshSystem('pharmacies')">💊 Eczaneleri Tara</button>
+            <button class="btn btn-secondary" onclick="refreshSystem('news')">📰 Haberleri Tara</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Push Notifications -->
+      <div id="pushView" class="view-section">
+        <div class="card">
+          <div class="section-title">📲 Toplu Push Bildirim</div>
+          <p style="color:var(--text-muted); font-size:14px; margin-top:0">
+            Uygulama yüklü tüm kullanıcılara anlık bildirim gönderin. Sadece bu yönetim panelinden kullanın.
+          </p>
+          <div id="pushStatusBox" style="margin:16px 0; padding:14px 16px; border-radius:12px; background:var(--primary-soft); font-size:14px; font-weight:600">
+            Durum yükleniyor...
+          </div>
+          <div class="row" style="margin-bottom:16px">
+            <button type="button" class="btn btn-secondary" onclick="applyPushTemplate('Günaydın Düziçi!', 'Hepsi Düziçi ile güne başlayın. Bugünün haberlerine göz atın.')">☀️ Günaydın</button>
+            <button type="button" class="btn btn-secondary" onclick="applyPushTemplate('Yeni özellik eklendi', 'Uygulamayı güncelleyin ve yeni özellikleri keşfedin.')">✨ Yeni özellik</button>
+            <button type="button" class="btn btn-secondary" onclick="applyPushTemplate('Önemli duyuru', 'Belediye ve şehir duyuruları için uygulamayı açın.')">📢 Duyuru</button>
+          </div>
+          <div class="form-group">
+            <label>Başlık</label>
+            <input id="pushTitle" placeholder="Bildirim başlığı">
+          </div>
+          <div class="form-group">
+            <label>Mesaj</label>
+            <textarea id="pushBody" rows="4" placeholder="Bildirim metni" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px"></textarea>
+          </div>
+          <div id="pushResult" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
+          <button type="button" class="btn btn-primary" id="pushSendBtn" onclick="sendPushNotification()">📤 Tüm kullanıcılara gönder</button>
+        </div>
+      </div>
+
+      <!-- Emergency Numbers -->
+      <div id="emergencyView" class="view-section">
+        <div class="card">
+          <div class="section-title">🚨 Acil Numaraları Yönet</div>
+          <div id="emergencyList"></div>
+          <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border)">
+            <h3>Yeni Numara Ekle</h3>
+            <div class="row">
+              <input id="emName" placeholder="Birim Adı (örn. İtfaiye)">
+              <input id="emNum" placeholder="Telefon Numarası">
+              <button class="btn btn-primary" onclick="addEmergency()">➕ Ekle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div id="servicesView" class="view-section">
+        <div class="card">
+          <div class="section-title">🛠️ Hizmet Kartlarını Yönet</div>
+          <div id="servicesList"></div>
+          <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border)">
+            <h3>Yeni Hizmet Ekle</h3>
+            <div class="row">
+              <input id="srvTitle" placeholder="Hizmet Adı">
+              <input id="srvTarget" placeholder="Hedef (örn. pharmacy)">
+              <button class="btn btn-primary" onclick="addService()">➕ Ekle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explore -->
+      <div id="exploreView" class="view-section">
+        <!-- Categories Container -->
+        <div class="card" id="exploreCategoriesContainer">
+          <div class="section-title">🌍 Keşfet Kategorileri</div>
+          <p style="color:var(--text-muted); font-size:13px">Düzenlemek istediğiniz kategoriyi seçip içindeki yerleri ve resim/videoları yönetebilirsiniz.</p>
+          <div id="exploreCategoriesList" style="margin-top:16px"></div>
+        </div>
+
+        <!-- Places Container -->
+        <div class="card" id="explorePlacesContainer" style="display:none">
+          <div class="section-title" id="explorePlacesTitle"></div>
+          <div id="explorePlacesList" style="margin-top:16px"></div>
+        </div>
+
+        <!-- Place Editor Container -->
+        <div class="card" id="explorePlaceEditorContainer" style="display:none">
+          <div class="section-title" id="explorePlaceEditorTitle"></div>
+          <div id="explorePlaceEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Oto Galeri -->
+      <div id="autoGalleryView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="autoGalleryListContainer">
+          <div class="section-title">🚗 Oto Galeri İlanları</div>
+          <p style="color:var(--text-muted); font-size:13px">Düziçi oto galeri esnaflarının aktif ilanlarını buradan yönetebilirsiniz. Sahibinden.com tarzında listelenir.</p>
+          <div id="autoGalleryList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewVehicle()">➕ Yeni Araç İlanı Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="autoGalleryEditorContainer" style="display:none">
+          <div class="section-title" id="autoGalleryEditorTitle">✏️ İlan Düzenle</div>
+          <div id="autoGalleryEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Etkinlikler -->
+      <div id="eventsView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="eventsListContainer">
+          <div class="section-title">📅 Kültür & Sanat Etkinlikleri</div>
+          <p style="color:var(--text-muted); font-size:13px">Uygulamadaki etkinlikler sayfasında yer alacak manuel etkinlikleri yönetin. Otomatik çekilenlerin yanında sergilenir.</p>
+          <div id="eventsList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewEvent()">➕ Yeni Etkinlik Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="eventsEditorContainer" style="display:none">
+          <div class="section-title" id="eventsEditorTitle">✏️ Etkinlik Düzenle</div>
+          <div id="eventsEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Sponsors -->
+      <div id="sponsorsView" class="view-section">
+        <div class="card">
+          <div class="section-title">🤝 Sponsor ve Reklam Yönetimi</div>
+          <p>Uygulama ana sayfasındaki kaydırmalı reklam alanını buradan yönetebilirsiniz.</p>
+          <div id="sponsorsList" style="margin-top:16px"></div>
+          
+          <div style="margin-top:30px; padding-top:20px; border-top:2px solid var(--bg)">
+            <h3>➕ Yeni Sponsor Ekle</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px">
+              <div class="form-group">
+                <label>Sponsor Adı / Başlık</label>
+                <input id="spTitle" placeholder="Örn: Yerel Market Kampanyası">
+              </div>
+              <div class="form-group">
+                <label>Etiket (Badge)</label>
+                <input id="spBadge" placeholder="Örn: SPONSOR veya %20 İNDİRİM">
+              </div>
+              <div class="form-group" style="grid-column: span 2">
+                <label>Görsel Linki (URL)</label>
+                <input id="spImage" placeholder="https://resim-adresi.com/gorsel.jpg">
+              </div>
+              <div class="form-group" style="grid-column: span 2">
+                <label>Tıklanınca Gidilecek Adres (URL)</label>
+                <input id="spTarget" placeholder="https://instagram.com/firma-adi">
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px" onclick="addSponsor()">Sponsoru Listeye Ekle</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Backups -->
+      <div id="backupsView" class="view-section">
+        <div class="card">
+          <div class="section-title">📦 Veri Yedekleri</div>
+          <p>Yapılan her kayıt işleminde otomatik yedek alınır. Sorun oluşursa buradan geri dönebilirsiniz.</p>
+          <div id="backupsList" style="margin-top:16px"></div>
+          <button class="btn btn-danger" style="margin-top:20px" onclick="restoreLast()">⚠️ En Son Yedeğe Dön</button>
+        </div>
+      </div>
+
+      <!-- Branding & Theme -->
+      <div id="brandingView" class="view-section">
+        <div class="card">
+          <div class="section-title">🎨 Marka & Tema</div>
+          <p style="color:var(--text-muted); font-size:13px">Uygulama adı, logo ve renk paleti. Renkleri hex formatında girin (örn. #C98B18).</p>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px">
+            <div class="form-group">
+              <label>Uygulama Adı</label>
+              <input id="brandAppName" placeholder="Hepsi Düziçi">
+            </div>
+            <div class="form-group">
+              <label>Slogan</label>
+              <input id="brandTagline" placeholder="Akdeniz'in İncisi">
+            </div>
+            <div class="form-group" style="grid-column: span 2">
+              <label>Logo URL (asset:... veya https://...)</label>
+              <input id="brandLogoUrl" placeholder="asset:assets/images/logo.png">
+            </div>
+            <div class="form-group" style="grid-column: span 2">
+              <label>Ana Ekran Üst Kartı Arka Plan Resmi (asset:... veya https://...)</label>
+              <div style="display:flex; gap:10px; align-items:center">
+                <input id="brandHeroCardBg" placeholder="asset:assets/images/duzici_castle_header.png" style="flex:1">
+                <input type="file" id="brandHeroCardBgFile" style="display:none" onchange="uploadHeroCardBgFile()">
+                <button class="btn btn-secondary" onclick="document.getElementById('brandHeroCardBgFile').click()" style="white-space:nowrap">📤 Dosya Yükle</button>
+              </div>
+            </div>
+            <div class="form-group" style="grid-column: span 2">
+              <label>Keşfet Ekranı Üst Kartı Arka Plan Resmi (asset:... veya https://...)</label>
+              <div style="display:flex; gap:10px; align-items:center">
+                <input id="brandExploreHeaderBg" placeholder="asset:assets/images/duzici_castle_header.png" style="flex:1">
+                <input type="file" id="brandExploreHeaderBgFile" style="display:none" onchange="uploadExploreHeaderBgFile()">
+                <button class="btn btn-secondary" onclick="document.getElementById('brandExploreHeaderBgFile').click()" style="white-space:nowrap">📤 Dosya Yükle</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Ana Renk (Primary)</label>
+              <input id="brandPrimary" type="color">
+            </div>
+            <div class="form-group">
+              <label>Koyu Ana Renk (Primary Dark)</label>
+              <input id="brandPrimaryDark" type="color">
+            </div>
+            <div class="form-group">
+              <label>Vurgu Mavi</label>
+              <input id="brandAccentBlue" type="color">
+            </div>
+            <div class="form-group">
+              <label>Splash Arka Plan</label>
+              <input id="brandSplashBg" type="color">
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top:12px" onclick="applyBranding()">✓ Forma Yansıt</button>
+          <span style="margin-left:12px; color:var(--text-muted); font-size:12px">Sonra üstteki "Tümünü Kaydet" ile kaydedin.</span>
+        </div>
+      </div>
+
+      <!-- Header Media (Vitrin & Hikayeler) -->
+      <div id="headerMediaView" class="view-section">
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:14px">
+            <div>
+              <div class="section-title" style="margin:0">🖼️ Ana Ekran Hikaye Baloncukları (Instagram Stories)</div>
+              <p style="color:var(--text-muted); font-size:13px; margin:4px 0 0 0">Bu alandan eklediğiniz görsel ve videolar Instagram tarzı hikaye baloncukları halinde gruplanır. Her baloncuğun içine bilgisayardan yükleme yapabilir veya manuel URL ekleyebilirsiniz.</p>
+            </div>
+            <button class="btn btn-primary" onclick="createStoryGroup()">➕ Yeni Baloncuk (Hikaye Grubu) Ekle</button>
+          </div>
+          <div id="headerMediaList" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div id="quickActionsView" class="view-section">
+        <div class="card">
+          <div class="section-title">⚡ Ana Ekran Hızlı Erişim Butonları</div>
+          <p style="color:var(--text-muted); font-size:13px">Ana ekranın üst kısmındaki yatay butonlar. target alanı: <code>phone:0...</code>, <code>url:https://...</code>, <code>screen:news/pharmacy/prayer/explore/municipality</code> formatında olabilir.</p>
+          <div id="quickActionsList" style="margin-top:16px"></div>
+          <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border)">
+            <h3>Yeni Buton Ekle</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr auto; gap:8px">
+              <input id="qaIcon" placeholder="İkon (örn. local_taxi_rounded)">
+              <input id="qaLabel" placeholder="Etiket">
+              <input id="qaColor" type="color" value="#FFA726">
+              <input id="qaTarget" placeholder="phone:0... veya screen:news">
+              <input id="qaId" placeholder="id (taksi)">
+              <button class="btn btn-primary" onclick="addQuickAction()">➕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- More Menu -->
+      <div id="moreMenuView" class="view-section">
+        <div class="card">
+          <div class="section-title">📑 "Daha Fazla" Sekmesi Menüsü</div>
+          <p style="color:var(--text-muted); font-size:13px">Bottom navigation'daki "Daha Fazla" sekmesinin başlık + tile listesi.</p>
+          <div id="moreSectionsList" style="margin-top:16px"></div>
+          <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border)">
+            <h3>Yeni Bölüm Ekle</h3>
+            <div class="row">
+              <input id="moreSectionTitle" placeholder="Bölüm Başlığı (örn. Araçlar)">
+              <button class="btn btn-primary" onclick="addMoreSection()">➕ Bölüm Ekle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- News Sources -->
+      <div id="newsSourcesView" class="view-section">
+        <div class="card">
+          <div class="section-title">📰 Haber RSS Kaynakları</div>
+          <p style="color:var(--text-muted); font-size:13px">Aktif olan kaynaklardan haber çekilir. <code>filterDuzici</code> işaretlenirse sadece "Düziçi" geçen haberler alınır.</p>
+          <div id="newsSourcesList" style="margin-top:16px"></div>
+          <div style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border)">
+            <h3>Yeni Kaynak Ekle</h3>
+            <div style="display:grid; grid-template-columns:1fr 2fr auto auto auto; gap:8px; align-items:center">
+              <input id="newsSrcName" placeholder="Kaynak Adı">
+              <input id="newsSrcUrl" placeholder="https://example.com/rss">
+              <label style="display:flex; align-items:center; gap:6px; margin:0; font-size:13px">
+                <input type="checkbox" id="newsSrcFilter" style="width:auto"> Düziçi filtresi
+              </label>
+              <label style="display:flex; align-items:center; gap:6px; margin:0; font-size:13px">
+                <input type="checkbox" id="newsSrcActive" style="width:auto" checked> Aktif
+              </label>
+              <button class="btn btn-primary" onclick="addNewsSource()">➕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced JSON -->
+      <div id="jsonView" class="view-section">
+        <div class="card">
+          <div class="section-title">💻 Gelişmiş Düzenleyici (JSON)</div>
+          <p style="color:var(--danger); font-size:12px; font-weight:700">UYARI: Burada yapacağınız bir hata uygulamayı bozabilir!</p>
+          <textarea id="jsonEditor" style="height:600px; font-family:monospace; margin-top:16px"></textarea>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast">İşlem Başarılı!</div>
+
+  <script>
+    let rawData = null;
+    let currentToken = '';
+    let currentExploreCategoryIndex = -1;
+    let currentExplorePlaceIndex = -1;
+    let tempPlaceGallery = [];
+    let storyGroups = [];
+    
+    // New variables
+    let currentVehicleIndex = -1;
+    let tempVehicleGallery = [];
+    let currentEventIndex = -1;
+
+    function slugify(text) {
+      const trMap = {
+        'ç': 'c', 'Ç': 'c', 'ğ': 'g', 'Ğ': 'g', 'ı': 'i', 'I': 'i', 'İ': 'i',
+        'ö': 'o', 'Ö': 'o', 'ş': 's', 'Ş': 's', 'ü': 'u', 'Ü': 'u'
+      };
+      let str = String(text || '').toLowerCase();
+      for (let key in trMap) {
+        str = str.replace(new RegExp(key, 'g'), trMap[key]);
+      }
+      return str
+        .replace(/\s+/g, '_')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '_')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
+    }
+
+    function initStoryGroups() {
+      const definedBubbles = (rawData && rawData.home && rawData.home.storyBubbles) ? rawData.home.storyBubbles : [];
+      const groups = [];
+      const groupsMap = {};
+      
+      definedBubbles.forEach(b => {
+        const bubbleId = b.id;
+        const title = (b.title || '').trim();
+        groupsMap[bubbleId] = {
+          bubbleId: bubbleId,
+          title: title,
+          items: []
+        };
+        groups.push(groupsMap[bubbleId]);
+      });
+
+      const raw = (rawData && rawData.home && rawData.home.headerMedia) ? rawData.home.headerMedia : [];
+      raw.forEach(item => {
+        const title = (item.title || 'Vitrin / Tanıtım').trim();
+        let bubbleId = item.bubbleId;
+        
+        if (!bubbleId) {
+          const existingGroup = groups.find(g => g.title === title);
+          if (existingGroup) {
+            bubbleId = existingGroup.bubbleId;
+          } else {
+            bubbleId = slugify(title) + '_' + Math.random().toString(36).substring(2, 6);
+          }
+        }
+        
+        const itemId = item.id || 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+
+        if (!groupsMap[bubbleId]) {
+          groupsMap[bubbleId] = { 
+            bubbleId: bubbleId, 
+            title: title, 
+            items: [] 
+          };
+          groups.push(groupsMap[bubbleId]);
+        }
+        groupsMap[bubbleId].items.push({
+          id: itemId,
+          url: item.url,
+          type: item.type || 'image',
+          isActive: item.isActive !== false
+        });
+      });
+      storyGroups = groups;
+    }
+
+    function saveStoryGroupsToRawData() {
+      const flat = [];
+      const bubbles = [];
+      
+      storyGroups.forEach(g => {
+        bubbles.push({
+          id: g.bubbleId,
+          title: g.title
+        });
+        g.items.forEach(item => {
+          flat.push({
+            id: item.id || 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+            bubbleId: g.bubbleId,
+            title: g.title,
+            url: item.url,
+            type: item.type,
+            isActive: item.isActive !== false
+          });
+        });
+      });
+      if (!rawData.home) rawData.home = {};
+      rawData.home.headerMedia = flat;
+      rawData.home.storyBubbles = bubbles;
+    }
+
+    async function loadPushStatus() {
+      const box = document.getElementById('pushStatusBox');
+      if (!box || !currentToken) return;
+      box.textContent = 'Durum yükleniyor...';
+      try {
+        const res = await fetch('/api/push/status', { headers: { 'x-admin-token': currentToken } });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          box.textContent = data.message || 'Push durumu alınamadı';
+          box.style.background = 'rgba(239,68,68,0.08)';
+          return;
+        }
+        box.style.background = data.fcmConfigured ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.08)';
+        box.textContent = data.fcmConfigured
+          ? `✅ FCM hazır · Kayıtlı cihaz: ${data.registeredDevices}`
+          : '⚠️ FCM yapılandırılmamış — Render\'da FIREBASE_SERVICE_ACCOUNT_JSON ekleyin';
+      } catch (e) {
+        box.textContent = 'Bağlantı hatası: push API yanıt vermedi';
+        box.style.background = 'rgba(239,68,68,0.08)';
+      }
+    }
+
+    function applyPushTemplate(title, body) {
+      document.getElementById('pushTitle').value = title;
+      document.getElementById('pushBody').value = body;
+    }
+
+    async function sendPushNotification() {
+      const title = document.getElementById('pushTitle').value.trim();
+      const body = document.getElementById('pushBody').value.trim();
+      const resultEl = document.getElementById('pushResult');
+      const btn = document.getElementById('pushSendBtn');
+      if (!title || !body) {
+        showToast('Başlık ve mesaj girin', true);
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Gönderiliyor...';
+      resultEl.textContent = '';
+      try {
+        const res = await fetch('/api/push/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-token': currentToken },
+          body: JSON.stringify({ title, body }),
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+          resultEl.style.color = 'var(--success)';
+          resultEl.textContent = `Gönderildi: ${data.sent ?? 0} başarılı, ${data.failed ?? 0} başarısız (toplam ${data.total ?? 0})`;
+          showToast('Bildirim gönderildi');
+          document.getElementById('pushTitle').value = '';
+          document.getElementById('pushBody').value = '';
+          loadPushStatus();
+        } else {
+          resultEl.style.color = 'var(--danger)';
+          resultEl.textContent = data.message || 'Gönderilemedi';
+          showToast(data.message || 'Gönderilemedi', true);
+        }
+      } catch (e) {
+        resultEl.style.color = 'var(--danger)';
+        resultEl.textContent = 'Bağlantı hatası';
+        showToast('Bağlantı hatası', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📤 Tüm kullanıcılara gönder';
+      }
+    }
+
+    // Login logic
+    async function handleLogin() {
+      const pass = document.getElementById('passInput').value;
+      if (!pass) return;
+      currentToken = pass;
+      try {
+        const res = await fetch('/api/admin/check', { headers: { 'x-admin-token': pass } });
+        if (res.ok) {
+          localStorage.setItem('hd_admin_token', pass);
+          document.body.classList.add('authenticated');
+          document.getElementById('loginView').style.display = 'none';
+          document.getElementById('mainContent').style.display = 'block';
+          document.getElementById('sideNav').style.display = 'flex';
+          document.getElementById('lockStatus').innerHTML = '🔓 Sistem Açık';
+          document.getElementById('logoutBtn').style.display = 'flex';
+          showToast('Hoşgeldiniz!');
+          loadData();
+        } else {
+          showToast('Hatalı Şifre!', true);
+        }
+      } catch (e) {
+        showToast('Bağlantı Hatası!', true);
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('hd_admin_token');
+      currentToken = '';
+      document.body.classList.remove('authenticated');
+      document.getElementById('loginView').style.display = 'block';
+      document.getElementById('mainContent').style.display = 'none';
+      document.getElementById('sideNav').style.display = 'none';
+      document.getElementById('logoutBtn').style.display = 'none';
+      document.getElementById('lockStatus').innerHTML = '🔒 Sistem Kilitli';
+      document.getElementById('passInput').value = '';
+      showToast('Oturum kapatıldı.');
+    }
+
+    // Toggle Menu Groups in Sidebar
+    function toggleMenuGroup(id) {
+      const el = document.getElementById(id);
+      const title = el.previousElementSibling;
+      el.classList.toggle('collapsed');
+      title.classList.toggle('collapsed');
+    }
+
+    // View Management
+    function switchView(view) {
+      if (typeof closeSidebar === 'function') closeSidebar();
+      document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      
+      const targetView = document.getElementById(view + 'View');
+      if (targetView) targetView.classList.add('active');
+      
+      const clickedEl = (typeof event !== 'undefined' && event) ? event.target.closest('.nav-item') : null;
+      if (clickedEl) {
+        clickedEl.classList.add('active');
+      } else {
+        const items = document.querySelectorAll('.nav-item');
+        for (const item of items) {
+          if (item.getAttribute('onclick')?.includes(`switchView('${view}')`)) {
+            item.classList.add('active');
+            break;
+          }
+        }
+      }
+      
+      const titles = {
+        dashboard: ['Dashboard', 'Genel uygulama durumu ve özet bilgiler.'],
+        branding: ['Marka & Tema', 'Uygulama adı, logo ve renk paleti.'],
+        quickActions: ['Hızlı Erişim', 'Ana ekrandaki yatay butonlar.'],
+        headerMedia: ['Vitrin & Hikayeler', 'Ana ekranın üstündeki vitrin alanı ve Instagram tarzı hikaye baloncukları.'],
+        moreMenu: ['Daha Fazla Menüsü', 'Daha Fazla sekmesinin tile listesi.'],
+        newsSources: ['Haber Kaynakları', 'RSS akışlarını ve aktif kaynakları yönetin.'],
+        emergency: ['Acil Numaralar', 'Kritik yardım hatlarını buradan güncelleyin.'],
+        services: ['Hizmetler', 'Ana ekrandaki hizmet kartlarını yönetin.'],
+        explore: ['Keşfet', 'Şehir rehberi kategorilerini düzenleyin.'],
+        sponsors: ['Sponsorlar', 'Uygulamadaki reklam ve sponsor alanları.'],
+        push: ['Toplu Bildirim', 'Tüm kullanıcılara push bildirim gönderin.'],
+        backups: ['Yedekler', 'Veri güvenliği ve geri yükleme merkezi.'],
+        json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.'],
+        autoGallery: ['Oto Galeri İlanları', 'Esnafların satılık/kiralık araç ilanlarını yönetin.'],
+        events: ['Kültür & Sanat Etkinlikleri', 'Düziçi ve çevre illerdeki sosyal etkinlikleri yönetin.']
+      };
+      
+      document.getElementById('viewTitle').textContent = titles[view] ? titles[view][0] : 'Yönetim Paneli';
+      document.getElementById('viewSubtitle').textContent = titles[view] ? titles[view][1] : '';
+      
+      if (view === 'push') {
+        loadPushStatus();
+      }
+      if (view === 'json') {
+        document.getElementById('jsonEditor').value = JSON.stringify(rawData, null, 2);
+      }
+      if (view === 'explore') {
+        currentExploreCategoryIndex = -1;
+        currentExplorePlaceIndex = -1;
+        document.getElementById('exploreCategoriesContainer').style.display = 'block';
+        document.getElementById('explorePlacesContainer').style.display = 'none';
+        document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      }
+      if (view === 'autoGallery') {
+        currentVehicleIndex = -1;
+        document.getElementById('autoGalleryListContainer').style.display = 'block';
+        document.getElementById('autoGalleryEditorContainer').style.display = 'none';
+        renderAutoGallery();
+      }
+      if (view === 'events') {
+        currentEventIndex = -1;
+        document.getElementById('eventsListContainer').style.display = 'block';
+        document.getElementById('eventsEditorContainer').style.display = 'none';
+        renderEvents();
+      }
+    }
+
+    // Data Operations
+    async function loadData() {
+      const res = await fetch('/api/city-content');
+      rawData = await res.json();
+      initStoryGroups();
+      renderAll();
+    }
+
+    async function saveData() {
+      // Sync from JSON editor if active
+      if (document.getElementById('jsonView').classList.contains('active')) {
+        try { rawData = JSON.parse(document.getElementById('jsonEditor').value); }
+        catch(e) { return showToast('Hatalı JSON Formatı!', true); }
+      }
+      
+      const res = await fetch('/api/city-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-token': currentToken },
+        body: JSON.stringify(rawData)
+      });
+      
+      if (res.ok) {
+        showToast('Tüm Değişiklikler Kaydedildi!');
+        loadData();
+      } else {
+        showToast('Kayıt Başarısız!', true);
+      }
+    }
+
+    // Render Logic
+    function renderAll() {
+      if (!rawData) return;
+
+      // Eksik bolumleri default ile doldur (geriye uyum).
+      rawData.branding = rawData.branding || {};
+      rawData.home = rawData.home || {};
+      rawData.home.quickActions = Array.isArray(rawData.home.quickActions) ? rawData.home.quickActions : [];
+      rawData.more = rawData.more || {};
+      rawData.more.sections = Array.isArray(rawData.more.sections) ? rawData.more.sections : [];
+      rawData.news = rawData.news || {};
+      rawData.news.sources = Array.isArray(rawData.news.sources) ? rawData.news.sources : [];
+      rawData.explore = rawData.explore || {};
+      if (!rawData.explore.categories && rawData.services && rawData.services.categories) {
+        rawData.explore.categories = rawData.services.categories;
+      }
+      rawData.explore.categories = Array.isArray(rawData.explore.categories) ? rawData.explore.categories : [];
+      rawData.explore.autoVehicles = Array.isArray(rawData.explore.autoVehicles) ? rawData.explore.autoVehicles : [];
+      rawData.customEvents = Array.isArray(rawData.customEvents) ? rawData.customEvents : [];
+
+      // Stats
+      document.getElementById('statServices').textContent = (rawData.services.tiles || []).length;
+      document.getElementById('statEmergency').textContent = (rawData.services.emergencyContacts || []).length;
+      document.getElementById('statExplore').textContent = (rawData.explore.categories || []).length;
+      const sponsorsCount = (rawData.media && rawData.media.sponsors) ? rawData.media.sponsors.length : 0;
+      if (document.getElementById('statSponsors')) {
+          document.getElementById('statSponsors').textContent = sponsorsCount;
+      }
+
+      // Emergency
+      const emList = document.getElementById('emergencyList');
+      emList.innerHTML = rawData.services.emergencyContacts.map((c, i) => `
+        <div class="list-item">
+          <div class="list-item-icon">📞</div>
+          <div class="list-item-content">
+            <div class="list-item-title">${escapeHtml(c.name)}</div>
+            <div class="list-item-subtitle">${escapeHtml(c.number)}</div>
+          </div>
+          <button class="btn btn-danger" onclick="removeEmergency(${i})">🗑️ Sil</button>
+        </div>
+      `).join('');
+
+      // Services
+      const srvList = document.getElementById('servicesList');
+      srvList.innerHTML = rawData.services.tiles.map((s, i) => `
+        <div class="list-item" style="${s.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
+          <div class="list-item-icon">📦</div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:10px">
+              ${escapeHtml(s.title)}
+              <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px; background:white; padding:2px 8px; border-radius:6px; border:1px solid var(--border)">
+                <input type="checkbox" ${s.isActive !== false ? 'checked' : ''} onchange="rawData.services.tiles[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif
+              </label>
+            </div>
+            <div class="list-item-subtitle">${escapeHtml(s.target)}</div>
+          </div>
+          <button class="btn btn-danger" onclick="removeService(${i})">🗑️ Sil</button>
+        </div>
+      `).join('');
+
+      // Explore
+      const expCatList = document.getElementById('exploreCategoriesList');
+      if (expCatList) {
+        expCatList.innerHTML = rawData.explore.categories.map((c, i) => `
+          <div class="list-item" style="cursor:pointer" onclick="selectExploreCategory(${i})">
+            <div class="list-item-icon">📍</div>
+            <div class="list-item-content">
+              <div class="list-item-title">${escapeHtml(c.title)}</div>
+              <div class="list-item-subtitle">${escapeHtml(c.badge || '')} | ${(c.places || []).length} Yer</div>
+            </div>
+            <span style="color:var(--primary); font-weight:bold; font-size:20px; padding-right:8px">➔</span>
+          </div>
+        `).join('');
+      }
+
+      if (currentExploreCategoryIndex !== -1) {
+        renderPlacesList();
+      }
+
+      // Sponsors
+      const spList = document.getElementById('sponsorsList');
+      const sponsors = (rawData.media && rawData.media.sponsors) ? rawData.media.sponsors : [];
+      spList.innerHTML = sponsors.map((s, i) => `
+        <div class="list-item complex" style="${s.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
+          <div class="list-item-icon" style="background-image: url('${escapeAttr(s.imageUrl)}'); background-size: cover; background-position: center;"></div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px">
+              ${escapeHtml(s.title)} 
+              <span style="font-size:10px; background:var(--primary-soft); color:var(--primary); padding:2px 6px; border-radius:4px">${escapeHtml(s.badge)}</span>
+              <label style="margin:0 0 0 auto; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px; background:white; padding:2px 8px; border-radius:6px; border:1px solid var(--border)">
+                <input type="checkbox" ${s.isActive !== false ? 'checked' : ''} onchange="rawData.media.sponsors[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif
+              </label>
+            </div>
+            <div class="list-item-subtitle">${escapeHtml(s.targetUrl)}</div>
+          </div>
+          <button class="btn btn-danger" onclick="removeSponsor(${i})">🗑️ Sil</button>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); text-align:center">Henüz sponsor eklenmemiş.</p>';
+
+      // Branding
+      const b = rawData.branding;
+      document.getElementById('brandAppName').value = b.appName || '';
+      document.getElementById('brandTagline').value = b.tagline || '';
+      document.getElementById('brandLogoUrl').value = b.logoUrl || '';
+      document.getElementById('brandHeroCardBg').value = b.heroCardBg || '';
+      document.getElementById('brandExploreHeaderBg').value = b.exploreHeaderBg || '';
+      document.getElementById('brandPrimary').value = normalizeHex(b.primaryColor, '#C98B18');
+      document.getElementById('brandPrimaryDark').value = normalizeHex(b.primaryDarkColor, '#8C5E0F');
+      document.getElementById('brandAccentBlue').value = normalizeHex(b.accentBlueColor, '#1F6FEB');
+      document.getElementById('brandSplashBg').value = normalizeHex(b.splashBackgroundColor, '#0C0C0C');
+
+      // Quick actions
+      const qaList = document.getElementById('quickActionsList');
+      qaList.innerHTML = rawData.home.quickActions.map((q, i) => `
+        <div class="list-item complex" style="${q.isActive === false ? 'opacity: 0.6; background: #f1f5f9;' : ''}">
+          <div class="list-item-icon" style="background:${escapeHtml(q.color || '#eee')}; color:white">⚡</div>
+          <div class="list-item-content">
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; margin-bottom:8px">
+              <input value="${escapeAttr(q.label || '')}" onchange="rawData.home.quickActions[${i}].label = this.value" placeholder="Etiket">
+              <input value="${escapeAttr(q.icon || '')}" onchange="rawData.home.quickActions[${i}].icon = this.value" placeholder="İkon adı">
+              <input value="${escapeAttr(q.color || '')}" onchange="rawData.home.quickActions[${i}].color = this.value" placeholder="#FFA726">
+              <input value="${escapeAttr(q.target || '')}" onchange="rawData.home.quickActions[${i}].target = this.value" placeholder="phone:0... / screen:news / url:https://...">
+            </div>
+            <label style="margin:0; font-size:12px; font-weight:normal; display:flex; align-items:center; gap:4px">
+              <input type="checkbox" ${q.isActive !== false ? 'checked' : ''} onchange="rawData.home.quickActions[${i}].isActive = this.checked; renderAll();" style="width:auto"> Aktif Görünsün
+            </label>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <button class="btn btn-secondary" onclick="moveQuickAction(${i}, -1)" style="padding:4px 8px">⬆</button>
+            <button class="btn btn-secondary" onclick="moveQuickAction(${i}, 1)" style="padding:4px 8px">⬇</button>
+            <button class="btn btn-danger" onclick="removeQuickAction(${i})" style="padding:4px 8px">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+
+      // More sections
+      const moreList = document.getElementById('moreSectionsList');
+      moreList.innerHTML = rawData.more.sections.map((s, si) => `
+        <div class="card" style="margin-bottom:12px; box-shadow:none; padding:16px">
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px">
+            <input value="${escapeAttr(s.title || '')}" onchange="rawData.more.sections[${si}].title = this.value" placeholder="Bölüm Başlığı" style="flex:1; font-weight:700">
+            <button class="btn btn-secondary" onclick="moveMoreSection(${si}, -1)">⬆</button>
+            <button class="btn btn-secondary" onclick="moveMoreSection(${si}, 1)">⬇</button>
+            <button class="btn btn-danger" onclick="removeMoreSection(${si})">🗑️ Bölümü Sil</button>
+          </div>
+          ${(Array.isArray(s.tiles) ? s.tiles : []).map((t, ti) => `
+            <div class="list-item complex" style="margin-bottom:8px">
+              <div class="list-item-icon" style="background:${escapeHtml(t.color || '#eee')}; color:white">▦</div>
+              <div class="list-item-content" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr; gap:6px">
+                <input value="${escapeAttr(t.title || '')}" onchange="rawData.more.sections[${si}].tiles[${ti}].title = this.value" placeholder="Başlık">
+                <input value="${escapeAttr(t.subtitle || '')}" onchange="rawData.more.sections[${si}].tiles[${ti}].subtitle = this.value" placeholder="Alt başlık">
+                <input value="${escapeAttr(t.icon || '')}" onchange="rawData.more.sections[${si}].tiles[${ti}].icon = this.value" placeholder="İkon">
+                <input value="${escapeAttr(t.color || '')}" onchange="rawData.more.sections[${si}].tiles[${ti}].color = this.value" placeholder="#448AFF">
+                <input value="${escapeAttr(t.target || '')}" onchange="rawData.more.sections[${si}].tiles[${ti}].target = this.value" placeholder="screen:news">
+              </div>
+              <button class="btn btn-danger" onclick="removeMoreTile(${si}, ${ti})">🗑️</button>
+            </div>
+          `).join('')}
+          <button class="btn btn-secondary" onclick="addMoreTile(${si})" style="margin-top:8px">➕ Tile Ekle</button>
+        </div>
+      `).join('');
+
+      // News sources
+      const nsList = document.getElementById('newsSourcesList');
+      // ... (existing news source render logic)
+      nsList.innerHTML = rawData.news.sources.map((s, i) => `
+        <div class="list-item complex">
+          <div class="list-item-icon">📡</div>
+          <div class="list-item-content" style="display:grid; grid-template-columns:1fr 2fr auto auto; gap:8px; align-items:center">
+            <input value="${escapeAttr(s.name || '')}" onchange="rawData.news.sources[${i}].name = this.value" placeholder="Kaynak Adı">
+            <input value="${escapeAttr(s.url || '')}" onchange="rawData.news.sources[${i}].url = this.value" placeholder="https://...">
+            <label style="margin:0; font-size:12px"><input type="checkbox" ${s.filterDuzici ? 'checked' : ''} onchange="rawData.news.sources[${i}].filterDuzici = this.checked" style="width:auto"> Düziçi filtresi</label>
+            <label style="margin:0; font-size:12px"><input type="checkbox" ${s.isActive !== false ? 'checked' : ''} onchange="rawData.news.sources[${i}].isActive = this.checked" style="width:auto"> Aktif</label>
+          </div>
+          <button class="btn btn-danger" onclick="removeNewsSource(${i})">🗑️</button>
+        </div>
+      `).join('');
+
+      // Grouped Header Media (Vitrin/Stories)
+      const hmList = document.getElementById('headerMediaList');
+      hmList.innerHTML = storyGroups.map((group, gi) => `
+        <div class="card" style="margin-bottom: 20px; border: 1px solid var(--border); padding: 18px; background: #fafafa; box-shadow:none">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #eee">
+            <div style="display:flex; flex-direction:column; gap:4px; flex:1">
+              <div style="display:flex; align-items:center; gap:8px">
+                <span style="font-size:20px">🎈</span>
+                <input value="${escapeAttr(group.title)}" 
+                       onchange="storyGroups[${gi}].title = this.value; saveStoryGroupsToRawData(); renderAll(); saveData();" 
+                       placeholder="Baloncuk Adı (örn: Yeşil Şelale)" 
+                       style="font-size:16px; font-weight:700; flex:1; border:none; background:transparent; border-bottom:1px dashed #bbb; outline:none">
+              </div>
+              <div style="font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:6px; margin-left:28px">
+                <span>Benzersiz ID:</span>
+                <input value="${escapeAttr(group.bubbleId || '')}" 
+                       onchange="storyGroups[${gi}].bubbleId = slugify(this.value); saveStoryGroupsToRawData(); renderAll(); saveData();"
+                       style="font-family:monospace; font-size:11px; padding:2px 6px; border:1px solid var(--border); border-radius:4px; background:#f1f5f9; width:220px">
+              </div>
+            </div>
+            <div style="display:flex; gap:6px">
+              <button class="btn btn-secondary" onclick="moveStoryGroup(${gi}, -1)" style="padding:4px 8px">⬆</button>
+              <button class="btn btn-secondary" onclick="moveStoryGroup(${gi}, 1)" style="padding:4px 8px">⬇</button>
+              <button class="btn btn-danger" onclick="deleteStoryGroup(${gi})" style="padding:4px 10px; font-size:12px">🗑️ Baloncuğu Sil</button>
+            </div>
+          </div>
+          
+          <div style="display:flex; flex-direction:column; gap:8px">
+            ${(group.items || []).map((item, ii) => `
+              <div class="list-item complex" style="margin-bottom:4px; background:white; ${item.isActive === false ? 'opacity: 0.6;' : ''}">
+                <div class="list-item-icon">${item.type === 'video' ? '🎬' : '🖼️'}</div>
+                <div class="list-item-content" style="display:grid; grid-template-columns: 3fr 1fr auto; gap:8px; align-items:center">
+                  <input value="${escapeAttr(item.url)}" onchange="storyGroups[${gi}].items[${ii}].url = this.value; saveStoryGroupsToRawData(); renderAll(); saveData();" placeholder="Görsel / Video URL">
+                  <select onchange="storyGroups[${gi}].items[${ii}].type = this.value; saveStoryGroupsToRawData(); renderAll(); saveData();" style="padding:6px; border:1px solid var(--border); border-radius:6px">
+                    <option value="image" ${item.type === 'image' ? 'selected' : ''}>Fotoğraf</option>
+                    <option value="video" ${item.type === 'video' ? 'selected' : ''}>Video</option>
+                  </select>
+                  <label style="margin:0; font-size:12px; display:flex; align-items:center; gap:4px">
+                    <input type="checkbox" ${item.isActive !== false ? 'checked' : ''} onchange="storyGroups[${gi}].items[${ii}].isActive = this.checked; saveStoryGroupsToRawData(); renderAll(); saveData();" style="width:auto"> Aktif
+                  </label>
+                </div>
+                <div style="display:flex; gap:4px">
+                  <button class="btn btn-secondary" onclick="moveStoryGroupItem(${gi}, ${ii}, -1)" style="padding:4px 8px">⬆</button>
+                  <button class="btn btn-secondary" onclick="moveStoryGroupItem(${gi}, ${ii}, 1)" style="padding:4px 8px">⬇</button>
+                  <button class="btn btn-danger" onclick="deleteStoryGroupItem(${gi}, ${ii})" style="padding:4px 8px">🗑️</button>
+                </div>
+              </div>
+            `).join('') || '<p style="color:var(--text-muted); font-size:12px; text-align:center; padding:10px">Bu baloncuğun içinde henüz hiç fotoğraf veya video yok.</p>'}
+          </div>
+          
+          <div style="margin-top:14px; padding-top:12px; border-top:1px dashed #eee; display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:10px; border-radius:8px">
+            <div class="form-group" style="margin:0">
+              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Bilgisayardan Dosya Yükle</label>
+              <div style="display:flex; gap:6px">
+                <input type="file" id="file_input_${gi}" style="font-size:12px; padding:2px; flex:1">
+                <button class="btn btn-secondary" onclick="uploadStoryFile(${gi})" style="font-size:11px; padding:4px 10px">⬆ Yükle</button>
+              </div>
+            </div>
+            <div class="form-group" style="margin:0">
+              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Veya Manuel Link Ekle</label>
+              <div style="display:flex; gap:6px">
+                <input id="url_input_${gi}" placeholder="https://..." style="font-size:12px; flex:1">
+                <button class="btn btn-primary" onclick="addStoryUrl(${gi})" style="font-size:11px; padding:4px 10px">➕ Ekle</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); text-align:center">Henüz baloncuk eklenmemiş.</p>';
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function escapeAttr(s) {
+      return escapeHtml(s);
+    }
+    function normalizeHex(value, fallback) {
+      const v = String(value || '').trim();
+      if (/^#[0-9a-f]{6}$/i.test(v)) return v;
+      return fallback;
+    }
+
+    // Item Management
+    function addEmergency() {
+      const name = document.getElementById('emName').value;
+      const num = document.getElementById('emNum').value;
+      if (!name || !num) return;
+      rawData.services.emergencyContacts.push({ name, number: num, icon: 'phone' });
+      renderAll();
+      document.getElementById('emName').value = '';
+      document.getElementById('emNum').value = '';
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
+    }
+
+    function removeEmergency(i) {
+      rawData.services.emergencyContacts.splice(i, 1);
+      renderAll();
+      showToast('Siliniyor...');
+      saveData();
+    }
+
+    function addService() {
+      const title = document.getElementById('srvTitle').value;
+      const target = document.getElementById('srvTarget').value;
+      if (!title || !target) return;
+      rawData.services.tiles.push({ title, target, icon: 'circle', id: title.toLowerCase() });
+      renderAll();
+      document.getElementById('srvTitle').value = '';
+      document.getElementById('srvTarget').value = '';
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
+    }
+
+    function removeService(i) {
+      rawData.services.tiles.splice(i, 1);
+      renderAll();
+      showToast('Siliniyor...');
+      saveData();
+    }
+
+    // Sponsors
+    function addSponsor() {
+      const title = document.getElementById('spTitle').value.trim();
+      const badge = document.getElementById('spBadge').value.trim();
+      const imageUrl = document.getElementById('spImage').value.trim();
+      const targetUrl = document.getElementById('spTarget').value.trim();
+
+      if (!title || !imageUrl) return showToast('Başlık ve Görsel URL gerekli!', true);
+
+      if (!rawData.media) rawData.media = { sponsors: [] };
+      if (!rawData.media.sponsors) rawData.media.sponsors = [];
+
+      rawData.media.sponsors.push({
+        id: 'sp-' + Date.now(),
+        title,
+        badge: badge || 'SPONSOR',
+        imageUrl,
+        targetUrl: targetUrl || '',
+        isActive: true
+      });
+
+      // Clear inputs
+      document.getElementById('spTitle').value = '';
+      document.getElementById('spBadge').value = '';
+      document.getElementById('spImage').value = '';
+      document.getElementById('spTarget').value = '';
+
+      renderAll();
+      showToast('Sponsor eklendi, kaydediliyor...');
+      saveData();
+    }
+
+    function removeSponsor(i) {
+      rawData.media.sponsors.splice(i, 1);
+      renderAll();
+      showToast('Sponsor siliniyor...');
+      saveData();
+    }
+
+    // Branding
+    function applyBranding() {
+      rawData.branding = rawData.branding || {};
+      rawData.branding.appName = document.getElementById('brandAppName').value.trim();
+      rawData.branding.tagline = document.getElementById('brandTagline').value.trim();
+      rawData.branding.logoUrl = document.getElementById('brandLogoUrl').value.trim();
+      rawData.branding.heroCardBg = document.getElementById('brandHeroCardBg').value.trim();
+      rawData.branding.exploreHeaderBg = document.getElementById('brandExploreHeaderBg').value.trim();
+      rawData.branding.primaryColor = document.getElementById('brandPrimary').value.toUpperCase();
+      rawData.branding.primaryDarkColor = document.getElementById('brandPrimaryDark').value.toUpperCase();
+      rawData.branding.accentBlueColor = document.getElementById('brandAccentBlue').value.toUpperCase();
+      rawData.branding.splashBackgroundColor = document.getElementById('brandSplashBg').value.toUpperCase();
+      showToast('Forma yansıtıldı, kaydediliyor...');
+      saveData();
+    }
+
+    // Quick Actions
+    function addQuickAction() {
+      const icon = document.getElementById('qaIcon').value.trim();
+      const label = document.getElementById('qaLabel').value.trim();
+      const color = document.getElementById('qaColor').value;
+      const target = document.getElementById('qaTarget').value.trim();
+      const id = document.getElementById('qaId').value.trim() || label.toLowerCase();
+      if (!label || !icon) return showToast('İkon ve etiket gerekli', true);
+      rawData.home = rawData.home || {};
+      rawData.home.quickActions = Array.isArray(rawData.home.quickActions) ? rawData.home.quickActions : [];
+      rawData.home.quickActions.push({ id, icon, label, color, target, isActive: true });
+      ['qaIcon','qaLabel','qaTarget','qaId'].forEach(x => document.getElementById(x).value = '');
+      renderAll();
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
+    }
+    function removeQuickAction(i) {
+      rawData.home.quickActions.splice(i, 1);
+      renderAll();
+      saveData();
+    }
+    function moveQuickAction(i, delta) {
+      const arr = rawData.home.quickActions;
+      const j = i + delta;
+      if (j < 0 || j >= arr.length) return;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      renderAll();
+      saveData();
+    }
+
+    // More Menu
+    function addMoreSection() {
+      const title = document.getElementById('moreSectionTitle').value.trim();
+      if (!title) return;
+      rawData.more = rawData.more || {};
+      rawData.more.sections = Array.isArray(rawData.more.sections) ? rawData.more.sections : [];
+      rawData.more.sections.push({ title, tiles: [] });
+      document.getElementById('moreSectionTitle').value = '';
+      renderAll();
+      saveData();
+    }
+    function removeMoreSection(i) {
+      if (!confirm('Bölümü ve içindeki tüm tile\'ları silmek istediğinize emin misiniz?')) return;
+      rawData.more.sections.splice(i, 1);
+      renderAll();
+      saveData();
+    }
+    function moveMoreSection(i, delta) {
+      const arr = rawData.more.sections;
+      const j = i + delta;
+      if (j < 0 || j >= arr.length) return;
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+      renderAll();
+      saveData();
+    }
+    function addMoreTile(si) {
+      rawData.more.sections[si].tiles = rawData.more.sections[si].tiles || [];
+      rawData.more.sections[si].tiles.push({
+        icon: 'tune_rounded', title: 'Yeni Tile', subtitle: '', color: '#448AFF', target: ''
+      });
+      renderAll();
+      saveData();
+    }
+    function removeMoreTile(si, ti) {
+      rawData.more.sections[si].tiles.splice(ti, 1);
+      renderAll();
+      saveData();
+    }
+
+    // News Sources
+    function addNewsSource() {
+      const name = document.getElementById('newsSrcName').value.trim();
+      const url = document.getElementById('newsSrcUrl').value.trim();
+      const filterDuzici = document.getElementById('newsSrcFilter').checked;
+      const isActive = document.getElementById('newsSrcActive').checked;
+      if (!name || !url) return showToast('İsim ve URL gerekli', true);
+      rawData.news = rawData.news || {};
+      rawData.news.sources = Array.isArray(rawData.news.sources) ? rawData.news.sources : [];
+      rawData.news.sources.push({ name, url, filterDuzici, isActive });
+      ['newsSrcName','newsSrcUrl'].forEach(x => document.getElementById(x).value = '');
+      document.getElementById('newsSrcFilter').checked = false;
+      document.getElementById('newsSrcActive').checked = true;
+      renderAll();
+      showToast('Eklendi, kaydediliyor...');
+      saveData();
+    }
+    function removeNewsSource(i) {
+      rawData.news.sources.splice(i, 1);
+      renderAll();
+      saveData();
+    }
+
+    // Grouped Stories Bubble Management
+    function createStoryGroup() {
+      const title = prompt('Yeni Baloncuk (Hikaye Grubu) Adı girin:');
+      if (!title || !title.trim()) return;
+      const t = title.trim();
+      const generatedId = slugify(t) + '_' + Math.random().toString(36).substring(2, 6);
+      storyGroups.push({
+        bubbleId: generatedId,
+        title: t,
+        items: []
+      });
+      saveStoryGroupsToRawData();
+      renderAll();
+      showToast('Baloncuk oluşturuldu! Kaydediliyor...');
+      saveData();
+    }
+
+    function deleteStoryGroup(gi) {
+      if (!confirm(`"${storyGroups[gi].title}" baloncuğunu ve içindeki tüm medyaları silmek istediğinize emin misiniz?`)) return;
+      storyGroups.splice(gi, 1);
+      saveStoryGroupsToRawData();
+      renderAll();
+      showToast('Baloncuk silindi, kaydediliyor...');
+      saveData();
+    }
+
+    function moveStoryGroup(gi, delta) {
+      const j = gi + delta;
+      if (j < 0 || j >= storyGroups.length) return;
+      [storyGroups[gi], storyGroups[j]] = [storyGroups[j], storyGroups[gi]];
+      saveStoryGroupsToRawData();
+      renderAll();
+      saveData();
+    }
+
+    function deleteStoryGroupItem(gi, ii) {
+      storyGroups[gi].items.splice(ii, 1);
+      saveStoryGroupsToRawData();
+      renderAll();
+      showToast('Medya silindi, kaydediliyor...');
+      saveData();
+    }
+
+    function moveStoryGroupItem(gi, ii, delta) {
+      const arr = storyGroups[gi].items;
+      const j = ii + delta;
+      if (j < 0 || j >= arr.length) return;
+      [arr[ii], arr[j]] = [arr[j], arr[ii]];
+      saveStoryGroupsToRawData();
+      renderAll();
+      saveData();
+    }
+
+    async function uploadStoryFile(gi) {
+      const fileInput = document.getElementById(`file_input_${gi}`);
+      if (fileInput.files.length === 0) return showToast('Lütfen yüklemek için dosya seçin!', true);
+      
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Dosya yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
+        }
+        
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          const ext = file.name.split('.').pop().toLowerCase();
+          const type = ['mp4', 'mov', 'avi'].includes(ext) ? 'video' : 'image';
+          
+          storyGroups[gi].items.push({
+            url,
+            type,
+            isActive: true
+          });
+          fileInput.value = '';
+          saveStoryGroupsToRawData();
+          renderAll();
+          showToast('Dosya yüklendi ve eklendi!');
+          saveData();
+        } else {
+          showToast('Hata: ' + (data.message || 'Dosya yüklenemedi'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Dosya yüklenirken bağlantı hatası oluştu!', true);
+      }
+    }
+
+    function addStoryUrl(gi) {
+      const urlInput = document.getElementById(`url_input_${gi}`);
+      const url = urlInput.value.trim();
+      if (!url) return showToast('Lütfen geçerli bir URL girin!', true);
+      
+      const lowercaseUrl = url.toLowerCase();
+      let type = 'image';
+      if (lowercaseUrl.includes('youtube.com') || lowercaseUrl.includes('youtu.be') || lowercaseUrl.endsWith('.mp4') || lowercaseUrl.endsWith('.mov') || lowercaseUrl.endsWith('.avi')) {
+        type = 'video';
+      }
+      
+      storyGroups[gi].items.push({
+        url,
+        type,
+        isActive: true
+      });
+      urlInput.value = '';
+      saveStoryGroupsToRawData();
+      renderAll();
+      showToast('Medya eklendi!');
+      saveData();
+    }
+
+    // Extra Features
+    async function refreshSystem(type) {
+      showToast('Taranıyor...');
+      const res = await fetch(`/api/${type}/refresh`, { method: 'POST', headers: { 'x-admin-token': currentToken } });
+      if (res.ok) showToast('Güncelleme Tamamlandı!');
+      else showToast('Hata Oluştu!', true);
+    }
+
+    async function restoreLast() {
+      if (!confirm('Emin misiniz? Tüm son değişiklikler kaybolacak.')) return;
+      const res = await fetch('/api/city-content/restore-last', { method: 'POST', headers: { 'x-admin-token': currentToken } });
+      if (res.ok) { showToast('Geri Yüklendi!'); loadData(); }
+      else showToast('Hata!', true);
+    }
+
+    // Explore Management
+    function selectExploreCategory(index) {
+      currentExploreCategoryIndex = index;
+      currentExplorePlaceIndex = -1;
+      
+      document.getElementById('exploreCategoriesContainer').style.display = 'none';
+      document.getElementById('explorePlacesContainer').style.display = 'block';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      
+      renderPlacesList();
+    }
+
+    function goBackToCategories() {
+      currentExploreCategoryIndex = -1;
+      currentExplorePlaceIndex = -1;
+      
+      document.getElementById('exploreCategoriesContainer').style.display = 'block';
+      document.getElementById('explorePlacesContainer').style.display = 'none';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      
+      renderAll();
+    }
+
+    function renderPlacesList() {
+      const category = rawData.explore.categories[currentExploreCategoryIndex];
+      document.getElementById('explorePlacesTitle').innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; width:100%">
+          <button class="btn btn-secondary" onclick="goBackToCategories()" style="padding:6px 12px">⬅ Geri</button>
+          <span>🌍 ${escapeHtml(category.title)} - Yerler</span>
+        </div>
+      `;
+
+      const places = category.places || [];
+      const placesList = document.getElementById('explorePlacesList');
+      
+      placesList.innerHTML = places.map((p, i) => `
+        <div class="list-item">
+          <div class="list-item-icon" style="background-image: url('${escapeAttr(p.image || p.imageUrl || '')}'); background-size: cover; background-position: center; width: 50px; height: 50px; border-radius: 8px;"></div>
+          <div class="list-item-content" style="margin-left: 12px;">
+            <div class="list-item-title">${escapeHtml(p.name)}</div>
+            <div class="list-item-subtitle">${escapeHtml(p.shortDescription || '')}</div>
+            <div style="font-size: 11px; margin-top: 4px; color: var(--text-muted);">
+              Etiket: ${escapeHtml(p.tag || '')} | Otopark: ${p.parking || 'yok'} | WC: ${p.restroom || 'yok'} | Ücret: ${p.entryFee || 'ucretsiz'}
+            </div>
+          </div>
+          <div style="display:flex; gap:8px">
+            <button class="btn btn-secondary" onclick="editPlace(${i})" style="padding:6px 12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deletePlace(${i})" style="padding:6px 12px">🗑️ Sil</button>
+          </div>
+        </div>
+      `).join('') + `
+        <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewPlace()">➕ Yeni Yer Ekle</button>
+      `;
+    }
+
+    function deletePlace(i) {
+      if (!confirm('Bu yeri silmek istediğinize emin misiniz?')) return;
+      const category = rawData.explore.categories[currentExploreCategoryIndex];
+      category.places.splice(i, 1);
+      renderPlacesList();
+      showToast('Yer siliniyor...');
+      saveData();
+    }
+
+    function createNewPlace() {
+      currentExplorePlaceIndex = -1;
+      tempPlaceGallery = [];
+      
+      document.getElementById('explorePlacesContainer').style.display = 'none';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'block';
+      
+      document.getElementById('explorePlaceEditorTitle').textContent = '➕ Yeni Yer Ekle';
+      renderPlaceForm(null);
+    }
+
+    function editPlace(i) {
+      currentExplorePlaceIndex = i;
+      const place = rawData.explore.categories[currentExploreCategoryIndex].places[i];
+      tempPlaceGallery = place.gallery ? [...place.gallery] : [];
+      
+      document.getElementById('explorePlacesContainer').style.display = 'none';
+      document.getElementById('explorePlaceEditorContainer').style.display = 'block';
+      
+      document.getElementById('explorePlaceEditorTitle').textContent = `✏️ ${place.name} Düzenle`;
+      renderPlaceForm(place);
+    }
+
+    function renderPlaceForm(place) {
+      const p = place || {
+        name: '', shortDescription: '', detail: '', address: '', tag: '',
+        image: '', videoUrl: '', lat: '', lng: '', osmUrl: '',
+        parking: 'bilinmiyor', restroom: 'bilinmiyor', entryFee: 'bilinmiyor', entryFeeNote: ''
+      };
+
+      const formDiv = document.getElementById('explorePlaceEditorForm');
+      formDiv.innerHTML = `
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column: span 2">
+            <label>Yer Adı</label>
+            <input id="plName" value="${escapeAttr(p.name)}" placeholder="Örn: Karasu Şelalesi">
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label>Kısa Açıklama</label>
+            <input id="plShortDesc" value="${escapeAttr(p.shortDescription)}" placeholder="Örn: Sabun Çayı üzerinde yeşilimsi suyu ile ünlü şelale">
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label>Detaylı Açıklama</label>
+            <textarea id="plDetail" style="height:120px" placeholder="Mekan hakkındaki tüm detayları yazın...">${escapeHtml(p.detail)}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Adres / Konum Tarifi</label>
+            <input id="plAddress" value="${escapeAttr(p.address)}" placeholder="Örn: Sabun Çayı Mesire Alanı bitişiği, Düziçi">
+          </div>
+          <div class="form-group">
+            <label>Kategori Etiketi (Büyük Harfle)</label>
+            <input id="plTag" value="${escapeAttr(p.tag)}" placeholder="Örn: ŞELALE veya DOĞA veya TARİH">
+          </div>
+          <div class="form-group">
+            <label>Enlem (Latitude)</label>
+            <input id="plLat" type="number" step="any" value="${p.lat || ''}" placeholder="Örn: 37.2510">
+          </div>
+          <div class="form-group">
+            <label>Boylam (Longitude)</label>
+            <input id="plLng" type="number" step="any" value="${p.lng || ''}" placeholder="Örn: 36.4680">
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label>Harita / OpenStreetMap URL (Opsiyonel)</label>
+            <input id="plOsmUrl" value="${escapeAttr(p.osmUrl || p.googleMapsUrl || '')}" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Otopark Durumu</label>
+            <select id="plParking">
+              <option value="var" ${p.parking === 'var' ? 'selected' : ''}>Var</option>
+              <option value="yok" ${p.parking === 'yok' ? 'selected' : ''}>Yok</option>
+              <option value="sinirli" ${p.parking === 'sinirli' ? 'selected' : ''}>Sınırlı</option>
+              <option value="ucretli" ${p.parking === 'ucretli' ? 'selected' : ''}>Ücretli</option>
+              <option value="bilinmiyor" ${p.parking === 'bilinmiyor' ? 'selected' : ''}>Bilinmiyor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tuvalet (WC) Durumu</label>
+            <select id="plRestroom">
+              <option value="var" ${p.restroom === 'var' ? 'selected' : ''}>Var</option>
+              <option value="yok" ${p.restroom === 'yok' ? 'selected' : ''}>Yok</option>
+              <option value="bilinmiyor" ${p.restroom === 'bilinmiyor' ? 'selected' : ''}>Bilinmiyor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giriş Ücreti</label>
+            <select id="plEntryFee">
+              <option value="ucretsiz" ${p.entryFee === 'ucretsiz' ? 'selected' : ''}>Ücretsiz</option>
+              <option value="ucretli" ${p.entryFee === 'ucretli' ? 'selected' : ''}>Ücretli</option>
+              <option value="bilinmiyor" ${p.entryFee === 'bilinmiyor' ? 'selected' : ''}>Bilinmiyor</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Giriş Ücret Notu (Opsiyonel)</label>
+            <input id="plEntryFeeNote" value="${escapeAttr(p.entryFeeNote || '')}" placeholder="Örn: 20 TL veya Ücretsiz">
+          </div>
+
+          <!-- Ana Resim Yükleme -->
+          <div class="form-group" style="grid-column: span 2; border-top:1px solid var(--border); padding-top:16px;">
+            <label>Ana Fotoğraf URL</label>
+            <div class="flex-row-responsive" style="margin-bottom:8px">
+              <input id="plImage" value="${escapeAttr(p.image || p.imageUrl || '')}" onchange="updatePlImagePreview()" placeholder="assets/... veya https://...">
+              <input type="file" id="plImageFile" style="display:none" onchange="uploadPlaceFile('plImageFile', 'plImage')">
+              <button class="btn btn-secondary" onclick="document.getElementById('plImageFile').click()">⬆ Fotoğraf Yükle</button>
+            </div>
+            <div id="plImagePreview" style="max-width:200px; max-height:150px; overflow:hidden; border-radius:8px; border:1px solid var(--border); display:${p.image || p.imageUrl ? 'block' : 'none'}">
+              <img src="${escapeAttr(p.image || p.imageUrl || '')}" style="width:100%; height:auto">
+            </div>
+          </div>
+
+          <!-- Video Yükleme -->
+          <div class="form-group" style="grid-column: span 2; border-top:1px solid var(--border); padding-top:16px;">
+            <label>Tanıtım Videosu URL (YouTube veya MP4)</label>
+            <div class="flex-row-responsive" style="margin-bottom:8px">
+              <input id="plVideoUrl" value="${escapeAttr(p.videoUrl || '')}" placeholder="YouTube linki veya MP4 linki">
+              <input type="file" id="plVideoFile" style="display:none" onchange="uploadPlaceFile('plVideoFile', 'plVideoUrl')">
+              <button class="btn btn-secondary" onclick="document.getElementById('plVideoFile').click()">⬆ Video Yükle</button>
+            </div>
+          </div>
+
+          <!-- Galeri Resimleri -->
+          <div class="form-group" style="grid-column: span 2; border-top:1px solid var(--border); padding-top:16px;">
+            <label>Resim Galerisi (Kaydırılabilir Resimler)</label>
+            <div id="plGalleryList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:10px; margin-bottom:12px"></div>
+            <div class="flex-row-responsive">
+              <input type="file" id="plGalleryFile" style="display:none" onchange="uploadPlaceGalleryFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('plGalleryFile').click()">➕ Galeriye Resim Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="savePlaceChanges()">✓ Değişiklikleri Uygula</button>
+          <button class="btn btn-secondary" onclick="cancelPlaceEdit()">İptal</button>
+        </div>
+      `;
+      renderGalleryList();
+    }
+
+    function cancelPlaceEdit() {
+      document.getElementById('explorePlaceEditorContainer').style.display = 'none';
+      document.getElementById('explorePlacesContainer').style.display = 'block';
+    }
+
+    function updatePlImagePreview() {
+      const url = document.getElementById('plImage').value.trim();
+      const preview = document.getElementById('plImagePreview');
+      if (url) {
+        preview.style.display = 'block';
+        preview.querySelector('img').src = url;
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+
+    async function uploadHeroCardBgFile() {
+      const fileInput = document.getElementById('brandHeroCardBgFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük!', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          document.getElementById('brandHeroCardBg').value = url;
+          showToast('Arka plan görseli başarıyla yüklendi! Kaydetmek için lütfen en alttaki "✓ Forma Yansıt" butonuna tıklayıp, ardından en üstteki "💾 Tümünü Kaydet" butonuna basın.');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
+    }
+
+    async function uploadExploreHeaderBgFile() {
+      const fileInput = document.getElementById('brandExploreHeaderBgFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük!', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          document.getElementById('brandExploreHeaderBg').value = url;
+          showToast('Arka plan görseli başarıyla yüklendi! Kaydetmek için lütfen en alttaki "✓ Forma Yansıt" butonuna tıklayıp, ardından en üstteki "💾 Tümünü Kaydet" butonuna basın.');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
+    }
+
+    async function uploadPlaceFile(fileInputId, targetInputId) {
+      const fileInput = document.getElementById(fileInputId);
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Dosya yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          document.getElementById(targetInputId).value = url;
+          if (targetInputId === 'plImage') {
+            updatePlImagePreview();
+          }
+          showToast('Dosya yüklendi!');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
+    }
+
+    async function uploadPlaceGalleryFile() {
+      const fileInput = document.getElementById('plGalleryFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      showToast('Galeri resmi yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData
+        });
+        if (res.status === 413) {
+          return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
+        }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) {
+            url = window.location.origin + url;
+          }
+          tempPlaceGallery.push(url);
+          renderGalleryList();
+          showToast('Galeri resmi eklendi!');
+        } else {
+          showToast('Yükleme hatası: ' + (data.message || 'Başarısız'), true);
+        }
+      } catch (e) {
+        console.error(e);
+        showToast('Bağlantı hatası oluştu!', true);
+      }
+      fileInput.value = '';
+    }
+
+    function renderGalleryList() {
+      const list = document.getElementById('plGalleryList');
+      if (!list) return;
+      list.innerHTML = tempPlaceGallery.map((url, i) => `
+        <div style="position:relative; width:120px; height:90px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(url)}'); background-size:cover; background-position:center">
+          <button onclick="removeTempGalleryItem(${i})" style="position:absolute; top:4px; right:4px; border:none; background:rgba(239, 68, 68, 0.85); color:white; border-radius:50%; width:24px; height:24px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:12px">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    function removeTempGalleryItem(i) {
+      tempPlaceGallery.splice(i, 1);
+      renderGalleryList();
+    }
+
+    function savePlaceChanges() {
+      const name = document.getElementById('plName').value.trim();
+      const shortDescription = document.getElementById('plShortDesc').value.trim();
+      const detail = document.getElementById('plDetail').value.trim();
+      const address = document.getElementById('plAddress').value.trim();
+      const tag = document.getElementById('plTag').value.trim();
+      const latVal = document.getElementById('plLat').value;
+      const lngVal = document.getElementById('plLng').value;
+      const lat = latVal !== '' ? parseFloat(latVal) : undefined;
+      const lng = lngVal !== '' ? parseFloat(lngVal) : undefined;
+      let image = document.getElementById('plImage').value.trim();
+      let videoUrl = document.getElementById('plVideoUrl').value.trim();
+      const osmUrl = document.getElementById('plOsmUrl').value.trim();
+      const parking = document.getElementById('plParking').value;
+      const restroom = document.getElementById('plRestroom').value;
+      const entryFee = document.getElementById('plEntryFee').value;
+      const entryFeeNote = document.getElementById('plEntryFeeNote').value.trim();
+
+      if (!name || !address || !tag) {
+        return showToast('Yer adı, adres ve etiket zorunludur!', true);
+      }
+
+      if (image.startsWith('/uploads/')) image = window.location.origin + image;
+      if (videoUrl.startsWith('/uploads/')) videoUrl = window.location.origin + videoUrl;
+
+      const category = rawData.explore.categories[currentExploreCategoryIndex];
+      
+      // Mevcut yer verilerini koruyarak üzerine yaz (merge)
+      const existingPlace = (currentExplorePlaceIndex !== -1) ? category.places[currentExplorePlaceIndex] : {};
+      const placeData = {
+        ...existingPlace,
+        name,
+        shortDescription,
+        detail,
+        address,
+        tag,
+        parking,
+        restroom,
+        entryFee,
+      };
+
+      // Sadece dolu alanları güncelle, boş bırakılan alanları silme
+      if (image) { placeData.image = image; placeData.imageUrl = image; }
+      if (videoUrl) { placeData.videoUrl = videoUrl; }
+      if (tempPlaceGallery.length > 0) { placeData.gallery = tempPlaceGallery; }
+      if (!isNaN(lat)) { placeData.lat = lat; }
+      if (!isNaN(lng)) { placeData.lng = lng; }
+      if (osmUrl) { placeData.osmUrl = osmUrl; }
+      if (entryFeeNote) { placeData.entryFeeNote = entryFeeNote; }
+
+      if (currentExplorePlaceIndex === -1) {
+        category.places = category.places || [];
+        category.places.push(placeData);
+        showToast('Yeni yer eklendi, kaydediliyor...');
+      } else {
+        category.places[currentExplorePlaceIndex] = placeData;
+        showToast('Yer güncellendi, kaydediliyor...');
+      }
+
+      cancelPlaceEdit();
+      renderPlacesList();
+      
+      // Otomatik kaydet — kullanıcının ayrıca "Tümünü Kaydet" basmasına gerek yok
+      saveData();
+    }
+
+
+    // ─────────────────────────────────────────────
+    //  AUTO GALLERY MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderAutoGallery() {
+      const vehicles = rawData.explore.autoVehicles || [];
+      const list = document.getElementById('autoGalleryList');
+      if (!list) return;
+
+      if (vehicles.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz araç ilanı eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk ilanı oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = vehicles.map((v, i) => {
+        const badge = v.isPaid ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.3px">💎 ÖNE ÇIKAN</span>` : '';
+        const statusBadge = v.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        const thumb = v.images && v.images.length > 0 ? v.images[0] : (v.image || '');
+        return `
+        <div class="list-item" style="gap:16px; ${v.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
+            ${thumb ? `<img src="${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:28px">🚗</span>'}
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              ${escapeHtml(v.title || 'Başlıksız İlan')}
+              ${badge} ${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              ${escapeHtml(v.brand || '')} ${escapeHtml(v.model || '')} • ${escapeHtml(v.year || '')} • ${escapeHtml(v.km ? v.km + ' km' : '')}
+            </div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
+              ${v.price ? escapeHtml(v.price) + ' ₺' : ''}
+              ${v.contact ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 ${escapeHtml(v.contact)}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editVehicle(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteVehicle(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function createNewVehicle() {
+      currentVehicleIndex = -1;
+      tempVehicleGallery = [];
+      document.getElementById('autoGalleryListContainer').style.display = 'none';
+      document.getElementById('autoGalleryEditorContainer').style.display = 'block';
+      document.getElementById('autoGalleryEditorTitle').textContent = '➕ Yeni Araç İlanı Ekle';
+      renderVehicleForm(null);
+    }
+
+    function editVehicle(i) {
+      currentVehicleIndex = i;
+      const v = rawData.explore.autoVehicles[i];
+      tempVehicleGallery = v.images ? [...v.images] : (v.image ? [v.image] : []);
+      document.getElementById('autoGalleryListContainer').style.display = 'none';
+      document.getElementById('autoGalleryEditorContainer').style.display = 'block';
+      document.getElementById('autoGalleryEditorTitle').textContent = `✏️ ${v.title || 'İlan'} Düzenle`;
+      renderVehicleForm(v);
+    }
+
+    function deleteVehicle(i) {
+      if (!confirm('Bu ilanı silmek istediğinize emin misiniz?')) return;
+      rawData.explore.autoVehicles.splice(i, 1);
+      renderAutoGallery();
+      showToast('İlan siliniyor...');
+      saveData();
+    }
+
+    function cancelVehicleEdit() {
+      document.getElementById('autoGalleryEditorContainer').style.display = 'none';
+      document.getElementById('autoGalleryListContainer').style.display = 'block';
+      renderAutoGallery();
+    }
+
+    function renderVehicleForm(v) {
+      const d = v || { title:'', brand:'', model:'', year:'', km:'', price:'', fuelType:'benzin', gearType:'manuel', color:'', bodyType:'sedan', description:'', contact:'', sellerName:'', isPaid:false, isActive:true, images:[] };
+      const formDiv = document.getElementById('autoGalleryEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(201,139,24,0.06),rgba(201,139,24,0.02)); border:1px solid rgba(201,139,24,0.2); border-radius:12px; padding:16px; margin-bottom:20px; display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">💎</span>
+          <div style="flex:1">
+            <div style="font-weight:700; font-size:14px; color:#0f172a">Öne Çıkan İlan (Ücretli)</div>
+            <div style="font-size:12px; color:var(--text-muted)">Bu seçenek aktif edilirse ilan diğerlerinin önünde altın rozet ile gösterilir.</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
+            <input type="checkbox" id="vIsPaid" ${d.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>İlan Başlığı</label>
+            <input id="vTitle" value="${escapeAttr(d.title)}" placeholder="Örn: 2021 Honda Civic FC5 RS - Hatasız">
+          </div>
+          <div class="form-group">
+            <label>Marka</label>
+            <input id="vBrand" value="${escapeAttr(d.brand)}" placeholder="Honda, Toyota, BMW...">
+          </div>
+          <div class="form-group">
+            <label>Model</label>
+            <input id="vModel" value="${escapeAttr(d.model)}" placeholder="Civic, Corolla, 320i...">
+          </div>
+          <div class="form-group">
+            <label>Yıl</label>
+            <input id="vYear" type="number" value="${escapeAttr(d.year)}" placeholder="2021">
+          </div>
+          <div class="form-group">
+            <label>Kilometre</label>
+            <input id="vKm" type="number" value="${escapeAttr(d.km)}" placeholder="45000">
+          </div>
+          <div class="form-group">
+            <label>Fiyat (₺)</label>
+            <input id="vPrice" value="${escapeAttr(d.price)}" placeholder="850.000">
+          </div>
+          <div class="form-group">
+            <label>Renk</label>
+            <input id="vColor" value="${escapeAttr(d.color)}" placeholder="Beyaz, Siyah, Kırmızı...">
+          </div>
+          <div class="form-group">
+            <label>Yakıt Tipi</label>
+            <select id="vFuelType">
+              <option value="benzin" ${d.fuelType==='benzin'?'selected':''}>Benzin</option>
+              <option value="dizel" ${d.fuelType==='dizel'?'selected':''}>Dizel</option>
+              <option value="lpg" ${d.fuelType==='lpg'?'selected':''}>LPG</option>
+              <option value="hibrit" ${d.fuelType==='hibrit'?'selected':''}>Hibrit</option>
+              <option value="elektrik" ${d.fuelType==='elektrik'?'selected':''}>Elektrik</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Vites Tipi</label>
+            <select id="vGearType">
+              <option value="manuel" ${d.gearType==='manuel'?'selected':''}>Manuel</option>
+              <option value="otomatik" ${d.gearType==='otomatik'?'selected':''}>Otomatik</option>
+              <option value="yari_otomatik" ${d.gearType==='yari_otomatik'?'selected':''}>Yarı Otomatik</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Kasa Tipi</label>
+            <select id="vBodyType">
+              <option value="sedan" ${d.bodyType==='sedan'?'selected':''}>Sedan</option>
+              <option value="hatchback" ${d.bodyType==='hatchback'?'selected':''}>Hatchback</option>
+              <option value="suv" ${d.bodyType==='suv'?'selected':''}>SUV</option>
+              <option value="pickup" ${d.bodyType==='pickup'?'selected':''}>Pickup</option>
+              <option value="van" ${d.bodyType==='van'?'selected':''}>Minivan/Panelvan</option>
+              <option value="coupe" ${d.bodyType==='coupe'?'selected':''}>Coupe</option>
+              <option value="cabrio" ${d.bodyType==='cabrio'?'selected':''}>Cabrio</option>
+              <option value="kamyon" ${d.bodyType==='kamyon'?'selected':''}>Kamyon</option>
+              <option value="diger" ${d.bodyType==='diger'?'selected':''}>Diğer</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Açıklama</label>
+            <textarea id="vDescription" style="height:100px" placeholder="Araç hakkında detaylı bilgi...">${escapeHtml(d.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Satıcı Adı</label>
+            <input id="vSellerName" value="${escapeAttr(d.sellerName)}" placeholder="Ahmet Oto Galeri">
+          </div>
+          <div class="form-group">
+            <label>İletişim (Telefon)</label>
+            <input id="vContact" value="${escapeAttr(d.contact)}" placeholder="0555 123 45 67">
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="vIsActive" ${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>İlan Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+
+          <!-- Araç Fotoğrafları -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Araç Fotoğrafları</label>
+            <div id="vGalleryList" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin-bottom:12px"></div>
+            <div style="display:flex; gap:10px; align-items:center">
+              <input type="file" id="vGalleryFile" style="display:none" accept="image/*" multiple onchange="uploadVehicleGalleryFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('vGalleryFile').click()">📷 Fotoğraf Yükle</button>
+              <span style="font-size:12px; color:var(--text-muted)">veya URL girin:</span>
+              <input id="vGalleryUrl" placeholder="https://resim-url.jpg" style="flex:1">
+              <button class="btn btn-secondary" onclick="addVehicleGalleryUrl()">➕ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveVehicleChanges()">✓ İlanı Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelVehicleEdit()">İptal</button>
+        </div>
+      `;
+      renderVehicleGalleryList();
+    }
+
+    function renderVehicleGalleryList() {
+      const list = document.getElementById('vGalleryList');
+      if (!list) return;
+      list.innerHTML = tempVehicleGallery.map((url, i) => `
+        <div style="position:relative; width:110px; height:80px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(url)}'); background-size:cover; background-position:center; flex-shrink:0">
+          ${i === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">ANA</span>' : ''}
+          <button onclick="removeVehicleGalleryItem(${i})" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:12px; grid-column:span 3">Henüz fotoğraf eklenmedi.</p>';
+    }
+
+    function removeVehicleGalleryItem(i) {
+      tempVehicleGallery.splice(i, 1);
+      renderVehicleGalleryList();
+    }
+
+    function addVehicleGalleryUrl() {
+      const url = document.getElementById('vGalleryUrl').value.trim();
+      if (!url) return showToast('Lütfen bir URL girin', true);
+      tempVehicleGallery.push(url);
+      document.getElementById('vGalleryUrl').value = '';
+      renderVehicleGalleryList();
+    }
+
+    async function uploadVehicleGalleryFile() {
+      const fileInput = document.getElementById('vGalleryFile');
+      const files = Array.from(fileInput.files);
+      if (files.length === 0) return;
+      showToast('Fotoğraflar yükleniyor...');
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+          if (res.status === 413) { showToast('Dosya çok büyük!', true); continue; }
+          const data = await res.json();
+          if (data.ok) {
+            let url = data.fileUrl;
+            if (url.startsWith('/uploads/')) url = window.location.origin + url;
+            tempVehicleGallery.push(url);
+          }
+        } catch(e) { console.error(e); }
+      }
+      fileInput.value = '';
+      renderVehicleGalleryList();
+      showToast('Fotoğraflar yüklendi!');
+    }
+
+    function saveVehicleChanges() {
+      const title = document.getElementById('vTitle').value.trim();
+      const brand = document.getElementById('vBrand').value.trim();
+      const model = document.getElementById('vModel').value.trim();
+      const year = document.getElementById('vYear').value.trim();
+      const km = document.getElementById('vKm').value.trim();
+      const price = document.getElementById('vPrice').value.trim();
+      const color = document.getElementById('vColor').value.trim();
+      const fuelType = document.getElementById('vFuelType').value;
+      const gearType = document.getElementById('vGearType').value;
+      const bodyType = document.getElementById('vBodyType').value;
+      const description = document.getElementById('vDescription').value.trim();
+      const sellerName = document.getElementById('vSellerName').value.trim();
+      const contact = document.getElementById('vContact').value.trim();
+      const isPaid = document.getElementById('vIsPaid').checked;
+      const isActive = document.getElementById('vIsActive').checked;
+
+      if (!title || !brand) return showToast('İlan başlığı ve marka zorunludur!', true);
+
+      rawData.explore.autoVehicles = rawData.explore.autoVehicles || [];
+
+      const vehicleData = {
+        id: (currentVehicleIndex !== -1 ? rawData.explore.autoVehicles[currentVehicleIndex].id : null) || 'v_' + Date.now(),
+        title, brand, model, year, km, price, color,
+        fuelType, gearType, bodyType, description,
+        sellerName, contact, isPaid, isActive,
+        images: [...tempVehicleGallery],
+        image: tempVehicleGallery[0] || '',
+        createdAt: (currentVehicleIndex !== -1 ? rawData.explore.autoVehicles[currentVehicleIndex].createdAt : null) || new Date().toISOString()
+      };
+
+      if (currentVehicleIndex === -1) {
+        rawData.explore.autoVehicles.unshift(vehicleData); // yeniler öne çıksın
+        showToast('Yeni ilan eklendi, kaydediliyor...');
+      } else {
+        rawData.explore.autoVehicles[currentVehicleIndex] = vehicleData;
+        showToast('İlan güncellendi, kaydediliyor...');
+      }
+
+      cancelVehicleEdit();
+      saveData();
+    }
+
+    // ─────────────────────────────────────────────
+    //  CUSTOM EVENTS MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderEvents() {
+      const events = rawData.customEvents || [];
+      const list = document.getElementById('eventsList');
+      if (!list) return;
+
+      if (events.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz manuel etkinlik eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk etkinliği oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = events.map((ev, i) => {
+        const dateStr = ev.date ? new Date(ev.date).toLocaleDateString('tr-TR', {day:'2-digit', month:'long', year:'numeric'}) : '';
+        const statusBadge = ev.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        return `
+        <div class="list-item" style="${ev.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:70px; height:55px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:linear-gradient(135deg,#4f46e5,#7c3aed); display:flex; align-items:center; justify-content:center;">
+            ${ev.imageUrl ? `<img src="${escapeAttr(ev.imageUrl)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:24px">🎭</span>'}
+          </div>
+          <div class="list-item-content" style="margin-left:12px">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              ${escapeHtml(ev.title || 'Başlıksız Etkinlik')} ${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              📅 ${dateStr} ${ev.location ? '• 📍 ' + escapeHtml(ev.location) : ''}
+            </div>
+            ${ev.category ? `<div style="margin-top:3px"><span style="background:#ede9fe; color:#7c3aed; font-size:10px; font-weight:700; padding:1px 7px; border-radius:8px">${escapeHtml(ev.category)}</span></div>` : ''}
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editEvent(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteEvent(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function createNewEvent() {
+      currentEventIndex = -1;
+      document.getElementById('eventsListContainer').style.display = 'none';
+      document.getElementById('eventsEditorContainer').style.display = 'block';
+      document.getElementById('eventsEditorTitle').textContent = '➕ Yeni Etkinlik Ekle';
+      renderEventForm(null);
+    }
+
+    function editEvent(i) {
+      currentEventIndex = i;
+      const ev = rawData.customEvents[i];
+      document.getElementById('eventsListContainer').style.display = 'none';
+      document.getElementById('eventsEditorContainer').style.display = 'block';
+      document.getElementById('eventsEditorTitle').textContent = `✏️ ${ev.title || 'Etkinlik'} Düzenle`;
+      renderEventForm(ev);
+    }
+
+    function deleteEvent(i) {
+      if (!confirm('Bu etkinliği silmek istediğinize emin misiniz?')) return;
+      rawData.customEvents.splice(i, 1);
+      renderEvents();
+      showToast('Etkinlik siliniyor...');
+      saveData();
+    }
+
+    function cancelEventEdit() {
+      document.getElementById('eventsEditorContainer').style.display = 'none';
+      document.getElementById('eventsListContainer').style.display = 'block';
+      renderEvents();
+    }
+
+    function renderEventForm(ev) {
+      const d = ev || { title:'', date:'', endDate:'', location:'', description:'', category:'', imageUrl:'', ticketUrl:'', organizer:'', isActive:true };
+      // Format dates for input[type=date]
+      const toDateVal = (str) => { if (!str) return ''; try { return new Date(str).toISOString().split('T')[0]; } catch(e) { return ''; } };
+      const formDiv = document.getElementById('eventsEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>Etkinlik Başlığı</label>
+            <input id="evTitle" value="${escapeAttr(d.title)}" placeholder="Örn: Düziçi Geleneksel Kiraz Festivali">
+          </div>
+          <div class="form-group">
+            <label>Başlangıç Tarihi</label>
+            <input id="evDate" type="date" value="${toDateVal(d.date)}">
+          </div>
+          <div class="form-group">
+            <label>Bitiş Tarihi (Opsiyonel)</label>
+            <input id="evEndDate" type="date" value="${toDateVal(d.endDate)}">
+          </div>
+          <div class="form-group">
+            <label>Mekan / Konum</label>
+            <input id="evLocation" value="${escapeAttr(d.location)}" placeholder="Örn: Düziçi Kültür Merkezi">
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="evCategory">
+              <option value="konser" ${d.category==='konser'?'selected':''}>🎵 Konser & Müzik</option>
+              <option value="festival" ${d.category==='festival'?'selected':''}>🎉 Festival</option>
+              <option value="sergi" ${d.category==='sergi'?'selected':''}>🎨 Sergi & Sanat</option>
+              <option value="spor" ${d.category==='spor'?'selected':''}>⚽ Spor</option>
+              <option value="tiyatro" ${d.category==='tiyatro'?'selected':''}>🎭 Tiyatro & Sahne</option>
+              <option value="seminer" ${d.category==='seminer'?'selected':''}>📚 Seminer & Eğitim</option>
+              <option value="dini" ${d.category==='dini'?'selected':''}>🕌 Dini & Kültürel</option>
+              <option value="diger" ${d.category==='diger'?'selected':''}>📌 Diğer</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Açıklama</label>
+            <textarea id="evDescription" style="height:100px" placeholder="Etkinlik hakkında detaylı bilgi...">${escapeHtml(d.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Organizatör</label>
+            <input id="evOrganizer" value="${escapeAttr(d.organizer)}" placeholder="Düziçi Belediyesi">
+          </div>
+          <div class="form-group">
+            <label>Bilet / Detay URL (Opsiyonel)</label>
+            <input id="evTicketUrl" value="${escapeAttr(d.ticketUrl)}" placeholder="https://...">
+          </div>
+
+          <!-- Kapak Görseli -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Kapak Görseli</label>
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px">
+              <input id="evImageUrl" value="${escapeAttr(d.imageUrl)}" placeholder="https://resim-url.jpg veya dosya yükle" style="flex:1">
+              <input type="file" id="evImageFile" style="display:none" accept="image/*" onchange="uploadEventImageFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('evImageFile').click()">📷 Görsel Yükle</button>
+            </div>
+            <div id="evImagePreview" style="max-width:220px; max-height:130px; overflow:hidden; border-radius:10px; border:1px solid var(--border); ${d.imageUrl ? '' : 'display:none'}">
+              <img id="evImagePreviewImg" src="${escapeAttr(d.imageUrl)}" style="width:100%; height:auto">
+            </div>
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="evIsActive" ${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>Etkinlik Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveEventChanges()">✓ Etkinliği Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelEventEdit()">İptal</button>
+        </div>
+      `;
+
+      // Live preview
+      document.getElementById('evImageUrl').addEventListener('input', function() {
+        const url = this.value.trim();
+        const p = document.getElementById('evImagePreview');
+        const img = document.getElementById('evImagePreviewImg');
+        if (url) { p.style.display = 'block'; img.src = url; }
+        else { p.style.display = 'none'; }
+      });
+    }
+
+    async function uploadEventImageFile() {
+      const fileInput = document.getElementById('evImageFile');
+      if (fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      showToast('Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+        if (res.status === 413) return showToast('Dosya çok büyük!', true);
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) url = window.location.origin + url;
+          document.getElementById('evImageUrl').value = url;
+          document.getElementById('evImagePreview').style.display = 'block';
+          document.getElementById('evImagePreviewImg').src = url;
+          showToast('Görsel yüklendi!');
+        } else { showToast('Yükleme hatası!', true); }
+      } catch(e) { showToast('Bağlantı hatası!', true); }
+      fileInput.value = '';
+    }
+
+    function saveEventChanges() {
+      const title = document.getElementById('evTitle').value.trim();
+      const date = document.getElementById('evDate').value;
+      const endDate = document.getElementById('evEndDate').value;
+      const location = document.getElementById('evLocation').value.trim();
+      const category = document.getElementById('evCategory').value;
+      const description = document.getElementById('evDescription').value.trim();
+      const organizer = document.getElementById('evOrganizer').value.trim();
+      const ticketUrl = document.getElementById('evTicketUrl').value.trim();
+      const imageUrl = document.getElementById('evImageUrl').value.trim();
+      const isActive = document.getElementById('evIsActive').checked;
+
+      if (!title || !date) return showToast('Başlık ve tarih zorunludur!', true);
+
+      rawData.customEvents = rawData.customEvents || [];
+
+      const eventData = {
+        id: (currentEventIndex !== -1 ? rawData.customEvents[currentEventIndex].id : null) || 'ev_' + Date.now(),
+        title, date, location, category, description, organizer, ticketUrl, imageUrl, isActive,
+        source: 'manual'
+      };
+      if (endDate) eventData.endDate = endDate;
+
+      if (currentEventIndex === -1) {
+        rawData.customEvents.push(eventData);
+        showToast('Etkinlik eklendi, kaydediliyor...');
+      } else {
+        rawData.customEvents[currentEventIndex] = eventData;
+        showToast('Etkinlik güncellendi, kaydediliyor...');
+      }
+
+      cancelEventEdit();
+      saveData();
+    }
+
+    function showToast(msg, isError = false) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.background = isError ? 'var(--danger)' : '#1e293b';
+      t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 2500);
+    }
+
+    document.getElementById('passInput').onkeydown = e => { if (e.key === 'Enter') handleLogin(); };
+
+    // Auto-login on load
+    window.addEventListener('DOMContentLoaded', async () => {
+      const savedToken = localStorage.getItem('hd_admin_token');
+      if (savedToken) {
+        document.getElementById('passInput').value = savedToken;
+        currentToken = savedToken;
+        try {
+          const res = await fetch('/api/admin/check', { headers: { 'x-admin-token': savedToken } });
+          if (res.ok) {
+            document.body.classList.add('authenticated');
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('sideNav').style.display = 'flex';
+            document.getElementById('lockStatus').innerHTML = '🔓 Sistem Açık';
+            document.getElementById('logoutBtn').style.display = 'flex';
+            showToast('Otomatik giriş yapıldı.');
+            loadData();
+          } else {
+            localStorage.removeItem('hd_admin_token');
+          }
+        } catch (e) {
+          console.warn('Auto-login error:', e);
+        }
+      }
+    });
+
+    function toggleSidebar() {
+      const aside = document.querySelector('aside');
+      const overlay = document.getElementById('sidebarOverlay');
+      aside.classList.toggle('open');
+      if (aside.classList.contains('open')) {
+        overlay.style.display = 'block';
+      } else {
+        overlay.style.display = 'none';
+      }
+    }
+
+    function closeSidebar() {
+      const aside = document.querySelector('aside');
+      const overlay = document.getElementById('sidebarOverlay');
+      aside.classList.remove('open');
+      overlay.style.display = 'none';
+    }
+  </script>
+</body>
+</html>
