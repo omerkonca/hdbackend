@@ -127,6 +127,7 @@ class FileService {
     if (payload.media !== undefined) {
       if (typeof payload.media !== 'object' || payload.media === null) return false;
     }
+    if (payload.customEvents !== undefined && !Array.isArray(payload.customEvents)) return false;
     return true;
   }
 }

@@ -1,137 +1,324 @@
 <!DOCTYPE html>
+
 <html lang="tr">
+
 <head>
+
   <meta charset="UTF-8" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Hepsi Düziçi uygulaması yayıncı iletişim bilgileri." />
-  <title>İletişim | Hepsi Düziçi</title>
+
+  <meta name="description" content="Hepsi Düziçi haber uygulaması yayıncı iletişim bilgileri — Bize Ulaşın." />
+
+  <title>Bize Ulaşın | Hepsi Düziçi</title>
+
   <style>
+
     :root {
+
       color-scheme: light dark;
+
       --bg: #f6f7fb;
+
       --card: #ffffff;
+
       --text: #1a1f2e;
+
       --muted: #5c6478;
+
       --accent: #c98b18;
+
+      --navy: #1a2744;
+
       --border: #e5e8f0;
+
     }
+
     @media (prefers-color-scheme: dark) {
+
       :root {
+
         --bg: #0f1117;
+
         --card: #171b24;
+
         --text: #f3f5fa;
+
         --muted: #a8b0c2;
+
         --border: #2a3142;
+
       }
+
     }
+
     * { box-sizing: border-box; }
+
     body {
+
       margin: 0;
+
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+
       background: var(--bg);
+
       color: var(--text);
+
       line-height: 1.65;
+
     }
-    .wrap {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 32px 20px 64px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
+
+    .wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
+
+    .hero {
+
+      background: linear-gradient(135deg, #1a2744, #2d3f66);
+
+      color: #fff;
+
       border-radius: 18px;
+
       padding: 28px 24px;
+
+      margin-bottom: 18px;
+
+    }
+
+    .hero h1 { margin: 0 0 8px; font-size: 1.9rem; letter-spacing: -0.02em; }
+
+    .hero p { margin: 0; opacity: 0.88; }
+
+    .card {
+
+      background: var(--card);
+
+      border: 1px solid var(--border);
+
+      border-radius: 18px;
+
+      padding: 28px 24px;
+
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+
+      margin-bottom: 16px;
+
     }
-    h1 {
-      margin: 0 0 8px;
-      font-size: 1.8rem;
-      letter-spacing: -0.02em;
-    }
-    .meta {
-      color: var(--muted);
-      font-size: 0.95rem;
-      margin-bottom: 24px;
-    }
+
     h2 {
-      margin: 28px 0 10px;
-      font-size: 1.1rem;
+
+      margin: 0 0 14px;
+
+      font-size: 1.15rem;
+
       color: var(--accent);
+
     }
-    p, li { color: var(--text); }
-    dl {
-      margin: 0;
-      display: grid;
-      gap: 14px;
-    }
+
+    dl { margin: 0; display: grid; gap: 16px; }
+
     dt {
-      font-weight: 600;
+
+      font-weight: 700;
+
       color: var(--muted);
-      font-size: 0.88rem;
+
+      font-size: 0.82rem;
+
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+
+      letter-spacing: 0.05em;
+
     }
-    dd {
-      margin: 4px 0 0;
-      font-size: 1.05rem;
+
+    dd { margin: 4px 0 0; font-size: 1.08rem; font-weight: 600; }
+
+    a { color: var(--accent); text-decoration: none; }
+
+    a:hover { text-decoration: underline; }
+
+    .cta {
+
+      display: inline-block;
+
+      margin-top: 8px;
+
+      padding: 12px 18px;
+
+      background: var(--accent);
+
+      color: #fff !important;
+
+      border-radius: 12px;
+
+      font-weight: 700;
+
+      text-decoration: none !important;
+
     }
-    a { color: var(--accent); }
+
+    ul { padding-left: 1.2rem; }
+
+    li { margin-bottom: 8px; }
+
     .footer {
-      margin-top: 28px;
-      padding-top: 18px;
+
+      margin-top: 20px;
+
+      padding-top: 16px;
+
       border-top: 1px solid var(--border);
+
       color: var(--muted);
+
       font-size: 0.92rem;
+
     }
+
   </style>
+
 </head>
+
 <body>
+
   <div class="wrap">
-    <div class="card">
-      <h1>Hepsi Düziçi — İletişim</h1>
-      <p class="meta">Yayıncı iletişim bilgileri · Son güncelleme: 7 Haziran 2026</p>
+
+    <section class="hero" id="bize-ulasin">
+
+      <h1>Bize Ulaşın</h1>
 
       <p>
-        Bu sayfa, Google Play Store’da yayımlanan <strong>Hepsi Düziçi</strong> mobil uygulamasının
-        yasal yayıncısına ait iletişim bilgilerini içerir.
+
+        Hepsi Düziçi haber ve şehir rehberi uygulamasının yayıncı iletişim bilgileri.
+
+        Geri bildirim, içerik düzeltme ve gizlilik talepleri için aşağıdaki kanalları kullanın.
+
       </p>
 
-      <h2>Yayıncı</h2>
+    </section>
+
+
+
+    <div class="card">
+
+      <h2>İletişim Bilgileri</h2>
+
       <dl>
+
         <div>
-          <dt>Yasal tüzel kişi / geliştirici</dt>
-          <dd>Hepsi Düziçi</dd>
+
+          <dt>Yayıncı / Geliştirici</dt>
+
+          <dd>Ömer Faruk Konca — Hepsi Düziçi</dd>
+
         </div>
+
         <div>
-          <dt>Uygulama adı</dt>
-          <dd>Hepsi Düziçi</dd>
-        </div>
-        <div>
-          <dt>Paket adı</dt>
-          <dd>net.hepsiduzici.hepsi_duzici</dd>
-        </div>
-        <div>
-          <dt>Konum</dt>
-          <dd>Düziçi, Osmaniye, Türkiye</dd>
-        </div>
-        <div>
+
           <dt>E-posta</dt>
-          <dd><a href="mailto:hepsiduzici@gmail.com">hepsiduzici@gmail.com</a></dd>
+
+          <dd>
+
+            <a href="mailto:hepsiduzici@gmail.com">hepsiduzici@gmail.com</a>
+
+            <br />
+
+            <a class="cta" href="mailto:hepsiduzici@gmail.com">E-posta gönder</a>
+
+          </dd>
+
         </div>
+
+        <div>
+
+          <dt>Telefon</dt>
+
+          <dd><a href="tel:+905416429621">0541 642 96 21</a></dd>
+
+        </div>
+
+        <div>
+
+          <dt>Konum</dt>
+
+          <dd>Düziçi, Osmaniye, Türkiye</dd>
+
+        </div>
+
+        <div>
+
+          <dt>Uygulama paket adı</dt>
+
+          <dd>net.hepsiduzici.hepsi_duzici</dd>
+
+        </div>
+
       </dl>
 
-      <h2>İletişim konuları</h2>
+    </div>
+
+
+
+    <div class="card">
+
+      <h2>Uygulama Hakkında</h2>
+
       <p>
-        Uygulama, içerik, gizlilik, veri talepleri veya teknik destek için yukarıdaki e-posta
-        adresinden bize ulaşabilirsiniz. Talepler genellikle 5 iş günü içinde yanıtlanır.
+
+        Hepsi Düziçi, Düziçi ve Osmaniye bölgesine ait haberleri, etkinlikleri ve şehir
+
+        hizmetlerini tek uygulamada sunan yerel bir <strong>haber toplayıcı</strong> ve şehir
+
+        rehberidir. Haber içerikleri bağımsız yayıncılardan alınır; her makalenin orijinal
+
+        kaynağı uygulama içinde gösterilir.
+
       </p>
 
-      <div class="footer">
-        <a href="/gizlilik-politikasi.html">Gizlilik Politikası</a>
-        · © 2026 Hepsi Düziçi
-      </div>
+      <ul>
+
+        <li>Yalnızca son 90 gün içindeki haberler listelenir.</li>
+
+        <li>Her haberde yayıncı adı ve orijinal kaynak bağlantısı bulunur.</li>
+
+        <li>İçerik düzeltme talepleri için yukarıdaki e-posta adresine yazın.</li>
+
+      </ul>
+
     </div>
+
+
+
+    <div class="card">
+
+      <h2>Haber Kaynakları</h2>
+
+      <p>
+
+        Uygulamada gösterilen haberler Sabir Gazetesi, Hasret Gazetesi, Akdeniz Gazetesi
+
+        ve benzeri bağımsız yayıncıların RSS akışlarından toplanır. Tam kaynak listesi
+
+        uygulama içinde <strong>Daha Fazla → Haber Kaynakları</strong> bölümündedir.
+
+      </p>
+
+    </div>
+
+
+
+    <div class="footer">
+
+      <a href="/gizlilik-politikasi.html">Gizlilik Politikası</a>
+
+      · Son güncelleme: 7 Haziran 2026
+
+      · © 2026 Hepsi Düziçi
+
+    </div>
+
   </div>
+
 </body>
+
 </html>
+

@@ -1,5 +1,6 @@
 const cheerio = require('cheerio');
 const { getTagValue, stripHtml, extractImageUrlFromHtml, fetchWithTimeout } = require('../utils/helpers');
+const fileService = require('./fileService');
 
 class EventService {
   constructor() {
@@ -149,7 +150,18 @@ class EventService {
         }
       }
 
-      const manualEvents = this.getManualEvents();
+      let manualEvents = [];
+      try {
+        const content = await fileService.readCityContent();
+        if (content && Array.isArray(content.customEvents) && content.customEvents.length > 0) {
+          manualEvents = content.customEvents;
+        } else {
+          manualEvents = this.getManualEvents();
+        }
+      } catch (err) {
+        console.error('[EventService] Error loading custom events:', err.message);
+        manualEvents = this.getManualEvents();
+      }
       const allItems = [...manualEvents, ...bubiletEvents, ...newsEvents];
 
       const seen = new Set();

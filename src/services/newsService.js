@@ -196,8 +196,13 @@ class NewsService {
         category: item.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
       });
     }
-    merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    return merged.slice(0, max);
+    const maxAgeMs = 90 * 24 * 60 * 60 * 1000;
+    const cutoff = Date.now() - maxAgeMs;
+    const fresh = merged.filter(
+      (item) => new Date(item.createdAt).getTime() >= cutoff,
+    );
+    fresh.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return fresh.slice(0, max);
   }
 
   async enrichItemsFromCache(items) {
