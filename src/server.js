@@ -65,10 +65,12 @@ const server = app.listen(config.PORT, () => {
   ensureCitizenReportsTable().catch(() => {});
 
   const emailStatus = emailService.getEmailStatus();
-  if (emailStatus.smtpConfigured) {
-    console.log(`[email] SMTP hazır → ${emailStatus.notifyEmail}`);
+  if (emailStatus.resendConfigured) {
+    console.log(`[email] Resend hazır → ${emailStatus.notifyEmail}`);
+  } else if (emailStatus.smtpConfigured) {
+    console.warn(`[email] SMTP ayarlı (Render ücretsizde çalışmayabilir) → ${emailStatus.notifyEmail}`);
   } else {
-    console.warn('[email] SMTP yapılandırılmamış — ihbar mailleri gönderilmeyecek.');
+    console.warn('[email] E-posta yapılandırılmamış — ihbar mailleri gönderilmeyecek.');
   }
 
   // Server timeout configuration (10 minutes) for large uploads

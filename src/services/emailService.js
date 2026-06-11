@@ -7,12 +7,27 @@ const CATEGORY_LABELS = {
   other: 'Diğer',
 };
 
+function isResendConfigured() {
+  return Boolean(process.env.RESEND_API_KEY);
+}
+
 function isSmtpConfigured() {
   return Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
 }
 
+function isEmailConfigured() {
+  return isResendConfigured() || isSmtpConfigured();
+}
+
 function getNotifyEmail() {
   return process.env.NOTIFY_EMAIL || 'hepsiduzici@gmail.com';
+}
+
+function getFromAddress() {
+  if (isResendConfigured()) {
+    return process.env.RESEND_FROM || 'Hepsi Düziçi <onboarding@resend.dev>';
+  }
+  return `"Hepsi Düziçi" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`;
 }
 
 function buildTransporter() {
@@ -20,9 +35,10 @@ function buildTransporter() {
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: Number(process.env.SMTP_PORT || 587),
     secure: process.env.SMTP_SECURE === 'true',
+    connectionTimeout: 15000,
     auth: {
       user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      pass: String(process.env.SMTP_PASS || '').replace(/\s+/g, ''),
     },
   });
 }
@@ -53,40 +69,102 @@ function buildHtml(report) {
   `;
 }
 
-async function sendCitizenReportEmail(report) {
-  if (!isSmtpConfigured()) {
-    console.warn('[email] SMTP yapılandırılmamış — bildirim maili gönderilmedi.');
-    return { ok: false, reason: 'smtp_not_configured' };
-  }
-
-  const to = getNotifyEmail();
+function buildText(report) {
   const category = CATEGORY_LABELS[report.category] || report.category;
-  const transporter = buildTransporter();
+  return [
+    `Tür: ${category}`,
+    `Mesaj: ${report.message}`,
+    `İsim: ${report.contact_name || '-'}`,
+    `E-posta: ${report.contact_email || '-'}`,
+    `Fotoğraflar: ${(report.image_urls || []).join(', ') || '-'}`,
+  ].join('\n');
+}
 
-  try {
-    await transporter.verify();
-  } catch (err) {
-    console.error('[email] SMTP bağlantı doğrulaması başarısız:', err.message);
-    return { ok: false, reason: 'smtp_verify_failed', detail: err.message };
+async function sendViaResend({ to, subject, html, text, replyTo }) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: getFromAddress(),
+      to: [to],
+      subject,
+      html,
+      text,
+      reply_to: replyTo || undefined,
+    }),
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = body?.message || body?.error || `HTTP ${response.status}`;
+    throw new Error(detail);
+  }
+  return body;
+}
+
+async function sendViaSmtp({ to, subject, html, text, replyTo }) {
+  const transporter = buildTransporter();
+  await transporter.verify();
+  await transporter.sendMail({
+    from: getFromAddress(),
+    to,
+    replyTo: replyTo || undefined,
+    subject,
+    text,
+    html,
+  });
+}
+
+async function deliverEmail({ subject, html, text, replyTo }) {
+  const to = getNotifyEmail();
+
+  if (isResendConfigured()) {
+    await sendViaResend({ to, subject, html, text, replyTo });
+    console.log(`[email] Resend ile gönderildi → ${to}`);
+    return { ok: true, provider: 'resend' };
   }
 
+  if (isSmtpConfigured()) {
+    try {
+      await sendViaSmtp({ to, subject, html, text, replyTo });
+      console.log(`[email] SMTP ile gönderildi → ${to}`);
+      return { ok: true, provider: 'smtp' };
+    } catch (err) {
+      const blockedOnRender =
+        /ETIMEDOUT|ECONNREFUSED|ETIMEOUT|Network is unreachable/i.test(err.message);
+      if (blockedOnRender) {
+        return {
+          ok: false,
+          reason: 'smtp_blocked',
+          detail:
+            'Render ücretsiz planda SMTP portları kapalı. RESEND_API_KEY ekleyin veya ücretli plana geçin.',
+        };
+      }
+      throw err;
+    }
+  }
+
+  console.warn('[email] E-posta sağlayıcısı yapılandırılmamış.');
+  return { ok: false, reason: 'email_not_configured' };
+}
+
+async function sendCitizenReportEmail(report) {
+  if (!isEmailConfigured()) {
+    return { ok: false, reason: 'email_not_configured' };
+  }
+
+  const category = CATEGORY_LABELS[report.category] || report.category;
+
   try {
-    await transporter.sendMail({
-      from: `"Hepsi Düziçi" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-      to,
-      replyTo: report.contact_email || undefined,
+    return await deliverEmail({
       subject: `[Hepsi Düziçi] Yeni ${category}`,
-      text: [
-        `Tür: ${category}`,
-        `Mesaj: ${report.message}`,
-        `İsim: ${report.contact_name || '-'}`,
-        `E-posta: ${report.contact_email || '-'}`,
-        `Fotoğraflar: ${(report.image_urls || []).join(', ') || '-'}`,
-      ].join('\n'),
+      text: buildText(report),
       html: buildHtml(report),
+      replyTo: report.contact_email || undefined,
     });
-    console.log(`[email] İhbar bildirimi gönderildi → ${to}`);
-    return { ok: true };
   } catch (err) {
     console.error('[email] İhbar maili gönderilemedi:', err.message);
     return { ok: false, reason: 'send_failed', detail: err.message };
@@ -94,23 +172,17 @@ async function sendCitizenReportEmail(report) {
 }
 
 async function sendTestEmail() {
-  if (!isSmtpConfigured()) {
-    return { ok: false, reason: 'smtp_not_configured' };
+  if (!isEmailConfigured()) {
+    return { ok: false, reason: 'email_not_configured' };
   }
 
-  const to = getNotifyEmail();
-  const transporter = buildTransporter();
-
   try {
-    await transporter.verify();
-    await transporter.sendMail({
-      from: `"Hepsi Düziçi" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-      to,
+    const result = await deliverEmail({
       subject: '[Hepsi Düziçi] Test e-postası',
-      text: 'SMTP yapılandırması çalışıyor.',
-      html: '<p>SMTP yapılandırması çalışıyor.</p>',
+      text: 'E-posta yapılandırması çalışıyor.',
+      html: '<p>E-posta yapılandırması çalışıyor.</p>',
     });
-    return { ok: true, to };
+    return { ...result, to: getNotifyEmail() };
   } catch (err) {
     return { ok: false, reason: 'send_failed', detail: err.message };
   }
@@ -118,11 +190,16 @@ async function sendTestEmail() {
 
 function getEmailStatus() {
   return {
+    emailConfigured: isEmailConfigured(),
+    provider: isResendConfigured() ? 'resend' : isSmtpConfigured() ? 'smtp' : null,
+    resendConfigured: isResendConfigured(),
     smtpConfigured: isSmtpConfigured(),
     smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
     smtpPort: Number(process.env.SMTP_PORT || 587),
     smtpUser: process.env.SMTP_USER || null,
     notifyEmail: getNotifyEmail(),
+    renderSmtpBlockedHint:
+      'Render ücretsiz planda SMTP (587/465) engellenir; RESEND_API_KEY kullanın.',
   };
 }
 
@@ -130,6 +207,7 @@ module.exports = {
   sendCitizenReportEmail,
   sendTestEmail,
   getEmailStatus,
+  isEmailConfigured,
   isSmtpConfigured,
   getNotifyEmail,
 };
