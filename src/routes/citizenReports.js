@@ -6,6 +6,7 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const config = require('../config');
 const { requireAdminToken } = require('../middlewares/auth');
 const citizenReportService = require('../services/citizenReportService');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 
@@ -81,6 +82,10 @@ router.post('/', (req, res, next) => {
       imageUrls,
       platform: platform || null,
       appVersion: appVersion || null,
+    });
+
+    emailService.sendCitizenReportEmail(row).catch((err) => {
+      console.error('[citizen-reports] e-posta gönderilemedi:', err.message);
     });
 
     return res.json({

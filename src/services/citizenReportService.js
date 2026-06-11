@@ -36,7 +36,7 @@ class CitizenReportService {
         app_version: appVersion || null,
         status: 'new',
       })
-      .select('id, created_at')
+      .select('*')
       .single();
 
     if (error) throw new Error(error.message);

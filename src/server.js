@@ -10,6 +10,7 @@ const newsService = require('./services/newsService');
 const eventService = require('./services/eventService');
 const roadClosureService = require('./services/roadClosureService');
 const obituaryService = require('./services/obituaryService');
+const { ensureCitizenReportsTable } = require('./utils/runMigrations');
 
 const app = express();
 
@@ -59,6 +60,8 @@ const server = app.listen(config.PORT, () => {
   console.log(`\n🚀 [city-content-api] running on http://localhost:${config.PORT}`);
   console.log(`🔑 [city-content-api] admin token: ${config.ADMIN_TOKEN}`);
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);
+
+  ensureCitizenReportsTable().catch(() => {});
 
   // Server timeout configuration (10 minutes) for large uploads
   server.timeout = 600000;
