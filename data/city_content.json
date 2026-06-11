@@ -160,6 +160,13 @@
       {
         "tiles": [
           {
+            "icon": "campaign_rounded",
+            "color": "#E65100",
+            "title": "İhbar ve Öneri",
+            "target": "screen:citizen_report",
+            "subtitle": "Sorun, tavsiye paylaş — fotoğraf ekle"
+          },
+          {
             "icon": "support_agent_rounded",
             "color": "#9C27B0",
             "title": "Bize Ulaşın",

@@ -15,3 +15,15 @@ CREATE INDEX IF NOT EXISTS idx_citizen_reports_created ON public.citizen_reports
 CREATE INDEX IF NOT EXISTS idx_citizen_reports_status ON public.citizen_reports(status);
 
 ALTER TABLE public.citizen_reports ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS citizen_reports_insert_anon ON public.citizen_reports;
+CREATE POLICY citizen_reports_insert_anon ON public.citizen_reports
+  FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+DROP POLICY IF EXISTS citizen_reports_select_anon ON public.citizen_reports;
+CREATE POLICY citizen_reports_select_anon ON public.citizen_reports
+  FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS citizen_reports_update_anon ON public.citizen_reports;
+CREATE POLICY citizen_reports_update_anon ON public.citizen_reports
+  FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
