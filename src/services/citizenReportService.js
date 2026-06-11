@@ -20,6 +20,9 @@ async function withPg(fn) {
   try {
     await client.connect();
     return await fn(client);
+  } catch (err) {
+    console.warn('[citizen-reports] PostgreSQL bağlantısı başarısız, Supabase kullanılacak:', err.message);
+    return null;
   } finally {
     await client.end().catch(() => {});
   }

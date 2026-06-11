@@ -31,7 +31,13 @@ router.post('/admin/test-email', requireAdminToken, async (req, res) => {
   if (!result.ok) {
     return res.status(500).json({ ok: false, ...result });
   }
-  return res.json({ ok: true, message: 'Test e-postası gönderildi.', to: result.to });
+  return res.json({
+    ok: true,
+    message: 'Test e-postası gönderildi.',
+    to: result.to,
+    provider: result.provider,
+    messageId: result.id || null,
+  });
 });
 router.get('/backups', requireAdminToken, apiController.getBackups);
 router.post('/city-content', requireAdminToken, apiController.updateCityContent);

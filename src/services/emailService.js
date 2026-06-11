@@ -7,6 +7,10 @@ const CATEGORY_LABELS = {
   other: 'Diğer',
 };
 
+function isBrevoConfigured() {
+  return Boolean(process.env.BREVO_API_KEY);
+}
+
 function isResendConfigured() {
   return Boolean(process.env.RESEND_API_KEY);
 }
@@ -16,18 +20,25 @@ function isSmtpConfigured() {
 }
 
 function isEmailConfigured() {
-  return isResendConfigured() || isSmtpConfigured();
+  return isBrevoConfigured() || isResendConfigured() || isSmtpConfigured();
 }
 
 function getNotifyEmail() {
-  return process.env.NOTIFY_EMAIL || 'hepsiduzici@gmail.com';
+  return String(process.env.NOTIFY_EMAIL || 'hepsiduzici@gmail.com').trim();
 }
 
 function getFromAddress() {
-  if (isResendConfigured()) {
-    return process.env.RESEND_FROM || 'Hepsi Düziçi <onboarding@resend.dev>';
+  if (isBrevoConfigured()) {
+    return process.env.BREVO_FROM_EMAIL || process.env.SMTP_USER || 'hepsiduzici@gmail.com';
   }
-  return `"Hepsi Düziçi" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`;
+  if (isResendConfigured()) {
+    return process.env.RESEND_FROM || 'onboarding@resend.dev';
+  }
+  return process.env.SMTP_FROM || process.env.SMTP_USER;
+}
+
+function getFromName() {
+  return process.env.EMAIL_FROM_NAME || 'Hepsi Duzici';
 }
 
 function buildTransporter() {
@@ -80,7 +91,35 @@ function buildText(report) {
   ].join('\n');
 }
 
+async function sendViaBrevo({ to, subject, html, text, replyTo }) {
+  const fromEmail = getFromAddress();
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': process.env.BREVO_API_KEY,
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: getFromName(), email: fromEmail },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+      textContent: text,
+      replyTo: replyTo ? { email: replyTo } : undefined,
+    }),
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = body?.message || body?.error || `HTTP ${response.status}`;
+    throw new Error(detail);
+  }
+  return { id: body?.messageId || null, provider: 'brevo' };
+}
+
 async function sendViaResend({ to, subject, html, text, replyTo }) {
+  const from = getFromAddress();
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -88,7 +127,7 @@ async function sendViaResend({ to, subject, html, text, replyTo }) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: getFromAddress(),
+      from: from.includes('<') ? from : `${getFromName()} <${from}>`,
       to: [to],
       subject,
       html,
@@ -102,45 +141,52 @@ async function sendViaResend({ to, subject, html, text, replyTo }) {
     const detail = body?.message || body?.error || `HTTP ${response.status}`;
     throw new Error(detail);
   }
-  return body;
+  return { id: body?.id || null, provider: 'resend' };
 }
 
 async function sendViaSmtp({ to, subject, html, text, replyTo }) {
   const transporter = buildTransporter();
   await transporter.verify();
-  await transporter.sendMail({
-    from: getFromAddress(),
+  const info = await transporter.sendMail({
+    from: `"${getFromName()}" <${getFromAddress()}>`,
     to,
     replyTo: replyTo || undefined,
     subject,
     text,
     html,
   });
+  return { id: info?.messageId || null, provider: 'smtp' };
 }
 
 async function deliverEmail({ subject, html, text, replyTo }) {
   const to = getNotifyEmail();
 
+  if (isBrevoConfigured()) {
+    const result = await sendViaBrevo({ to, subject, html, text, replyTo });
+    console.log(`[email] Brevo ile gönderildi → ${to} (id: ${result.id || '-'})`);
+    return { ok: true, ...result };
+  }
+
   if (isResendConfigured()) {
-    await sendViaResend({ to, subject, html, text, replyTo });
-    console.log(`[email] Resend ile gönderildi → ${to}`);
-    return { ok: true, provider: 'resend' };
+    const result = await sendViaResend({ to, subject, html, text, replyTo });
+    console.log(`[email] Resend ile gönderildi → ${to} (id: ${result.id || '-'})`);
+    return { ok: true, ...result };
   }
 
   if (isSmtpConfigured()) {
     try {
-      await sendViaSmtp({ to, subject, html, text, replyTo });
+      const result = await sendViaSmtp({ to, subject, html, text, replyTo });
       console.log(`[email] SMTP ile gönderildi → ${to}`);
-      return { ok: true, provider: 'smtp' };
+      return { ok: true, ...result };
     } catch (err) {
       const blockedOnRender =
-        /ETIMEDOUT|ECONNREFUSED|ETIMEOUT|Network is unreachable/i.test(err.message);
+        /ETIMEDOUT|ECONNREFUSED|ETIMEOUT|ENETUNREACH|Network is unreachable/i.test(err.message);
       if (blockedOnRender) {
         return {
           ok: false,
           reason: 'smtp_blocked',
           detail:
-            'Render ücretsiz planda SMTP portları kapalı. RESEND_API_KEY ekleyin veya ücretli plana geçin.',
+            'Render ücretsiz planda SMTP portları kapalı. BREVO_API_KEY veya RESEND_API_KEY kullanın.',
         };
       }
       throw err;
@@ -189,17 +235,28 @@ async function sendTestEmail() {
 }
 
 function getEmailStatus() {
+  const provider = isBrevoConfigured()
+    ? 'brevo'
+    : isResendConfigured()
+      ? 'resend'
+      : isSmtpConfigured()
+        ? 'smtp'
+        : null;
+
   return {
     emailConfigured: isEmailConfigured(),
-    provider: isResendConfigured() ? 'resend' : isSmtpConfigured() ? 'smtp' : null,
+    provider,
+    brevoConfigured: isBrevoConfigured(),
     resendConfigured: isResendConfigured(),
     smtpConfigured: isSmtpConfigured(),
-    smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
-    smtpPort: Number(process.env.SMTP_PORT || 587),
-    smtpUser: process.env.SMTP_USER || null,
+    fromAddress: getFromAddress(),
     notifyEmail: getNotifyEmail(),
+    resendHint:
+      'Resend onboarding@resend.dev yalnızca Resend hesap e-postasına gider; spam klasörünü kontrol edin.',
+    brevoHint:
+      'Gmail kutusuna güvenilir teslimat için Brevo + doğrulanmış gönderici önerilir.',
     renderSmtpBlockedHint:
-      'Render ücretsiz planda SMTP (587/465) engellenir; RESEND_API_KEY kullanın.',
+      'Render ücretsiz planda SMTP (587/465) engellenir.',
   };
 }
 

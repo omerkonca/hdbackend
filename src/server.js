@@ -65,8 +65,10 @@ const server = app.listen(config.PORT, () => {
   ensureCitizenReportsTable().catch(() => {});
 
   const emailStatus = emailService.getEmailStatus();
-  if (emailStatus.resendConfigured) {
-    console.log(`[email] Resend hazır → ${emailStatus.notifyEmail}`);
+  if (emailStatus.brevoConfigured) {
+    console.log(`[email] Brevo hazır → ${emailStatus.notifyEmail}`);
+  } else if (emailStatus.resendConfigured) {
+    console.log(`[email] Resend hazır → ${emailStatus.notifyEmail} (from: ${emailStatus.fromAddress})`);
   } else if (emailStatus.smtpConfigured) {
     console.warn(`[email] SMTP ayarlı (Render ücretsizde çalışmayabilir) → ${emailStatus.notifyEmail}`);
   } else {

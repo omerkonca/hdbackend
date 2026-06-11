@@ -84,18 +84,20 @@ router.post('/', (req, res, next) => {
       appVersion: appVersion || null,
     });
 
-    emailService.sendCitizenReportEmail(row).then((result) => {
-      if (!result?.ok) {
-        console.error('[citizen-reports] e-posta gönderilemedi:', result?.reason, result?.detail || '');
-      }
-    }).catch((err) => {
-      console.error('[citizen-reports] e-posta gönderilemedi:', err.message);
-    });
+    const emailResult = await emailService.sendCitizenReportEmail(row);
+    if (!emailResult?.ok) {
+      console.error(
+        '[citizen-reports] e-posta gönderilemedi:',
+        emailResult?.reason,
+        emailResult?.detail || '',
+      );
+    }
 
     return res.json({
       ok: true,
       id: row.id,
       createdAt: row.created_at,
+      emailSent: emailResult?.ok === true,
       message: 'Bildiriminiz alındı. Teşekkür ederiz.',
     });
   } catch (e) {
