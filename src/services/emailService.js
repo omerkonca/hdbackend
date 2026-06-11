@@ -56,34 +56,80 @@ function buildHtml(report) {
 async function sendCitizenReportEmail(report) {
   if (!isSmtpConfigured()) {
     console.warn('[email] SMTP yapılandırılmamış — bildirim maili gönderilmedi.');
-    return false;
+    return { ok: false, reason: 'smtp_not_configured' };
   }
 
   const to = getNotifyEmail();
   const category = CATEGORY_LABELS[report.category] || report.category;
   const transporter = buildTransporter();
 
-  await transporter.sendMail({
-    from: `"Hepsi Düziçi" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
-    to,
-    replyTo: report.contact_email || undefined,
-    subject: `[Hepsi Düziçi] Yeni ${category}`,
-    text: [
-      `Tür: ${category}`,
-      `Mesaj: ${report.message}`,
-      `İsim: ${report.contact_name || '-'}`,
-      `E-posta: ${report.contact_email || '-'}`,
-      `Fotoğraflar: ${(report.image_urls || []).join(', ') || '-'}`,
-    ].join('\n'),
-    html: buildHtml(report),
-  });
+  try {
+    await transporter.verify();
+  } catch (err) {
+    console.error('[email] SMTP bağlantı doğrulaması başarısız:', err.message);
+    return { ok: false, reason: 'smtp_verify_failed', detail: err.message };
+  }
 
-  console.log(`[email] İhbar bildirimi gönderildi → ${to}`);
-  return true;
+  try {
+    await transporter.sendMail({
+      from: `"Hepsi Düziçi" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to,
+      replyTo: report.contact_email || undefined,
+      subject: `[Hepsi Düziçi] Yeni ${category}`,
+      text: [
+        `Tür: ${category}`,
+        `Mesaj: ${report.message}`,
+        `İsim: ${report.contact_name || '-'}`,
+        `E-posta: ${report.contact_email || '-'}`,
+        `Fotoğraflar: ${(report.image_urls || []).join(', ') || '-'}`,
+      ].join('\n'),
+      html: buildHtml(report),
+    });
+    console.log(`[email] İhbar bildirimi gönderildi → ${to}`);
+    return { ok: true };
+  } catch (err) {
+    console.error('[email] İhbar maili gönderilemedi:', err.message);
+    return { ok: false, reason: 'send_failed', detail: err.message };
+  }
+}
+
+async function sendTestEmail() {
+  if (!isSmtpConfigured()) {
+    return { ok: false, reason: 'smtp_not_configured' };
+  }
+
+  const to = getNotifyEmail();
+  const transporter = buildTransporter();
+
+  try {
+    await transporter.verify();
+    await transporter.sendMail({
+      from: `"Hepsi Düziçi" <${process.env.SMTP_FROM || process.env.SMTP_USER}>`,
+      to,
+      subject: '[Hepsi Düziçi] Test e-postası',
+      text: 'SMTP yapılandırması çalışıyor.',
+      html: '<p>SMTP yapılandırması çalışıyor.</p>',
+    });
+    return { ok: true, to };
+  } catch (err) {
+    return { ok: false, reason: 'send_failed', detail: err.message };
+  }
+}
+
+function getEmailStatus() {
+  return {
+    smtpConfigured: isSmtpConfigured(),
+    smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
+    smtpPort: Number(process.env.SMTP_PORT || 587),
+    smtpUser: process.env.SMTP_USER || null,
+    notifyEmail: getNotifyEmail(),
+  };
 }
 
 module.exports = {
   sendCitizenReportEmail,
+  sendTestEmail,
+  getEmailStatus,
   isSmtpConfigured,
   getNotifyEmail,
 };

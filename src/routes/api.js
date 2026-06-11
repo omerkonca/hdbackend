@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const apiController = require('../controllers/apiController');
+const emailService = require('../services/emailService');
 const { requireAdminToken } = require('../middlewares/auth');
 
 // Public endpoints
@@ -22,6 +23,16 @@ router.use('/places', require('./placesRoutes'));
 
 // Admin endpoints
 router.get('/admin/check', requireAdminToken, (req, res) => res.json({ ok: true, message: 'Token gecerli.' }));
+router.get('/admin/email-status', requireAdminToken, (req, res) => {
+  res.json({ ok: true, ...emailService.getEmailStatus() });
+});
+router.post('/admin/test-email', requireAdminToken, async (req, res) => {
+  const result = await emailService.sendTestEmail();
+  if (!result.ok) {
+    return res.status(500).json({ ok: false, ...result });
+  }
+  return res.json({ ok: true, message: 'Test e-postası gönderildi.', to: result.to });
+});
 router.get('/backups', requireAdminToken, apiController.getBackups);
 router.post('/city-content', requireAdminToken, apiController.updateCityContent);
 router.post('/city-content/update-branding', requireAdminToken, apiController.updateBrandingFields);

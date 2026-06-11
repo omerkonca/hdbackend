@@ -11,6 +11,7 @@ const eventService = require('./services/eventService');
 const roadClosureService = require('./services/roadClosureService');
 const obituaryService = require('./services/obituaryService');
 const { ensureCitizenReportsTable } = require('./utils/runMigrations');
+const emailService = require('./services/emailService');
 
 const app = express();
 
@@ -62,6 +63,13 @@ const server = app.listen(config.PORT, () => {
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);
 
   ensureCitizenReportsTable().catch(() => {});
+
+  const emailStatus = emailService.getEmailStatus();
+  if (emailStatus.smtpConfigured) {
+    console.log(`[email] SMTP hazır → ${emailStatus.notifyEmail}`);
+  } else {
+    console.warn('[email] SMTP yapılandırılmamış — ihbar mailleri gönderilmeyecek.');
+  }
 
   // Server timeout configuration (10 minutes) for large uploads
   server.timeout = 600000;

@@ -84,7 +84,11 @@ router.post('/', (req, res, next) => {
       appVersion: appVersion || null,
     });
 
-    emailService.sendCitizenReportEmail(row).catch((err) => {
+    emailService.sendCitizenReportEmail(row).then((result) => {
+      if (!result?.ok) {
+        console.error('[citizen-reports] e-posta gönderilemedi:', result?.reason, result?.detail || '');
+      }
+    }).catch((err) => {
       console.error('[citizen-reports] e-posta gönderilemedi:', err.message);
     });
 
