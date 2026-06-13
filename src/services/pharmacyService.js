@@ -19,48 +19,54 @@ class PharmacyService {
   }
 
   parseDutyPharmacyHtml(html) {
-    const bugunStartIdx = html.indexOf('id="nav-bugun"');
-    if (bugunStartIdx === -1) {
-      throw new Error('id="nav-bugun" bulunamadı.');
-    }
+    const parseTab = (tabId, dateLabel) => {
+      const startIdx = html.indexOf(`id="${tabId}"`);
+      if (startIdx === -1) return [];
 
-    const tableEndIdx = html.indexOf('</table>', bugunStartIdx);
-    if (tableEndIdx === -1) {
-      throw new Error('Tablo bitişi bulunamadı.');
-    }
+      const tableEndIdx = html.indexOf('</table>', startIdx);
+      if (tableEndIdx === -1) return [];
 
-    const bugunHtml = html.substring(bugunStartIdx, tableEndIdx);
+      const tabHtml = html.substring(startIdx, tableEndIdx);
 
-    const rangeRegex = /class=["']d-flex alert alert-warning[^>]*>([\s\S]*?)<\/div>/i;
-    const rangeMatch = bugunHtml.match(rangeRegex);
-    const dateRange = rangeMatch ? normalizeText(rangeMatch[1]) : '';
+      const rangeRegex = /class=["']d-flex alert alert-warning[^>]*>([\s\S]*?)<\/div>/i;
+      const rangeMatch = tabHtml.match(rangeRegex);
+      const dateRange = rangeMatch ? normalizeText(rangeMatch[1]) : '';
 
-    const nameRegex = /<span class=["']isim["']>([^<]+)<\/span>/g;
-    const all = [];
-    let nameMatch;
+      const nameRegex = /<span class=["']isim["']>([^<]+)<\/span>/g;
+      const list = [];
+      let nameMatch;
 
-    while ((nameMatch = nameRegex.exec(bugunHtml)) !== null) {
-      const name = normalizeText(nameMatch[1]);
-      const nameIdx = nameMatch.index;
+      while ((nameMatch = nameRegex.exec(tabHtml)) !== null) {
+        const name = normalizeText(nameMatch[1]);
+        const nameIdx = nameMatch.index;
 
-      const rest = bugunHtml.substring(nameIdx);
-      const detailRegex = /class=['"]col-lg-6['"]>([\s\S]*?)<\/div>[\s\S]*?class=['"]col-lg-3[^'"]*['"]>([\s\S]*?)<\/div>/;
-      const detailMatch = rest.match(detailRegex);
+        const rest = tabHtml.substring(nameIdx);
+        const detailRegex = /class=['"]col-lg-6['"]>([\s\S]*?)<\/div>[\s\S]*?class=['"]col-lg-3[^'"]*['"]>([\s\S]*?)<\/div>/;
+        const detailMatch = rest.match(detailRegex);
 
-      if (detailMatch) {
-        const address = normalizeText(detailMatch[1]);
-        const phone = normalizeText(detailMatch[2]);
-        all.push({
-          dateLabel: 'Bugün',
-          dateRange,
-          name,
-          address,
-          phone,
-        });
+        if (detailMatch) {
+          const address = normalizeText(detailMatch[1]);
+          const phone = normalizeText(detailMatch[2]);
+          list.push({
+            dateLabel,
+            dateRange,
+            name,
+            address,
+            phone,
+          });
+        }
       }
+      return list;
+    };
+
+    const bugun = parseTab('nav-bugun', 'Bugün');
+    const yarin = parseTab('nav-yarin', 'Yarın');
+
+    if (bugun.length === 0 && yarin.length === 0) {
+      throw new Error('Eczane verisi parse edilemedi.');
     }
 
-    return all;
+    return [...bugun, ...yarin];
   }
 
   async scrapeDutyPharmacies() {

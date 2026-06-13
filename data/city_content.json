@@ -2,43 +2,21 @@
   "home": {
     "headerMedia": [
       {
-        "id": "story_1780842127611_luy6p",
         "url": "assets/images/selalesi_1.jpg",
         "type": "image",
-        "title": "Düziçi Şelalesi",
-        "bubbleId": "duzici_selalesi_xm8y",
-        "isActive": true
+        "title": "Düziçi Şelalesi"
       },
       {
-        "id": "story_1780842127611_n7mt5",
         "url": "assets/images/selalesi_2.jpg",
         "type": "image",
-        "title": "Düziçi Şelalesi",
-        "bubbleId": "duzici_selalesi_xm8y",
-        "isActive": true
+        "title": "Düziçi Şelalesi"
       },
       {
-        "id": "story_1780842127611_y4ii8",
-        "url": "https://res.cloudinary.com/dbdlspayw/image/upload/v1780781739/hepsiduzici-uploads/pk9fu10dgh8cssoppwgm.jpg",
+        "id": "story_yesil_selalesi_1",
+        "url": "assets/images/yesil_selalesi.jpg",
         "type": "image",
-        "title": "düldül dağı",
-        "bubbleId": "duldul_dagi_yryg",
-        "isActive": true
-      },
-      {
-        "id": "story_1780842797118_uaf51",
-        "url": "https://res.cloudinary.com/dbdlspayw/image/upload/v1780842795/hepsiduzici-uploads/q23chqbb8nddsm9jyh9o.jpg",
-        "type": "image",
-        "title": "düldül dağı",
-        "bubbleId": "duldul_dagi_yryg",
-        "isActive": true
-      },
-      {
-        "id": "story_1780842915069_rpx3q",
-        "url": "https://res.cloudinary.com/dbdlspayw/video/upload/v1780842913/hepsiduzici-uploads/yx4ytyjewzchdmnovi4h.mov",
-        "type": "video",
-        "title": "düldül dağı",
-        "bubbleId": "duldul_dagi_yryg",
+        "title": "Yeşil Şelalesi",
+        "bubbleId": "yesil_selalesi_bubble",
         "isActive": true
       }
     ],
@@ -68,6 +46,14 @@
         "subtitle": "Hizmet & iletişim"
       },
       {
+        "id": "ihbar",
+        "icon": "campaign_rounded",
+        "color": "#E65100",
+        "title": "İhbar",
+        "target": "screen:citizen_report",
+        "subtitle": "Sorun & öneri bildir"
+      },
+      {
         "id": "haber",
         "icon": "newspaper_rounded",
         "color": "#6A1B9A",
@@ -94,12 +80,8 @@
     ],
     "storyBubbles": [
       {
-        "id": "duzici_selalesi_xm8y",
-        "title": "Düziçi Şelalesi"
-      },
-      {
-        "id": "duldul_dagi_yryg",
-        "title": "düldül dağı"
+        "id": "yesil_selalesi_bubble",
+        "title": "Yeşil Şelalesi"
       }
     ]
   },
@@ -196,33 +178,48 @@
     "sources": [
       {
         "url": "https://www.sabirgazetesi.com/rss/duzici",
-        "name": "Sabir Gazetesi",
+        "name": "Sabir Gazetesi Düziçi",
+        "scope": "duzici",
         "isActive": true,
-        "filterDuzici": false
+        "filterDuzici": true
+      },
+      {
+        "url": "https://www.sabirgazetesi.com/rss",
+        "name": "Sabir Gazetesi",
+        "scope": "osmaniye",
+        "isActive": true
+      },
+      {
+        "url": "https://www.hasretgazetesi.com.tr/rss/duzici",
+        "name": "Hasret Gazetesi Düziçi",
+        "scope": "duzici",
+        "isActive": true,
+        "filterDuzici": true
       },
       {
         "url": "https://www.hasretgazetesi.com.tr/rss",
         "name": "Hasret Gazetesi",
-        "isActive": true,
-        "filterDuzici": false
+        "scope": "osmaniye",
+        "isActive": true
       },
       {
         "url": "https://www.akdenizgazetesi.com/rss",
         "name": "Akdeniz Gazetesi",
-        "isActive": true,
-        "filterDuzici": false
+        "scope": "osmaniye",
+        "isActive": true
       },
       {
         "url": "https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
-        "name": "Google News",
+        "name": "Google News Düziçi",
+        "scope": "duzici",
         "isActive": true,
-        "filterDuzici": false
+        "filterDuzici": true
       },
       {
         "url": "https://news.google.com/rss/search?q=Osmaniye%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
         "name": "Google News Osmaniye",
-        "isActive": true,
-        "filterDuzici": false
+        "scope": "osmaniye",
+        "isActive": true
       }
     ]
   },
@@ -1637,8 +1634,8 @@
         "icon": "sentiment_very_dissatisfied",
         "color": "#546E7A",
         "title": "Vefat Listesi",
-        "target": "screen:directory",
-        "subtitle": "Taziye duyuruları",
+        "target": "screen:obituary",
+        "subtitle": "Düziçi ve Osmaniye vefat duyuruları",
         "directoryData": [
           {
             "name": "Belediye Cenaze Hizmetleri",

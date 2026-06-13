@@ -15,6 +15,10 @@
 const WEBHOOK_SECRET = 'BURAYA_GIZLI_ANAHTAR_YAZ';
 const TO_EMAIL = 'hepsiduzici@gmail.com';
 
+function doGet() {
+  return jsonResponse({ ok: true, message: 'Hepsi Duzici Gmail webhook hazir (POST kullanin).' });
+}
+
 function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents || '{}');
