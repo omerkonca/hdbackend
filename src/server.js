@@ -65,14 +65,16 @@ const server = app.listen(config.PORT, () => {
   ensureCitizenReportsTable().catch(() => {});
 
   const emailStatus = emailService.getEmailStatus();
-  if (emailStatus.brevoConfigured) {
+  if (emailStatus.gmailWebhookConfigured) {
+    console.log(`[email] Gmail Apps Script hazır → ${emailStatus.notifyEmail}`);
+  } else if (emailStatus.brevoConfigured) {
     console.log(`[email] Brevo hazır → ${emailStatus.notifyEmail}`);
   } else if (emailStatus.resendConfigured) {
-    console.log(`[email] Resend hazır → ${emailStatus.notifyEmail} (from: ${emailStatus.fromAddress})`);
+    console.log(`[email] Resend hazır → ${emailStatus.notifyEmail}`);
   } else if (emailStatus.smtpConfigured) {
-    console.warn(`[email] SMTP ayarlı (Render ücretsizde çalışmayabilir) → ${emailStatus.notifyEmail}`);
+    console.warn(`[email] SMTP ayarlı (Render ücretsizde çalışmayabilir)`);
   } else {
-    console.warn('[email] E-posta yapılandırılmamış — ihbar mailleri gönderilmeyecek.');
+    console.warn('[email] E-posta yapılandırılmamış — GMAIL_WEBHOOK_URL ekleyin.');
   }
 
   // Server timeout configuration (10 minutes) for large uploads

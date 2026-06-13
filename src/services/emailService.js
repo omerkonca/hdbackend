@@ -7,6 +7,11 @@ const CATEGORY_LABELS = {
   other: 'Diğer',
 };
 
+/** Önerilen: kendi Gmail hesabın + Apps Script (ücretsiz, yeni kayıt yok). */
+function isGmailWebhookConfigured() {
+  return Boolean(process.env.GMAIL_WEBHOOK_URL && process.env.GMAIL_WEBHOOK_SECRET);
+}
+
 function isBrevoConfigured() {
   return Boolean(process.env.BREVO_API_KEY);
 }
@@ -20,7 +25,12 @@ function isSmtpConfigured() {
 }
 
 function isEmailConfigured() {
-  return isBrevoConfigured() || isResendConfigured() || isSmtpConfigured();
+  return (
+    isGmailWebhookConfigured() ||
+    isBrevoConfigured() ||
+    isResendConfigured() ||
+    isSmtpConfigured()
+  );
 }
 
 function getNotifyEmail() {
@@ -89,6 +99,28 @@ function buildText(report) {
     `E-posta: ${report.contact_email || '-'}`,
     `Fotoğraflar: ${(report.image_urls || []).join(', ') || '-'}`,
   ].join('\n');
+}
+
+async function sendViaGmailWebhook({ to, subject, html, text, replyTo }) {
+  const response = await fetch(process.env.GMAIL_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      secret: process.env.GMAIL_WEBHOOK_SECRET,
+      to,
+      subject,
+      html,
+      text,
+      replyTo: replyTo || undefined,
+    }),
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || body?.ok === false) {
+    const detail = body?.message || `HTTP ${response.status}`;
+    throw new Error(detail);
+  }
+  return { id: body?.id || null, provider: 'gmail-webhook' };
 }
 
 async function sendViaBrevo({ to, subject, html, text, replyTo }) {
@@ -161,15 +193,21 @@ async function sendViaSmtp({ to, subject, html, text, replyTo }) {
 async function deliverEmail({ subject, html, text, replyTo }) {
   const to = getNotifyEmail();
 
+  if (isGmailWebhookConfigured()) {
+    const result = await sendViaGmailWebhook({ to, subject, html, text, replyTo });
+    console.log(`[email] Gmail (Apps Script) ile gönderildi → ${to}`);
+    return { ok: true, ...result };
+  }
+
   if (isBrevoConfigured()) {
     const result = await sendViaBrevo({ to, subject, html, text, replyTo });
-    console.log(`[email] Brevo ile gönderildi → ${to} (id: ${result.id || '-'})`);
+    console.log(`[email] Brevo ile gönderildi → ${to}`);
     return { ok: true, ...result };
   }
 
   if (isResendConfigured()) {
     const result = await sendViaResend({ to, subject, html, text, replyTo });
-    console.log(`[email] Resend ile gönderildi → ${to} (id: ${result.id || '-'})`);
+    console.log(`[email] Resend ile gönderildi → ${to}`);
     return { ok: true, ...result };
   }
 
@@ -185,15 +223,14 @@ async function deliverEmail({ subject, html, text, replyTo }) {
         return {
           ok: false,
           reason: 'smtp_blocked',
-          detail:
-            'Render ücretsiz planda SMTP portları kapalı. BREVO_API_KEY veya RESEND_API_KEY kullanın.',
+          detail: 'Render ücretsiz planda SMTP kapalı. GMAIL_WEBHOOK_URL kullanın (docs/IHBAR_EPOSTA_KURULUM.md).',
         };
       }
       throw err;
     }
   }
 
-  console.warn('[email] E-posta sağlayıcısı yapılandırılmamış.');
+  console.warn('[email] E-posta yapılandırılmamış.');
   return { ok: false, reason: 'email_not_configured' };
 }
 
@@ -235,28 +272,28 @@ async function sendTestEmail() {
 }
 
 function getEmailStatus() {
-  const provider = isBrevoConfigured()
-    ? 'brevo'
-    : isResendConfigured()
-      ? 'resend'
-      : isSmtpConfigured()
-        ? 'smtp'
-        : null;
+  const provider = isGmailWebhookConfigured()
+    ? 'gmail-webhook'
+    : isBrevoConfigured()
+      ? 'brevo'
+      : isResendConfigured()
+        ? 'resend'
+        : isSmtpConfigured()
+          ? 'smtp'
+          : null;
 
   return {
     emailConfigured: isEmailConfigured(),
     provider,
+    recommended: 'gmail-webhook',
+    gmailWebhookConfigured: isGmailWebhookConfigured(),
     brevoConfigured: isBrevoConfigured(),
     resendConfigured: isResendConfigured(),
     smtpConfigured: isSmtpConfigured(),
-    fromAddress: getFromAddress(),
     notifyEmail: getNotifyEmail(),
-    resendHint:
-      'Resend onboarding@resend.dev yalnızca Resend hesap e-postasına gider; spam klasörünü kontrol edin.',
-    brevoHint:
-      'Gmail kutusuna güvenilir teslimat için Brevo + doğrulanmış gönderici önerilir.',
-    renderSmtpBlockedHint:
-      'Render ücretsiz planda SMTP (587/465) engellenir.',
+    hint: isGmailWebhookConfigured()
+      ? 'Gmail Apps Script aktif — en güvenilir ücretsiz yol.'
+      : 'GMAIL_WEBHOOK_URL + GMAIL_WEBHOOK_SECRET ekleyin (yeni kayıt gerekmez).',
   };
 }
 
