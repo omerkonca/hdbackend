@@ -68,6 +68,14 @@ class NewsService {
     return score;
   }
 
+  normalizeNewsTitleKey(title = '') {
+    return normalizeForCompare(String(title || ''))
+      .replace(/\s*-\s*(sabir|hasret|akdeniz|google)\s+gazetesi.*$/i, '')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()
+      .slice(0, 120);
+  }
+
   mergeItemPreferBetter(existing, candidate) {
     return this.itemQualityScore(candidate) > this.itemQualityScore(existing)
       ? candidate
@@ -247,36 +255,18 @@ class NewsService {
   }
 
   mergeAndDedupeNews(allItems, max) {
-    const byUrl = new Map();
     const byTitle = new Map();
     for (const raw of allItems) {
       const item = {
         ...raw,
         category: raw.category || this.inferNewsCategory(raw.title, raw.summary, raw.sourceName),
       };
-      const urlKey = String(item.sourceUrl || '').trim();
-      if (urlKey) {
-        const prev = byUrl.get(urlKey);
-        byUrl.set(urlKey, prev ? this.mergeItemPreferBetter(prev, item) : item);
-        continue;
-      }
-      const titleKey = normalizeForCompare(item.title || '').slice(0, 120);
+      const titleKey = this.normalizeNewsTitleKey(item.title);
       if (!titleKey) continue;
       const prev = byTitle.get(titleKey);
       byTitle.set(titleKey, prev ? this.mergeItemPreferBetter(prev, item) : item);
     }
-    const merged = [...byUrl.values()];
-    for (const [titleKey, item] of byTitle.entries()) {
-      const duplicate = merged.find(
-        (x) => normalizeForCompare(x.title || '').slice(0, 120) === titleKey,
-      );
-      if (duplicate) {
-        const idx = merged.indexOf(duplicate);
-        merged[idx] = this.mergeItemPreferBetter(duplicate, item);
-      } else {
-        merged.push(item);
-      }
-    }
+    const merged = [...byTitle.values()];
     const maxAgeMs = 90 * 24 * 60 * 60 * 1000;
     const cutoff = Date.now() - maxAgeMs;
     const fresh = merged.filter(
