@@ -156,6 +156,15 @@ class PharmacyService {
 
   enrichPharmacies(pharmacies) {
     if (!pharmacies || !pharmacies.length) return pharmacies;
+
+    const inDuziciBounds = (lat, lng) =>
+      lat != null &&
+      lng != null &&
+      lat >= 37.15 &&
+      lat <= 37.42 &&
+      lng >= 36.38 &&
+      lng <= 36.62;
+
     try {
       const fs = require('fs');
       const path = require('path');
@@ -174,11 +183,16 @@ class PharmacyService {
         return pharmacies.map(p => {
           const match = lookupMap.get(norm(p.name));
           if (match && (match.lat || match.lng || match.googleMapsUrl)) {
+            const lat = match.lat ?? p.lat;
+            const lng = match.lng ?? p.lng;
+            const coordsOk = inDuziciBounds(lat, lng);
             return {
               ...p,
-              lat: match.lat || p.lat,
-              lng: match.lng || p.lng,
-              googleMapsUrl: match.googleMapsUrl || p.googleMapsUrl
+              lat: coordsOk ? lat : p.lat,
+              lng: coordsOk ? lng : p.lng,
+              googleMapsUrl: coordsOk
+                ? (match.googleMapsUrl || p.googleMapsUrl)
+                : p.googleMapsUrl,
             };
           }
           return p;

@@ -169,6 +169,26 @@
       "lat": 37.245,
       "lng": 36.46,
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2450,36.4600"
+    },
+    "Berke Barajı Manzarası": {
+      "lat": 37.2215,
+      "lng": 36.471,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.4710"
+    },
+    "Taş Köprü": {
+      "lat": 37.245,
+      "lng": 36.46,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.245,36.46"
+    },
+    "Düziçi Çarşı ve Ulu Cami": {
+      "lat": 37.244,
+      "lng": 36.451,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451"
+    },
+    "Kastabala Antik Kenti": {
+      "lat": 37.177,
+      "lng": 36.185,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.177,36.185"
     }
   },
   "pharmacies": {
@@ -188,9 +208,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.230055,36.444558"
     },
     "Ayşegül Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.238,
+      "lng": 36.448,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.238,36.448"
     },
     "Büyükmert Eczanesi": {
       "lat": 37.240228,
@@ -218,9 +238,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241259,36.454687"
     },
     "Elmas Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.241,
+      "lng": 36.455,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241,36.455"
     },
     "Fatih Eczanesi": {
       "lat": 37.240878,
@@ -243,14 +263,14 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241304,36.45511"
     },
     "Sağlık Eczanesi": {
-      "lat": 37.296685,
-      "lng": 36.360215,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.296685,36.360215"
+      "lat": 37.242,
+      "lng": 36.449,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.242,36.449"
     },
     "Şerife Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.238,
+      "lng": 36.448,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.238,36.448"
     },
     "Şen Eczanesi": {
       "lat": 37.244873,
@@ -268,9 +288,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244637,36.461584"
     },
     "Murat Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.2435,
+      "lng": 36.452,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2435,36.452"
     }
   }
 }
