@@ -11,41 +11,14 @@ const weatherService = require('../services/weatherService');
 const prayerService = require('../services/prayerService');
 const obituaryService = require('../services/obituaryService');
 const config = require('../config');
+const { enrichExploreWithCorrections } = require('../utils/mapCorrections');
 
 class ApiController {
   async getCityContent(req, res) {
     try {
-      const data = await fileService.readCityContent();
-      
+      let data = await fileService.readCityContent();
       try {
-        const fs = require('fs');
-        const path = require('path');
-        const correctionsPath = path.resolve(__dirname, '../../data/map_corrections.json');
-        if (fs.existsSync(correctionsPath)) {
-          const corrections = JSON.parse(fs.readFileSync(correctionsPath, 'utf8'));
-          const lookup = corrections.places || {};
-          const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9çğışöü]/gi, '').trim();
-          
-          const lookupMap = new Map();
-          for (const [key, value] of Object.entries(lookup)) {
-            lookupMap.set(norm(key), value);
-          }
-          
-          if (data.explore && data.explore.categories) {
-            for (const cat of data.explore.categories) {
-              if (cat.places) {
-                for (const place of cat.places) {
-                  const match = lookupMap.get(norm(place.name));
-                  if (match) {
-                    if (match.lat) place.lat = match.lat;
-                    if (match.lng) place.lng = match.lng;
-                    if (match.googleMapsUrl) place.googleMapsUrl = match.googleMapsUrl;
-                  }
-                }
-              }
-            }
-          }
-        }
+        data = enrichExploreWithCorrections(data);
       } catch (err) {
         console.error('[city-content] Failed to enrich explore places with corrections:', err.message);
       }

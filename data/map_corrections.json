@@ -157,17 +157,17 @@
     },
     "Berke Barajı ve göl alanı": {
       "lat": 37.2215,
-      "lng": 36.4710,
+      "lng": 36.471,
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.4710"
     },
     "Saman ve Kurtlar kaleleri": {
-      "lat": 37.2650,
-      "lng": 36.4350,
+      "lat": 37.265,
+      "lng": 36.435,
       "googleMapsUrl": ""
     },
     "Taş Köprü (Fettahoğluları)": {
-      "lat": 37.2450,
-      "lng": 36.4600,
+      "lat": 37.245,
+      "lng": 36.46,
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2450,36.4600"
     }
   },
@@ -178,14 +178,14 @@
       "googleMapsUrl": "https://maps.google.com/?q=37.2456,36.4522"
     },
     "Aydın Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.244695,
+      "lng": 36.45404,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244695,36.45404"
     },
     "Ayşe Gül Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.230055,
+      "lng": 36.444558,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.230055,36.444558"
     },
     "Ayşegül Eczanesi": {
       "lat": null,
@@ -193,29 +193,29 @@
       "googleMapsUrl": ""
     },
     "Büyükmert Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.240228,
+      "lng": 36.445027,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240228,36.445027"
     },
     "Cansu Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.241293,
+      "lng": 36.455628,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241293,36.455628"
     },
     "Deniz Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.242856,
+      "lng": 36.454862,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.242856,36.454862"
     },
     "Dilşad Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.243729,
+      "lng": 36.461439,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.243729,36.461439"
     },
     "Düziçi Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.241259,
+      "lng": 36.454687,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241259,36.454687"
     },
     "Elmas Eczanesi": {
       "lat": null,
@@ -223,29 +223,29 @@
       "googleMapsUrl": ""
     },
     "Fatih Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.240878,
+      "lng": 36.454581,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240878,36.454581"
     },
     "Hayat Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.240408,
+      "lng": 36.452557,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240408,36.452557"
     },
     "Metlioğlu Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.240674,
+      "lng": 36.4541,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240674,36.4541"
     },
     "Özkan Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.241304,
+      "lng": 36.45511,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241304,36.45511"
     },
     "Sağlık Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.296685,
+      "lng": 36.360215,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.296685,36.360215"
     },
     "Şerife Eczanesi": {
       "lat": null,
@@ -253,16 +253,21 @@
       "googleMapsUrl": ""
     },
     "Şen Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.244873,
+      "lng": 36.461419,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244873,36.461419"
     },
     "Yücel Eczanesi": {
-      "lat": null,
-      "lng": null,
-      "googleMapsUrl": ""
+      "lat": 37.241333,
+      "lng": 36.454817,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241333,36.454817"
     },
     "Taşkın Eczanesi": {
+      "lat": 37.244637,
+      "lng": 36.461584,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244637,36.461584"
+    },
+    "Murat Eczanesi": {
       "lat": null,
       "lng": null,
       "googleMapsUrl": ""

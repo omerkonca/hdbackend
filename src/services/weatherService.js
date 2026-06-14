@@ -34,23 +34,39 @@ class WeatherService {
       
       // If we have stale cache, use it
       if (this.cache.data) return this.cache.data;
-      
-      // Safety Fallback (Never return 500)
-      return {
-        current: {
-          temp: 20,
-          feelsLike: 20,
-          humidity: 50,
-          windSpeed: 0,
-          condition: { text: 'Veri Bekleniyor', icon: 'cloud' },
-          code: 0,
-          isDay: true,
-        },
-        forecast: [],
-        location: 'Düziçi',
-        fetchedAt: new Date().toISOString(),
-        error: error.message
-      };
+
+      // Try wttr.in Fallback
+      try {
+        console.log('🔄 Trying wttr.in weather fallback...');
+        const fallbackUrl = 'https://wttr.in/Duzici?format=j1';
+        const response = await fetchWithTimeout(fallbackUrl);
+        if (!response.ok) throw new Error(`wttr.in status error: ${response.status}`);
+        const raw = await response.json();
+        const processed = this._processWttrData(raw);
+        
+        this.cache.data = processed;
+        this.cache.fetchedAt = now;
+        return processed;
+      } catch (fallbackError) {
+        console.error('❌ wttr.in fallback error:', fallbackError.message);
+        
+        // Safety Fallback (Never return 500)
+        return {
+          current: {
+            temp: 20,
+            feelsLike: 20,
+            humidity: 50,
+            windSpeed: 0,
+            condition: { text: 'Veri Bekleniyor', icon: 'cloud' },
+            code: 0,
+            isDay: true,
+          },
+          forecast: [],
+          location: 'Düziçi',
+          fetchedAt: new Date().toISOString(),
+          error: error.message
+        };
+      }
     }
   }
 
@@ -78,6 +94,56 @@ class WeatherService {
       location: 'Düziçi',
       fetchedAt: new Date().toISOString()
     };
+  }
+
+  _processWttrData(raw) {
+    const current = raw.current_condition[0];
+    const forecastList = raw.weather;
+    const isDay = !current.weatherIconUrl?.[0]?.value?.includes('night');
+
+    const wmoCode = this._wwoToWmo(current.weatherCode);
+
+    return {
+      current: {
+        temp: Math.round(Number(current.temp_C)),
+        feelsLike: Math.round(Number(current.FeelsLikeC)),
+        humidity: Number(current.humidity),
+        windSpeed: Number(current.windspeedKmph),
+        condition: this._getCondition(wmoCode, isDay ? 1 : 0),
+        code: wmoCode,
+        isDay: isDay,
+      },
+      forecast: forecastList.map((day) => {
+        const dayWmoCode = this._wwoToWmo(day.hourly[4]?.weatherCode || day.hourly[0]?.weatherCode || 113);
+        return {
+          date: day.date,
+          maxTemp: Math.round(Number(day.maxtempC)),
+          minTemp: Math.round(Number(day.mintempC)),
+          condition: this._getCondition(dayWmoCode, 1),
+          code: dayWmoCode,
+        };
+      }),
+      location: 'Düziçi',
+      fetchedAt: new Date().toISOString()
+    };
+  }
+
+  _wwoToWmo(code) {
+    const wwo = Number(code);
+    switch (wwo) {
+      case 113: return 0; // Clear
+      case 116: return 2; // Partly Cloudy
+      case 119: case 122: return 3; // Cloudy, Overcast
+      case 143: case 248: case 260: return 45; // Mist, Fog
+      case 263: case 266: case 293: case 296: return 61; // Light Drizzle / Light Rain
+      case 299: case 302: case 305: case 308: return 63; // Moderate/Heavy Rain
+      case 311: case 314: case 317: case 320: return 63; // Sleet
+      case 353: case 356: case 359: return 80; // Light/Moderate Rain Shower
+      case 362: case 365: return 80; // Sleet Showers
+      case 386: case 389: case 392: case 395: return 95; // Thundery
+      case 227: case 230: case 323: case 326: case 329: case 332: case 335: case 338: case 368: case 371: case 374: case 377: return 73; // Snow
+      default: return 0;
+    }
   }
 
   _getCondition(code, isDay) {

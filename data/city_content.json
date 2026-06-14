@@ -2,21 +2,27 @@
   "home": {
     "headerMedia": [
       {
-        "url": "assets/images/selalesi_1.jpg",
-        "type": "image",
-        "title": "Düziçi Şelalesi"
-      },
-      {
-        "url": "assets/images/selalesi_2.jpg",
-        "type": "image",
-        "title": "Düziçi Şelalesi"
-      },
-      {
-        "id": "story_yesil_selalesi_1",
-        "url": "assets/images/yesil_selalesi.jpg",
-        "type": "image",
+        "id": "story_1781360916090_kn5c3",
+        "url": "https://res.cloudinary.com/dbdlspayw/video/upload/v1781360913/hepsiduzici-uploads/j1w5hyfithlh05iljtil.mov",
+        "type": "video",
         "title": "Yeşil Şelalesi",
         "bubbleId": "yesil_selalesi_bubble",
+        "isActive": true
+      },
+      {
+        "id": "story_1781360720538_lmag6",
+        "url": "assets/images/selalesi_1.jpg",
+        "type": "image",
+        "title": "Düziçi Şelalesi",
+        "bubbleId": "duzici_selalesi_mpra",
+        "isActive": true
+      },
+      {
+        "id": "story_1781360720538_nb4ep",
+        "url": "assets/images/selalesi_2.jpg",
+        "type": "image",
+        "title": "Düziçi Şelalesi",
+        "bubbleId": "duzici_selalesi_mpra",
         "isActive": true
       }
     ],
@@ -44,14 +50,6 @@
         "title": "Belediye",
         "target": "screen:municipality",
         "subtitle": "Hizmet & iletişim"
-      },
-      {
-        "id": "ihbar",
-        "icon": "campaign_rounded",
-        "color": "#E65100",
-        "title": "İhbar",
-        "target": "screen:citizen_report",
-        "subtitle": "Sorun & öneri bildir"
       },
       {
         "id": "haber",
@@ -82,6 +80,10 @@
       {
         "id": "yesil_selalesi_bubble",
         "title": "Yeşil Şelalesi"
+      },
+      {
+        "id": "duzici_selalesi_mpra",
+        "title": "Düziçi Şelalesi"
       }
     ]
   },
@@ -278,72 +280,72 @@
             "lng": 36.432,
             "tag": "ULAŞIM",
             "name": "Düziçi Şehirlerarası Otogar",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg",
+            "image": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEs4boRhVdGMaiEeuDNxyQtx7PCQBk24IV2yS50inXv_Da9m3F13AXr-bV4mrgLMXXq4606lySI57R3I16ObIwsizIakvMtJZq0NmZV1tRW_qFqemDTj61aVaBPUgi9nYZcTm8NZ4N-Qbs=s1360-w1360-h1020-rw",
             "detail": "Şehirlerarası otobüs ve minibüs seferleri Yarbaşı beldesindeki terminalden yapılır. Refik Cesur Bulvarı üzerinden merkeze yaklaşık 700 m mesafededir. Metro, Seç, Düziçi Seyahat gibi firmalar buradan hareket eder. İlçeler arası dolmuş aktarması için Ulaşım Rehberi ekranına bakın.",
             "osmUrl": "https://www.openstreetmap.org/#map=17/37.199/36.432",
             "address": "Yarbaşı Beldesi, Karacaören Mah., Refik Cesur Bulvarı yönü",
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
+            "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEs4boRhVdGMaiEeuDNxyQtx7PCQBk24IV2yS50inXv_Da9m3F13AXr-bV4mrgLMXXq4606lySI57R3I16ObIwsizIakvMtJZq0NmZV1tRW_qFqemDTj61aVaBPUgi9nYZcTm8NZ4N-Qbs=s1360-w1360-h1020-rw",
             "restroom": "bilinmiyor",
             "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.199,36.432",
             "shortDescription": "Yarbaşı beldesinde; Osmaniye ve Adana minibüsleri."
-          },
-          {
-            "tag": "ULAŞIM",
-            "name": "O-52 ve D-400 Gişe Kavşağı",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
-            "detail": "Düziçi'ye kara yolu ulaşımı çoğunlukla O-52 (Adana-Gaziantep) otoyolu ve D-400 üzerinden sağlanır. Gişe ve kavşak bölgesinden Osmaniye merkeze ~33 km, Adana yönüne otoyol bağlantısı vardır. Kanlı Geçit durağı Osmaniye hattında önemli bir ara duraktır.",
-            "address": "D-400 · O-52, Düziçi giriş/çıkış",
-            "parking": "bilinmiyor",
-            "entryFee": "bilinmiyor",
-            "restroom": "bilinmiyor",
-            "shortDescription": "Osmaniye ve Adana yönü ana bağlantı noktası."
           },
           {
             "lat": 37.199,
             "lng": 36.43,
             "tag": "ULAŞIM",
             "name": "Yarbaşı Tren İstasyonu",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg/960px-Kahramanmara%C5%9F_Airport_%28New_Terminal%29.jpg",
+            "image": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEy-XIPCs61HEIC0qRgJr5U6Gghp4dpiYIcilJAxHn8TcUGduwC7j5Pr9rBoVIC0mAEccaOkzI0KBU2m1DTn2kaTv7mTpTW3wMaTG0Lfrp_1JFDxKZ_VkjBJxyrqInPvvZ-WKknyw=s1360-w1360-h1020-rw",
             "detail": "Osmanlı döneminden kalma Adana-Halep demiryolu hattı üzerindeki istasyon, Düziçi merkezine yaklaşık 6 km mesafededir. TCDD seferleri için güncel tarifeyi resmî kaynaklardan kontrol edin. İstasyon Yarbaşı belde merkezine yakındır.",
             "osmUrl": "https://www.openstreetmap.org/#map=17/37.199/36.43",
             "address": "Yarbaşı Beldesi, Düziçi",
             "parking": "var",
             "entryFee": "ucretsiz",
+            "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAEy-XIPCs61HEIC0qRgJr5U6Gghp4dpiYIcilJAxHn8TcUGduwC7j5Pr9rBoVIC0mAEccaOkzI0KBU2m1DTn2kaTv7mTpTW3wMaTG0Lfrp_1JFDxKZ_VkjBJxyrqInPvvZ-WKknyw=s1360-w1360-h1020-rw",
             "restroom": "var",
             "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.199,36.43",
             "shortDescription": "Adana-Halep hattı; merkeze ~6 km."
           },
           {
+            "lat": 37.234,
+            "lng": 36.442,
             "tag": "ULAŞIM",
             "name": "Ellek ve Yarbaşı Belde Minibüsleri",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg",
+            "image": "https://res.cloudinary.com/dbdlspayw/image/upload/v1781453843/hepsiduzici-uploads/zz0pooa96tl1u8kap0hw.png",
             "detail": "Ellek beldesi D-400 üzerinden; S.S. 130 Nolu Minibüsçüler Kooperatifi hatları işletir. Yarbaşı beldesi otogar ve tren istasyonu ile aynı güzergâh üzerindedir. Güncel saat ve ücretler için Ulaşım Rehberi'ndeki ilçe içi hatlara bakın.",
             "address": "Kurtuluş Çarşı kalkışlı, D-400 / Refik Cesur güzergâhı",
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
+            "imageUrl": "https://res.cloudinary.com/dbdlspayw/image/upload/v1781453843/hepsiduzici-uploads/zz0pooa96tl1u8kap0hw.png",
             "restroom": "bilinmiyor",
             "shortDescription": "Merkezden beldelere düzenli dolmuş hatları."
           },
           {
+            "lat": 37.238,
+            "lng": 36.445,
             "tag": "PAZAR",
             "name": "Haftalık Pazar Yerleri",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg",
+            "image": "data:image/jpeg;base64,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",
             "detail": "Pazartesi pazarı Mehmet Yalçın Pazar Yeri (merkez), çarşamba pazarı Kurtuluş Mahallesi'nde, cuma pazarı ilçe genelinde geleneksel pazar alanında kurulur. Taze sebze, yer fıstığı ve yöresel ürünler için idealdir.",
             "address": "Düziçi merkez ve Kurtuluş Mah.",
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
+            "imageUrl": "data:image/jpeg;base64,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",
             "restroom": "bilinmiyor",
             "shortDescription": "Pazartesi, çarşamba ve cuma pazarları."
           },
           {
+            "lat": 37.244,
+            "lng": 36.451,
             "tag": "RESMÎ",
             "name": "Düziçi Belediyesi İletişim",
-            "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
+            "image": "https://duzici.bel.tr/upload/habergaleri/O65DtavMn6byThM.jpg",
             "detail": "Belediye birimleri, etkinlikler ve altyapı duyuruları için resmî web sitesi duzici.bel.tr kullanılır. Acil belediye hattı ve zabıta için Belediye Birimleri ekranından güncel telefonlara ulaşabilirsiniz.",
             "address": "Düziçi Belediyesi, ilçe merkezi",
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
+            "imageUrl": "https://duzici.bel.tr/upload/habergaleri/O65DtavMn6byThM.jpg",
             "restroom": "bilinmiyor",
             "shortDescription": "Resmî duyuru ve hizmet bilgileri."
           }
@@ -361,7 +363,7 @@
             "lng": 36.48,
             "tag": "KALE",
             "name": "Harun Reşit Kalesi",
-            "image": "assets/images/harun_resit.jpg",
+            "image": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHv1cW0KD1aP3FFjsWF33wNgZPK_xm8ymN8pSJBzRq14jNZo0VQzCvyXR6qhG8X-NkJn8M6XLDL836FCGSFvXsZJDPAzFzfO0cwn1RAZilo82CawIpMB00wK8g_k_TcyjbK9E4uvA=s1360-w1360-h1020-rw",
             "detail": "Düziçi'nin sembolü olan ve adını Abbasi Halifesi Harun Reşit'ten alan görkemli bir tarihi yapıdır. Geçmişte bölge için çok önemli bir stratejik savunma noktası olmuştur. 24 saat ziyarete açık olan bu kaleye çıktığınızda tüm Düziçi Ovası'nı ayaklarınızın altında hissedersiniz. Özellikle gün batımında manzara izlemek ve harika fotoğraflar çekmek isteyenlerin mutlaka uğraması gereken, ilçemizin en büyük tarihi mirasıdır.",
             "osmUrl": "https://www.openstreetmap.org/#map=17/37.258/36.48",
             "address": "Kurtbeyoğlu Köyü, 80600 Düziçi/Osmaniye",
@@ -370,7 +372,8 @@
             ],
             "parking": "sinirli",
             "entryFee": "ucretsiz",
-            "restroom": "sinirli",
+            "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHv1cW0KD1aP3FFjsWF33wNgZPK_xm8ymN8pSJBzRq14jNZo0VQzCvyXR6qhG8X-NkJn8M6XLDL836FCGSFvXsZJDPAzFzfO0cwn1RAZilo82CawIpMB00wK8g_k_TcyjbK9E4uvA=s1360-w1360-h1020-rw",
+            "restroom": "var",
             "entryFeeNote": "Kalenin giriş noktasına kadar araçla çıkılıp, yol kenarındaki uygun düzlüklere park edilebiliyor. Kale içinde doğrudan tesis yok.",
             "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.258,36.48",
             "shortDescription": "Düziçi'nin sembolü olan ve adını Abbasi Halifesi Harun Reşit'ten alan görkemli tarihi yapı."
@@ -380,14 +383,16 @@
             "lng": 36.257,
             "tag": "MÜZE",
             "name": "Karatepe-Aslantaş Açık Hava Müzesi ve Milli Parkı",
-            "image": "assets/images/karatepe.jpg",
+            "image": "https://web-cdnprod.aa.com.tr/uploads/Contents/2020/04/19/thumbs_b_c_7d068dcdb6e8bb2a13f282225c53312d.jpg?v=155809",
             "detail": "Hititler döneminden kalma, ormanın kalbinde ve Aslantaş Baraj Gölü'nün hemen kıyısında yer alan dünyaca ünlü bir açık hava müzesidir. Hem baraj manzarası eşliğinde doğa yürüyüşü yapabileceğiniz hem de aslanlı sfenksleri inceleyebileceğiniz muazzam bir komplekstir.",
+            "osmUrl": "https://www.google.com/maps/search/?api=1&query=37.294,36.257",
             "address": "Kızyusuflu Köyü, Kadirli / Osmaniye",
             "gallery": [
               "assets/images/karatepe.jpg"
             ],
             "parking": "var",
             "entryFee": "ucretli",
+            "imageUrl": "https://web-cdnprod.aa.com.tr/uploads/Contents/2020/04/19/thumbs_b_c_7d068dcdb6e8bb2a13f282225c53312d.jpg?v=155809",
             "restroom": "var",
             "entryFeeNote": "Müzekart geçerlidir.",
             "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.294,36.257",
@@ -398,14 +403,16 @@
             "lng": 36.185,
             "tag": "ANTİK KENT",
             "name": "Kastabala (Hierapolis) Antik Kenti",
-            "image": "assets/images/kastabala.jpg",
+            "image": "https://www.osmaniye.edu.tr/uploads/arsiv/oku_img/haberler/55d0d3a7bc3b40c798be14b963565e0c.jpeg",
             "detail": "Çukurova'nın Efes'i olarak bilinir. Sütunlu caddesi, antik tiyatrosu, hamamları ve tepedeki kalesiyle sizi Roma dönemine götüren muhteşem bir antik kenttir. Karatepe güzergahı üzerinde mutlaka durulması gereken bir duraktır.",
+            "osmUrl": "https://www.google.com/maps/search/?api=1&query=37.177,36.185",
             "address": "Kesmeburun Köyü, Cevdetiye-Karatepe Yolu, Osmaniye",
             "gallery": [
               "assets/images/kastabala.jpg"
             ],
             "parking": "var",
             "entryFee": "ucretsiz",
+            "imageUrl": "https://www.osmaniye.edu.tr/uploads/arsiv/oku_img/haberler/55d0d3a7bc3b40c798be14b963565e0c.jpeg",
             "restroom": "var",
             "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.177,36.185",
             "shortDescription": "Çukurova'nın Efes'i olarak bilinen muhteşem antik kent."
@@ -415,15 +422,17 @@
             "lng": 36.143,
             "tag": "KALE",
             "name": "Toprakkale Kalesi",
-            "image": "assets/images/toprakkale.jpg",
+            "image": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAFFq-hkzerJ8Sm1siTWFfO_RUtXm19YrkCL9sE5wEZ73XgEOr7iGct65U-yN7o0a1JGEF3cVjf2luP7K80ZiChkONbt7R9MPB8LoQKzGFGW0s4YwpGPxEoNd2dax5W1BrQLGSwQ=s1360-w1360-h1020-rw",
             "detail": "Osmaniye-Adana otoyolu üzerinde tüm heybetiyle yükselen, siyah volkanik kayalar üzerine inşa edilmiş tarihi bir kaledir. İlk çağlardan Osmanlı dönemine kadar kullanılmıştır.",
+            "osmUrl": "https://www.google.com/maps/search/?api=1&query=37.065,36.143",
             "address": "Toprakkale İlçesi, Osmaniye",
             "gallery": [
               "assets/images/toprakkale.jpg"
             ],
             "parking": "var",
             "entryFee": "ucretsiz",
-            "restroom": "sinirli",
+            "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAFFq-hkzerJ8Sm1siTWFfO_RUtXm19YrkCL9sE5wEZ73XgEOr7iGct65U-yN7o0a1JGEF3cVjf2luP7K80ZiChkONbt7R9MPB8LoQKzGFGW0s4YwpGPxEoNd2dax5W1BrQLGSwQ=s1360-w1360-h1020-rw",
+            "restroom": "var",
             "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.065,36.143",
             "shortDescription": "Siyah volkanik kayalar üzerine inşa edilmiş tarihi otoyol kalesi."
           }
@@ -1033,8 +1042,8 @@
         "title": "Osmaniye Gezilecek Yerler",
         "places": [
           {
-            "lat": 37.3,
-            "lng": 36.25,
+            "lat": 37.294,
+            "lng": 36.257,
             "tag": "MÜZE",
             "name": "Karatepe-Aslantaş Açık Hava Müzesi",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg",
@@ -1045,7 +1054,7 @@
             "entryFee": "ucretli",
             "restroom": "var",
             "entryFeeNote": "Müze giriş ücreti güncel tarifeye göre.",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3,36.25",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.294,36.257",
             "shortDescription": "UNESCO adayı Geç Hitit dönemi açık hava müzesi."
           },
           {
@@ -1064,8 +1073,8 @@
             "shortDescription": "Ceyhan Nehri üzerinde büyük baraj gölü ve doğa cenneti."
           },
           {
-            "lat": 37.07,
-            "lng": 36.25,
+            "lat": 37.177,
+            "lng": 36.185,
             "tag": "ANTİK",
             "name": "Kastabala (Hierapolis) Antik Kenti",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
@@ -1075,7 +1084,7 @@
             "parking": "var",
             "entryFee": "ucretli",
             "restroom": "var",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.07,36.25",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.177,36.185",
             "shortDescription": "Roma ve Bizans dönemlerine ait antik kent kalıntıları."
           },
           {
@@ -1149,6 +1158,8 @@
             "shortDescription": "Kadirli'de doğa kampı ve yürüyüş için ideal yayla."
           },
           {
+            "lat": 37.074,
+            "lng": 36.248,
             "tag": "MÜZE",
             "name": "Osmaniye Kent Müzesi",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Osmaniye_Stadt%C3%BCbersicht.png/960px-Osmaniye_Stadt%C3%BCbersicht.png.png",
@@ -1157,6 +1168,7 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.074,36.248",
             "shortDescription": "Şehrin tarihini ve kültürünü sergileyen modern müze."
           },
           {
@@ -1444,6 +1456,29 @@
           }
         ],
         "subtitle": "Yayla ferahlığı ve güvenlik öncelikli kısa plan."
+      }
+    ],
+    "autoVehicles": [
+      {
+        "id": "v_1781426475243",
+        "km": "4",
+        "year": "2030",
+        "brand": "Bmw",
+        "color": "Beyaz",
+        "image": "",
+        "model": "320",
+        "price": "1000",
+        "title": "Honda",
+        "images": [],
+        "isPaid": false,
+        "contact": "05416429621",
+        "bodyType": "sedan",
+        "fuelType": "benzin",
+        "gearType": "manuel",
+        "isActive": true,
+        "createdAt": "2026-06-14T08:41:15.243Z",
+        "sellerName": "Alda",
+        "description": ""
       }
     ],
     "cityServices": [
@@ -1740,11 +1775,12 @@
     "appName": "Hepsi Düziçi",
     "logoUrl": "asset:assets/images/logo.png",
     "tagline": "Akdeniz'in İncisi",
+    "heroCardBg": "https://res.cloudinary.com/dbdlspayw/image/upload/v1781361574/hepsiduzici-uploads/arcl0idffwvctqwngmkz.jpg",
     "primaryColor": "#C98B18",
     "accentBlueColor": "#1F6FEB",
+    "exploreHeaderBg": "https://res.cloudinary.com/dbdlspayw/image/upload/v1781361600/hepsiduzici-uploads/v6xdv2ngecyoqhk2drzq.jpg",
     "primaryDarkColor": "#8C5E0F",
-    "splashBackgroundColor": "#0C0C0C",
-    "heroCardBg": "assets/images/yesil_selalesi.jpg"
+    "splashBackgroundColor": "#0C0C0C"
   },
   "services": {
     "fuel": {
@@ -2605,5 +2641,6 @@
         "subtitle": "Kent duzeni ve denetim"
       }
     ]
-  }
+  },
+  "customEvents": []
 }
