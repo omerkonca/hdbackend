@@ -24,19 +24,54 @@ class NewsService {
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
       },
     };
+    this.RSS_TIMEOUT_MS = 20000;
+    this.ARTICLE_TIMEOUT_MS = 25000;
+    this.SLOW_HOST_TIMEOUT_MS = 30000;
+  }
+
+  getFetchTimeoutMs(url = '') {
+    const u = String(url || '');
+    if (/akdenizgazetesi\.com|sabirgazetesi\.com|hasretgazetesi\.com/i.test(u)) {
+      return this.SLOW_HOST_TIMEOUT_MS;
+    }
+    if (/news\.google\.com/i.test(u)) return this.ARTICLE_TIMEOUT_MS;
+    return this.ARTICLE_TIMEOUT_MS;
   }
 
   extractImageFromItem(itemBlock) {
-    const desc = getTagValue(itemBlock, 'description');
-    let url = extractImageUrlFromHtml(desc);
-    if (url) return url;
+    const fields = [
+      getTagValue(itemBlock, 'description'),
+      getTagValue(itemBlock, 'content:encoded'),
+    ];
+    for (const field of fields) {
+      const url = extractImageUrlFromHtml(field);
+      if (url) return url;
+    }
     const mediaMatch = itemBlock.match(/<media:content[^>]+url="([^"]+)"/i);
     if (mediaMatch) return decodeXmlEntities(mediaMatch[1]);
+    const mediaThumb = itemBlock.match(/<media:thumbnail[^>]+url="([^"]+)"/i);
+    if (mediaThumb) return decodeXmlEntities(mediaThumb[1]);
     const encMatch = itemBlock.match(/<enclosure[^>]+url="([^"]+)"[^>]*type="[^"]*image[^"]*"/i);
     if (encMatch) return decodeXmlEntities(encMatch[1]);
     const enc2 = itemBlock.match(/<enclosure[^>]+url="([^"]+)"/i);
     if (enc2) return decodeXmlEntities(enc2[1]);
     return '';
+  }
+
+  itemQualityScore(item) {
+    let score = 0;
+    if (item.imageUrl) score += 20;
+    const url = String(item.sourceUrl || '');
+    if (url && !/news\.google\.com/i.test(url)) score += 30;
+    if (/akdenizgazetesi\.com|sabirgazetesi\.com|hasretgazetesi\.com/i.test(url)) score += 10;
+    if (item.sourceName && !/google news/i.test(item.sourceName)) score += 5;
+    return score;
+  }
+
+  mergeItemPreferBetter(existing, candidate) {
+    return this.itemQualityScore(candidate) > this.itemQualityScore(existing)
+      ? candidate
+      : existing;
   }
 
   duziciKeywordRe() {
@@ -59,7 +94,11 @@ class NewsService {
     if (!url || !url.startsWith('http')) return url;
     if (!/news\.google\.com|google\.com\/url/i.test(url)) return url;
     try {
-      const response = await fetchWithTimeout(url, { headers: this.FETCH_OPTIONS.headers });
+      const response = await fetchWithTimeout(
+        url,
+        { headers: this.FETCH_OPTIONS.headers },
+        this.getFetchTimeoutMs(url),
+      );
       const html = await response.text();
       const $ = cheerio.load(html);
       
@@ -82,7 +121,8 @@ class NewsService {
             'user-agent': this.FETCH_OPTIONS.headers['user-agent']
           },
           body: new URLSearchParams(payload).toString()
-        }
+        },
+        this.ARTICLE_TIMEOUT_MS,
       );
 
       const rawText = await postResponse.text();
@@ -133,9 +173,21 @@ class NewsService {
   }
 
   async fetchRss(url) {
-    const res = await fetchWithTimeout(url, this.FETCH_OPTIONS);
-    if (!res.ok) throw new Error(`RSS alinamadi: ${res.status}`);
-    return res.text();
+    const timeoutMs = this.getFetchTimeoutMs(url) || this.RSS_TIMEOUT_MS;
+    let lastError;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const res = await fetchWithTimeout(url, this.FETCH_OPTIONS, timeoutMs);
+        if (res.ok) return res.text();
+        lastError = new Error(`RSS alinamadi: ${res.status}`);
+        if (res.status < 500 || attempt === 3) throw lastError;
+      } catch (err) {
+        lastError = err;
+        if (attempt === 3) break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+    }
+    throw lastError;
   }
 
   async resolveSources() {
@@ -163,18 +215,28 @@ class NewsService {
   async scrapeNews({ max = 30 } = {}) {
     const allItems = [];
     const sources = await this.resolveSources();
-    for (const src of sources) {
-      try {
-        const xml = await this.fetchRss(src.url);
-        const items = this.parseNewsRss(xml, {
-          max: 25,
-          sourceName: src.name,
-          filterDuzici: src.filterDuzici === true,
-          scope: src.scope || 'auto',
-        });
-        allItems.push(...items);
-      } catch (err) {
-        console.warn(`[news] ${src.name} atlandi:`, err.message);
+    const batchSize = 3;
+    for (let offset = 0; offset < sources.length; offset += batchSize) {
+      const batch = sources.slice(offset, offset + batchSize);
+      const results = await Promise.allSettled(
+        batch.map(async (src) => {
+          const xml = await this.fetchRss(src.url);
+          return this.parseNewsRss(xml, {
+            max: 25,
+            sourceName: src.name,
+            filterDuzici: src.filterDuzici === true,
+            scope: src.scope || 'auto',
+          });
+        }),
+      );
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        const src = batch[i];
+        if (result.status === 'fulfilled') {
+          allItems.push(...result.value);
+        } else {
+          console.warn(`[news] ${src.name} atlandi:`, result.reason?.message || result.reason);
+        }
       }
     }
     const merged = this.mergeAndDedupeNews(allItems, max);
@@ -185,16 +247,35 @@ class NewsService {
   }
 
   mergeAndDedupeNews(allItems, max) {
-    const seen = new Set();
-    const merged = [];
-    for (const item of allItems) {
-      const key = (item.sourceUrl || '') + (item.title || '');
-      if (seen.has(key)) continue;
-      seen.add(key);
-      merged.push({
-        ...item,
-        category: item.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
-      });
+    const byUrl = new Map();
+    const byTitle = new Map();
+    for (const raw of allItems) {
+      const item = {
+        ...raw,
+        category: raw.category || this.inferNewsCategory(raw.title, raw.summary, raw.sourceName),
+      };
+      const urlKey = String(item.sourceUrl || '').trim();
+      if (urlKey) {
+        const prev = byUrl.get(urlKey);
+        byUrl.set(urlKey, prev ? this.mergeItemPreferBetter(prev, item) : item);
+        continue;
+      }
+      const titleKey = normalizeForCompare(item.title || '').slice(0, 120);
+      if (!titleKey) continue;
+      const prev = byTitle.get(titleKey);
+      byTitle.set(titleKey, prev ? this.mergeItemPreferBetter(prev, item) : item);
+    }
+    const merged = [...byUrl.values()];
+    for (const [titleKey, item] of byTitle.entries()) {
+      const duplicate = merged.find(
+        (x) => normalizeForCompare(x.title || '').slice(0, 120) === titleKey,
+      );
+      if (duplicate) {
+        const idx = merged.indexOf(duplicate);
+        merged[idx] = this.mergeItemPreferBetter(duplicate, item);
+      } else {
+        merged.push(item);
+      }
     }
     const maxAgeMs = 90 * 24 * 60 * 60 * 1000;
     const cutoff = Date.now() - maxAgeMs;
@@ -381,7 +462,11 @@ class NewsService {
     if (!url || !url.startsWith('http')) {
       throw new Error('Gecersiz URL');
     }
-    const res = await fetchWithTimeout(url, this.FETCH_OPTIONS);
+    const res = await fetchWithTimeout(
+      url,
+      this.FETCH_OPTIONS,
+      this.getFetchTimeoutMs(url),
+    );
     if (!res.ok) throw new Error(`Sayfa alinamadi: ${res.status}`);
     const buf = Buffer.from(await res.arrayBuffer());
     let html = new TextDecoder('utf-8', { fatal: false }).decode(buf);

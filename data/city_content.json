@@ -203,6 +203,13 @@
         "isActive": true
       },
       {
+        "url": "https://www.akdenizgazetesi.com/rss/duzici",
+        "name": "Akdeniz Gazetesi Düziçi",
+        "scope": "duzici",
+        "isActive": true,
+        "filterDuzici": true
+      },
+      {
         "url": "https://www.akdenizgazetesi.com/rss",
         "name": "Akdeniz Gazetesi",
         "scope": "osmaniye",
