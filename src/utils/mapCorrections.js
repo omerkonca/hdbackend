@@ -21,8 +21,19 @@ function buildPlaceLookup(corrections) {
   return lookupMap;
 }
 
+function findPlaceMatch(name, lookupMap) {
+  const n = norm(name);
+  if (lookupMap.has(n)) return lookupMap.get(n);
+  for (const [key, value] of lookupMap.entries()) {
+    if (n.length >= 6 && key.length >= 6 && (n.includes(key) || key.includes(n))) {
+      return value;
+    }
+  }
+  return null;
+}
+
 function applyPlaceCorrection(place, lookupMap) {
-  const match = lookupMap.get(norm(place.name));
+  const match = findPlaceMatch(place.name, lookupMap);
   if (!match) return place;
   return {
     ...place,

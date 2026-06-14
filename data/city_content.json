@@ -362,8 +362,8 @@
         "title": "Tarihi Yerler",
         "places": [
           {
-            "lat": 37.258,
-            "lng": 36.48,
+            "lat": 37.26878,
+            "lng": 36.487798,
             "tag": "KALE",
             "name": "Harun Reşit Kalesi",
             "image": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHv1cW0KD1aP3FFjsWF33wNgZPK_xm8ymN8pSJBzRq14jNZo0VQzCvyXR6qhG8X-NkJn8M6XLDL836FCGSFvXsZJDPAzFzfO0cwn1RAZilo82CawIpMB00wK8g_k_TcyjbK9E4uvA=s1360-w1360-h1020-rw",
@@ -378,7 +378,7 @@
             "imageUrl": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHv1cW0KD1aP3FFjsWF33wNgZPK_xm8ymN8pSJBzRq14jNZo0VQzCvyXR6qhG8X-NkJn8M6XLDL836FCGSFvXsZJDPAzFzfO0cwn1RAZilo82CawIpMB00wK8g_k_TcyjbK9E4uvA=s1360-w1360-h1020-rw",
             "restroom": "var",
             "entryFeeNote": "Kalenin giriş noktasına kadar araçla çıkılıp, yol kenarındaki uygun düzlüklere park edilebiliyor. Kale içinde doğrudan tesis yok.",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.258,36.48",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.26878,36.487798",
             "shortDescription": "Düziçi'nin sembolü olan ve adını Abbasi Halifesi Harun Reşit'ten alan görkemli tarihi yapı."
           },
           {
@@ -449,8 +449,8 @@
         "title": "Müzeler",
         "places": [
           {
-            "lat": 37.244,
-            "lng": 36.451,
+            "lat": 37.381,
+            "lng": 36.492,
             "tag": "MÜZE",
             "name": "Düziçi Köy Enstitüsü Müzesi (Eğitim Tarihi Müzesi)",
             "image": "/uploads/koy_enstitusu.jpg",
@@ -463,7 +463,7 @@
             "parking": "var",
             "entryFee": "ucretsiz",
             "restroom": "var",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492",
             "shortDescription": "Türkiye eğitim tarihinin en önemli miraslarından 1940 yapımı Haruniye Köy Enstitüsü müzesi."
           },
           {
@@ -510,8 +510,8 @@
         "title": "Doğal Güzellikler",
         "places": [
           {
-            "lat": 37.251,
-            "lng": 36.468,
+            "lat": 37.283,
+            "lng": 36.467,
             "tag": "ŞELALE",
             "name": "Karasu Şelalesi",
             "image": "/uploads/karasu_selalesi.jpg",
@@ -527,12 +527,12 @@
             "restroom": "var",
             "videoUrl": "/uploads/karasu_video.mp4",
             "entryFeeNote": "Mesire alanına araçla giriş ve otopark kullanımı ücretlidir. Şelaleye yürüyüş ve alanda vakit geçirmek ücretsizdir.",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.468",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467",
             "shortDescription": "Asırlık çınar ve çam ağaçları arasından süzülen buz gibi suyuyla doğal bir klima."
           },
           {
-            "lat": 37.322,
-            "lng": 36.292,
+            "lat": 37.302788,
+            "lng": 36.300907,
             "tag": "ŞELALE",
             "name": "Yeşil Şelalesi",
             "image": "/uploads/yesil_selalesi.jpg",
@@ -546,7 +546,7 @@
             "parking": "sinirli",
             "entryFee": "ucretsiz",
             "restroom": "yok",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.322,36.292",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.302788,36.300907",
             "shortDescription": "Amanos Dağları'nın saklı kalmış zümrüt yeşili renkli masalsı şelalesi."
           },
           {
@@ -636,8 +636,8 @@
             "shortDescription": "Düldül Dağı eteklerinde serin iklimi ile ünlü yayla."
           },
           {
-            "lat": 37.349,
-            "lng": 36.561,
+            "lat": 37.348476,
+            "lng": 36.515607,
             "tag": "DAĞ",
             "name": "Düldül Dağı Zirvesi",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG",
@@ -647,7 +647,7 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.349,36.561",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.348476,36.515607",
             "shortDescription": "2448 m ile Amanos Dağları'nın en yüksek noktası."
           },
           {
@@ -700,8 +700,8 @@
         "title": "Yürüyüş Rotaları",
         "places": [
           {
-            "lat": 37.288,
-            "lng": 36.565,
+            "lat": 37.348476,
+            "lng": 36.515607,
             "tag": "ZORLU",
             "name": "Düldül Dağı Trekking Rotası",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_05.JPG",
@@ -711,7 +711,7 @@
             "parking": "sinirli",
             "entryFee": "ucretsiz",
             "restroom": "yok",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.348476,36.515607",
             "shortDescription": "2448 metrelik zirveye uzanan zorlu ama muhteşem rota."
           },
           {
@@ -760,8 +760,8 @@
             "shortDescription": "Amanosların el değmemiş sessiz orman patikalarında huzurlu bir yürüyüş deneyimi."
           },
           {
-            "lat": 37.275,
-            "lng": 36.435,
+            "lat": 37.3105,
+            "lng": 36.5285,
             "tag": "ZORLU",
             "name": "Kurtlar Yaylası Trekking Parkuru",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG",
@@ -771,7 +771,7 @@
             "parking": "sinirli",
             "entryFee": "ucretsiz",
             "restroom": "yok",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.275,36.435",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3105,36.5285",
             "shortDescription": "Sarp kayalıklar ve dik yamaçlar arasında macera dolu, ileri seviye doğa yürüyüşü rotası."
           },
           {
@@ -790,8 +790,8 @@
             "shortDescription": "Buz gibi pınarlar ve el değmemiş yayla düzlükleri boyunca sakin bir yürüyüş parkuru."
           },
           {
-            "lat": 37.251,
-            "lng": 36.468,
+            "lat": 37.283,
+            "lng": 36.467,
             "tag": "ORTA",
             "name": "Sabun Çayı Vadisi Yürüyüşü",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG",
@@ -801,7 +801,7 @@
             "parking": "var",
             "entryFee": "ucretsiz",
             "restroom": "yok",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.468",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467",
             "shortDescription": "Dere boyunca kolay-orta zorlukta doğa parkuru."
           },
           {
@@ -820,8 +820,8 @@
             "shortDescription": "Baraj gölü kıyısında manzaralı yürüyüş parkuru."
           },
           {
-            "lat": 37.262,
-            "lng": 36.495,
+            "lat": 37.381,
+            "lng": 36.492,
             "tag": "KOLAY",
             "name": "Haruniye-Kuşçu Doğa Yolu",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG",
@@ -831,7 +831,7 @@
             "parking": "sinirli",
             "entryFee": "ucretsiz",
             "restroom": "yok",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.262,36.495",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492",
             "shortDescription": "Kaplıcalardan yaylaya uzanan orman içi patika."
           }
         ],
@@ -904,8 +904,8 @@
             "shortDescription": "Yüksek rakımlı, buz gibi havası ve soğuk pınarlarıyla bilinen otantik kamp rotası."
           },
           {
-            "lat": 37.275,
-            "lng": 36.435,
+            "lat": 37.3105,
+            "lng": 36.5285,
             "tag": "KAMP",
             "name": "Kurtlar Yaylası Kamp Alanı",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG",
@@ -915,7 +915,7 @@
             "parking": "sinirli",
             "entryFee": "ucretsiz",
             "restroom": "yok",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.275,36.435",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3105,36.5285",
             "shortDescription": "Sarp dağ yapısı ve sık ormanları arasında macera kampı arayanlar için ideal parkur."
           },
           {
@@ -949,8 +949,8 @@
             "shortDescription": "Baraj gölü kıyısında huzurlu kamp ve balık tutma."
           },
           {
-            "lat": 37.255,
-            "lng": 36.465,
+            "lat": 37.283,
+            "lng": 36.467,
             "tag": "PİKNİK",
             "name": "Sabun Çayı Kamp ve Piknik Alanı",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG/960px-Obruk_Waterfall_-_Obruk_%C5%9Eelalesi_01.JPG",
@@ -960,7 +960,7 @@
             "parking": "var",
             "entryFee": "ucretsiz",
             "restroom": "sinirli",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.255,36.465",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467",
             "shortDescription": "Dere kenarında ağaçlıklı, serin bir kamp deneyimi."
           }
         ],
@@ -1020,8 +1020,8 @@
             "shortDescription": "Park Restorant Sosyal Tesisi, Asırlık Ağaçlık Alanlar, Geniş Aile Masaları"
           },
           {
-            "lat": 37.255,
-            "lng": 36.465,
+            "lat": 37.283,
+            "lng": 36.467,
             "tag": "MESİRE",
             "name": "Sabun Çayı Mesire Alanı",
             "image": "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=960",
@@ -1032,7 +1032,7 @@
             "entryFee": "ucretli",
             "restroom": "var",
             "entryFeeNote": "Araçla giriş, otopark kullanımı ve çardakların kiralanması ücrete tabidir. Fiyatlar oldukça makul düzeydedir.",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.255,36.465",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467",
             "shortDescription": "Buz Gibi Akan Akarsu, Su Üstü Kamelyalar, Mangal ve Barbekü Alanları"
           }
         ],
@@ -1114,7 +1114,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Bahçe ilçe merkezine hâkim konumda tarihi kale."
+            "shortDescription": "Bahçe ilçe merkezine hâkim konumda tarihi kale.",
+            "lat": 37.129,
+            "lng": 36.624,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.129,36.624"
           },
           {
             "lat": 37.065,
@@ -1135,8 +1138,8 @@
             "shortDescription": "Toprakkale ilçesindeki Haçlı dönemi kalesi."
           },
           {
-            "lat": 37.422,
-            "lng": 36.283,
+            "lat": 37.065,
+            "lng": 36.355,
             "tag": "YAYLA",
             "name": "Zorkun Yaylası",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_02.JPG",
@@ -1146,7 +1149,7 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.422,36.283",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.065,36.355",
             "shortDescription": "Kadirli ilçesinde 1500 m rakımda serin ve yeşil yayla."
           },
           {
@@ -1158,7 +1161,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Kadirli'de doğa kampı ve yürüyüş için ideal yayla."
+            "shortDescription": "Kadirli'de doğa kampı ve yürüyüş için ideal yayla.",
+            "lat": 37.34,
+            "lng": 36.52,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.34,36.52"
           },
           {
             "lat": 37.074,
@@ -1183,7 +1189,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Bölgeden çıkan Hitit, Roma ve Bizans eserleri."
+            "shortDescription": "Bölgeden çıkan Hitit, Roma ve Bizans eserleri.",
+            "lat": 37.0742,
+            "lng": 36.2475,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.0742,36.2475"
           },
           {
             "tag": "ŞELALE",
@@ -1194,7 +1203,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Osmaniye merkeze yakın, ulaşımı kolay doğal şelale."
+            "shortDescription": "Osmaniye merkeze yakın, ulaşımı kolay doğal şelale.",
+            "lat": 37.085,
+            "lng": 36.22,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.085,36.22"
           },
           {
             "tag": "İLÇE",
@@ -1205,7 +1217,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Amanos Dağları geçidinde küçük ama tarihi ilçe."
+            "shortDescription": "Amanos Dağları geçidinde küçük ama tarihi ilçe.",
+            "lat": 37.127,
+            "lng": 36.555,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.127,36.555"
           },
           {
             "tag": "İLÇE",
@@ -1216,7 +1231,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Osmaniye'nin kuzeyinde kırsal doğa ve tarım ilçesi."
+            "shortDescription": "Osmaniye'nin kuzeyinde kırsal doğa ve tarım ilçesi.",
+            "lat": 37.451,
+            "lng": 36.023,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.451,36.023"
           },
           {
             "tag": "KANYON",
@@ -1227,7 +1245,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Derin vadiler ve kaya formasyonları ile etkileyici kanyon."
+            "shortDescription": "Derin vadiler ve kaya formasyonları ile etkileyici kanyon.",
+            "lat": 37.22,
+            "lng": 36.47,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.22,36.47"
           },
           {
             "tag": "KALE",
@@ -1238,7 +1259,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Kadirli ilçe merkezine hâkim konumda tarihi kale kalıntısı."
+            "shortDescription": "Kadirli ilçe merkezine hâkim konumda tarihi kale kalıntısı.",
+            "lat": 37.371,
+            "lng": 36.098,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.371,36.098"
           },
           {
             "tag": "CAMİ",
@@ -1249,7 +1273,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "Osmaniye'nin en eski camisi, Osmanlı mimarisi örneği."
+            "shortDescription": "Osmaniye'nin en eski camisi, Osmanlı mimarisi örneği.",
+            "lat": 37.0742,
+            "lng": 36.2478,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.0742,36.2478"
           },
           {
             "tag": "PARK",
@@ -1260,7 +1287,10 @@
             "parking": "bilinmiyor",
             "entryFee": "bilinmiyor",
             "restroom": "bilinmiyor",
-            "shortDescription": "İl merkezinde yürüyüş, piknik ve spor alanı."
+            "shortDescription": "İl merkezinde yürüyüş, piknik ve spor alanı.",
+            "lat": 37.079,
+            "lng": 36.235,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.079,36.235"
           }
         ],
         "subtitle": "Tüm ilçeler dahil: Merkez, Kadirli, Bahçe, Toprakkale, Hasanbeyli, Sumbas"
@@ -1302,7 +1332,7 @@
             "shortDescription": "Gün batımına doğru baraj gölü seyir noktası",
             "lat": 37.2215,
             "lng": 36.471,
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.4710"
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
           }
         ],
         "subtitle": "Kaplıcalardan şelalelere, barajdan yaylaya tam gün doğa rotası."
@@ -1318,9 +1348,9 @@
             "detail": "Kurtbeyoğlu yakınından kaleye ulaşım planlayın; kaya zemin uyarısı.",
             "address": "Kurtbeyoğlu Mahallesi çevresi",
             "shortDescription": "Sabah kale ziyareti ve panoramik manzara",
-            "lat": 37.258,
-            "lng": 36.48,
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.258,36.48"
+            "lat": 37.26878,
+            "lng": 36.487798,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.26878,36.487798"
           },
           {
             "tag": "2",
@@ -1368,7 +1398,10 @@
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Hemite_Kalesi_-_Amouda_Castle_03.jpg/960px-Hemite_Kalesi_-_Amouda_Castle_03.jpg",
             "detail": "UNESCO adayı açık hava müzesinde Hitit kabartmaları ve aslan heykelleri.",
             "address": "Kadirli, Aslantaş Barajı yanı",
-            "shortDescription": "Öğle öncesi Hitit açık hava müzesi"
+            "shortDescription": "Öğle öncesi Hitit açık hava müzesi",
+            "lat": 37.294,
+            "lng": 36.257,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.294,36.257"
           },
           {
             "tag": "3",
@@ -1435,9 +1468,9 @@
             "detail": "Sabah erken saatte zirvehyolculuğuna başlayın; rehber eşliğinde gidilmesi tavsiye edilir.",
             "address": "Dumanlı Yaylası → Düldül Zirvesi",
             "shortDescription": "İkinci gün zirveye doğru trekking",
-            "lat": 37.288,
-            "lng": 36.565,
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
+            "lat": 37.348476,
+            "lng": 36.515607,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.348476,36.515607"
           },
           {
             "tag": "3",
@@ -1446,9 +1479,9 @@
             "detail": "Dağdan inerken Sabun Çayı şelalesinde serinleyin ve mola verin.",
             "address": "Sabun Çayı, Düldül etekleri",
             "shortDescription": "Dönüş yolunda şelale molası",
-            "lat": 37.251,
-            "lng": 36.468,
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.468"
+            "lat": 37.283,
+            "lng": 36.467,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467"
           }
         ],
         "subtitle": "Düldül Dağı eteklerinde kamp ve doğa macerası."
@@ -1464,9 +1497,9 @@
             "detail": "Kurtbeyoğlu yakınından kaleye ulaşım planlayın; kaya zemin uyarısı.",
             "address": "Kurtbeyoğlu Mahallesi çevresi",
             "shortDescription": "Kuzeydoğu sırtları ve tarihî tahkimat",
-            "lat": 37.258,
-            "lng": 36.48,
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.258,36.48"
+            "lat": 37.26878,
+            "lng": 36.487798,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.26878,36.487798"
           },
           {
             "tag": "2",
@@ -1503,7 +1536,10 @@
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG/960px-D%C3%BCld%C3%BCl_Da%C4%9F%C4%B1_-_Mount_D%C3%BCld%C3%BCl_04.JPG",
             "detail": "Küçük çocuklu aileler için tesis altyapılı termal bölgelerde soyunma ve hijyen daha kolay olabilir; önceden arayarak teyit etmeniz iyi olur.",
             "address": "Haruniye-Kuşçu yöresi",
-            "shortDescription": "Tesisli ortam seçeneği."
+            "shortDescription": "Tesisli ortam seçeneği.",
+            "lat": 37.381,
+            "lng": 36.492,
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492"
           }
         ],
         "subtitle": "Yayla ferahlığı ve güvenlik öncelikli kısa plan."
@@ -2633,8 +2669,8 @@
         "workingHours": "Hafta içi 08:30 - 17:00"
       },
       {
-        "lat": 37.275,
-        "lng": 36.495,
+        "lat": 37.381,
+        "lng": 36.492,
         "name": "Haruniye Aile Sağlığı Merkezi",
         "type": "Aile Sağlığı Merkezi",
         "phone": "0328 876 10 20",

@@ -7,17 +7,18 @@ const HABERLER_URL = `${BASE}/haberler`;
 const { isValidRoadClosureRecord } = require('./roadClosureFilters');
 
 const LOCATION_HINTS = [
-  { keys: ['irfanlı', 'irfanli'], lat: 37.019, lng: 36.453, label: 'İrfanlı Mah.' },
-  { keys: ['recep tayyip', 'rte bulvar', 'erdoğan bulvar'], lat: 37.0172, lng: 36.4565, label: 'R.T. Erdoğan Bulvarı' },
-  { keys: ['hürriyet', 'hurriyet'], lat: 37.016, lng: 36.452, label: 'Hürriyet Mah.' },
-  { keys: ['cumhuriyet'], lat: 37.0155, lng: 36.455, label: 'Cumhuriyet Mah.' },
-  { keys: ['bostanlar'], lat: 37.025, lng: 36.44, label: 'Bostanlar Köyü' },
-  { keys: ['yarbasi', 'yarbaşı'], lat: 37.0648, lng: 36.5182, label: 'Yarbaşı' },
-  { keys: ['d.400', 'd400', 'berke'], lat: 37.0312, lng: 36.4386, label: 'D.400 / Berke' },
-  { keys: ['düldül', 'duldul'], lat: 37.0486, lng: 36.4012, label: 'Düldül Yayla Yolu' },
-  { keys: ['üzümlü', 'uzumlu'], lat: 37.0021, lng: 36.4715, label: 'Üzümlü Mah.' },
-  { keys: ['asaf namlı', 'asaf namli', 'istiklal'], lat: 37.0184, lng: 36.4518, label: 'Asaf Namlı Cad.' },
-  { keys: ['karasu', 'sabun çayı'], lat: 37.022, lng: 36.448, label: 'Karasu / Sabun Çayı' },
+  { keys: ['irfanlı', 'irfanli'], lat: 37.244, lng: 36.451, label: 'İrfanlı Mah.' },
+  { keys: ['recep tayyip', 'rte bulvar', 'erdoğan bulvar'], lat: 37.241, lng: 36.455, label: 'R.T. Erdoğan Bulvarı' },
+  { keys: ['hürriyet', 'hurriyet'], lat: 37.250, lng: 36.460, label: 'Hürriyet Mah.' },
+  { keys: ['cumhuriyet'], lat: 37.242, lng: 36.449, label: 'Cumhuriyet Mah.' },
+  { keys: ['bostanlar'], lat: 37.228, lng: 36.440, label: 'Bostanlar Köyü' },
+  { keys: ['yarbasi', 'yarbaşı'], lat: 37.199, lng: 36.430, label: 'Yarbaşı' },
+  { keys: ['d.400', 'd400', 'berke'], lat: 37.220, lng: 36.438, label: 'D.400 / Berke' },
+  { keys: ['düldül', 'duldul'], lat: 37.320, lng: 36.420, label: 'Düldül Yayla Yolu' },
+  { keys: ['üzümlü', 'uzumlu'], lat: 37.228, lng: 36.465, label: 'Üzümlü Mah.' },
+  { keys: ['asaf namlı', 'asaf namli', 'istiklal'], lat: 37.241, lng: 36.455, label: 'Asaf Namlı Cad.' },
+  { keys: ['karasu', 'sabun çayı'], lat: 37.235, lng: 36.448, label: 'Karasu / Sabun Çayı' },
+  { keys: ['kuşçu', 'kusçu', 'haruniye'], lat: 37.381, lng: 36.492, label: 'Kuşçu / Haruniye' },
 ];
 
 const FETCH_OPTIONS = {
@@ -85,7 +86,7 @@ function resolveLocation(title, summary) {
   for (const hint of LOCATION_HINTS) {
     if (hint.keys.some((k) => text.includes(k))) return hint;
   }
-  return { lat: 37.0162, lng: 36.4542, label: 'Düziçi Merkez' };
+  return { lat: 37.244, lng: 36.451, label: 'Düziçi Merkez' };
 }
 
 function toAbsoluteUrl(href) {

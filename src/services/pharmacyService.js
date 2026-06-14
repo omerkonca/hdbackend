@@ -1,5 +1,5 @@
 const config = require('../config');
-const { normalizeText, fetchWithTimeout } = require('../utils/helpers');
+const { normalizeText, fetchWithTimeout, stripHtml } = require('../utils/helpers');
 
 function istanbulDateKey(ms = Date.now()) {
   return new Intl.DateTimeFormat('en-CA', {
@@ -45,8 +45,8 @@ class PharmacyService {
         const detailMatch = rest.match(detailRegex);
 
         if (detailMatch) {
-          const address = normalizeText(detailMatch[1]);
-          const phone = normalizeText(detailMatch[2]);
+          const address = stripHtml(detailMatch[1]);
+          const phone = stripHtml(detailMatch[2]);
           list.push({
             dateLabel,
             dateRange,
@@ -179,9 +179,20 @@ class PharmacyService {
         for (const [key, value] of Object.entries(lookup)) {
           lookupMap.set(norm(key), value);
         }
-        
+
+        const findMatch = (name) => {
+          const n = norm(name);
+          if (lookupMap.has(n)) return lookupMap.get(n);
+          for (const [key, value] of lookupMap.entries()) {
+            if (n.length >= 4 && key.length >= 4 && (n.includes(key) || key.includes(n))) {
+              return value;
+            }
+          }
+          return null;
+        };
+
         return pharmacies.map(p => {
-          const match = lookupMap.get(norm(p.name));
+          const match = findMatch(p.name);
           if (match && (match.lat || match.lng || match.googleMapsUrl)) {
             const lat = match.lat ?? p.lat;
             const lng = match.lng ?? p.lng;

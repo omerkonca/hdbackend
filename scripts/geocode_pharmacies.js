@@ -29,7 +29,7 @@ const KNOWN_ADDRESSES = {
   'Fatih Eczanesi': 'Cumhuriyet Mahallesi, Düziçi, Osmaniye',
   'Hayat Eczanesi': 'İrfanlı Mahallesi, Düziçi, Osmaniye',
   'Metlioğlu Eczanesi': 'Refik Cesur Bulvarı No:380, Düziçi, Osmaniye',
-  'Murat Eczanesi': 'İrfanlı Mahallesi Hasan Hüseyin Türkoğlu Caddesi No:39, Düziçi, Osmaniye',
+  'Murat Eczanesi': 'İrfanlı Mah. Hasan Hüseyin Türkoğlu Cad. No:39 Düziçi Osmaniye',
   'Özkan Eczanesi': 'Cumhuriyet Mahallesi, Düziçi, Osmaniye',
   'Sağlık Eczanesi': 'Cumhuriyet Mahallesi, Düziçi, Osmaniye',
   'Şerife Eczanesi': 'Yeşilova Mahallesi, Düziçi, Osmaniye',
@@ -112,7 +112,15 @@ async function main() {
   }
 
   fs.writeFileSync(CORRECTIONS_PATH, JSON.stringify(corrections, null, 2) + '\n', 'utf8');
+
+  const assetPath = path.resolve(__dirname, '../../assets/data/pharmacy_coords.json');
+  fs.writeFileSync(
+    assetPath,
+    JSON.stringify({ pharmacies: corrections.pharmacies }, null, 2) + '\n',
+    'utf8',
+  );
   console.log(`\nBitti: ${updated} eczane güncellendi → ${CORRECTIONS_PATH}`);
+  console.log(`Flutter asset → ${assetPath}`);
 }
 
 main().catch((err) => {

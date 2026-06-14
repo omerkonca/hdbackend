@@ -33,12 +33,12 @@
     "Düziçi Belediyesi İletişim": {
       "lat": 37.244,
       "lng": 36.451,
-      "googleMapsUrl": ""
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451"
     },
     "Harun Reşit Kalesi": {
-      "lat": 37.258,
-      "lng": 36.48,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.258,36.48"
+      "lat": 37.26878,
+      "lng": 36.487798,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.26878,36.487798"
     },
     "Karatepe-Aslantaş Açık Hava Müzesi ve Milli Parkı": {
       "lat": 37.294,
@@ -56,9 +56,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.065,36.143"
     },
     "Düziçi Köy Enstitüsü Müzesi (Eğitim Tarihi Müzesi)": {
-      "lat": 37.244,
-      "lng": 36.451,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451"
+      "lat": 37.381,
+      "lng": 36.492,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492"
     },
     "Karatepe-Aslantaş Açık Hava Müzesi": {
       "lat": 37.294,
@@ -71,14 +71,14 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.074,36.248"
     },
     "Karasu Şelalesi": {
-      "lat": 37.251,
-      "lng": 36.468,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.468"
+      "lat": 37.283,
+      "lng": 36.467,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467"
     },
     "Yeşil Şelalesi": {
-      "lat": 37.322,
-      "lng": 36.292,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.322,36.292"
+      "lat": 37.302788,
+      "lng": 36.300907,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.302788,36.300907"
     },
     "Kocakesme Şelalesi": {
       "lat": 37.228,
@@ -106,9 +106,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
     },
     "Düldül Dağı Zirvesi": {
-      "lat": 37.349,
-      "lng": 36.561,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.349,36.561"
+      "lat": 37.348476,
+      "lng": 36.515607,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.348476,36.515607"
     },
     "Kuşçu Yaylası": {
       "lat": 37.382,
@@ -121,9 +121,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492"
     },
     "Düldül Dağı Trekking Rotası": {
-      "lat": 37.288,
-      "lng": 36.565,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
+      "lat": 37.348476,
+      "lng": 36.515607,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.348476,36.515607"
     },
     "Dumanlı Yaylası Yürüyüş Parkuru": {
       "lat": 37.288,
@@ -141,9 +141,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.32,36.54"
     },
     "Kurtlar Yaylası Trekking Parkuru": {
-      "lat": 37.275,
-      "lng": 36.435,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.275,36.435"
+      "lat": 37.3105,
+      "lng": 36.5285,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3105,36.5285"
     },
     "Hodu Yaylası Doğa Yürüyüşü": {
       "lat": 37.315,
@@ -151,29 +151,29 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.315,36.53"
     },
     "Sabun Çayı Vadisi Yürüyüşü": {
-      "lat": 37.251,
-      "lng": 36.468,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.468"
+      "lat": 37.283,
+      "lng": 36.467,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467"
     },
     "Berke Barajı ve göl alanı": {
       "lat": 37.2215,
       "lng": 36.471,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.4710"
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
     },
     "Saman ve Kurtlar kaleleri": {
-      "lat": 37.265,
-      "lng": 36.435,
-      "googleMapsUrl": ""
+      "lat": 37.272,
+      "lng": 36.492,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.272,36.492"
     },
     "Taş Köprü (Fettahoğluları)": {
       "lat": 37.245,
       "lng": 36.46,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2450,36.4600"
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.245,36.46"
     },
     "Berke Barajı Manzarası": {
       "lat": 37.2215,
       "lng": 36.471,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.4710"
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
     },
     "Taş Köprü": {
       "lat": 37.245,
@@ -189,13 +189,173 @@
       "lat": 37.177,
       "lng": 36.185,
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.177,36.185"
+    },
+    "Haruniye-Kuşçu Doğa Yolu": {
+      "lat": 37.381,
+      "lng": 36.492,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492"
+    },
+    "Haruniye bölgesi dinlenmesi": {
+      "lat": 37.381,
+      "lng": 36.492,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492"
+    },
+    "Düldül Dağı Trekking": {
+      "lat": 37.348476,
+      "lng": 36.515607,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.348476,36.515607"
+    },
+    "Kurtlar Yaylası Kamp Alanı": {
+      "lat": 37.3105,
+      "lng": 36.5285,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3105,36.5285"
+    },
+    "Sabun Çayı Mesire Alanı": {
+      "lat": 37.283,
+      "lng": 36.467,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467"
+    },
+    "Sabun Çayı Kamp ve Piknik Alanı": {
+      "lat": 37.283,
+      "lng": 36.467,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467"
+    },
+    "Deve Mağarası": {
+      "lat": 37.302,
+      "lng": 36.515,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.302,36.515"
+    },
+    "Karatepe-Aslantaş Müzesi": {
+      "lat": 37.294,
+      "lng": 36.257,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.294,36.257"
+    },
+    "Aslantaş Barajı": {
+      "lat": 37.3,
+      "lng": 36.25,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3,36.25"
+    },
+    "Dumanlı Yaylası Kamp Alanı": {
+      "lat": 37.288,
+      "lng": 36.565,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
+    },
+    "Dumanlı Yaylası çevresi": {
+      "lat": 37.288,
+      "lng": 36.565,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
+    },
+    "Düldül Yaylası Kamp Alanı": {
+      "lat": 37.349,
+      "lng": 36.561,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.349,36.561"
+    },
+    "Mezdağ (Mezdağı) Yaylası Kamp Alanı": {
+      "lat": 37.32,
+      "lng": 36.54,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.32,36.54"
+    },
+    "Hodu Yaylası Kamp Alanı": {
+      "lat": 37.315,
+      "lng": 36.53,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.315,36.53"
+    },
+    "Tozluyurt Yaylası Kamp Alanı": {
+      "lat": 37.33,
+      "lng": 36.55,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.33,36.55"
+    },
+    "Berke Barajı Çevre Yürüyüşü": {
+      "lat": 37.2215,
+      "lng": 36.471,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
+    },
+    "Berke Barajı Kıyısı Kamp": {
+      "lat": 37.2215,
+      "lng": 36.471,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2215,36.471"
+    },
+    "Osmaniye Arkeoloji Müzesi": {
+      "lat": 37.0742,
+      "lng": 36.2475,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.0742,36.2475"
+    },
+    "Bahçe Kalesi": {
+      "lat": 37.129,
+      "lng": 36.624,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.129,36.624"
+    },
+    "Kadirli Kalesi": {
+      "lat": 37.371,
+      "lng": 36.098,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.371,36.098"
+    },
+    "Hemite (Amouda) Kalesi": {
+      "lat": 37.165,
+      "lng": 36.657,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.165,36.657"
+    },
+    "Zorkun Yaylası": {
+      "lat": 37.065,
+      "lng": 36.355,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.065,36.355"
+    },
+    "Yarpuz Yaylası": {
+      "lat": 37.34,
+      "lng": 36.52,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.34,36.52"
+    },
+    "Olukbaşı Şelalesi": {
+      "lat": 37.085,
+      "lng": 36.22,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.085,36.22"
+    },
+    "Hasanbeyli İlçesi ve Çevresi": {
+      "lat": 37.127,
+      "lng": 36.555,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.127,36.555"
+    },
+    "Sumbas İlçesi ve Doğası": {
+      "lat": 37.451,
+      "lng": 36.023,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.451,36.023"
+    },
+    "Ceyhan Nehri Kanyonu": {
+      "lat": 37.22,
+      "lng": 36.47,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.22,36.47"
+    },
+    "Atik (Ulu) Cami – Osmaniye Merkez": {
+      "lat": 37.0742,
+      "lng": 36.2478,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.0742,36.2478"
+    },
+    "Osmaniye Şehir Ormanı ve Tabiat Parkı": {
+      "lat": 37.079,
+      "lng": 36.235,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.079,36.235"
+    },
+    "Harun Reşit Çocuk Parkı ve Millet Bahçesi": {
+      "lat": 37.2395,
+      "lng": 36.4468,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2395,36.4468"
+    },
+    "Atatürk Parkı (Park Restorant)": {
+      "lat": 37.24,
+      "lng": 36.446,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.24,36.446"
+    },
+    "Dumanlı Yaylası Kamp": {
+      "lat": 37.288,
+      "lng": 36.565,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
     }
   },
   "pharmacies": {
     "Ali İren Eczanesi": {
-      "lat": 37.2456,
-      "lng": 36.4522,
-      "googleMapsUrl": "https://maps.google.com/?q=37.2456,36.4522"
+      "lat": 37.240549,
+      "lng": 36.454752,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240549,36.454752"
     },
     "Aydın Eczanesi": {
       "lat": 37.244695,
@@ -288,9 +448,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244637,36.461584"
     },
     "Murat Eczanesi": {
-      "lat": 37.2435,
-      "lng": 36.452,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2435,36.452"
+      "lat": 37.254381,
+      "lng": 36.467004,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.254381,36.467004"
     }
   }
 }
