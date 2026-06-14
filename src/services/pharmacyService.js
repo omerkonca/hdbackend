@@ -154,9 +154,45 @@ class PharmacyService {
     return isFresh && sameDay;
   }
 
+  enrichPharmacies(pharmacies) {
+    if (!pharmacies || !pharmacies.length) return pharmacies;
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const correctionsPath = path.resolve(__dirname, '../../data/map_corrections.json');
+      if (fs.existsSync(correctionsPath)) {
+        const corrections = JSON.parse(fs.readFileSync(correctionsPath, 'utf8'));
+        const lookup = corrections.pharmacies || {};
+        
+        const norm = (s) => (s || '').toLowerCase().replace(/[^a-z0-9çğışöü]/gi, '').trim();
+        
+        const lookupMap = new Map();
+        for (const [key, value] of Object.entries(lookup)) {
+          lookupMap.set(norm(key), value);
+        }
+        
+        return pharmacies.map(p => {
+          const match = lookupMap.get(norm(p.name));
+          if (match && (match.lat || match.lng || match.googleMapsUrl)) {
+            return {
+              ...p,
+              lat: match.lat || p.lat,
+              lng: match.lng || p.lng,
+              googleMapsUrl: match.googleMapsUrl || p.googleMapsUrl
+            };
+          }
+          return p;
+        });
+      }
+    } catch (err) {
+      console.error('[pharmacy] Failed to enrich pharmacies with coordinates:', err.message);
+    }
+    return pharmacies;
+  }
+
   async getDutyPharmacies({ forceRefresh = false } = {}) {
     if (this.shouldUseMemoryCache(forceRefresh)) {
-      return this.cache.pharmacies;
+      return this.enrichPharmacies(this.cache.pharmacies);
     }
 
     try {
@@ -166,7 +202,7 @@ class PharmacyService {
         pharmacies,
       };
       await this.syncToSupabase(pharmacies);
-      return pharmacies;
+      return this.enrichPharmacies(pharmacies);
     } catch (err) {
       console.warn('[pharmacy] scrape failed:', err.message);
 
@@ -176,7 +212,7 @@ class PharmacyService {
           fetchedAt: Date.now(),
           pharmacies: supabaseData,
         };
-        return supabaseData;
+        return this.enrichPharmacies(supabaseData);
       }
 
       const sameDayMemory =
@@ -184,7 +220,7 @@ class PharmacyService {
         istanbulDateKey(this.cache.fetchedAt) === istanbulDateKey();
       if (sameDayMemory) {
         console.warn('[pharmacy] using same-day memory cache after scrape failure');
-        return this.cache.pharmacies;
+        return this.enrichPharmacies(this.cache.pharmacies);
       }
 
       throw err;
