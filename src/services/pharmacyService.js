@@ -1,5 +1,6 @@
 const config = require('../config');
 const { normalizeText, fetchWithTimeout, stripHtml } = require('../utils/helpers');
+const { normalizePharmacyDateLabels } = require('../utils/pharmacyDutyLabels');
 
 function istanbulDateKey(ms = Date.now()) {
   return new Intl.DateTimeFormat('en-CA', {
@@ -217,27 +218,31 @@ class PharmacyService {
 
   async getDutyPharmacies({ forceRefresh = false } = {}) {
     if (this.shouldUseMemoryCache(forceRefresh)) {
-      return this.enrichPharmacies(this.cache.pharmacies);
+      return this.enrichPharmacies(
+        normalizePharmacyDateLabels(this.cache.pharmacies),
+      );
     }
 
     try {
       const pharmacies = await this.scrapeDutyPharmacies();
+      const normalized = normalizePharmacyDateLabels(pharmacies);
       this.cache = {
         fetchedAt: Date.now(),
-        pharmacies,
+        pharmacies: normalized,
       };
-      await this.syncToSupabase(pharmacies);
-      return this.enrichPharmacies(pharmacies);
+      await this.syncToSupabase(normalized);
+      return this.enrichPharmacies(normalized);
     } catch (err) {
       console.warn('[pharmacy] scrape failed:', err.message);
 
       const supabaseData = await this.loadFromSupabase();
       if (supabaseData?.length) {
+        const normalized = normalizePharmacyDateLabels(supabaseData);
         this.cache = {
           fetchedAt: Date.now(),
-          pharmacies: supabaseData,
+          pharmacies: normalized,
         };
-        return this.enrichPharmacies(supabaseData);
+        return this.enrichPharmacies(normalized);
       }
 
       const sameDayMemory =
@@ -245,7 +250,9 @@ class PharmacyService {
         istanbulDateKey(this.cache.fetchedAt) === istanbulDateKey();
       if (sameDayMemory) {
         console.warn('[pharmacy] using same-day memory cache after scrape failure');
-        return this.enrichPharmacies(this.cache.pharmacies);
+        return this.enrichPharmacies(
+          normalizePharmacyDateLabels(this.cache.pharmacies),
+        );
       }
 
       throw err;
