@@ -439,6 +439,7 @@
         <div class="nav-item" onclick="switchView('services')">🛠️ Şehir Hizmetleri</div>
         <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
         <div class="nav-item" onclick="switchView('localProducts')">🏪 Yöresel Pazar</div>
+        <div class="nav-item" onclick="switchView('cityDeals')">🛍️ Şehir Fırsatları</div>
         <div class="nav-item" onclick="switchView('moreMenu')">📑 Daha Fazla Menüsü</div>
       </div>
 
@@ -534,6 +535,24 @@
           <div class="form-group">
             <label>Mesaj</label>
             <textarea id="pushBody" rows="4" placeholder="Bildirim metni" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Yönlendirme Hedefi (Bildirim tıklanınca açılacak ekran)</label>
+            <select id="pushRoute" onchange="toggleCustomPushRouteField()">
+              <option value="">Haber Akışı (Varsayılan)</option>
+              <option value="screen:city_deals">🛍️ Şehir Fırsatları</option>
+              <option value="screen:explore">🌍 Keşfet / Gezi Rehberi</option>
+              <option value="screen:local_market">🏪 Yöresel Pazar</option>
+              <option value="screen:pharmacy">💊 Nöbetçi Eczane</option>
+              <option value="screen:prayer">🕌 Namaz Vakitleri</option>
+              <option value="screen:weather">☀️ Hava Durumu</option>
+              <option value="screen:municipality">🏢 Belediye Hizmetleri</option>
+              <option value="custom">✍️ Özel Link / Ekran Seç...</option>
+            </select>
+          </div>
+          <div class="form-group" id="pushCustomRouteGroup" style="display:none">
+            <label>Özel Yönlendirme Değeri (Örn: screen:closed_roads veya url:https://google.com)</label>
+            <input id="pushCustomRoute" placeholder="Ekran kodu veya URL girin...">
           </div>
           <div id="pushResult" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
           <button type="button" class="btn btn-primary" id="pushSendBtn" onclick="sendPushNotification()">📤 Tüm kullanıcılara gönder</button>
@@ -810,6 +829,23 @@
         </div>
       </div>
 
+      <!-- Şehir Fırsatları -->
+      <div id="cityDealsView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="cityDealsListContainer">
+          <div class="section-title">🛍️ Şehir Fırsatları (Kampanyalar)</div>
+          <p style="color:var(--text-muted); font-size:13px">Düziçi esnaflarının indirimlerini, kampanyalarını ve öğrenci fırsatlarını buradan yönetebilirsiniz.</p>
+          <div id="cityDealsList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewCityDeal()">➕ Yeni Kampanya Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="cityDealsEditorContainer" style="display:none">
+          <div class="section-title" id="cityDealsEditorTitle">✏️ Kampanya Düzenle</div>
+          <div id="cityDealsEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
       <!-- News Sources -->
       <div id="newsSourcesView" class="view-section">
         <div class="card">
@@ -862,6 +898,8 @@
     let currentEventIndex = -1;
     let currentLocalProductIndex = -1;
     let tempLocalProductGallery = [];
+    let currentCityDealIndex = -1;
+    let tempCityDealImage = '';
 
     function slugify(text) {
       const trMap = {
@@ -982,9 +1020,26 @@
       document.getElementById('pushBody').value = body;
     }
 
+    function toggleCustomPushRouteField() {
+      const select = document.getElementById('pushRoute');
+      const customGroup = document.getElementById('pushCustomRouteGroup');
+      if (select.value === 'custom') {
+        customGroup.style.display = 'block';
+      } else {
+        customGroup.style.display = 'none';
+      }
+    }
+
     async function sendPushNotification() {
       const title = document.getElementById('pushTitle').value.trim();
       const body = document.getElementById('pushBody').value.trim();
+      
+      const routeSelect = document.getElementById('pushRoute').value;
+      let route = routeSelect;
+      if (routeSelect === 'custom') {
+        route = document.getElementById('pushCustomRoute').value.trim();
+      }
+
       const resultEl = document.getElementById('pushResult');
       const btn = document.getElementById('pushSendBtn');
       if (!title || !body) {
@@ -998,7 +1053,7 @@
         const res = await fetch('/api/push/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-admin-token': currentToken },
-          body: JSON.stringify({ title, body }),
+          body: JSON.stringify({ title, body, data: route ? { route } : {} }),
         });
         const data = await res.json();
         if (res.ok && data.ok) {
@@ -1151,6 +1206,12 @@
         document.getElementById('localProductsEditorContainer').style.display = 'none';
         renderLocalProducts();
       }
+      if (view === 'cityDeals') {
+        currentCityDealIndex = -1;
+        document.getElementById('cityDealsListContainer').style.display = 'block';
+        document.getElementById('cityDealsEditorContainer').style.display = 'none';
+        renderCityDeals();
+      }
     }
 
     // Data Operations
@@ -1202,6 +1263,7 @@
       rawData.explore.autoVehicles = Array.isArray(rawData.explore.autoVehicles) ? rawData.explore.autoVehicles : [];
       rawData.explore.realEstates = Array.isArray(rawData.explore.realEstates) ? rawData.explore.realEstates : [];
       rawData.explore.localProducts = Array.isArray(rawData.explore.localProducts) ? rawData.explore.localProducts : [];
+      rawData.explore.cityDeals = Array.isArray(rawData.explore.cityDeals) ? rawData.explore.cityDeals : [];
       rawData.customEvents = Array.isArray(rawData.customEvents) ? rawData.customEvents : [];
 
       // Stats
@@ -1264,6 +1326,7 @@
       }
 
       renderLocalProducts();
+      renderCityDeals();
 
       // Sponsors
       const spList = document.getElementById('sponsorsList');
@@ -3232,6 +3295,261 @@
       }
 
       cancelLocalProductEdit();
+      saveData();
+    }
+
+    // ─────────────────────────────────────────────
+    //  CITY DEALS (ŞEHİR FIRSATLARI) MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderCityDeals() {
+      const deals = rawData.explore.cityDeals || [];
+      const list = document.getElementById('cityDealsList');
+      if (!list) return;
+
+      if (deals.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz şehir fırsatı (esnaf kampanyası) eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk kampanyayı oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = deals.map((d, i) => {
+        const badge = d.isPaid ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.3px">💎 ÖNE ÇIKAN</span>` : '';
+        const statusBadge = d.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        const thumb = d.imageUrl || d.image || '';
+        return `
+        <div class="list-item" style="gap:16px; ${d.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
+            ${thumb ? `<img src="${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:28px">🛍️</span>'}
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              ${escapeHtml(d.title || 'Başlıksız Fırsat')}
+              ${badge} ${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              ${escapeHtml(d.storeName || '')} • 🏷️ ${escapeHtml(d.category || '')} ${d.discountRate ? '• ' + escapeHtml(d.discountRate) : ''} ${d.endDate ? '• 📅 Son Gün: ' + escapeHtml(d.endDate) : ''}
+            </div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
+              ${d.priceAfter ? escapeHtml(d.priceAfter) + ' ₺' : ''} ${d.priceBefore ? `<span style="text-decoration:line-through; font-size:11px; color:var(--text-muted); font-weight:normal">(${escapeHtml(d.priceBefore)} ₺)</span>` : ''}
+              ${d.contact ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 ${escapeHtml(d.contact)}</span>` : ''}
+              ${d.whatsapp ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 💬 WA: ${escapeHtml(d.whatsapp)}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editCityDeal(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteCityDeal(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function createNewCityDeal() {
+      currentCityDealIndex = -1;
+      tempCityDealImage = '';
+      document.getElementById('cityDealsListContainer').style.display = 'none';
+      document.getElementById('cityDealsEditorContainer').style.display = 'block';
+      document.getElementById('cityDealsEditorTitle').textContent = '➕ Yeni Şehir Fırsatı Ekle';
+      renderCityDealForm(null);
+    }
+
+    function editCityDeal(i) {
+      currentCityDealIndex = i;
+      const d = rawData.explore.cityDeals[i];
+      tempCityDealImage = d.imageUrl || d.image || '';
+      document.getElementById('cityDealsListContainer').style.display = 'none';
+      document.getElementById('cityDealsEditorContainer').style.display = 'block';
+      document.getElementById('cityDealsEditorTitle').textContent = `✏️ ${d.title || 'Fırsat'} Düzenle`;
+      renderCityDealForm(d);
+    }
+
+    function deleteCityDeal(i) {
+      if (!confirm('Bu fırsatı silmek istediğinize emin misiniz?')) return;
+      rawData.explore.cityDeals.splice(i, 1);
+      renderCityDeals();
+      showToast('Fırsat silindi...');
+      saveData();
+    }
+
+    function cancelCityDealEdit() {
+      document.getElementById('cityDealsEditorContainer').style.display = 'none';
+      document.getElementById('cityDealsListContainer').style.display = 'block';
+      renderCityDeals();
+    }
+
+    function renderCityDealForm(d) {
+      const data = d || { title:'', storeName:'', category:'Gıda & Restoran', discountRate:'', priceBefore:'', priceAfter:'', description:'', address:'', contact:'', whatsapp:'', isPaid:false, isActive:true, imageUrl:'' };
+      const formDiv = document.getElementById('cityDealsEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(201,139,24,0.06),rgba(201,139,24,0.02)); border:1px solid rgba(201,139,24,0.2); border-radius:12px; padding:16px; margin-bottom:20px; display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">💎</span>
+          <div style="flex:1">
+            <div style="font-weight:700; font-size:14px; color:#0f172a">Öne Çıkan Fırsat</div>
+            <div style="font-size:12px; color:var(--text-muted)">Öne çıkan fırsatlar uygulamada en üstte yıldız simgesi ve vurgulu çerçeve ile gösterilir.</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
+            <input type="checkbox" id="cdIsPaid" \${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group">
+            <label>Fırsat Başlığı</label>
+            <input id="cdTitle" value="\${escapeAttr(data.title)}" placeholder="Örn: Tavuk Dürüm Menüde Öğrenci İndirimi">
+          </div>
+          <div class="form-group">
+            <label>İşyeri / Esnaf Adı</label>
+            <input id="cdStoreName" value="\${escapeAttr(data.storeName)}" placeholder="Örn: Kırmızı Döner">
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="cdCategory">
+              <option value="Gıda & Restoran" \${data.category==='Gıda & Restoran'?'selected':''}>🍔 Gıda & Restoran</option>
+              <option value="Giyim & Moda" \${data.category==='Giyim & Moda'?'selected':''}>👕 Giyim & Moda</option>
+              <option value="Teknoloji & Elektronik" \${data.category==='Teknoloji & Elektronik'?'selected':''}>📱 Teknoloji & Elektronik</option>
+              <option value="Hizmet & Diğer" \${data.category==='Hizmet & Diğer'?'selected':''}>🛠️ Hizmet & Diğer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>İndirim Oranı / Türü (Rozet)</label>
+            <input id="cdDiscountRate" value="\${escapeAttr(data.discountRate || '')}" placeholder="Örn: 1 Alana 1 Bedava, %20 İndirim, Özel Fiyat">
+          </div>
+          <div class="form-group">
+            <label>Eski Fiyat (Üstü Çizili - Opsiyonel)</label>
+            <input id="cdPriceBefore" value="\${escapeAttr(data.priceBefore || '')}" placeholder="Örn: 160">
+          </div>
+          <div class="form-group">
+            <label>Kampanyalı Fiyat (Opsiyonel)</label>
+            <input id="cdPriceAfter" value="\${escapeAttr(data.priceAfter || '')}" placeholder="Örn: 120">
+          </div>
+          <div class="form-group">
+            <label>Son Geçerlilik Tarihi (Opsiyonel)</label>
+            <input id="cdEndDate" type="date" value="\${escapeAttr(data.endDate || '')}">
+          </div>
+          <div class="form-group">
+            <label>Konum / Adres</label>
+            <input id="cdAddress" value="\${escapeAttr(data.address || '')}" placeholder="Örn: Cumhuriyet Mah. RTE Bulvarı No: 12">
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Kampanya Detayı / Açıklama</label>
+            <textarea id="cdDescription" style="height:80px" placeholder="Kampanya koşulları, detayları ve açıklaması...Content">\${escapeHtml(data.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>İrtibat Telefonu (Arama)</label>
+            <input id="cdContact" value="\${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Numarası (Uluslararası Format)</label>
+            <input id="cdWhatsapp" value="\${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="cdIsActive" \${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>Fırsat Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+
+          <!-- Görsel -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Fırsat Görseli</label>
+            <div id="cdImagePreview" style="margin-bottom:12px"></div>
+            <div style="display:flex; gap:10px; align-items:center">
+              <input type="file" id="cdImageFile" style="display:none" accept="image/*" onchange="uploadCityDealImageFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('cdImageFile').click()">📷 Fotoğraf Yükle</button>
+              <span style="font-size:12px; color:var(--text-muted)">veya URL girin:</span>
+              <input id="cdImageUrl" placeholder="https://resim-url.jpg" style="flex:1" onchange="updateCityDealImagePreview(this.value)">
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveCityDealChanges()">✓ Kampanyayı Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelCityDealEdit()">İptal</button>
+        </div>
+      `;
+      updateCityDealImagePreview(tempCityDealImage);
+    }
+
+    function updateCityDealImagePreview(url) {
+      tempCityDealImage = url.trim();
+      const preview = document.getElementById('cdImagePreview');
+      if (!preview) return;
+      if (tempCityDealImage) {
+        preview.innerHTML = `
+          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(tempCityDealImage)}'); background-size:cover; background-position:center;">
+            <button onclick="removeCityDealImage()" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>`;
+      } else {
+        preview.innerHTML = '<p style="color:var(--text-muted); font-size:12px">Görsel seçilmedi.</p>';
+      }
+      const urlInput = document.getElementById('cdImageUrl');
+      if (urlInput) urlInput.value = tempCityDealImage;
+    }
+
+    function removeCityDealImage() {
+      updateCityDealImagePreview('');
+    }
+
+    async function uploadCityDealImageFile() {
+      const fileInput = document.getElementById('cdImageFile');
+      const file = fileInput.files[0];
+      if (!file) return;
+      showToast('Görsel yükleniyor...');
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+        if (res.status === 413) { showToast('Dosya çok büyük!', true); return; }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) url = window.location.origin + url;
+          updateCityDealImagePreview(url);
+          showToast('Görsel yüklendi!');
+        }
+      } catch(e) { console.error(e); showToast('Yükleme hatası!', true); }
+      fileInput.value = '';
+    }
+
+    function saveCityDealChanges() {
+      const title = document.getElementById('cdTitle').value.trim();
+      const storeName = document.getElementById('cdStoreName').value.trim();
+      const category = document.getElementById('cdCategory').value;
+      const discountRate = document.getElementById('cdDiscountRate').value.trim();
+      const priceBefore = document.getElementById('cdPriceBefore').value.trim();
+      const priceAfter = document.getElementById('cdPriceAfter').value.trim();
+      const endDate = document.getElementById('cdEndDate').value;
+      const address = document.getElementById('cdAddress').value.trim();
+      const description = document.getElementById('cdDescription').value.trim();
+      const contact = document.getElementById('cdContact').value.trim();
+      const whatsapp = document.getElementById('cdWhatsapp').value.trim();
+      const isPaid = document.getElementById('cdIsPaid').checked;
+      const isActive = document.getElementById('cdIsActive').checked;
+
+      if (!title || !storeName) return showToast('Başlık ve işyeri adı zorunludur!', true);
+
+      rawData.explore.cityDeals = rawData.explore.cityDeals || [];
+
+      const dealData = {
+        id: (currentCityDealIndex !== -1 ? rawData.explore.cityDeals[currentCityDealIndex].id : null) || 'cd_' + Date.now(),
+        title, storeName, category, discountRate, priceBefore, priceAfter, endDate, address, description,
+        contact, whatsapp, isPaid, isActive,
+        imageUrl: tempCityDealImage,
+        createdAt: (currentCityDealIndex !== -1 ? rawData.explore.cityDeals[currentCityDealIndex].createdAt : null) || new Date().toISOString()
+      };
+
+      if (currentCityDealIndex === -1) {
+        rawData.explore.cityDeals.unshift(dealData);
+        showToast('Yeni kampanya eklendi, kaydediliyor...');
+      } else {
+        rawData.explore.cityDeals[currentCityDealIndex] = dealData;
+        showToast('Kampanya güncellendi, kaydediliyor...');
+      }
+
+      cancelCityDealEdit();
       saveData();
     }
 

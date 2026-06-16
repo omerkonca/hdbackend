@@ -1777,7 +1777,7 @@
         "icon": "sell",
         "color": "#EC407A",
         "title": "Şehir Fırsatları",
-        "target": "screen:directory",
+        "target": "screen:city_deals",
         "subtitle": "Kampanya ve indirimler",
         "directoryData": [
           {
@@ -1960,6 +1960,44 @@
         "isPaid": true,
         "isActive": true,
         "createdAt": "2026-06-16T12:20:00.000Z"
+      }
+    ],
+    "cityDeals": [
+      {
+        "id": "cd_1781555000001",
+        "title": "Bugüne Özel 1 Alana 1 Bedava Tavuk Dürüm Fırsatı!",
+        "storeName": "Kırmızı Döner",
+        "category": "Gıda & Restoran",
+        "discountRate": "1 Alana 1 Bedava",
+        "priceBefore": "160",
+        "priceAfter": "80",
+        "description": "Kırmızı Döner'de bugüne özel efsane kampanya! 1 adet tavuk dürüm alana, ikincisi bizden hediye. Kaçırmayın!",
+        "address": "Kurtuluş Mahallesi, Recep Tayyip Erdoğan Bulvarı No: 12",
+        "contact": "0328 123 45 67",
+        "whatsapp": "+905051234567",
+        "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=960",
+        "endDate": "2026-06-20",
+        "isPaid": true,
+        "isActive": true,
+        "createdAt": "2026-06-16T12:00:00.000Z"
+      },
+      {
+        "id": "cd_1781555000002",
+        "title": "Öğrenci Menüsü: Döner + Ayran Sadece 90 ₺",
+        "storeName": "Lezzet Sarayı",
+        "category": "Gıda & Restoran",
+        "discountRate": "Öğrenci Özel",
+        "priceBefore": "120",
+        "priceAfter": "90",
+        "description": "Tüm öğrencilere özel lezzetli tavuk döner menümüz şimdi sadece 90 ₺. Kampanyadan yararlanmak için öğrenci kartınızı göstermeniz yeterlidir.",
+        "address": "Cumhuriyet Mahallesi, Atatürk Caddesi No: 45",
+        "contact": "0328 765 43 21",
+        "whatsapp": "+905327654321",
+        "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=960",
+        "endDate": "2026-06-30",
+        "isPaid": false,
+        "isActive": true,
+        "createdAt": "2026-06-16T12:30:00.000Z"
       }
     ]
   },
