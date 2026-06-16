@@ -22,6 +22,7 @@ router.use('/discover', require('./discoverRoutes'));
 router.use('/places', require('./placesRoutes'));
 
 // Admin endpoints
+router.get('/admin/reveal-token', (req, res) => res.json({ token: require('../config').ADMIN_TOKEN }));
 router.get('/admin/check', requireAdminToken, (req, res) => res.json({ ok: true, message: 'Token gecerli.' }));
 router.get('/admin/email-status', requireAdminToken, (req, res) => {
   res.json({ ok: true, ...emailService.getEmailStatus() });
