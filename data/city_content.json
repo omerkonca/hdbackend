@@ -1904,6 +1904,46 @@
             "address": "Şehitler Mah. İnönü Cad. No: 28"
           }
         ]
+      },
+      {
+        "id": "job_listings",
+        "icon": "badge",
+        "color": "#0288D1",
+        "title": "İş İlanları",
+        "target": "screen:job_listings",
+        "subtitle": "Esnaf ve kurum personel alımları",
+        "directoryData": [
+          {
+            "name": "İŞKUR Düziçi Hizmet Noktası",
+            "phone": "0328 876 00 01",
+            "address": "Belediye Binası Giriş Kat"
+          },
+          {
+            "name": "Sosyal Yardımlaşma İrtibat",
+            "phone": "0328 876 11 22",
+            "address": "Kaymakamlık Binası"
+          }
+        ]
+      },
+      {
+        "id": "lost_found",
+        "icon": "search",
+        "color": "#757575",
+        "title": "Kayıp & Bulunan",
+        "target": "screen:lost_found",
+        "subtitle": "Kayıp eşya ve malzeme ilanları",
+        "directoryData": [
+          {
+            "name": "Belediye Zabıta (Kayıp Eşya Masası)",
+            "phone": "0328 876 12 12",
+            "address": "Belediye Giriş Kat"
+          },
+          {
+            "name": "İlçe Emniyet Bulunan Eşya",
+            "phone": "0328 876 13 13",
+            "address": "İlçe Emniyet Müdürlüğü"
+          }
+        ]
       }
     ],
     "localProducts": [
@@ -1996,8 +2036,72 @@
         "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=960",
         "endDate": "2026-06-30",
         "isPaid": false,
+      }
+    ],
+    "jobListings": [
+      {
+        "id": "jl_1781555000001",
+        "title": "Kasa Görevlisi ve Satış Danışmanı Aranıyor",
+        "companyName": "Doğanlar Süpermarket",
+        "category": "Satış & Mağazacılık",
+        "jobType": "Tam Zamanlı",
+        "salary": "Asgari Ücret + Yemek",
+        "description": "Süpermarketimizin merkez şubesinde kasa ve reyonlarda görev alacak, güler yüzlü ve takım çalışmasına yatkın takım arkadaşları arıyoruz.",
+        "address": "İrfanlı Mahallesi, Refik Cesur Bulvarı No: 124",
+        "contact": "0532 111 22 33",
+        "whatsapp": "+905321112233",
+        "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=960",
+        "isPaid": true,
         "isActive": true,
-        "createdAt": "2026-06-16T12:30:00.000Z"
+        "createdAt": "2026-06-16T12:00:00.000Z"
+      },
+      {
+        "id": "jl_1781555000002",
+        "title": "Part-time Kurye (A2 Ehliyetli)",
+        "companyName": "Öz Döner Salonu",
+        "category": "Restoran & Kafe",
+        "jobType": "Yarı Zamanlı",
+        "salary": "Saatlik Ücret + Paket Başı Prim",
+        "description": "Akşam saatlerinde (17:00 - 22:00) çalışacak, A2 ehliyete sahip, Düziçi sokaklarını iyi bilen paket servis elemanı aranıyor.",
+        "address": "Kurtuluş Mahallesi, Park Caddesi No: 45",
+        "contact": "0544 333 44 55",
+        "whatsapp": "+905443334455",
+        "image": "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=960",
+        "isPaid": false,
+        "isActive": true,
+        "createdAt": "2026-06-16T13:00:00.000Z"
+      }
+    ],
+    "lostFound": [
+      {
+        "id": "lf_1781555000001",
+        "title": "Düziçi Çarşıda Erkek Kol Saati Bulundu",
+        "type": "Bulunan",
+        "category": "Diğer",
+        "lostFoundDate": "2026-06-15",
+        "description": "15 Haziran pazartesi günü belediye meydanındaki bankta gümüş renkli metal kordonlu bir erkek kol saati bulunmuştur. Sahibi irtibata geçip teslim alabilir.",
+        "address": "Belediye Meydanı, Düziçi",
+        "contact": "0505 999 88 77",
+        "whatsapp": "+905059998877",
+        "image": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=960",
+        "isPaid": true,
+        "isActive": true,
+        "createdAt": "2026-06-16T11:00:00.000Z"
+      },
+      {
+        "id": "lf_1781555000002",
+        "title": "Mavi Cüzdan Kayıp (Kimlik ve Kartlar)",
+        "type": "Kayıp",
+        "category": "Cüzdan & Kart",
+        "lostFoundDate": "2026-06-14",
+        "description": "Refik Cesur Bulvarı üzerinde içinde kimlik kartı, ehliyet ve Düziçi belediye kartı olan mavi deri cüzdan kaybolmuştur. Bulanların insaniyet namına irtibat kurmasını rica ederim.",
+        "address": "Refik Cesur Bulvarı güzergahı",
+        "contact": "0545 777 66 55",
+        "whatsapp": "+905457776655",
+        "image": "https://images.unsplash.com/photo-1627124357773-41319df4e9c2?w=960",
+        "isPaid": false,
+        "isActive": true,
+        "createdAt": "2026-06-16T10:00:00.000Z"
       }
     ]
   },

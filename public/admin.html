@@ -436,6 +436,8 @@
         <div class="nav-item" onclick="switchView('explore')">🌍 Gezi Rehberi</div>
         <div class="nav-item" onclick="switchView('autoGallery')">🚗 Oto Galeri İlanları</div>
         <div class="nav-item" onclick="switchView('realEstate')">🏠 Emlak İlanları</div>
+        <div class="nav-item" onclick="switchView('jobListings')">💼 İş İlanları</div>
+        <div class="nav-item" onclick="switchView('lostFound')">🔍 Kayıp & Bulunan</div>
         <div class="nav-item" onclick="switchView('services')">🛠️ Şehir Hizmetleri</div>
         <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
         <div class="nav-item" onclick="switchView('localProducts')">🏪 Yöresel Pazar</div>
@@ -541,6 +543,8 @@
             <select id="pushRoute" onchange="toggleCustomPushRouteField()">
               <option value="">Haber Akışı (Varsayılan)</option>
               <option value="screen:city_deals">🛍️ Şehir Fırsatları</option>
+              <option value="screen:job_listings">💼 İş İlanları</option>
+              <option value="screen:lost_found">🔍 Kayıp & Bulunan</option>
               <option value="screen:explore">🌍 Keşfet / Gezi Rehberi</option>
               <option value="screen:local_market">🏪 Yöresel Pazar</option>
               <option value="screen:pharmacy">💊 Nöbetçi Eczane</option>
@@ -644,6 +648,40 @@
         <div class="card" id="realEstateEditorContainer" style="display:none">
           <div class="section-title" id="realEstateEditorTitle">✏️ İlan Düzenle</div>
           <div id="realEstateEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- İş İlanları -->
+      <div id="jobListingsView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="jobListingsListContainer">
+          <div class="section-title">💼 İş İlanları</div>
+          <p style="color:var(--text-muted); font-size:13px">Düziçi esnaflarının personel alım ilanlarını buradan yönetebilirsiniz.</p>
+          <div id="jobListingsList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewJobListing()">➕ Yeni İş İlanı Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="jobListingsEditorContainer" style="display:none">
+          <div class="section-title" id="jobListingsEditorTitle">✏️ İlan Düzenle</div>
+          <div id="jobListingsEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Kayıp & Bulunan -->
+      <div id="lostFoundView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="lostFoundListContainer">
+          <div class="section-title">🔍 Kayıp & Bulunan Eşyalar</div>
+          <p style="color:var(--text-muted); font-size:13px">Düziçi genelinde kaybolan veya bulunan eşya/malzeme ilanlarını buradan yönetebilirsiniz.</p>
+          <div id="lostFoundList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewLostFound()">➕ Yeni İlan Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="lostFoundEditorContainer" style="display:none">
+          <div class="section-title" id="lostFoundEditorTitle">✏️ İlan Düzenle</div>
+          <div id="lostFoundEditorForm" style="margin-top:16px"></div>
         </div>
       </div>
 
@@ -900,6 +938,10 @@
     let tempLocalProductGallery = [];
     let currentCityDealIndex = -1;
     let tempCityDealImage = '';
+    let currentJobListingIndex = -1;
+    let tempJobListingPhoto = '';
+    let currentLostFoundIndex = -1;
+    let tempLostFoundPhoto = '';
 
     function slugify(text) {
       const trMap = {
@@ -1162,6 +1204,8 @@
         json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.'],
         autoGallery: ['Oto Galeri İlanları', 'Esnafların satılık/kiralık araç ilanlarını yönetin.'],
         realEstate: ['Emlak İlanları', 'Esnafların ve sahibinden satılık/kiralık emlak ve arsa ilanlarını yönetin.'],
+        jobListings: ['İş İlanları', 'Esnafların personel alım ilanlarını yönetin.'],
+        lostFound: ['Kayıp & Bulunan', 'Düziçi genelinde kayıp ve bulunan eşya ilanlarını yönetin.'],
         events: ['Kültür & Sanat Etkinlikleri', 'Düziçi ve çevre illerdeki sosyal etkinlikleri yönetin.'],
         localProducts: ['Yöresel Ürün Pazarı İlanları', 'Vatandaşların evlerinde ürettikleri ürün ilanlarını yönetin.']
       };
@@ -1211,6 +1255,18 @@
         document.getElementById('cityDealsListContainer').style.display = 'block';
         document.getElementById('cityDealsEditorContainer').style.display = 'none';
         renderCityDeals();
+      }
+      if (view === 'jobListings') {
+        currentJobListingIndex = -1;
+        document.getElementById('jobListingsListContainer').style.display = 'block';
+        document.getElementById('jobListingsEditorContainer').style.display = 'none';
+        renderJobListings();
+      }
+      if (view === 'lostFound') {
+        currentLostFoundIndex = -1;
+        document.getElementById('lostFoundListContainer').style.display = 'block';
+        document.getElementById('lostFoundEditorContainer').style.display = 'none';
+        renderLostFound();
       }
     }
 
@@ -1264,6 +1320,8 @@
       rawData.explore.realEstates = Array.isArray(rawData.explore.realEstates) ? rawData.explore.realEstates : [];
       rawData.explore.localProducts = Array.isArray(rawData.explore.localProducts) ? rawData.explore.localProducts : [];
       rawData.explore.cityDeals = Array.isArray(rawData.explore.cityDeals) ? rawData.explore.cityDeals : [];
+      rawData.explore.jobListings = Array.isArray(rawData.explore.jobListings) ? rawData.explore.jobListings : [];
+      rawData.explore.lostFound = Array.isArray(rawData.explore.lostFound) ? rawData.explore.lostFound : [];
       rawData.customEvents = Array.isArray(rawData.customEvents) ? rawData.customEvents : [];
 
       // Stats
@@ -1327,6 +1385,8 @@
 
       renderLocalProducts();
       renderCityDeals();
+      renderJobListings();
+      renderLostFound();
 
       // Sponsors
       const spList = document.getElementById('sponsorsList');
@@ -3550,6 +3610,506 @@
       }
 
       cancelCityDealEdit();
+      saveData();
+    }
+
+    // ─────────────────────────────────────────────
+    //  JOB LISTINGS (İŞ İLANLARI) MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderJobListings() {
+      const listings = rawData.explore.jobListings || [];
+      const list = document.getElementById('jobListingsList');
+      if (!list) return;
+
+      if (listings.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz iş ilanı eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk ilanı oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = listings.map((j, i) => {
+        const badge = j.isPaid ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.3px">💎 ÖNE ÇIKAN</span>` : '';
+        const statusBadge = j.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        const thumb = j.imageUrl || j.image || '';
+        return `
+        <div class="list-item" style="gap:16px; \${j.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
+            \${thumb ? \`<img src="\${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">\` : '<span style="font-size:28px">💼</span>'}
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              \${escapeHtml(j.title || 'Başlıksız İlan')}
+              \${badge} \${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              \${escapeHtml(j.companyName || '')} • 🏷️ \${escapeHtml(j.category || '')} • 🕒 \${escapeHtml(j.jobType || '')}
+            </div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
+              \${j.salary ? '💰 ' + escapeHtml(j.salary) : ''}
+              \${j.contact ? \`<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 \${escapeHtml(j.contact)}</span>\` : ''}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editJobListing(\${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteJobListing(\${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>\`;
+      }).join('');
+    }
+
+    function createNewJobListing() {
+      currentJobListingIndex = -1;
+      tempJobListingPhoto = '';
+      document.getElementById('jobListingsListContainer').style.display = 'none';
+      document.getElementById('jobListingsEditorContainer').style.display = 'block';
+      document.getElementById('jobListingsEditorTitle').textContent = '➕ Yeni İş İlanı Ekle';
+      renderJobListingForm(null);
+    }
+
+    function editJobListing(i) {
+      currentJobListingIndex = i;
+      const j = rawData.explore.jobListings[i];
+      tempJobListingPhoto = j.imageUrl || j.image || '';
+      document.getElementById('jobListingsListContainer').style.display = 'none';
+      document.getElementById('jobListingsEditorContainer').style.display = 'block';
+      document.getElementById('jobListingsEditorTitle').textContent = `✏️ \${j.title || 'İlan'} Düzenle`;
+      renderJobListingForm(j);
+    }
+
+    function deleteJobListing(i) {
+      if (!confirm('Bu iş ilanını silmek istediğinize emin misiniz?')) return;
+      rawData.explore.jobListings.splice(i, 1);
+      renderJobListings();
+      showToast('İş ilanı siliniyor...');
+      saveData();
+    }
+
+    function cancelJobListingEdit() {
+      document.getElementById('jobListingsEditorContainer').style.display = 'none';
+      document.getElementById('jobListingsListContainer').style.display = 'block';
+      renderJobListings();
+    }
+
+    function renderJobListingForm(j) {
+      const data = j || { title:'', companyName:'', category:'Diğer', jobType:'Diğer', salary:'', description:'', address:'', contact:'', whatsapp:'', isPaid:false, isActive:true };
+      const formDiv = document.getElementById('jobListingsEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(2,136,209,0.06),rgba(2,136,209,0.02)); border:1px solid rgba(2,136,209,0.2); border-radius:12px; padding:16px; margin-bottom:20px; display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">💎</span>
+          <div style="flex:1">
+            <div style="font-weight:700; font-size:14px; color:#0f172a">Öne Çıkan İlan (Ücretli)</div>
+            <div style="font-size:12px; color:var(--text-muted)">Öne çıkan ilanlar listenin en başında rozetle gösterilir.</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
+            <input type="checkbox" id="jlIsPaid" \${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>Pozisyon / İlan Başlığı</label>
+            <input id="jlTitle" value="\${escapeAttr(data.title)}" placeholder="Örn: Garson / Komi Aranıyor">
+          </div>
+          <div class="form-group">
+            <label>İşyeri / Firma Adı</label>
+            <input id="jlCompanyName" value="\${escapeAttr(data.companyName)}" placeholder="Örn: Saray Pastanesi">
+          </div>
+          <div class="form-group">
+            <label>Sektör / Kategori</label>
+            <select id="jlCategory">
+              <option value="Restoran & Kafe" \${data.category==='Restoran & Kafe'?'selected':''}>🍔 Restoran & Kafe</option>
+              <option value="Satış & Mağazacılık" \${data.category==='Satış & Mağazacılık'?'selected':''}>🛍️ Satış & Mağazacılık</option>
+              <option value="Ofis & Büro" \${data.category==='Ofis & Büro'?'selected':''}>💼 Ofis & Büro</option>
+              <option value="İnşaat & Sanayi" \${data.category==='İnşaat & Sanayi'?'selected':''}>🛠️ İnşaat & Sanayi</option>
+              <option value="Diğer" \${data.category==='Diğer'?'selected':''}>📌 Diğer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Çalışma Şekli</label>
+            <select id="jlJobType">
+              <option value="Tam Zamanlı" \${data.jobType==='Tam Zamanlı'?'selected':''}> Tam Zamanlı</option>
+              <option value="Yarı Zamanlı" \${data.jobType==='Yarı Zamanlı'?'selected':''}> Yarı Zamanlı</option>
+              <option value="Günlük / Serbest" \${data.jobType==='Günlük / Serbest'?'selected':''}> Günlük / Serbest</option>
+              <option value="Diğer" \${data.jobType==='Diğer'?'selected':''}> Diğer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Maaş / Ücret Bilgisi (Opsiyonel)</label>
+            <input id="jlSalary" value="\${escapeAttr(data.salary || '')}" placeholder="Örn: Asgari Ücret + Yemek veya Saatlik 50 TL">
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>İlan Açıklaması ve Kriterler</label>
+            <textarea id="jlDescription" style="height:100px" placeholder="İş tanımı, aranan özellikler, çalışma saatleri vb...Content">\${escapeHtml(data.description || '')}</textarea>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Adres / Konum</label>
+            <input id="jlAddress" value="\${escapeAttr(data.address || '')}" placeholder="Örn: Kurtuluş Mah. Recep Tayyip Erdoğan Bulvarı No: 12">
+          </div>
+          <div class="form-group">
+            <label>İletişim (Telefon)</label>
+            <input id="jlContact" value="\${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Numarası (Uluslararası Format)</label>
+            <input id="jlWhatsapp" value="\${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="jlIsActive" \${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>İlan Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+
+          <!-- Görsel -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>İşyeri / İlan Görseli (Opsiyonel)</label>
+            <div id="jlImagePreview" style="margin-bottom:12px"></div>
+            <div style="display:flex; gap:10px; align-items:center">
+              <input type="file" id="jlImageFile" style="display:none" accept="image/*" onchange="uploadJobListingImageFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('jlImageFile').click()">📷 Fotoğraf Yükle</button>
+              <span style="font-size:12px; color:var(--text-muted)">veya URL:</span>
+              <input id="jlImageUrl" placeholder="https://resim-url.jpg" style="flex:1" onchange="updateJobListingImagePreview(this.value)">
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveJobListingChanges()">✓ İlanı Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelJobListingEdit()">İptal</button>
+        </div>
+      `;
+      updateJobListingImagePreview(tempJobListingPhoto);
+    }
+
+    function updateJobListingImagePreview(url) {
+      tempJobListingPhoto = url.trim();
+      const preview = document.getElementById('jlImagePreview');
+      if (!preview) return;
+      if (tempJobListingPhoto) {
+        preview.innerHTML = `
+          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(tempJobListingPhoto)}'); background-size:cover; background-position:center;">
+            <button onclick="removeJobListingImage()" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>`;
+      } else {
+        preview.innerHTML = '<p style="color:var(--text-muted); font-size:12px">Görsel seçilmedi.</p>';
+      }
+      const urlInput = document.getElementById('jlImageUrl');
+      if (urlInput) urlInput.value = tempJobListingPhoto;
+    }
+
+    function removeJobListingImage() {
+      updateJobListingImagePreview('');
+    }
+
+    async function uploadJobListingImageFile() {
+      const fileInput = document.getElementById('jlImageFile');
+      const file = fileInput.files[0];
+      if (!file) return;
+      showToast('Görsel yükleniyor...');
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+        if (res.status === 413) { showToast('Dosya çok büyük!', true); return; }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) url = window.location.origin + url;
+          updateJobListingImagePreview(url);
+          showToast('Görsel yüklendi!');
+        }
+      } catch(e) { console.error(e); showToast('Yükleme hatası!', true); }
+      fileInput.value = '';
+    }
+
+    function saveJobListingChanges() {
+      const title = document.getElementById('jlTitle').value.trim();
+      const companyName = document.getElementById('jlCompanyName').value.trim();
+      const category = document.getElementById('jlCategory').value;
+      const jobType = document.getElementById('jlJobType').value;
+      const salary = document.getElementById('jlSalary').value.trim();
+      const description = document.getElementById('jlDescription').value.trim();
+      const address = document.getElementById('jlAddress').value.trim();
+      const contact = document.getElementById('jlContact').value.trim();
+      const whatsapp = document.getElementById('jlWhatsapp').value.trim();
+      const isPaid = document.getElementById('jlIsPaid').checked;
+      const isActive = document.getElementById('jlIsActive').checked;
+
+      if (!title || !companyName) return showToast('İlan başlığı ve firma adı zorunludur!', true);
+
+      rawData.explore.jobListings = rawData.explore.jobListings || [];
+
+      const jobData = {
+        id: (currentJobListingIndex !== -1 ? rawData.explore.jobListings[currentJobListingIndex].id : null) || 'jl_' + Date.now(),
+        title, companyName, category, jobType, salary, description, address,
+        contact, whatsapp, isPaid, isActive,
+        imageUrl: tempJobListingPhoto,
+        image: tempJobListingPhoto,
+        createdAt: (currentJobListingIndex !== -1 ? rawData.explore.jobListings[currentJobListingIndex].createdAt : null) || new Date().toISOString()
+      };
+
+      if (currentJobListingIndex === -1) {
+        rawData.explore.jobListings.unshift(jobData);
+        showToast('Yeni iş ilanı eklendi, kaydediliyor...');
+      } else {
+        rawData.explore.jobListings[currentJobListingIndex] = jobData;
+        showToast('İş ilanı güncellendi, kaydediliyor...');
+      }
+
+      cancelJobListingEdit();
+      saveData();
+    }
+
+
+    // ─────────────────────────────────────────────
+    //  LOST & FOUND (KAYIP & BULUNAN) MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderLostFound() {
+      const items = rawData.explore.lostFound || [];
+      const list = document.getElementById('lostFoundList');
+      if (!list) return;
+
+      if (items.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz kayıp/bulunan eşya ilanı eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk duyuruyu oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = items.map((lf, i) => {
+        const badge = lf.isPaid ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.3px">💎 ÖNE ÇIKAN</span>` : '';
+        const typeBadge = lf.type === 'Kayıp'
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">KAYIP</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">BULUNAN</span>`;
+        const statusBadge = lf.isActive === false
+          ? `<span style="background:#f1f5f9; color:#94a3b8; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:4px">PASİF</span>`
+          : `<span style="background:#e0f2fe; color:#0369a1; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:4px">AKTİF</span>`;
+        const thumb = lf.imageUrl || lf.image || '';
+        return `
+        <div class="list-item" style="gap:16px; \${lf.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
+            \${thumb ? \`<img src="\${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">\` : '<span style="font-size:28px">🔍</span>'}
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              \${escapeHtml(lf.title || 'Başlıksız İlan')}
+              \${typeBadge} \${badge} \${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              Kategori: \${escapeHtml(lf.category || '')} \${lf.lostFoundDate ? '• Tarih: ' + escapeHtml(lf.lostFoundDate) : ''} \${lf.address ? '• Konum: ' + escapeHtml(lf.address) : ''}
+            </div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
+              \${lf.contact ? \`📞 \${escapeHtml(lf.contact)}\` : ''}
+              \${lf.whatsapp ? \` • 💬 WA: \${escapeHtml(lf.whatsapp)}\` : ''}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editLostFound(\${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteLostFound(\${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>\`;
+      }).join('');
+    }
+
+    function createNewLostFound() {
+      currentLostFoundIndex = -1;
+      tempLostFoundPhoto = '';
+      document.getElementById('lostFoundListContainer').style.display = 'none';
+      document.getElementById('lostFoundEditorContainer').style.display = 'block';
+      document.getElementById('lostFoundEditorTitle').textContent = '➕ Yeni Kayıp/Bulunan İlanı Ekle';
+      renderLostFoundForm(null);
+    }
+
+    function editLostFound(i) {
+      currentLostFoundIndex = i;
+      const lf = rawData.explore.lostFound[i];
+      tempLostFoundPhoto = lf.imageUrl || lf.image || '';
+      document.getElementById('lostFoundListContainer').style.display = 'none';
+      document.getElementById('lostFoundEditorContainer').style.display = 'block';
+      document.getElementById('lostFoundEditorTitle').textContent = \`✏️ \${lf.title || 'İlan'} Düzenle\`;
+      renderLostFoundForm(lf);
+    }
+
+    function deleteLostFound(i) {
+      if (!confirm('Bu ilanı silmek istediğinize emin misiniz?')) return;
+      rawData.explore.lostFound.splice(i, 1);
+      renderLostFound();
+      showToast('İlan siliniyor...');
+      saveData();
+    }
+
+    function cancelLostFoundEdit() {
+      document.getElementById('lostFoundEditorContainer').style.display = 'none';
+      document.getElementById('lostFoundListContainer').style.display = 'block';
+      renderLostFound();
+    }
+
+    function renderLostFoundForm(lf) {
+      const data = lf || { title:'', type:'Kayıp', category:'Diğer', lostFoundDate:'', description:'', address:'', contact:'', whatsapp:'', isPaid:false, isActive:true };
+      const formDiv = document.getElementById('lostFoundEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(117,117,117,0.06),rgba(117,117,117,0.02)); border:1px solid rgba(117,117,117,0.2); border-radius:12px; padding:16px; margin-bottom:20px; display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">💎</span>
+          <div style="flex:1">
+            <div style="font-weight:700; font-size:14px; color:#0f172a">Öne Çıkan İlan</div>
+            <div style="font-size:12px; color:var(--text-muted)">Öne çıkan kayıp eşya ilanları listenin en başında yıldızlı gösterilir.</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
+            <input type="checkbox" id="lfIsPaid" \${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>Eşya Adı / İlan Başlığı</label>
+            <input id="lfTitle" value="\${escapeAttr(data.title)}" placeholder="Örn: Parkta Mavi Cüzdan Bulundu veya Kedim Kayboldu">
+          </div>
+          <div class="form-group">
+            <label>İlan Türü</label>
+            <select id="lfType">
+              <option value="Kayıp" \${data.type==='Kayıp'?'selected':''}>🚨 Kayıp İlanı</option>
+              <option value="Bulunan" \${data.type==='Bulunan'?'selected':''}>✅ Bulunan Eşya Duyurusu</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Eşya Kategorisi</label>
+            <select id="lfCategory">
+              <option value="Cüzdan & Kart" \${data.category==='Cüzdan & Kart'?'selected':''}>💳 Cüzdan & Kart</option>
+              <option value="Anahtar" \${data.category==='Anahtar'?'selected':''}>🔑 Anahtar</option>
+              <option value="Evcil Hayvan" \${data.category==='Evcil Hayvan'?'selected':''}>🐶 Evcil Hayvan</option>
+              <option value="Telefon & Elektronik" \${data.category==='Telefon & Elektronik'?'selected':''}>📱 Telefon & Elektronik</option>
+              <option value="Çanta & Giyim" \${data.category==='Çanta & Giyim'?'selected':''}>👜 Çanta & Giyim</option>
+              <option value="Diğer" \${data.category==='Diğer'?'selected':''}>📌 Diğer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Kaybolma / Bulunma Tarihi (Opsiyonel)</label>
+            <input id="lfDate" type="date" value="\${escapeAttr(data.lostFoundDate || '')}">
+          </div>
+          <div class="form-group">
+            <label>Kaybolduğu / Bulunduğu Konum (Adres)</label>
+            <input id="lfAddress" value="\${escapeAttr(data.address || '')}" placeholder="Örn: Cumhuriyet Parkı, Düziçi">
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Detaylı Açıklama (Belirgin Özellikler vb.)</label>
+            <textarea id="lfDescription" style="height:100px" placeholder="Eşyanın rengi, ayırt edici özellikleri, bulan kişinin teslim edeceği yer vb...Content">\${escapeHtml(data.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>İrtibat Telefonu</label>
+            <input id="lfContact" value="\${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
+          </div>
+          <div class="form-group">
+            <label>WhatsApp Numarası (Uluslararası Format)</label>
+            <input id="lfWhatsapp" value="\${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="lfIsActive" \${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>İlan Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+
+          <!-- Görsel -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Eşya Görseli (Opsiyonel)</label>
+            <div id="lfImagePreview" style="margin-bottom:12px"></div>
+            <div style="display:flex; gap:10px; align-items:center">
+              <input type="file" id="lfImageFile" style="display:none" accept="image/*" onchange="uploadLostFoundImageFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('lfImageFile').click()">📷 Fotoğraf Yükle</button>
+              <span style="font-size:12px; color:var(--text-muted)">veya URL:</span>
+              <input id="lfImageUrl" placeholder="https://resim-url.jpg" style="flex:1" onchange="updateLostFoundImagePreview(this.value)">
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveLostFoundChanges()">✓ İlanı Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelLostFoundEdit()">İptal</button>
+        </div>
+      `;
+      updateLostFoundImagePreview(tempLostFoundPhoto);
+    }
+
+    function updateLostFoundImagePreview(url) {
+      tempLostFoundPhoto = url.trim();
+      const preview = document.getElementById('lfImagePreview');
+      if (!preview) return;
+      if (tempLostFoundPhoto) {
+        preview.innerHTML = `
+          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(tempLostFoundPhoto)}'); background-size:cover; background-position:center;">
+            <button onclick="removeLostFoundImage()" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>`;
+      } else {
+        preview.innerHTML = '<p style="color:var(--text-muted); font-size:12px">Görsel seçilmedi.</p>';
+      }
+      const urlInput = document.getElementById('lfImageUrl');
+      if (urlInput) urlInput.value = tempLostFoundPhoto;
+    }
+
+    function removeLostFoundImage() {
+      updateLostFoundImagePreview('');
+    }
+
+    async function uploadLostFoundImageFile() {
+      const fileInput = document.getElementById('lfImageFile');
+      const file = fileInput.files[0];
+      if (!file) return;
+      showToast('Görsel yükleniyor...');
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+        if (res.status === 413) { showToast('Dosya çok büyük!', true); return; }
+        const data = await res.json();
+        if (data.ok) {
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) url = window.location.origin + url;
+          updateLostFoundImagePreview(url);
+          showToast('Görsel yüklendi!');
+        }
+      } catch(e) { console.error(e); showToast('Yükleme hatası!', true); }
+      fileInput.value = '';
+    }
+
+    function saveLostFoundChanges() {
+      const title = document.getElementById('lfTitle').value.trim();
+      const type = document.getElementById('lfType').value;
+      const category = document.getElementById('lfCategory').value;
+      const lostFoundDate = document.getElementById('lfDate').value;
+      const address = document.getElementById('lfAddress').value.trim();
+      const description = document.getElementById('lfDescription').value.trim();
+      const contact = document.getElementById('lfContact').value.trim();
+      const whatsapp = document.getElementById('lfWhatsapp').value.trim();
+      const isPaid = document.getElementById('lfIsPaid').checked;
+      const isActive = document.getElementById('lfIsActive').checked;
+
+      if (!title) return showToast('İlan başlığı zorunludur!', true);
+
+      rawData.explore.lostFound = rawData.explore.lostFound || [];
+
+      const lostData = {
+        id: (currentLostFoundIndex !== -1 ? rawData.explore.lostFound[currentLostFoundIndex].id : null) || 'lf_' + Date.now(),
+        title, type, category, lostFoundDate, address, description,
+        contact, whatsapp, isPaid, isActive,
+        imageUrl: tempLostFoundPhoto,
+        image: tempLostFoundPhoto,
+        createdAt: (currentLostFoundIndex !== -1 ? rawData.explore.lostFound[currentLostFoundIndex].createdAt : null) || new Date().toISOString()
+      };
+
+      if (currentLostFoundIndex === -1) {
+        rawData.explore.lostFound.unshift(lostData);
+        showToast('Yeni ilan eklendi, kaydediliyor...');
+      } else {
+        rawData.explore.lostFound[currentLostFoundIndex] = lostData;
+        showToast('İlan güncellendi, kaydediliyor...');
+      }
+
+      cancelLostFoundEdit();
       saveData();
     }
 
