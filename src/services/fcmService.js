@@ -59,4 +59,23 @@ function isFcmConfigured() {
   return ensureFirebase();
 }
 
-module.exports = { sendMulticast, isFcmConfigured };
+async function sendToTopic(topic, { title, body, data = {} }) {
+  if (!ensureFirebase()) {
+    return { success: false, error: 'FCM not configured' };
+  }
+  try {
+    const response = await admin.messaging().send({
+      topic,
+      notification: { title, body },
+      data,
+      android: { priority: 'high' },
+      apns: { payload: { aps: { sound: 'default', badge: 1 } } },
+    });
+    return { success: true, messageId: response };
+  } catch (error) {
+    console.error(`[FCM] Send to topic ${topic} failed:`, error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+module.exports = { sendMulticast, isFcmConfigured, sendToTopic };

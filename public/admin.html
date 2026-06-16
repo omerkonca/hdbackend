@@ -435,6 +435,7 @@
       <div class="menu-group-items" id="groupExplore">
         <div class="nav-item" onclick="switchView('explore')">🌍 Gezi Rehberi</div>
         <div class="nav-item" onclick="switchView('autoGallery')">🚗 Oto Galeri İlanları</div>
+        <div class="nav-item" onclick="switchView('realEstate')">🏠 Emlak İlanları</div>
         <div class="nav-item" onclick="switchView('services')">🛠️ Şehir Hizmetleri</div>
         <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
         <div class="nav-item" onclick="switchView('moreMenu')">📑 Daha Fazla Menüsü</div>
@@ -606,6 +607,23 @@
         <div class="card" id="autoGalleryEditorContainer" style="display:none">
           <div class="section-title" id="autoGalleryEditorTitle">✏️ İlan Düzenle</div>
           <div id="autoGalleryEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Emlak İlanları -->
+      <div id="realEstateView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="realEstateListContainer">
+          <div class="section-title">🏠 Emlak İlanları</div>
+          <p style="color:var(--text-muted); font-size:13px">Düziçi satılık/kiralık daire, işyeri ve arsa ilanlarını buradan yönetebilirsiniz. Oto galeri ilanları tarzında listelenir.</p>
+          <div id="realEstateList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewRealEstate()">➕ Yeni Emlak İlanı Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="realEstateEditorContainer" style="display:none">
+          <div class="section-title" id="realEstateEditorTitle">✏️ İlan Düzenle</div>
+          <div id="realEstateEditorForm" style="margin-top:16px"></div>
         </div>
       </div>
 
@@ -821,6 +839,8 @@
     // New variables
     let currentVehicleIndex = -1;
     let tempVehicleGallery = [];
+    let currentRealEstateIndex = -1;
+    let tempRealEstateGallery = [];
     let currentEventIndex = -1;
 
     function slugify(text) {
@@ -1066,6 +1086,7 @@
         backups: ['Yedekler', 'Veri güvenliği ve geri yükleme merkezi.'],
         json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.'],
         autoGallery: ['Oto Galeri İlanları', 'Esnafların satılık/kiralık araç ilanlarını yönetin.'],
+        realEstate: ['Emlak İlanları', 'Esnafların ve sahibinden satılık/kiralık emlak ve arsa ilanlarını yönetin.'],
         events: ['Kültür & Sanat Etkinlikleri', 'Düziçi ve çevre illerdeki sosyal etkinlikleri yönetin.']
       };
       
@@ -1090,6 +1111,12 @@
         document.getElementById('autoGalleryListContainer').style.display = 'block';
         document.getElementById('autoGalleryEditorContainer').style.display = 'none';
         renderAutoGallery();
+      }
+      if (view === 'realEstate') {
+        currentRealEstateIndex = -1;
+        document.getElementById('realEstateListContainer').style.display = 'block';
+        document.getElementById('realEstateEditorContainer').style.display = 'none';
+        renderRealEstate();
       }
       if (view === 'events') {
         currentEventIndex = -1;
@@ -1146,6 +1173,7 @@
       }
       rawData.explore.categories = Array.isArray(rawData.explore.categories) ? rawData.explore.categories : [];
       rawData.explore.autoVehicles = Array.isArray(rawData.explore.autoVehicles) ? rawData.explore.autoVehicles : [];
+      rawData.explore.realEstates = Array.isArray(rawData.explore.realEstates) ? rawData.explore.realEstates : [];
       rawData.customEvents = Array.isArray(rawData.customEvents) ? rawData.customEvents : [];
 
       // Stats
@@ -2443,6 +2471,270 @@
       }
 
       cancelVehicleEdit();
+      saveData();
+    }
+
+    // ─────────────────────────────────────────────
+    //  REAL ESTATE MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderRealEstate() {
+      const estates = rawData.explore.realEstates || [];
+      const list = document.getElementById('realEstateList');
+      if (!list) return;
+
+      if (estates.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz emlak ilanı eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk emlak ilanını oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = estates.map((re, i) => {
+        const badge = re.isPaid ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.3px">💎 ÖNE ÇIKAN</span>` : '';
+        const statusBadge = re.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        const thumb = re.images && re.images.length > 0 ? re.images[0] : (re.image || '');
+        return `
+        <div class="list-item" style="gap:16px; ${re.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
+            ${thumb ? `<img src="${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:28px">🏠</span>'}
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              ${escapeHtml(re.title || 'Başlıksız İlan')}
+              ${badge} ${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              ${escapeHtml(re.type || '')} • ${escapeHtml(re.category || '')} • ${escapeHtml(re.area || '')} ${re.roomCount ? '• ' + escapeHtml(re.roomCount) : ''}
+            </div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
+              ${re.price ? escapeHtml(re.price) + ' ₺' : ''}
+              ${re.contact ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 ${escapeHtml(re.contact)}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editRealEstate(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteRealEstate(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function createNewRealEstate() {
+      currentRealEstateIndex = -1;
+      tempRealEstateGallery = [];
+      document.getElementById('realEstateListContainer').style.display = 'none';
+      document.getElementById('realEstateEditorContainer').style.display = 'block';
+      document.getElementById('realEstateEditorTitle').textContent = '➕ Yeni Emlak İlanı Ekle';
+      renderRealEstateForm(null);
+    }
+
+    function editRealEstate(i) {
+      currentRealEstateIndex = i;
+      const re = rawData.explore.realEstates[i];
+      tempRealEstateGallery = re.images ? [...re.images] : (re.image ? [re.image] : []);
+      document.getElementById('realEstateListContainer').style.display = 'none';
+      document.getElementById('realEstateEditorContainer').style.display = 'block';
+      document.getElementById('realEstateEditorTitle').textContent = `✏️ ${re.title || 'İlan'} Düzenle`;
+      renderRealEstateForm(re);
+    }
+
+    function deleteRealEstate(i) {
+      if (!confirm('Bu emlak ilanını silmek istediğinize emin misiniz?')) return;
+      rawData.explore.realEstates.splice(i, 1);
+      renderRealEstate();
+      showToast('Emlak ilanı siliniyor...');
+      saveData();
+    }
+
+    function cancelRealEstateEdit() {
+      document.getElementById('realEstateEditorContainer').style.display = 'none';
+      document.getElementById('realEstateListContainer').style.display = 'block';
+      renderRealEstate();
+    }
+
+    function renderRealEstateForm(re) {
+      const d = re || { title:'', type:'Daire', category:'Satılık', price:'', area:'', roomCount:'', description:'', address:'', contact:'', sellerName:'', isPaid:false, isActive:true, images:[] };
+      const formDiv = document.getElementById('realEstateEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(201,139,24,0.06),rgba(201,139,24,0.02)); border:1px solid rgba(201,139,24,0.2); border-radius:12px; padding:16px; margin-bottom:20px; display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">💎</span>
+          <div style="flex:1">
+            <div style="font-weight:700; font-size:14px; color:#0f172a">Öne Çıkan İlan (Ücretli)</div>
+            <div style="font-size:12px; color:var(--text-muted)">Bu seçenek aktif edilirse ilan diğerlerinin önünde altın rozet ile gösterilir.</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
+            <input type="checkbox" id="reIsPaid" ${d.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>İlan Başlığı</label>
+            <input id="reTitle" value="${escapeAttr(d.title)}" placeholder="Örn: Satılık 3+1 Lüks Daire - Cumhuriyet Mah.">
+          </div>
+          <div class="form-group">
+            <label>Emlak Tipi</label>
+            <select id="reType">
+              <option value="Daire" ${d.type==='Daire'?'selected':''}>Daire</option>
+              <option value="Müstakil Ev" ${d.type==='Müstakil Ev'?'selected':''}>Müstakil Ev</option>
+              <option value="Arsa/Arazi" ${d.type==='Arsa/Arazi'?'selected':''}>Arsa/Arazi</option>
+              <option value="İşyeri" ${d.type==='İşyeri'?'selected':''}>İşyeri / Dükkan</option>
+              <option value="Bina" ${d.type==='Bina'?'selected':''}>Bina</option>
+              <option value="Diğer" ${d.type==='Diğer'?'selected':''}>Diğer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="reCategory">
+              <option value="Satılık" ${d.category==='Satılık'?'selected':''}>Satılık</option>
+              <option value="Kiralık" ${d.category==='Kiralık'?'selected':''}>Kiralık</option>
+              <option value="Günlük Kiralık" ${d.category==='Günlük Kiralık'?'selected':''}>Günlük Kiralık</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fiyat (₺ veya Aylık ₺)</label>
+            <input id="rePrice" value="${escapeAttr(d.price)}" placeholder="Örn: 2.850.000 veya 12.000">
+          </div>
+          <div class="form-group">
+            <label>Metrekare (Alan)</label>
+            <input id="reArea" value="${escapeAttr(d.area)}" placeholder="Örn: 135 m² veya 450 m²">
+          </div>
+          <div class="form-group">
+            <label>Oda Sayısı (Arsa için boş bırakın)</label>
+            <input id="reRoomCount" value="${escapeAttr(d.roomCount)}" placeholder="Örn: 3+1, 2+1, 4+2">
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Adres / Konum Açıklaması</label>
+            <input id="reAddress" value="${escapeAttr(d.address)}" placeholder="Örn: Cumhuriyet Mah. No: 12, Düziçi">
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Açıklama</label>
+            <textarea id="reDescription" style="height:100px" placeholder="Emlak/arsa hakkında detaylı bilgi, konumu, takas imkanı vb...">${escapeHtml(d.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Satıcı Adı / Emlak Ofisi</label>
+            <input id="reSellerName" value="${escapeAttr(d.sellerName)}" placeholder="Örn: Merkez Emlak veya Sahibinden">
+          </div>
+          <div class="form-group">
+            <label>İletişim (Telefon)</label>
+            <input id="reContact" value="${escapeAttr(d.contact)}" placeholder="0532 596 70 79">
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="reIsActive" ${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>İlan Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+
+          <!-- Emlak Fotoğrafları -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Emlak Fotoğrafları</label>
+            <div id="reGalleryList" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin-bottom:12px"></div>
+            <div style="display:flex; gap:10px; align-items:center">
+              <input type="file" id="reGalleryFile" style="display:none" accept="image/*" multiple onchange="uploadRealEstateGalleryFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('reGalleryFile').click()">📷 Fotoğraf Yükle</button>
+              <span style="font-size:12px; color:var(--text-muted)">veya URL girin:</span>
+              <input id="reGalleryUrl" placeholder="https://resim-url.jpg" style="flex:1">
+              <button class="btn btn-secondary" onclick="addRealEstateGalleryUrl()">➕ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveRealEstateChanges()">✓ İlanı Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelRealEstateEdit()">İptal</button>
+        </div>
+      `;
+      renderRealEstateGalleryList();
+    }
+
+    function renderRealEstateGalleryList() {
+      const list = document.getElementById('reGalleryList');
+      if (!list) return;
+      list.innerHTML = tempRealEstateGallery.map((url, i) => `
+        <div style="position:relative; width:110px; height:80px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(url)}'); background-size:cover; background-position:center; flex-shrink:0">
+          ${i === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">ANA</span>' : ''}
+          <button onclick="removeRealEstateGalleryItem(${i})" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:12px; grid-column:span 3">Henüz fotoğraf eklenmedi.</p>';
+    }
+
+    function removeRealEstateGalleryItem(i) {
+      tempRealEstateGallery.splice(i, 1);
+      renderRealEstateGalleryList();
+    }
+
+    function addRealEstateGalleryUrl() {
+      const url = document.getElementById('reGalleryUrl').value.trim();
+      if (!url) return showToast('Lütfen bir URL girin', true);
+      tempRealEstateGallery.push(url);
+      document.getElementById('reGalleryUrl').value = '';
+      renderRealEstateGalleryList();
+    }
+
+    async function uploadRealEstateGalleryFile() {
+      const fileInput = document.getElementById('reGalleryFile');
+      const files = Array.from(fileInput.files);
+      if (files.length === 0) return;
+      showToast('Fotoğraflar yükleniyor...');
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+          if (res.status === 413) { showToast('Dosya çok büyük!', true); continue; }
+          const data = await res.json();
+          if (data.ok) {
+            let url = data.fileUrl;
+            if (url.startsWith('/uploads/')) url = window.location.origin + url;
+            tempRealEstateGallery.push(url);
+          }
+        } catch(e) { console.error(e); }
+      }
+      fileInput.value = '';
+      renderRealEstateGalleryList();
+      showToast('Fotoğraflar yüklendi!');
+    }
+
+    function saveRealEstateChanges() {
+      const title = document.getElementById('reTitle').value.trim();
+      const type = document.getElementById('reType').value;
+      const category = document.getElementById('reCategory').value;
+      const price = document.getElementById('rePrice').value.trim();
+      const area = document.getElementById('reArea').value.trim();
+      const roomCount = document.getElementById('reRoomCount').value.trim();
+      const address = document.getElementById('reAddress').value.trim();
+      const description = document.getElementById('reDescription').value.trim();
+      const sellerName = document.getElementById('reSellerName').value.trim();
+      const contact = document.getElementById('reContact').value.trim();
+      const isPaid = document.getElementById('reIsPaid').checked;
+      const isActive = document.getElementById('reIsActive').checked;
+
+      if (!title) return showToast('İlan başlığı zorunludur!', true);
+
+      rawData.explore.realEstates = rawData.explore.realEstates || [];
+
+      const estateData = {
+        id: (currentRealEstateIndex !== -1 ? rawData.explore.realEstates[currentRealEstateIndex].id : null) || 're_' + Date.now(),
+        title, type, category, price, area, roomCount, address, description,
+        sellerName, contact, isPaid, isActive,
+        images: [...tempRealEstateGallery],
+        image: tempRealEstateGallery[0] || '',
+        createdAt: (currentRealEstateIndex !== -1 ? rawData.explore.realEstates[currentRealEstateIndex].createdAt : null) || new Date().toISOString()
+      };
+
+      if (currentRealEstateIndex === -1) {
+        rawData.explore.realEstates.unshift(estateData); // yeniler öne çıksın
+        showToast('Yeni ilan eklendi, kaydediliyor...');
+      } else {
+        rawData.explore.realEstates[currentRealEstateIndex] = estateData;
+        showToast('İlan güncellendi, kaydediliyor...');
+      }
+
+      cancelRealEstateEdit();
       saveData();
     }
 

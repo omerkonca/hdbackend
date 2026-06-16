@@ -337,6 +337,50 @@ class NewsService {
         category: item.category,
         fetched_at: new Date().toISOString(),
       }));
+
+      // Yeni haberlerin tespiti (veritabanında henüz yer almayanlar)
+      const ids = items.map(item => item.id);
+      const { data: existing, error: checkError } = await supabase
+        .from('news_items')
+        .select('id')
+        .in('id', ids);
+
+      if (!checkError && existing) {
+        const existingIds = new Set(existing.map(row => row.id));
+        const newItems = items.filter(item => !existingIds.has(item.id));
+
+        if (newItems.length > 0) {
+          console.log(`[news] ${newItems.length} yeni haber tespit edildi. Push bildirimleri kontrol ediliyor...`);
+          
+          // Spam koruması: Sadece son 30 dakika içinde yayınlanmış haberleri ve en fazla 3 tanesini al
+          const nowCutoff = new Date(Date.now() - 30 * 60 * 1000);
+          const freshNewItems = newItems
+            .filter(item => new Date(item.createdAt) >= nowCutoff)
+            .slice(0, 3);
+
+          if (freshNewItems.length > 0) {
+            const fcmService = require('./fcmService');
+            for (const item of freshNewItems) {
+              const isDuzici = item.category.toLowerCase().includes('düziçi') ||
+                  item.category.toLowerCase().includes('duzici') ||
+                  this.isDuziciRelated(item.title, item.summary);
+              
+              const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
+              const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
+              
+              console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
+              await fcmService.sendToTopic(topic, {
+                title: pushTitle,
+                body: item.title,
+                data: {
+                  route: item.id,
+                },
+              });
+            }
+          }
+        }
+      }
+
       await supabase.from('news_items').upsert(rows);
       console.log(`[news] ${rows.length} news items synced to Supabase.`);
 
