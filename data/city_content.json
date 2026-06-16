@@ -1905,6 +1905,62 @@
           }
         ]
       }
+    ],
+    "localProducts": [
+      {
+        "id": "lp_1781555000001",
+        "title": "Taze Organik Köy Yoğurdu",
+        "category": "Süt & Yoğurt",
+        "unit": "Kg",
+        "price": "120",
+        "description": "Günlük taze sağılmış inek sütünden, tamamen doğal köy mayasıyla mayalanmış taş gibi sert, lezzetli süzme yoğurt.",
+        "address": "Karlıca Mahallesi",
+        "sellerName": "Fatma Abla",
+        "contact": "0541 123 45 67",
+        "images": [
+          "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=960"
+        ],
+        "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=960",
+        "isPaid": true,
+        "isActive": true,
+        "createdAt": "2026-06-16T12:00:00.000Z"
+      },
+      {
+        "id": "lp_1781555000002",
+        "title": "Serbest Gezen Köy Yumurtası",
+        "category": "Yumurta",
+        "unit": "Adet",
+        "price": "5",
+        "description": "Doğal yemlerle beslenen köy tavuklarımızın günlük taze yumurtaları. Minimum 30 adet siparişlerde ilçe merkezine teslimat yapılır.",
+        "address": "Yeşilova Mahallesi",
+        "sellerName": "Mehmet Amca",
+        "contact": "0532 987 65 43",
+        "images": [
+          "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?w=960"
+        ],
+        "image": "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?w=960",
+        "isPaid": false,
+        "isActive": true,
+        "createdAt": "2026-06-16T12:10:00.000Z"
+      },
+      {
+        "id": "lp_1781555000003",
+        "title": "Fırından Sıcak Ev Yapımı Etli Kömbe",
+        "category": "Ev Yemekleri",
+        "unit": "Tepsi",
+        "price": "380",
+        "description": "Düziçi yöremizin meşhur, bol malzemeli, taş fırında odun ateşinde pişirilmiş çıtır çıtır etli kömbesi. Sipariş üzerine günlük taze yapılır.",
+        "address": "Cumhuriyet Mahallesi",
+        "sellerName": "Hatice Teyze",
+        "contact": "0545 444 33 22",
+        "images": [
+          "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=960"
+        ],
+        "image": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=960",
+        "isPaid": true,
+        "isActive": true,
+        "createdAt": "2026-06-16T12:20:00.000Z"
+      }
     ]
   },
   "branding": {

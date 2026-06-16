@@ -438,6 +438,7 @@
         <div class="nav-item" onclick="switchView('realEstate')">🏠 Emlak İlanları</div>
         <div class="nav-item" onclick="switchView('services')">🛠️ Şehir Hizmetleri</div>
         <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
+        <div class="nav-item" onclick="switchView('localProducts')">🏪 Yöresel Pazar</div>
         <div class="nav-item" onclick="switchView('moreMenu')">📑 Daha Fazla Menüsü</div>
       </div>
 
@@ -792,6 +793,23 @@
         </div>
       </div>
 
+      <!-- Yöresel Pazar İlanları -->
+      <div id="localProductsView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="localProductsListContainer">
+          <div class="section-title">🏪 Yöresel Ürün Pazarı İlanları</div>
+          <p style="color:var(--text-muted); font-size:13px">Düziçi halkının evlerinde ürettikleri taze köy ürünlerini (Süt, Yoğurt, Yumurta, Etli Kömbe vb.) satabilecekleri ilanları buradan yönetebilirsiniz.</p>
+          <div id="localProductsList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewLocalProduct()">➕ Yeni Ürün İlanı Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="localProductsEditorContainer" style="display:none">
+          <div class="section-title" id="localProductsEditorTitle">✏️ İlan Düzenle</div>
+          <div id="localProductsEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
       <!-- News Sources -->
       <div id="newsSourcesView" class="view-section">
         <div class="card">
@@ -842,6 +860,8 @@
     let currentRealEstateIndex = -1;
     let tempRealEstateGallery = [];
     let currentEventIndex = -1;
+    let currentLocalProductIndex = -1;
+    let tempLocalProductGallery = [];
 
     function slugify(text) {
       const trMap = {
@@ -1087,7 +1107,8 @@
         json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.'],
         autoGallery: ['Oto Galeri İlanları', 'Esnafların satılık/kiralık araç ilanlarını yönetin.'],
         realEstate: ['Emlak İlanları', 'Esnafların ve sahibinden satılık/kiralık emlak ve arsa ilanlarını yönetin.'],
-        events: ['Kültür & Sanat Etkinlikleri', 'Düziçi ve çevre illerdeki sosyal etkinlikleri yönetin.']
+        events: ['Kültür & Sanat Etkinlikleri', 'Düziçi ve çevre illerdeki sosyal etkinlikleri yönetin.'],
+        localProducts: ['Yöresel Ürün Pazarı İlanları', 'Vatandaşların evlerinde ürettikleri ürün ilanlarını yönetin.']
       };
       
       document.getElementById('viewTitle').textContent = titles[view] ? titles[view][0] : 'Yönetim Paneli';
@@ -1123,6 +1144,12 @@
         document.getElementById('eventsListContainer').style.display = 'block';
         document.getElementById('eventsEditorContainer').style.display = 'none';
         renderEvents();
+      }
+      if (view === 'localProducts') {
+        currentLocalProductIndex = -1;
+        document.getElementById('localProductsListContainer').style.display = 'block';
+        document.getElementById('localProductsEditorContainer').style.display = 'none';
+        renderLocalProducts();
       }
     }
 
@@ -1174,6 +1201,7 @@
       rawData.explore.categories = Array.isArray(rawData.explore.categories) ? rawData.explore.categories : [];
       rawData.explore.autoVehicles = Array.isArray(rawData.explore.autoVehicles) ? rawData.explore.autoVehicles : [];
       rawData.explore.realEstates = Array.isArray(rawData.explore.realEstates) ? rawData.explore.realEstates : [];
+      rawData.explore.localProducts = Array.isArray(rawData.explore.localProducts) ? rawData.explore.localProducts : [];
       rawData.customEvents = Array.isArray(rawData.customEvents) ? rawData.customEvents : [];
 
       // Stats
@@ -1234,6 +1262,8 @@
       if (currentExploreCategoryIndex !== -1) {
         renderPlacesList();
       }
+
+      renderLocalProducts();
 
       // Sponsors
       const spList = document.getElementById('sponsorsList');
@@ -2950,6 +2980,260 @@
         rawData.customEvents[currentEventIndex] = eventData;
         showToast('Etkinlik güncellendi, kaydediliyor...');
       }
+
+      cancelEventEdit();
+      saveData();
+    }
+
+    // ─────────────────────────────────────────────
+    //  LOCAL PRODUCTS (YÖRESEL PAZAR) MANAGER
+    // ─────────────────────────────────────────────
+
+    function renderLocalProducts() {
+      const products = rawData.explore.localProducts || [];
+      const list = document.getElementById('localProductsList');
+      if (!list) return;
+
+      if (products.length === 0) {
+        list.innerHTML = `<p style="color:var(--text-muted); text-align:center; padding:24px 0">Henüz yöresel ürün ilanı eklenmemiş.<br><small>Aşağıdaki butona tıklayarak ilk ilanı oluşturun.</small></p>`;
+        return;
+      }
+
+      list.innerHTML = products.map((p, i) => {
+        const badge = p.isPaid ? `<span style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; letter-spacing:0.3px">💎 ÖNE ÇIKAN</span>` : '';
+        const statusBadge = p.isActive === false
+          ? `<span style="background:#fee2e2; color:#ef4444; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">PASİF</span>`
+          : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
+        const thumb = p.images && p.images.length > 0 ? p.images[0] : (p.image || '');
+        return `
+        <div class="list-item" style="gap:16px; ${p.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+          <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
+            ${thumb ? `<img src="${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:28px">🥛</span>'}
+          </div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+              ${escapeHtml(p.title || 'Başlıksız İlan')}
+              ${badge} ${statusBadge}
+            </div>
+            <div class="list-item-subtitle" style="margin-top:4px">
+              ${escapeHtml(p.category || '')} ${p.unit ? '• Birim: ' + escapeHtml(p.unit) : ''} ${p.address ? '• 📍 ' + escapeHtml(p.address) : ''}
+            </div>
+            <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
+              ${p.price ? escapeHtml(p.price) + ' ₺' : ''}
+              ${p.sellerName ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 👤 ${escapeHtml(p.sellerName)}</span>` : ''}
+              ${p.contact ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 ${escapeHtml(p.contact)}</span>` : ''}
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editLocalProduct(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteLocalProduct(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function createNewLocalProduct() {
+      currentLocalProductIndex = -1;
+      tempLocalProductGallery = [];
+      document.getElementById('localProductsListContainer').style.display = 'none';
+      document.getElementById('localProductsEditorContainer').style.display = 'block';
+      document.getElementById('localProductsEditorTitle').textContent = '➕ Yeni Ürün İlanı Ekle';
+      renderLocalProductForm(null);
+    }
+
+    function editLocalProduct(i) {
+      currentLocalProductIndex = i;
+      const p = rawData.explore.localProducts[i];
+      tempLocalProductGallery = p.images ? [...p.images] : (p.image ? [p.image] : []);
+      document.getElementById('localProductsListContainer').style.display = 'none';
+      document.getElementById('localProductsEditorContainer').style.display = 'block';
+      document.getElementById('localProductsEditorTitle').textContent = `✏️ ${p.title || 'İlan'} Düzenle`;
+      renderLocalProductForm(p);
+    }
+
+    function deleteLocalProduct(i) {
+      if (!confirm('Bu ilanı silmek istediğinize emin misiniz?')) return;
+      rawData.explore.localProducts.splice(i, 1);
+      renderLocalProducts();
+      showToast('İlan siliniyor...');
+      saveData();
+    }
+
+    function cancelLocalProductEdit() {
+      document.getElementById('localProductsEditorContainer').style.display = 'none';
+      document.getElementById('localProductsListContainer').style.display = 'block';
+      renderLocalProducts();
+    }
+
+    function renderLocalProductForm(p) {
+      const d = p || { title:'', category:'Diğer', price:'', unit:'Kg', description:'', address:'', contact:'', sellerName:'', isPaid:false, isActive:true, images:[] };
+      const formDiv = document.getElementById('localProductsEditorForm');
+
+      formDiv.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(201,139,24,0.06),rgba(201,139,24,0.02)); border:1px solid rgba(201,139,24,0.2); border-radius:12px; padding:16px; margin-bottom:20px; display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">💎</span>
+          <div style="flex:1">
+            <div style="font-weight:700; font-size:14px; color:#0f172a">Öne Çıkan İlan (Ücretli)</div>
+            <div style="font-size:12px; color:var(--text-muted)">Bu seçenek aktif edilirse ilan diğerlerinin önünde altın rozet ile gösterilir.</div>
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
+            <input type="checkbox" id="lpIsPaid" ${d.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+          <div class="form-group" style="grid-column:span 2">
+            <label>İlan Başlığı</label>
+            <input id="lpTitle" value="\${escapeAttr(d.title)}" placeholder="Örn: Taze Köy Yoğurdu - Günlük Mayalama">
+          </div>
+          <div class="form-group">
+            <label>Ürün Kategorisi</label>
+            <select id="lpCategory">
+              <option value="Süt & Yoğurt" \${d.category==='Süt & Yoğurt'?'selected':''}>🥛 Süt & Yoğurt</option>
+              <option value="Yumurta" \${d.category==='Yumurta'?'selected':''}>🥚 Yumurta</option>
+              <option value="Ev Yemekleri" \${d.category==='Ev Yemekleri'?'selected':''}>🍲 Ev Yemekleri & Kömbe</option>
+              <option value="Sebze & Meyve" \${d.category==='Sebze & Meyve'?'selected':''}>🍎 Sebze & Meyve</option>
+              <option value="Diğer" \${d.category==='Diğer'?'selected':''}>📌 Diğer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Satış Birimi</label>
+            <input id="lpUnit" value="\${escapeAttr(d.unit || 'Kg')}" placeholder="Kg, Litre, Adet, Tepsi, Koli...">
+          </div>
+          <div class="form-group">
+            <label>Fiyat (₺)</label>
+            <input id="lpPrice" value="\${escapeAttr(d.price)}" placeholder="Örn: 120">
+          </div>
+          <div class="form-group">
+            <label>Konum (Mahalle / Yer)</label>
+            <input id="lpAddress" value="\${escapeAttr(d.address || '')}" placeholder="Örn: İrfanlı Mah. / Cumhuriyet Mah.">
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label>Açıklama</label>
+            <textarea id="lpDescription" style="height:100px" placeholder="Ürün hakkında detaylı bilgi, mayalanma şekli, teslimat durumu vb...Contents">\${escapeHtml(d.description || '')}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Üretici / Satıcı Adı</label>
+            <input id="lpSellerName" value="\${escapeAttr(d.sellerName || '')}" placeholder="Örn: Fatma Abla">
+          </div>
+          <div class="form-group">
+            <label>İletişim (Telefon)</label>
+            <input id="lpContact" value="\${escapeAttr(d.contact || '')}" placeholder="0555 123 45 67">
+          </div>
+
+          <div class="form-group" style="grid-column:span 2">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
+              <input type="checkbox" id="lpIsActive" \${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <span>İlan Aktif (Uygulamada Görünsün)</span>
+            </label>
+          </div>
+
+          <!-- Fotoğraflar -->
+          <div class="form-group" style="grid-column:span 2; border-top:1px solid var(--border); padding-top:16px">
+            <label>Ürün Fotoğrafları</label>
+            <div id="lpGalleryList" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; margin-bottom:12px"></div>
+            <div style="display:flex; gap:10px; align-items:center">
+              <input type="file" id="lpGalleryFile" style="display:none" accept="image/*" multiple onchange="uploadLocalProductGalleryFile()">
+              <button class="btn btn-secondary" onclick="document.getElementById('lpGalleryFile').click()">📷 Fotoğraf Yükle</button>
+              <span style="font-size:12px; color:var(--text-muted)">veya URL girin:</span>
+              <input id="lpGalleryUrl" placeholder="https://resim-url.jpg" style="flex:1">
+              <button class="btn btn-secondary" onclick="addLocalProductGalleryUrl()">➕ Ekle</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px">
+          <button class="btn btn-primary" onclick="saveLocalProductChanges()">✓ İlanı Kaydet</button>
+          <button class="btn btn-secondary" onclick="cancelLocalProductEdit()">İptal</button>
+        </div>
+      `;
+      renderLocalProductGalleryList();
+    }
+
+    function renderLocalProductGalleryList() {
+      const list = document.getElementById('lpGalleryList');
+      if (!list) return;
+      list.innerHTML = tempLocalProductGallery.map((url, i) => `
+        <div style="position:relative; width:110px; height:80px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(url)}'); background-size:cover; background-position:center; flex-shrink:0">
+          \${i === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">ANA</span>' : ''}
+          <button onclick="removeLocalProductGalleryItem(\${i})" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:12px; grid-column:span 3">Henüz fotoğraf eklenmedi.</p>';
+    }
+
+    function removeLocalProductGalleryItem(i) {
+      tempLocalProductGallery.splice(i, 1);
+      renderLocalProductGalleryList();
+    }
+
+    function addLocalProductGalleryUrl() {
+      const url = document.getElementById('lpGalleryUrl').value.trim();
+      if (!url) return showToast('Lütfen bir URL girin', true);
+      tempLocalProductGallery.push(url);
+      document.getElementById('lpGalleryUrl').value = '';
+      renderLocalProductGalleryList();
+    }
+
+    async function uploadLocalProductGalleryFile() {
+      const fileInput = document.getElementById('lpGalleryFile');
+      const files = Array.from(fileInput.files);
+      if (files.length === 0) return;
+      showToast('Fotoğraflar yükleniyor...');
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        try {
+          const res = await fetch('/api/upload', { method:'POST', headers:{'x-admin-token':currentToken}, body:formData });
+          if (res.status === 413) { showToast('Dosya çok büyük!', true); continue; }
+          const data = await res.json();
+          if (data.ok) {
+            let url = data.fileUrl;
+            if (url.startsWith('/uploads/')) url = window.location.origin + url;
+            tempLocalProductGallery.push(url);
+          }
+        } catch(e) { console.error(e); }
+      }
+      fileInput.value = '';
+      renderLocalProductGalleryList();
+      showToast('Fotoğraflar yüklendi!');
+    }
+
+    function saveLocalProductChanges() {
+      const title = document.getElementById('lpTitle').value.trim();
+      const category = document.getElementById('lpCategory').value;
+      const unit = document.getElementById('lpUnit').value.trim() || 'Kg';
+      const price = document.getElementById('lpPrice').value.trim();
+      const address = document.getElementById('lpAddress').value.trim();
+      const description = document.getElementById('lpDescription').value.trim();
+      const sellerName = document.getElementById('lpSellerName').value.trim();
+      const contact = document.getElementById('lpContact').value.trim();
+      const isPaid = document.getElementById('lpIsPaid').checked;
+      const isActive = document.getElementById('lpIsActive').checked;
+
+      if (!title) return showToast('İlan başlığı zorunludur!', true);
+
+      rawData.explore.localProducts = rawData.explore.localProducts || [];
+
+      const productData = {
+        id: (currentLocalProductIndex !== -1 ? rawData.explore.localProducts[currentLocalProductIndex].id : null) || 'lp_' + Date.now(),
+        title, category, unit, price, address, description,
+        sellerName, contact, isPaid, isActive,
+        images: [...tempLocalProductGallery],
+        image: tempLocalProductGallery[0] || '',
+        createdAt: (currentLocalProductIndex !== -1 ? rawData.explore.localProducts[currentLocalProductIndex].createdAt : null) || new Date().toISOString()
+      };
+
+      if (currentLocalProductIndex === -1) {
+        rawData.explore.localProducts.unshift(productData); // yeniler öne çıksın
+        showToast('Yeni ilan eklendi, kaydediliyor...');
+      } else {
+        rawData.explore.localProducts[currentLocalProductIndex] = productData;
+        showToast('İlan güncellendi, kaydediliyor...');
+      }
+
+      cancelLocalProductEdit();
+      saveData();
+    }
 
       cancelEventEdit();
       saveData();
