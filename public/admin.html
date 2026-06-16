@@ -1138,10 +1138,14 @@
           showToast('Hoşgeldiniz!');
           loadData();
         } else {
-          showToast('Hatalı Şifre!', true);
+          const errData = await res.json().catch(() => ({}));
+          const msg = res.status === 401 ? 'Hatalı Şifre! (401)' : `Sunucu Hatası! (${res.status})`;
+          console.error('[Admin Login]', res.status, errData);
+          showToast(msg, true);
         }
       } catch (e) {
-        showToast('Bağlantı Hatası!', true);
+        console.error('[Admin Login] Bağlantı hatası:', e);
+        showToast('Bağlantı Hatası! Sunucu cevap vermiyor.', true);
       }
     }
 
