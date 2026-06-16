@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSyncAt": "2026-06-15T20:35:25.319Z",
+  "lastSyncAt": "2026-06-16T14:41:41.941Z",
   "items": {
     "belediye_trafik_2025_27": {
       "id": "belediye_trafik_2025_27",
@@ -22,7 +22,7 @@
       "kind": "municipality",
       "autoManaged": false,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
-      "lastSeenAt": "2026-06-15T20:35:25.319Z",
+      "lastSeenAt": "2026-06-16T14:41:41.941Z",
       "missedScans": 0
     },
     "belediye_haberler_recep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -45,7 +45,7 @@
       "kind": "municipality",
       "autoManaged": false,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
-      "lastSeenAt": "2026-06-15T20:35:25.319Z",
+      "lastSeenAt": "2026-06-16T14:41:41.941Z",
       "missedScans": 0
     },
     "belediye_duyurularil-trafik-komisyonun-25032025-ve-202527-sayili-karari": {
@@ -69,8 +69,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 492,
-      "closedAt": "2026-06-15T20:35:25.319Z",
+      "missedScans": 494,
+      "closedAt": "2026-06-16T14:41:41.941Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_il-trafik-komisyonun-25032025-ve-202527-sayili-karari": {
@@ -94,8 +94,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 492,
-      "closedAt": "2026-06-15T20:35:25.319Z",
+      "missedScans": 494,
+      "closedAt": "2026-06-16T14:41:41.941Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_duyurular": {
@@ -119,8 +119,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 492,
-      "closedAt": "2026-06-15T20:35:25.319Z",
+      "missedScans": 494,
+      "closedAt": "2026-06-16T14:41:41.941Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberlerrecep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -144,8 +144,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 492,
-      "closedAt": "2026-06-15T20:35:25.319Z",
+      "missedScans": 494,
+      "closedAt": "2026-06-16T14:41:41.941Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_recep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -169,8 +169,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 492,
-      "closedAt": "2026-06-15T20:35:25.319Z",
+      "missedScans": 494,
+      "closedAt": "2026-06-16T14:41:41.941Z",
       "closeReason": "Duyuru artık yayında değil"
     }
   }
