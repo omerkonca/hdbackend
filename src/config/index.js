@@ -2,7 +2,7 @@ const path = require('path');
 
 const config = {
   PORT: Number(process.env.PORT || 5050),
-  ADMIN_TOKEN: process.env.ADMIN_TOKEN || '123456',
+  ADMIN_TOKEN: process.env.ADMIN_TOKEN || 'hd_admin_secure_token_fallback_2026_#948275_!',
   SUPABASE_URL: process.env.SUPABASE_URL || 'https://duehxbdlpwvbpqfjyjai.supabase.co',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || 'sb_publishable_k-EcjTqZe_4kmwWLIEJX3Q_3cHt_szO',
   
