@@ -437,7 +437,8 @@
         <div class="nav-item" onclick="switchView('autoGallery')">🚗 Oto Galeri İlanları</div>
         <div class="nav-item" onclick="switchView('realEstate')">🏠 Emlak İlanları</div>
         <div class="nav-item" onclick="switchView('jobListings')">💼 İş İlanları</div>
-        <div class="nav-item" onclick="switchView('lostFound')">🔍 Kayıp & Bulunan</div>
+        <div class="nav-item" onclick="switchView('lostFound')">🔍 Kayıp &amp; Bulunan</div>
+        <div class="nav-item" onclick="switchView('privateTutors')">🎓 Özel Ders Eğitmenleri</div>
         <div class="nav-item" onclick="switchView('services')">🛠️ Şehir Hizmetleri</div>
         <div class="nav-item" onclick="switchView('emergency')">🚨 Acil Numaralar</div>
         <div class="nav-item" onclick="switchView('localProducts')">🏪 Yöresel Pazar</div>
@@ -544,7 +545,8 @@
               <option value="">Haber Akışı (Varsayılan)</option>
               <option value="screen:city_deals">🛍️ Şehir Fırsatları</option>
               <option value="screen:job_listings">💼 İş İlanları</option>
-              <option value="screen:lost_found">🔍 Kayıp & Bulunan</option>
+              <option value="screen:lost_found">🔍 Kayıp &amp; Bulunan</option>
+              <option value="screen:private_tutors">🎓 Özel Ders Eğitmenleri</option>
               <option value="screen:explore">🌍 Keşfet / Gezi Rehberi</option>
               <option value="screen:local_market">🏪 Yöresel Pazar</option>
               <option value="screen:pharmacy">💊 Nöbetçi Eczane</option>
@@ -685,7 +687,22 @@
         </div>
       </div>
 
-      <!-- Etkinlikler -->
+      <!-- Özel Ders Eğitmenleri -->
+      <div id="privateTutorsView" class="view-section">
+        <!-- List Container -->
+        <div class="card" id="privateTutorsListContainer">
+          <div class="section-title">🎓 Özel Ders Eğitmenleri</div>
+          <p style="color:var(--text-muted); font-size:13px">Özel ders verecek eğitmenlerin CV kartlarını buradan ekleyin veya düzenleyin. Uygulama kullanıcıları eğitmen profillerini inceleyip doğrudan iletişime geçebilir.</p>
+          <div id="privateTutorsList" style="margin-top:16px"></div>
+          <button class="btn btn-primary" style="width:100%; margin-top:16px; justify-content:center" onclick="createNewPrivateTutor()">➕ Yeni Eğitmen Profili Ekle</button>
+        </div>
+
+        <!-- Editor Container -->
+        <div class="card" id="privateTutorsEditorContainer" style="display:none">
+          <div class="section-title" id="privateTutorsEditorTitle">✏️ Eğitmen Profili Düzenle</div>
+          <div id="privateTutorsEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
       <div id="eventsView" class="view-section">
         <!-- List Container -->
         <div class="card" id="eventsListContainer">
@@ -1391,6 +1408,7 @@
       renderCityDeals();
       renderJobListings();
       renderLostFound();
+      renderPrivateTutors();
 
       // Sponsors
       const spList = document.getElementById('sponsorsList');
@@ -4116,6 +4134,247 @@
       cancelLostFoundEdit();
       saveData();
     }
+
+    // ========================
+    // ÖZEL DERS EĞİTMENLERİ
+    // ========================
+    let currentPrivateTutorIndex = -1;
+    let tempTutorPhoto = '';
+
+    function renderPrivateTutors() {
+      const items = rawData.privateTutors || [];
+      const list = document.getElementById('privateTutorsList');
+      if (!list) return;
+      if (items.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:24px">Henüz eğitmen profili eklenmemiş.</p>';
+        return;
+      }
+      list.innerHTML = items.map((t, i) => `
+        <div style="border:1px solid var(--border); border-radius:12px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:flex-start; gap:14px; background:var(--surface)">
+          <div style="flex:1; min-width:0">
+            ${t.isPaid ? '<span style="background:#f59e0b;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:900">ÖNE ÇIKAN</span><br>' : ''}
+            <strong style="font-size:15px">${escapeHtml(t.name || '')}</strong>
+            <div style="color:var(--primary);font-size:12.5px;font-weight:600;margin-top:2px">${escapeHtml(t.title || '')}</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
+              📚 ${escapeHtml((t.subjects || []).join(', '))}
+              ${t.levels && t.levels.length ? ' &nbsp;|&nbsp; 🎯 ' + escapeHtml(t.levels.join(', ')) : ''}
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:2px">
+              ${t.location ? '📍 ' + escapeHtml(t.location) : ''}
+              ${t.sessionType ? ' &nbsp;|&nbsp; ' + escapeHtml(t.sessionType) : ''}
+              ${t.pricePerHour ? ' &nbsp;|&nbsp; 💰 ' + escapeHtml(t.pricePerHour) : ''}
+            </div>
+            ${!t.isActive ? '<span style="font-size:11px;color:var(--danger);font-weight:700">⛔ Pasif</span>' : ''}
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+            <button class="btn btn-secondary" onclick="editPrivateTutor(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deletePrivateTutor(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function createNewPrivateTutor() {
+      currentPrivateTutorIndex = -1;
+      tempTutorPhoto = '';
+      document.getElementById('privateTutorsListContainer').style.display = 'none';
+      document.getElementById('privateTutorsEditorContainer').style.display = 'block';
+      document.getElementById('privateTutorsEditorTitle').textContent = '🎓 Yeni Eğitmen Profili Ekle';
+      renderPrivateTutorForm(null);
+    }
+
+    function editPrivateTutor(i) {
+      currentPrivateTutorIndex = i;
+      const t = (rawData.privateTutors || [])[i];
+      tempTutorPhoto = t.imageUrl || t.image || '';
+      document.getElementById('privateTutorsListContainer').style.display = 'none';
+      document.getElementById('privateTutorsEditorContainer').style.display = 'block';
+      document.getElementById('privateTutorsEditorTitle').textContent = `✏️ ${t.name || 'Eğitmen'} Profili Düzenle`;
+      renderPrivateTutorForm(t);
+    }
+
+    function deletePrivateTutor(i) {
+      if (!confirm('Bu eğitmen profili silinsin mi?')) return;
+      rawData.privateTutors = rawData.privateTutors || [];
+      rawData.privateTutors.splice(i, 1);
+      renderPrivateTutors();
+      saveData();
+    }
+
+    function cancelPrivateTutorEdit() {
+      document.getElementById('privateTutorsEditorContainer').style.display = 'none';
+      document.getElementById('privateTutorsListContainer').style.display = 'block';
+      renderPrivateTutors();
+    }
+
+    function renderPrivateTutorForm(t) {
+      const data = t || {
+        name: '', title: '', subjects: [], levels: [],
+        experience: '', education: '', bio: '',
+        contact: '', whatsapp: '', location: '',
+        sessionType: 'Yüz Yüze', pricePerHour: '',
+        imageUrl: '', isActive: true, isPaid: false
+      };
+      const subjectsStr = Array.isArray(data.subjects) ? data.subjects.join(', ') : (data.subjects || '');
+      const levelsStr = Array.isArray(data.levels) ? data.levels.join(', ') : (data.levels || '');
+      const formDiv = document.getElementById('privateTutorsEditorForm');
+      formDiv.innerHTML = `
+        <div style="display:grid; gap:14px">
+          <label>Ad Soyad *<input id="ptName" value="${escapeAttr(data.name)}" placeholder="örn. Ahmet Yılmaz"></label>
+          <label>Unvan / Branş *<input id="ptTitle" value="${escapeAttr(data.title)}" placeholder="örn. Matematik ve Fizik Öğretmeni"></label>
+
+          <label>Verdiği Dersler * <span style="font-size:11px;color:var(--text-muted)">(virgülle ayırın)</span>
+            <input id="ptSubjects" value="${escapeAttr(subjectsStr)}" placeholder="örn. Matematik, Fizik, Geometri">
+          </label>
+          <label>Hedef Seviyeler * <span style="font-size:11px;color:var(--text-muted)">(virgülle ayırın)</span>
+            <input id="ptLevels" value="${escapeAttr(levelsStr)}" placeholder="örn. Ortaokul, Lise, YKS">
+          </label>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+            <label>Deneyim<input id="ptExperience" value="${escapeAttr(data.experience || '')}" placeholder="örn. 8 yıl deneyimli"></label>
+            <label>Saat Ücreti<input id="ptPrice" value="${escapeAttr(data.pricePerHour || '')}" placeholder="örn. 250 ₺"></label>
+          </div>
+
+          <label>Eğitim / Mezuniyet<input id="ptEducation" value="${escapeAttr(data.education || '')}" placeholder="örn. Çukurova Üniversitesi – Matematik Öğretmenliği"></label>
+
+          <label>Ders Şekli
+            <select id="ptSessionType">
+              <option value="Yüz Yüze" ${data.sessionType === 'Yüz Yüze' ? 'selected' : ''}>Yüz Yüze</option>
+              <option value="Online" ${data.sessionType === 'Online' ? 'selected' : ''}>Online</option>
+              <option value="Yüz Yüze & Online" ${data.sessionType === 'Yüz Yüze & Online' ? 'selected' : ''}>Yüz Yüze & Online</option>
+            </select>
+          </label>
+
+          <label>Konum<input id="ptLocation" value="${escapeAttr(data.location || '')}" placeholder="örn. Düziçi Merkez"></label>
+
+          <label>Hakkında / Biyografi
+            <textarea id="ptBio" rows="4" placeholder="Eğitmenin kendini tanıttığı kısa metin...">${escapeHtml(data.bio || '')}</textarea>
+          </label>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+            <label>Telefon<input id="ptContact" value="${escapeAttr(data.contact || '')}" placeholder="0532 xxx xx xx"></label>
+            <label>WhatsApp<input id="ptWhatsapp" value="${escapeAttr(data.whatsapp || '')}" placeholder="905321112233"></label>
+          </div>
+
+          <label>Profil Fotoğrafı (URL veya Yükle)
+            <div style="display:flex; gap:8px; align-items:center; margin-top:6px">
+              <button class="btn btn-secondary" style="padding:8px 14px; font-size:12px" onclick="document.getElementById('ptImageFile').click()">📤 Fotoğraf Yükle</button>
+              <input type="file" id="ptImageFile" style="display:none" accept="image/*" onchange="uploadTutorImageFile()">
+              <input id="ptImageUrl" placeholder="https://resim-url.jpg" style="flex:1" onchange="updateTutorImagePreview(this.value)" value="${escapeAttr(tempTutorPhoto)}">
+            </div>
+            <div id="ptImagePreview" style="margin-top:8px"></div>
+          </label>
+
+          <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="ptIsActive" ${data.isActive !== false ? 'checked' : ''} style="width:18px;height:18px">
+              <span>Aktif / Yayında</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="ptIsPaid" ${data.isPaid ? 'checked' : ''} style="width:18px;height:18px">
+              <span>⭐ Öne Çıkan (Ücretli)</span>
+            </label>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:8px">
+            <button class="btn btn-primary" onclick="savePrivateTutorChanges()">💾 Kaydet</button>
+            <button class="btn btn-secondary" onclick="cancelPrivateTutorEdit()">İptal</button>
+          </div>
+        </div>
+      `;
+      updateTutorImagePreview(tempTutorPhoto);
+    }
+
+    function updateTutorImagePreview(url) {
+      tempTutorPhoto = url.trim();
+      const preview = document.getElementById('ptImagePreview');
+      const urlInput = document.getElementById('ptImageUrl');
+      if (!preview) return;
+      if (tempTutorPhoto) {
+        preview.innerHTML = `
+          <div style="position:relative; width:120px; height:120px; border-radius:12px; border:1px solid var(--border); overflow:hidden">
+            <img src="${escapeAttr(tempTutorPhoto)}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">
+            <button onclick="removeTutorImage()" style="position:absolute;top:3px;right:3px;border:none;background:rgba(0,0,0,0.6);color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center">✕</button>
+          </div>`;
+      } else {
+        preview.innerHTML = '';
+      }
+      if (urlInput) urlInput.value = tempTutorPhoto;
+    }
+
+    function removeTutorImage() {
+      updateTutorImagePreview('');
+    }
+
+    async function uploadTutorImageFile() {
+      const file = document.getElementById('ptImageFile').files[0];
+      if (!file) return;
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', headers: { 'Authorization': `Bearer ${authToken}` }, body: formData });
+        const json = await res.json();
+        if (json.url) {
+          updateTutorImagePreview(json.url);
+        } else {
+          showToast('Yükleme hatası: ' + (json.error || 'Bilinmiyor'), true);
+        }
+      } catch (e) {
+        showToast('Yükleme başarısız', true);
+      }
+    }
+
+    function savePrivateTutorChanges() {
+      const name = document.getElementById('ptName').value.trim();
+      const title = document.getElementById('ptTitle').value.trim();
+      if (!name || !title) {
+        showToast('Ad Soyad ve Unvan zorunludur!', true);
+        return;
+      }
+      const subjectsRaw = document.getElementById('ptSubjects').value;
+      const levelsRaw = document.getElementById('ptLevels').value;
+      const subjects = subjectsRaw.split(',').map(s => s.trim()).filter(Boolean);
+      const levels = levelsRaw.split(',').map(s => s.trim()).filter(Boolean);
+
+      rawData.privateTutors = rawData.privateTutors || [];
+      const existing = currentPrivateTutorIndex !== -1 ? rawData.privateTutors[currentPrivateTutorIndex] : null;
+
+      const tutorData = {
+        id: (existing && existing.id) || ('tutor-' + Date.now()),
+        name,
+        title,
+        subjects,
+        levels,
+        experience: document.getElementById('ptExperience').value.trim() || undefined,
+        education: document.getElementById('ptEducation').value.trim() || undefined,
+        bio: document.getElementById('ptBio').value.trim() || undefined,
+        contact: document.getElementById('ptContact').value.trim() || undefined,
+        whatsapp: document.getElementById('ptWhatsapp').value.trim() || undefined,
+        location: document.getElementById('ptLocation').value.trim() || undefined,
+        sessionType: document.getElementById('ptSessionType').value,
+        pricePerHour: document.getElementById('ptPrice').value.trim() || undefined,
+        imageUrl: tempTutorPhoto || undefined,
+        image: tempTutorPhoto || undefined,
+        isActive: document.getElementById('ptIsActive').checked,
+        isPaid: document.getElementById('ptIsPaid').checked,
+        createdAt: (existing && existing.createdAt) || new Date().toISOString().split('T')[0],
+      };
+
+      // undefined değerleri temizle
+      Object.keys(tutorData).forEach(k => tutorData[k] === undefined && delete tutorData[k]);
+
+      if (currentPrivateTutorIndex === -1) {
+        rawData.privateTutors.unshift(tutorData);
+        showToast('Yeni eğitmen profili eklendi!');
+      } else {
+        rawData.privateTutors[currentPrivateTutorIndex] = tutorData;
+        showToast('Eğitmen profili güncellendi!');
+      }
+
+      cancelPrivateTutorEdit();
+      saveData();
+    }
+
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');

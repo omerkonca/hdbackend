@@ -1797,25 +1797,8 @@
         "icon": "school",
         "color": "#7E57C2",
         "title": "Özel Ders",
-        "target": "screen:directory",
-        "subtitle": "Eğitmen ve dershane ilanları",
-        "directoryData": [
-          {
-            "name": "Boğaziçi Eğitim Kurumları",
-            "phone": "0328 876 12 34",
-            "address": "Refik Cesur Bulvarı, Düziçi"
-          },
-          {
-            "name": "Eğitim Bilimleri Kurs Merkezi",
-            "phone": "0328 876 56 78",
-            "address": "Yeşilova Mah., Lazlar Sok."
-          },
-          {
-            "name": "Çukurova Eğitim Kursu",
-            "phone": "0328 876 90 12",
-            "address": "Cumhuriyet Mah., Çiloğlu İşhanı"
-          }
-        ]
+        "target": "screen:private_tutors",
+        "subtitle": "Eğitmen CV'leri ve dershane rehberi"
       },
       {
         "id": "obituary",
@@ -2976,5 +2959,64 @@
       }
     ]
   },
-  "customEvents": []
+  "customEvents": [],
+  "privateTutors": [
+    {
+      "id": "tutor-001",
+      "name": "Ahmet Yılmaz",
+      "title": "Matematik ve Fizik Öğretmeni",
+      "subjects": ["Matematik", "Fizik", "Geometri"],
+      "levels": ["İlkokul", "Ortaokul", "Lise", "YKS"],
+      "experience": "8 yıl deneyimli",
+      "education": "Çukurova Üniversitesi – Matematik Öğretmenliği",
+      "bio": "8 yılı aşkın özel ders deneyimimle, özellikle YKS ve LGS hazırlık süreçlerinde öğrencilerimi başarıya taşımaktayım. Sabırlı ve sistematik bir öğretim anlayışıyla, her öğrencinin kendi hızında ilerlemesine destek olurum.",
+      "contact": "0532 111 22 33",
+      "whatsapp": "905321112233",
+      "location": "Düziçi Merkez",
+      "sessionType": "Yüz Yüze & Online",
+      "pricePerHour": "250 ₺",
+      "imageUrl": "",
+      "isActive": true,
+      "isPaid": false,
+      "createdAt": "2026-06-17"
+    },
+    {
+      "id": "tutor-002",
+      "name": "Elif Demir",
+      "title": "İngilizce Öğretmeni & Çevirmen",
+      "subjects": ["İngilizce", "YDS Hazırlık", "Konuşma Pratiği"],
+      "levels": ["İlkokul", "Ortaokul", "Lise", "Üniversite", "Yetişkin"],
+      "experience": "5 yıl deneyimli",
+      "education": "Gaziantep Üniversitesi – İngiliz Dili ve Edebiyatı",
+      "bio": "Günlük konuşmadan akademik İngilizceye kadar her seviyede ders veriyorum. Özellikle üniversite öğrencilerine YDS/YÖKDİL hazırlığı ve çeviri desteği sunuyorum. Online ders imkânım da mevcut.",
+      "contact": "0543 222 33 44",
+      "whatsapp": "905432223344",
+      "location": "Düziçi / Online",
+      "sessionType": "Online & Yüz Yüze",
+      "pricePerHour": "200 ₺",
+      "imageUrl": "",
+      "isActive": true,
+      "isPaid": true,
+      "createdAt": "2026-06-17"
+    },
+    {
+      "id": "tutor-003",
+      "name": "Murat Kaya",
+      "title": "Türkçe ve Edebiyat Öğretmeni",
+      "subjects": ["Türkçe", "TYT Türkçe", "Edebiyat", "Kompozisyon"],
+      "levels": ["Ortaokul", "Lise", "YKS"],
+      "experience": "12 yıl deneyimli",
+      "education": "Selçuk Üniversitesi – Türk Dili ve Edebiyatı Öğretmenliği",
+      "bio": "12 yıldır özel ders ve kurs merkezlerinde Türkçe ve Edebiyat dersleri veriyorum. TYT Türkçe puanını kısa sürede ciddi ölçüde artırma konusunda kanıtlanmış bir metodum var.",
+      "contact": "0555 333 44 55",
+      "whatsapp": "905553334455",
+      "location": "Düziçi Merkez",
+      "sessionType": "Yüz Yüze",
+      "pricePerHour": "220 ₺",
+      "imageUrl": "",
+      "isActive": true,
+      "isPaid": false,
+      "createdAt": "2026-06-17"
+    }
+  ]
 }
