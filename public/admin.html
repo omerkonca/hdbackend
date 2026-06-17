@@ -3211,46 +3211,46 @@
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
           <div class="form-group" style="grid-column:span 2">
             <label>İlan Başlığı</label>
-            <input id="lpTitle" value="\${escapeAttr(d.title)}" placeholder="Örn: Taze Köy Yoğurdu - Günlük Mayalama">
+            <input id="lpTitle" value="${escapeAttr(d.title)}" placeholder="Örn: Taze Köy Yoğurdu - Günlük Mayalama">
           </div>
           <div class="form-group">
             <label>Ürün Kategorisi</label>
             <select id="lpCategory">
-              <option value="Süt & Yoğurt" \${d.category==='Süt & Yoğurt'?'selected':''}>🥛 Süt & Yoğurt</option>
-              <option value="Yumurta" \${d.category==='Yumurta'?'selected':''}>🥚 Yumurta</option>
-              <option value="Ev Yemekleri" \${d.category==='Ev Yemekleri'?'selected':''}>🍲 Ev Yemekleri & Kömbe</option>
-              <option value="Sebze & Meyve" \${d.category==='Sebze & Meyve'?'selected':''}>🍎 Sebze & Meyve</option>
-              <option value="Diğer" \${d.category==='Diğer'?'selected':''}>📌 Diğer</option>
+              <option value="Süt & Yoğurt" ${d.category==='Süt & Yoğurt'?'selected':''}>🥛 Süt & Yoğurt</option>
+              <option value="Yumurta" ${d.category==='Yumurta'?'selected':''}>🥚 Yumurta</option>
+              <option value="Ev Yemekleri" ${d.category==='Ev Yemekleri'?'selected':''}>🍲 Ev Yemekleri & Kömbe</option>
+              <option value="Sebze & Meyve" ${d.category==='Sebze & Meyve'?'selected':''}>🍎 Sebze & Meyve</option>
+              <option value="Diğer" ${d.category==='Diğer'?'selected':''}>📌 Diğer</option>
             </select>
           </div>
           <div class="form-group">
             <label>Satış Birimi</label>
-            <input id="lpUnit" value="\${escapeAttr(d.unit || 'Kg')}" placeholder="Kg, Litre, Adet, Tepsi, Koli...">
+            <input id="lpUnit" value="${escapeAttr(d.unit || 'Kg')}" placeholder="Kg, Litre, Adet, Tepsi, Koli...">
           </div>
           <div class="form-group">
             <label>Fiyat (₺)</label>
-            <input id="lpPrice" value="\${escapeAttr(d.price)}" placeholder="Örn: 120">
+            <input id="lpPrice" value="${escapeAttr(d.price)}" placeholder="Örn: 120">
           </div>
           <div class="form-group">
             <label>Konum (Mahalle / Yer)</label>
-            <input id="lpAddress" value="\${escapeAttr(d.address || '')}" placeholder="Örn: İrfanlı Mah. / Cumhuriyet Mah.">
+            <input id="lpAddress" value="${escapeAttr(d.address || '')}" placeholder="Örn: İrfanlı Mah. / Cumhuriyet Mah.">
           </div>
           <div class="form-group" style="grid-column:span 2">
             <label>Açıklama</label>
-            <textarea id="lpDescription" style="height:100px" placeholder="Ürün hakkında detaylı bilgi, mayalanma şekli, teslimat durumu vb...Contents">\${escapeHtml(d.description || '')}</textarea>
+            <textarea id="lpDescription" style="height:100px" placeholder="Ürün hakkında detaylı bilgi, mayalanma şekli, teslimat durumu vb...Contents">${escapeHtml(d.description || '')}</textarea>
           </div>
           <div class="form-group">
             <label>Üretici / Satıcı Adı</label>
-            <input id="lpSellerName" value="\${escapeAttr(d.sellerName || '')}" placeholder="Örn: Fatma Abla">
+            <input id="lpSellerName" value="${escapeAttr(d.sellerName || '')}" placeholder="Örn: Fatma Abla">
           </div>
           <div class="form-group">
             <label>İletişim (Telefon)</label>
-            <input id="lpContact" value="\${escapeAttr(d.contact || '')}" placeholder="0555 123 45 67">
+            <input id="lpContact" value="${escapeAttr(d.contact || '')}" placeholder="0555 123 45 67">
           </div>
 
           <div class="form-group" style="grid-column:span 2">
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
-              <input type="checkbox" id="lpIsActive" \${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <input type="checkbox" id="lpIsActive" ${d.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
               <span>İlan Aktif (Uygulamada Görünsün)</span>
             </label>
           </div>
@@ -3281,9 +3281,9 @@
       const list = document.getElementById('lpGalleryList');
       if (!list) return;
       list.innerHTML = tempLocalProductGallery.map((url, i) => `
-        <div style="position:relative; width:110px; height:80px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(url)}'); background-size:cover; background-position:center; flex-shrink:0">
-          \${i === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">ANA</span>' : ''}
-          <button onclick="removeLocalProductGalleryItem(\${i})" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
+        <div style="position:relative; width:110px; height:80px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(url)}'); background-size:cover; background-position:center; flex-shrink:0">
+          ${i === 0 ? '<span style="position:absolute;bottom:4px;left:4px;background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700">ANA</span>' : ''}
+          <button onclick="removeLocalProductGalleryItem(${i})" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
         </div>
       `).join('') || '<p style="color:var(--text-muted); font-size:12px; grid-column:span 3">Henüz fotoğraf eklenmedi.</p>';
     }
@@ -3454,64 +3454,64 @@
             <div style="font-size:12px; color:var(--text-muted)">Öne çıkan fırsatlar uygulamada en üstte yıldız simgesi ve vurgulu çerçeve ile gösterilir.</div>
           </div>
           <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
-            <input type="checkbox" id="cdIsPaid" \${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+            <input type="checkbox" id="cdIsPaid" ${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
           </label>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
           <div class="form-group">
             <label>Fırsat Başlığı</label>
-            <input id="cdTitle" value="\${escapeAttr(data.title)}" placeholder="Örn: Tavuk Dürüm Menüde Öğrenci İndirimi">
+            <input id="cdTitle" value="${escapeAttr(data.title)}" placeholder="Örn: Tavuk Dürüm Menüde Öğrenci İndirimi">
           </div>
           <div class="form-group">
             <label>İşyeri / Esnaf Adı</label>
-            <input id="cdStoreName" value="\${escapeAttr(data.storeName)}" placeholder="Örn: Kırmızı Döner">
+            <input id="cdStoreName" value="${escapeAttr(data.storeName)}" placeholder="Örn: Kırmızı Döner">
           </div>
           <div class="form-group">
             <label>Kategori</label>
             <select id="cdCategory">
-              <option value="Gıda & Restoran" \${data.category==='Gıda & Restoran'?'selected':''}>🍔 Gıda & Restoran</option>
-              <option value="Giyim & Moda" \${data.category==='Giyim & Moda'?'selected':''}>👕 Giyim & Moda</option>
-              <option value="Teknoloji & Elektronik" \${data.category==='Teknoloji & Elektronik'?'selected':''}>📱 Teknoloji & Elektronik</option>
-              <option value="Hizmet & Diğer" \${data.category==='Hizmet & Diğer'?'selected':''}>🛠️ Hizmet & Diğer</option>
+              <option value="Gıda & Restoran" ${data.category==='Gıda & Restoran'?'selected':''}>🍔 Gıda & Restoran</option>
+              <option value="Giyim & Moda" ${data.category==='Giyim & Moda'?'selected':''}>👕 Giyim & Moda</option>
+              <option value="Teknoloji & Elektronik" ${data.category==='Teknoloji & Elektronik'?'selected':''}>📱 Teknoloji & Elektronik</option>
+              <option value="Hizmet & Diğer" ${data.category==='Hizmet & Diğer'?'selected':''}>🛠️ Hizmet & Diğer</option>
             </select>
           </div>
           <div class="form-group">
             <label>İndirim Oranı / Türü (Rozet)</label>
-            <input id="cdDiscountRate" value="\${escapeAttr(data.discountRate || '')}" placeholder="Örn: 1 Alana 1 Bedava, %20 İndirim, Özel Fiyat">
+            <input id="cdDiscountRate" value="${escapeAttr(data.discountRate || '')}" placeholder="Örn: 1 Alana 1 Bedava, %20 İndirim, Özel Fiyat">
           </div>
           <div class="form-group">
             <label>Eski Fiyat (Üstü Çizili - Opsiyonel)</label>
-            <input id="cdPriceBefore" value="\${escapeAttr(data.priceBefore || '')}" placeholder="Örn: 160">
+            <input id="cdPriceBefore" value="${escapeAttr(data.priceBefore || '')}" placeholder="Örn: 160">
           </div>
           <div class="form-group">
             <label>Kampanyalı Fiyat (Opsiyonel)</label>
-            <input id="cdPriceAfter" value="\${escapeAttr(data.priceAfter || '')}" placeholder="Örn: 120">
+            <input id="cdPriceAfter" value="${escapeAttr(data.priceAfter || '')}" placeholder="Örn: 120">
           </div>
           <div class="form-group">
             <label>Son Geçerlilik Tarihi (Opsiyonel)</label>
-            <input id="cdEndDate" type="date" value="\${escapeAttr(data.endDate || '')}">
+            <input id="cdEndDate" type="date" value="${escapeAttr(data.endDate || '')}">
           </div>
           <div class="form-group">
             <label>Konum / Adres</label>
-            <input id="cdAddress" value="\${escapeAttr(data.address || '')}" placeholder="Örn: Cumhuriyet Mah. RTE Bulvarı No: 12">
+            <input id="cdAddress" value="${escapeAttr(data.address || '')}" placeholder="Örn: Cumhuriyet Mah. RTE Bulvarı No: 12">
           </div>
           <div class="form-group" style="grid-column:span 2">
             <label>Kampanya Detayı / Açıklama</label>
-            <textarea id="cdDescription" style="height:80px" placeholder="Kampanya koşulları, detayları ve açıklaması...Content">\${escapeHtml(data.description || '')}</textarea>
+            <textarea id="cdDescription" style="height:80px" placeholder="Kampanya koşulları, detayları ve açıklaması...Content">${escapeHtml(data.description || '')}</textarea>
           </div>
           <div class="form-group">
             <label>İrtibat Telefonu (Arama)</label>
-            <input id="cdContact" value="\${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
+            <input id="cdContact" value="${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
           </div>
           <div class="form-group">
             <label>WhatsApp Numarası (Uluslararası Format)</label>
-            <input id="cdWhatsapp" value="\${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
+            <input id="cdWhatsapp" value="${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
           </div>
 
           <div class="form-group" style="grid-column:span 2">
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
-              <input type="checkbox" id="cdIsActive" \${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <input type="checkbox" id="cdIsActive" ${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
               <span>Fırsat Aktif (Uygulamada Görünsün)</span>
             </label>
           </div>
@@ -3543,7 +3543,7 @@
       if (!preview) return;
       if (tempCityDealImage) {
         preview.innerHTML = `
-          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(tempCityDealImage)}'); background-size:cover; background-position:center;">
+          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(tempCityDealImage)}'); background-size:cover; background-position:center;">
             <button onclick="removeCityDealImage()" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
           </div>`;
       } else {
@@ -3638,28 +3638,28 @@
           : `<span style="background:#d1fae5; color:#059669; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px">AKTİF</span>`;
         const thumb = j.imageUrl || j.image || '';
         return `
-        <div class="list-item" style="gap:16px; \${j.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+        <div class="list-item" style="gap:16px; ${j.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
           <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
-            \${thumb ? \`<img src="\${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">\` : '<span style="font-size:28px">💼</span>'}
+            ${thumb ? `<img src="${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:28px">💼</span>'}
           </div>
           <div class="list-item-content">
             <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
-              \${escapeHtml(j.title || 'Başlıksız İlan')}
-              \${badge} \${statusBadge}
+              ${escapeHtml(j.title || 'Başlıksız İlan')}
+              ${badge} ${statusBadge}
             </div>
             <div class="list-item-subtitle" style="margin-top:4px">
-              \${escapeHtml(j.companyName || '')} • 🏷️ \${escapeHtml(j.category || '')} • 🕒 \${escapeHtml(j.jobType || '')}
+              ${escapeHtml(j.companyName || '')} • 🏷️ ${escapeHtml(j.category || '')} • 🕒 ${escapeHtml(j.jobType || '')}
             </div>
             <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
-              \${j.salary ? '💰 ' + escapeHtml(j.salary) : ''}
-              \${j.contact ? \`<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 \${escapeHtml(j.contact)}</span>\` : ''}
+              ${j.salary ? '💰 ' + escapeHtml(j.salary) : ''}
+              ${j.contact ? `<span style="font-size:11px; color:var(--text-muted); font-weight:normal"> • 📞 ${escapeHtml(j.contact)}</span>` : ''}
             </div>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
-            <button class="btn btn-secondary" onclick="editJobListing(\${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
-            <button class="btn btn-danger" onclick="deleteJobListing(\${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+            <button class="btn btn-secondary" onclick="editJobListing(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteJobListing(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
           </div>
-        </div>\`;
+        </div>`;
       }).join('');
     }
 
@@ -3678,7 +3678,7 @@
       tempJobListingPhoto = j.imageUrl || j.image || '';
       document.getElementById('jobListingsListContainer').style.display = 'none';
       document.getElementById('jobListingsEditorContainer').style.display = 'block';
-      document.getElementById('jobListingsEditorTitle').textContent = `✏️ \${j.title || 'İlan'} Düzenle`;
+      document.getElementById('jobListingsEditorTitle').textContent = `✏️ ${j.title || 'İlan'} Düzenle`;
       renderJobListingForm(j);
     }
 
@@ -3708,62 +3708,62 @@
             <div style="font-size:12px; color:var(--text-muted)">Öne çıkan ilanlar listenin en başında rozetle gösterilir.</div>
           </div>
           <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
-            <input type="checkbox" id="jlIsPaid" \${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+            <input type="checkbox" id="jlIsPaid" ${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
           </label>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
           <div class="form-group" style="grid-column:span 2">
             <label>Pozisyon / İlan Başlığı</label>
-            <input id="jlTitle" value="\${escapeAttr(data.title)}" placeholder="Örn: Garson / Komi Aranıyor">
+            <input id="jlTitle" value="${escapeAttr(data.title)}" placeholder="Örn: Garson / Komi Aranıyor">
           </div>
           <div class="form-group">
             <label>İşyeri / Firma Adı</label>
-            <input id="jlCompanyName" value="\${escapeAttr(data.companyName)}" placeholder="Örn: Saray Pastanesi">
+            <input id="jlCompanyName" value="${escapeAttr(data.companyName)}" placeholder="Örn: Saray Pastanesi">
           </div>
           <div class="form-group">
             <label>Sektör / Kategori</label>
             <select id="jlCategory">
-              <option value="Restoran & Kafe" \${data.category==='Restoran & Kafe'?'selected':''}>🍔 Restoran & Kafe</option>
-              <option value="Satış & Mağazacılık" \${data.category==='Satış & Mağazacılık'?'selected':''}>🛍️ Satış & Mağazacılık</option>
-              <option value="Ofis & Büro" \${data.category==='Ofis & Büro'?'selected':''}>💼 Ofis & Büro</option>
-              <option value="İnşaat & Sanayi" \${data.category==='İnşaat & Sanayi'?'selected':''}>🛠️ İnşaat & Sanayi</option>
-              <option value="Diğer" \${data.category==='Diğer'?'selected':''}>📌 Diğer</option>
+              <option value="Restoran & Kafe" ${data.category==='Restoran & Kafe'?'selected':''}>🍔 Restoran & Kafe</option>
+              <option value="Satış & Mağazacılık" ${data.category==='Satış & Mağazacılık'?'selected':''}>🛍️ Satış & Mağazacılık</option>
+              <option value="Ofis & Büro" ${data.category==='Ofis & Büro'?'selected':''}>💼 Ofis & Büro</option>
+              <option value="İnşaat & Sanayi" ${data.category==='İnşaat & Sanayi'?'selected':''}>🛠️ İnşaat & Sanayi</option>
+              <option value="Diğer" ${data.category==='Diğer'?'selected':''}>📌 Diğer</option>
             </select>
           </div>
           <div class="form-group">
             <label>Çalışma Şekli</label>
             <select id="jlJobType">
-              <option value="Tam Zamanlı" \${data.jobType==='Tam Zamanlı'?'selected':''}> Tam Zamanlı</option>
-              <option value="Yarı Zamanlı" \${data.jobType==='Yarı Zamanlı'?'selected':''}> Yarı Zamanlı</option>
-              <option value="Günlük / Serbest" \${data.jobType==='Günlük / Serbest'?'selected':''}> Günlük / Serbest</option>
-              <option value="Diğer" \${data.jobType==='Diğer'?'selected':''}> Diğer</option>
+              <option value="Tam Zamanlı" ${data.jobType==='Tam Zamanlı'?'selected':''}> Tam Zamanlı</option>
+              <option value="Yarı Zamanlı" ${data.jobType==='Yarı Zamanlı'?'selected':''}> Yarı Zamanlı</option>
+              <option value="Günlük / Serbest" ${data.jobType==='Günlük / Serbest'?'selected':''}> Günlük / Serbest</option>
+              <option value="Diğer" ${data.jobType==='Diğer'?'selected':''}> Diğer</option>
             </select>
           </div>
           <div class="form-group">
             <label>Maaş / Ücret Bilgisi (Opsiyonel)</label>
-            <input id="jlSalary" value="\${escapeAttr(data.salary || '')}" placeholder="Örn: Asgari Ücret + Yemek veya Saatlik 50 TL">
+            <input id="jlSalary" value="${escapeAttr(data.salary || '')}" placeholder="Örn: Asgari Ücret + Yemek veya Saatlik 50 TL">
           </div>
           <div class="form-group" style="grid-column:span 2">
             <label>İlan Açıklaması ve Kriterler</label>
-            <textarea id="jlDescription" style="height:100px" placeholder="İş tanımı, aranan özellikler, çalışma saatleri vb...Content">\${escapeHtml(data.description || '')}</textarea>
+            <textarea id="jlDescription" style="height:100px" placeholder="İş tanımı, aranan özellikler, çalışma saatleri vb...Content">${escapeHtml(data.description || '')}</textarea>
           </div>
           <div class="form-group" style="grid-column:span 2">
             <label>Adres / Konum</label>
-            <input id="jlAddress" value="\${escapeAttr(data.address || '')}" placeholder="Örn: Kurtuluş Mah. Recep Tayyip Erdoğan Bulvarı No: 12">
+            <input id="jlAddress" value="${escapeAttr(data.address || '')}" placeholder="Örn: Kurtuluş Mah. Recep Tayyip Erdoğan Bulvarı No: 12">
           </div>
           <div class="form-group">
             <label>İletişim (Telefon)</label>
-            <input id="jlContact" value="\${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
+            <input id="jlContact" value="${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
           </div>
           <div class="form-group">
             <label>WhatsApp Numarası (Uluslararası Format)</label>
-            <input id="jlWhatsapp" value="\${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
+            <input id="jlWhatsapp" value="${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
           </div>
 
           <div class="form-group" style="grid-column:span 2">
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
-              <input type="checkbox" id="jlIsActive" \${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <input type="checkbox" id="jlIsActive" ${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
               <span>İlan Aktif (Uygulamada Görünsün)</span>
             </label>
           </div>
@@ -3795,7 +3795,7 @@
       if (!preview) return;
       if (tempJobListingPhoto) {
         preview.innerHTML = `
-          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(tempJobListingPhoto)}'); background-size:cover; background-position:center;">
+          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(tempJobListingPhoto)}'); background-size:cover; background-position:center;">
             <button onclick="removeJobListingImage()" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
           </div>`;
       } else {
@@ -3893,28 +3893,28 @@
           : `<span style="background:#e0f2fe; color:#0369a1; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:4px">AKTİF</span>`;
         const thumb = lf.imageUrl || lf.image || '';
         return `
-        <div class="list-item" style="gap:16px; \${lf.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
+        <div class="list-item" style="gap:16px; ${lf.isActive === false ? 'opacity:0.65; background:#f8fafc;' : ''}">
           <div style="width:80px; height:60px; border-radius:10px; flex-shrink:0; overflow:hidden; border:1px solid var(--border); background:#f1f5f9; display:flex; align-items:center; justify-content:center;">
-            \${thumb ? \`<img src="\${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">\` : '<span style="font-size:28px">🔍</span>'}
+            ${thumb ? `<img src="${escapeAttr(thumb)}" style="width:100%; height:100%; object-fit:cover">` : '<span style="font-size:28px">🔍</span>'}
           </div>
           <div class="list-item-content">
             <div class="list-item-title" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
-              \${escapeHtml(lf.title || 'Başlıksız İlan')}
-              \${typeBadge} \${badge} \${statusBadge}
+              ${escapeHtml(lf.title || 'Başlıksız İlan')}
+              ${typeBadge} ${badge} ${statusBadge}
             </div>
             <div class="list-item-subtitle" style="margin-top:4px">
-              Kategori: \${escapeHtml(lf.category || '')} \${lf.lostFoundDate ? '• Tarih: ' + escapeHtml(lf.lostFoundDate) : ''} \${lf.address ? '• Konum: ' + escapeHtml(lf.address) : ''}
+              Kategori: ${escapeHtml(lf.category || '')} ${lf.lostFoundDate ? '• Tarih: ' + escapeHtml(lf.lostFoundDate) : ''} ${lf.address ? '• Konum: ' + escapeHtml(lf.address) : ''}
             </div>
             <div style="font-size:13px; font-weight:700; color:var(--primary); margin-top:4px">
-              \${lf.contact ? \`📞 \${escapeHtml(lf.contact)}\` : ''}
-              \${lf.whatsapp ? \` • 💬 WA: \${escapeHtml(lf.whatsapp)}\` : ''}
+              ${lf.contact ? `📞 ${escapeHtml(lf.contact)}` : ''}
+              ${lf.whatsapp ? ` • 💬 WA: ${escapeHtml(lf.whatsapp)}` : ''}
             </div>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0">
-            <button class="btn btn-secondary" onclick="editLostFound(\${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
-            <button class="btn btn-danger" onclick="deleteLostFound(\${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
+            <button class="btn btn-secondary" onclick="editLostFound(${i})" style="padding:6px 14px; font-size:12px">✏️ Düzenle</button>
+            <button class="btn btn-danger" onclick="deleteLostFound(${i})" style="padding:6px 14px; font-size:12px">🗑️ Sil</button>
           </div>
-        </div>\`;
+        </div>`;
       }).join('');
     }
 
@@ -3933,7 +3933,7 @@
       tempLostFoundPhoto = lf.imageUrl || lf.image || '';
       document.getElementById('lostFoundListContainer').style.display = 'none';
       document.getElementById('lostFoundEditorContainer').style.display = 'block';
-      document.getElementById('lostFoundEditorTitle').textContent = \`✏️ \${lf.title || 'İlan'} Düzenle\`;
+      document.getElementById('lostFoundEditorTitle').textContent = `✏️ ${lf.title || 'İlan'} Düzenle`;
       renderLostFoundForm(lf);
     }
 
@@ -3963,57 +3963,57 @@
             <div style="font-size:12px; color:var(--text-muted)">Öne çıkan kayıp eşya ilanları listenin en başında yıldızlı gösterilir.</div>
           </div>
           <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
-            <input type="checkbox" id="lfIsPaid" \${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+            <input type="checkbox" id="lfIsPaid" ${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
           </label>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
           <div class="form-group" style="grid-column:span 2">
             <label>Eşya Adı / İlan Başlığı</label>
-            <input id="lfTitle" value="\${escapeAttr(data.title)}" placeholder="Örn: Parkta Mavi Cüzdan Bulundu veya Kedim Kayboldu">
+            <input id="lfTitle" value="${escapeAttr(data.title)}" placeholder="Örn: Parkta Mavi Cüzdan Bulundu veya Kedim Kayboldu">
           </div>
           <div class="form-group">
             <label>İlan Türü</label>
             <select id="lfType">
-              <option value="Kayıp" \${data.type==='Kayıp'?'selected':''}>🚨 Kayıp İlanı</option>
-              <option value="Bulunan" \${data.type==='Bulunan'?'selected':''}>✅ Bulunan Eşya Duyurusu</option>
+              <option value="Kayıp" ${data.type==='Kayıp'?'selected':''}>🚨 Kayıp İlanı</option>
+              <option value="Bulunan" ${data.type==='Bulunan'?'selected':''}>✅ Bulunan Eşya Duyurusu</option>
             </select>
           </div>
           <div class="form-group">
             <label>Eşya Kategorisi</label>
             <select id="lfCategory">
-              <option value="Cüzdan & Kart" \${data.category==='Cüzdan & Kart'?'selected':''}>💳 Cüzdan & Kart</option>
-              <option value="Anahtar" \${data.category==='Anahtar'?'selected':''}>🔑 Anahtar</option>
-              <option value="Evcil Hayvan" \${data.category==='Evcil Hayvan'?'selected':''}>🐶 Evcil Hayvan</option>
-              <option value="Telefon & Elektronik" \${data.category==='Telefon & Elektronik'?'selected':''}>📱 Telefon & Elektronik</option>
-              <option value="Çanta & Giyim" \${data.category==='Çanta & Giyim'?'selected':''}>👜 Çanta & Giyim</option>
-              <option value="Diğer" \${data.category==='Diğer'?'selected':''}>📌 Diğer</option>
+              <option value="Cüzdan & Kart" ${data.category==='Cüzdan & Kart'?'selected':''}>💳 Cüzdan & Kart</option>
+              <option value="Anahtar" ${data.category==='Anahtar'?'selected':''}>🔑 Anahtar</option>
+              <option value="Evcil Hayvan" ${data.category==='Evcil Hayvan'?'selected':''}>🐶 Evcil Hayvan</option>
+              <option value="Telefon & Elektronik" ${data.category==='Telefon & Elektronik'?'selected':''}>📱 Telefon & Elektronik</option>
+              <option value="Çanta & Giyim" ${data.category==='Çanta & Giyim'?'selected':''}>👜 Çanta & Giyim</option>
+              <option value="Diğer" ${data.category==='Diğer'?'selected':''}>📌 Diğer</option>
             </select>
           </div>
           <div class="form-group">
             <label>Kaybolma / Bulunma Tarihi (Opsiyonel)</label>
-            <input id="lfDate" type="date" value="\${escapeAttr(data.lostFoundDate || '')}">
+            <input id="lfDate" type="date" value="${escapeAttr(data.lostFoundDate || '')}">
           </div>
           <div class="form-group">
             <label>Kaybolduğu / Bulunduğu Konum (Adres)</label>
-            <input id="lfAddress" value="\${escapeAttr(data.address || '')}" placeholder="Örn: Cumhuriyet Parkı, Düziçi">
+            <input id="lfAddress" value="${escapeAttr(data.address || '')}" placeholder="Örn: Cumhuriyet Parkı, Düziçi">
           </div>
           <div class="form-group" style="grid-column:span 2">
             <label>Detaylı Açıklama (Belirgin Özellikler vb.)</label>
-            <textarea id="lfDescription" style="height:100px" placeholder="Eşyanın rengi, ayırt edici özellikleri, bulan kişinin teslim edeceği yer vb...Content">\${escapeHtml(data.description || '')}</textarea>
+            <textarea id="lfDescription" style="height:100px" placeholder="Eşyanın rengi, ayırt edici özellikleri, bulan kişinin teslim edeceği yer vb...Content">${escapeHtml(data.description || '')}</textarea>
           </div>
           <div class="form-group">
             <label>İrtibat Telefonu</label>
-            <input id="lfContact" value="\${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
+            <input id="lfContact" value="${escapeAttr(data.contact || '')}" placeholder="Örn: 0555 123 45 67">
           </div>
           <div class="form-group">
             <label>WhatsApp Numarası (Uluslararası Format)</label>
-            <input id="lfWhatsapp" value="\${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
+            <input id="lfWhatsapp" value="${escapeAttr(data.whatsapp || '')}" placeholder="Örn: +905551234567">
           </div>
 
           <div class="form-group" style="grid-column:span 2">
             <label style="display:flex; align-items:center; gap:8px; cursor:pointer">
-              <input type="checkbox" id="lfIsActive" \${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
+              <input type="checkbox" id="lfIsActive" ${data.isActive !== false ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:16px; height:16px">
               <span>İlan Aktif (Uygulamada Görünsün)</span>
             </label>
           </div>
@@ -4045,7 +4045,7 @@
       if (!preview) return;
       if (tempLostFoundPhoto) {
         preview.innerHTML = `
-          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('\${escapeAttr(tempLostFoundPhoto)}'); background-size:cover; background-position:center;">
+          <div style="position:relative; width:150px; height:100px; border-radius:8px; border:1px solid var(--border); background-image:url('${escapeAttr(tempLostFoundPhoto)}'); background-size:cover; background-position:center;">
             <button onclick="removeLostFoundImage()" style="position:absolute;top:3px;right:3px;border:none;background:rgba(239,68,68,0.85);color:white;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center">✕</button>
           </div>`;
       } else {
