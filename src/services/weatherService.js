@@ -15,6 +15,25 @@ class WeatherService {
       return this.cache.data;
     }
 
+    if (this.cache.data) {
+      console.log('[weather] Returning stale weather cache, refreshing in background...');
+      this._refreshWeatherBackground().catch(() => {});
+      return this.cache.data;
+    }
+
+    return this._fetchAndCacheWeather();
+  }
+
+  async _refreshWeatherBackground() {
+    try {
+      await this._fetchAndCacheWeather();
+    } catch (e) {
+      console.warn('[weather] Background weather refresh failed:', e.message);
+    }
+  }
+
+  async _fetchAndCacheWeather() {
+    const now = Date.now();
     try {
       const url = `${config.WEATHER.API_URL}?latitude=${config.WEATHER.LAT}&longitude=${config.WEATHER.LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3`;
       
@@ -32,9 +51,6 @@ class WeatherService {
     } catch (error) {
       console.error('❌ Weather fetch error:', error.message);
       
-      // If we have stale cache, use it
-      if (this.cache.data) return this.cache.data;
-
       // Try wttr.in Fallback
       try {
         console.log('🔄 Trying wttr.in weather fallback...');

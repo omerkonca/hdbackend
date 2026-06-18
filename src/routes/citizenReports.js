@@ -10,6 +10,8 @@ const emailService = require('../services/emailService');
 
 const router = express.Router();
 
+let useSupabaseStorage = false;
+
 function buildStorage() {
   if (
     config.CLOUDINARY.CLOUD_NAME &&
@@ -31,15 +33,8 @@ function buildStorage() {
     });
   }
 
-  return multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      cb(null, path.join(__dirname, '../../public/uploads/citizen-reports'));
-    },
-    filename: (_req, file, cb) => {
-      const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      cb(null, `report-${unique}${path.extname(file.originalname)}`);
-    },
-  });
+  useSupabaseStorage = true;
+  return multer.memoryStorage();
 }
 
 const upload = multer({
@@ -72,7 +67,34 @@ router.post('/', (req, res, next) => {
     const platform = String(req.body?.platform || '').trim();
     const appVersion = String(req.body?.appVersion || '').trim();
 
-    const imageUrls = (req.files || []).map(fileToUrl).filter(Boolean);
+    const imageUrls = [];
+    if (useSupabaseStorage && req.files && req.files.length > 0) {
+      const supabase = require('../utils/supabaseClient');
+      for (const file of req.files) {
+        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        const filename = `report-${unique}${path.extname(file.originalname)}`;
+        
+        const { data, error } = await supabase.storage
+          .from('city-assets')
+          .upload(filename, file.buffer, {
+            contentType: file.mimetype,
+            upsert: true
+          });
+          
+        if (error) {
+          console.error('[citizen-reports] Supabase upload failed:', error.message);
+          continue;
+        }
+        
+        const { data: urlData } = supabase.storage
+          .from('city-assets')
+          .getPublicUrl(filename);
+          
+        imageUrls.push(urlData.publicUrl);
+      }
+    } else {
+      imageUrls.push(...(req.files || []).map(fileToUrl).filter(Boolean));
+    }
 
     const row = await citizenReportService.create({
       category,

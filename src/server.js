@@ -10,6 +10,7 @@ const newsService = require('./services/newsService');
 const eventService = require('./services/eventService');
 const roadClosureService = require('./services/roadClosureService');
 const obituaryService = require('./services/obituaryService');
+const weatherService = require('./services/weatherService');
 const { ensureCitizenReportsTable } = require('./utils/runMigrations');
 const emailService = require('./services/emailService');
 
@@ -104,6 +105,11 @@ const server = app.listen(config.PORT, () => {
     .then(items => console.log(`[obituaries] cache ready (${items.length} items)`))
     .catch(err => console.warn('[obituaries] initial fetch failed:', err.message));
 
+  console.log('[server] warming up weather cache...');
+  weatherService.getWeather()
+    .then(data => console.log(`[weather] cache ready (temp: ${data.current?.temp}°C)`))
+    .catch(err => console.warn('[weather] initial fetch failed:', err.message));
+
   // Periodic Refresh
   setInterval(() => {
     pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});
@@ -124,4 +130,8 @@ const server = app.listen(config.PORT, () => {
   setInterval(() => {
     obituaryService.getObituaries({ forceRefresh: true }).catch(() => {});
   }, 30 * 60 * 1000); // 30 dk
+
+  setInterval(() => {
+    weatherService.getWeather().catch(() => {});
+  }, config.WEATHER.CACHE_TTL_MS);
 });

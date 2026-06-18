@@ -313,9 +313,72 @@ class NewsService {
   async getNews({ forceRefresh = false, max = 20 } = {}) {
     const now = Date.now();
     const isFresh = now - this.cache.fetchedAt < config.NEWS.CACHE_TTL_MS;
+
+    // 1. Memory cache is fresh -> return immediately
     if (!forceRefresh && isFresh && this.cache.items.length > 0) {
       return this.cache.items.slice(0, max);
     }
+
+    // 2. Memory cache is stale -> return immediately and refresh in background
+    if (!forceRefresh && this.cache.items.length > 0) {
+      console.log('[news] Returning stale memory cache, refreshing in background...');
+      this._refreshNewsBackground(max).catch(() => {});
+      return this.cache.items.slice(0, max);
+    }
+
+    // 3. Memory cache is empty -> check Supabase database (fast cache fallback)
+    if (!forceRefresh) {
+      try {
+        console.log('[news] Memory cache is empty, trying Supabase DB cache...');
+        const supabase = require('../utils/supabaseClient');
+        const { data, error } = await supabase
+          .from('news_items')
+          .select('id, title, summary, image_url, created_at, source_url, source_name, category')
+          .order('created_at', { ascending: false })
+          .limit(100);
+
+        if (!error && data && data.length > 0) {
+          const dbItems = data.map(row => ({
+            id: row.id,
+            title: row.title,
+            summary: row.summary,
+            imageUrl: row.image_url,
+            createdAt: row.created_at,
+            sourceUrl: row.source_url,
+            sourceName: row.source_name,
+            category: row.category,
+          }));
+
+          // Populate memory cache (mark fetchedAt as old so background refresh triggers)
+          this.cache = {
+            fetchedAt: 0,
+            items: dbItems,
+          };
+
+          console.log(`[news] Loaded ${dbItems.length} items from Supabase cache. Refreshing from RSS in background...`);
+          this._refreshNewsBackground(max).catch(() => {});
+          return dbItems.slice(0, max);
+        }
+      } catch (dbErr) {
+        console.error('❌ Supabase news read fallback failed:', dbErr.message);
+      }
+    }
+
+    // 4. Fallback (cold start AND database empty, or forceRefresh) -> fetch synchronously
+    return this._fetchAndCacheNews(max);
+  }
+
+  async _refreshNewsBackground(max) {
+    try {
+      await this._fetchAndCacheNews(max);
+      console.log('[news] Background news refresh complete.');
+    } catch (e) {
+      console.warn('[news] Background news refresh failed:', e.message);
+    }
+  }
+
+  async _fetchAndCacheNews(max) {
+    const now = Date.now();
     let items = await this.scrapeNews({ max: Math.max(max, 80) });
     items = await this.enrichItemsFromCache(items);
     this.cache = {
@@ -323,7 +386,15 @@ class NewsService {
       items,
     };
 
-    // Supabase cache sync
+    // Supabase cache sync (in background)
+    this._syncNewsToSupabase(items).catch(err => {
+      console.error('❌ Supabase news cache sync background error:', err.message);
+    });
+
+    return items.slice(0, max);
+  }
+
+  async _syncNewsToSupabase(items) {
     try {
       const supabase = require('../utils/supabaseClient');
       const rows = items.map(item => ({
@@ -391,8 +462,6 @@ class NewsService {
     } catch (err) {
       console.error('❌ Supabase news cache sync failed:', err.message);
     }
-
-    return items.slice(0, max);
   }
 
   async preFetchFullTexts(items) {

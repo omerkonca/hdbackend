@@ -25,10 +25,7 @@ class FileService {
         content = JSON.parse(raw);
         await this.writeCityContent(content);
       } else if (!this._isHealthyExplore(content)) {
-        console.warn('⚠️ Supabase explore verisi bozuk — yerel JSON ile yeniden seed ediliyor.');
-        const raw = await fs.readFile(config.PATHS.CITY_CONTENT, 'utf8');
-        content = JSON.parse(raw);
-        await this.writeCityContent(content);
+        console.warn('⚠️ Supabase explore verisi yapısı standart dışı görünüyor! (Sıfırlama yapılmadı)');
       }
       
       return content;

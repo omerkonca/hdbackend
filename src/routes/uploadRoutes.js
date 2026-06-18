@@ -9,6 +9,8 @@ const { requireAdminToken } = require('../middlewares/auth');
 
 // Cloudinary Configuration
 let storage;
+let useSupabaseStorage = false;
+
 if (config.CLOUDINARY.CLOUD_NAME && config.CLOUDINARY.API_KEY && config.CLOUDINARY.API_SECRET) {
   cloudinary.config({
     cloud_name: config.CLOUDINARY.CLOUD_NAME,
@@ -29,17 +31,10 @@ if (config.CLOUDINARY.CLOUD_NAME && config.CLOUDINARY.API_KEY && config.CLOUDINA
   });
   console.log('☁️  Cloudinary storage initialized');
 } else {
-  // Local storage fallback
-  storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, path.join(__dirname, '../../public/uploads'));
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-  });
-  console.log('📁 Local storage initialized (fallback)');
+  // Supabase Storage memory fallback
+  storage = multer.memoryStorage();
+  useSupabaseStorage = true;
+  console.log('💾 Supabase storage fallback initialized');
 }
 
 const upload = multer({
@@ -55,18 +50,40 @@ router.post('/', requireAdminToken, (req, res, next) => {
     }
     next();
   });
-}, (req, res) => {
+}, async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ ok: false, message: 'Dosya seçilmedi.' });
   }
   
-  // Cloudinary'de req.file.path bir web URL'idir (https://...). 
-  // Yerel disk storage'da ise absolute path'tir. O yüzden http ile başlayıp başlamadığına bakıyoruz.
-  const fileUrl = (req.file.path && req.file.path.startsWith('http')) 
-    ? req.file.path 
-    : `/uploads/${req.file.filename}`;
-    
-  res.json({ ok: true, fileUrl, filename: req.file.filename || req.file.public_id });
+  try {
+    if (useSupabaseStorage) {
+      const supabase = require('../utils/supabaseClient');
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      const filename = `file-${uniqueSuffix}${path.extname(req.file.originalname)}`;
+      
+      const { data, error } = await supabase.storage
+        .from('city-assets')
+        .upload(filename, req.file.buffer, {
+          contentType: req.file.mimetype,
+          upsert: true
+        });
+        
+      if (error) {
+        throw error;
+      }
+      
+      const { data: urlData } = supabase.storage
+        .from('city-assets')
+        .getPublicUrl(filename);
+        
+      res.json({ ok: true, fileUrl: urlData.publicUrl, filename });
+    } else {
+      res.json({ ok: true, fileUrl: req.file.path, filename: req.file.filename || req.file.public_id });
+    }
+  } catch (error) {
+    console.error('❌ Upload to storage failed:', error.message);
+    res.status(500).json({ ok: false, message: 'Dosya yüklenirken hata oluştu.', detail: error.message });
+  }
 });
 
 module.exports = router;
