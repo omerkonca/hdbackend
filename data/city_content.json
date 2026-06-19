@@ -135,13 +135,6 @@
             "subtitle": "Sorun, tavsiye paylaş — fotoğraf ekle"
           },
           {
-            "icon": "support_agent_rounded",
-            "color": "#9C27B0",
-            "title": "Bize Ulaşın",
-            "target": "screen:contact",
-            "subtitle": "E-posta ve yayıncı bilgileri"
-          },
-          {
             "icon": "newspaper_rounded",
             "color": "#1565C0",
             "title": "Haber Kaynakları",
@@ -237,6 +230,76 @@
     ]
   },
   "explore": {
+    "cityDeals": [
+      {
+        "id": "cd_1781555000001",
+        "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=960",
+        "title": "Bugüne Özel 1 Alana 1 Bedava Tavuk Dürüm Fırsatı!",
+        "isPaid": true,
+        "address": "Kurtuluş Mahallesi, Recep Tayyip Erdoğan Bulvarı No: 12",
+        "contact": "0328 123 45 67",
+        "endDate": "2026-06-20",
+        "category": "Gıda & Restoran",
+        "isActive": true,
+        "whatsapp": "+905051234567",
+        "createdAt": "2026-06-16T12:00:00.000Z",
+        "storeName": "Kırmızı Döner",
+        "priceAfter": "80",
+        "description": "Kırmızı Döner'de bugüne özel efsane kampanya! 1 adet tavuk dürüm alana, ikincisi bizden hediye. Kaçırmayın!",
+        "priceBefore": "160",
+        "discountRate": "1 Alana 1 Bedava"
+      },
+      {
+        "id": "cd_1781555000002",
+        "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=960",
+        "title": "Öğrenci Menüsü: Döner + Ayran Sadece 90 ₺",
+        "isPaid": false,
+        "address": "Cumhuriyet Mahallesi, Atatürk Caddesi No: 45",
+        "contact": "0328 765 43 21",
+        "endDate": "2026-06-30",
+        "category": "Gıda & Restoran",
+        "isActive": true,
+        "whatsapp": "+905327654321",
+        "createdAt": "2026-06-16T12:30:00.000Z",
+        "storeName": "Lezzet Sarayı",
+        "priceAfter": "90",
+        "description": "Tüm öğrencilere özel lezzetli tavuk döner menümüz şimdi sadece 90 ₺. Kampanyadan yararlanmak için öğrenci kartınızı göstermeniz yeterlidir.",
+        "priceBefore": "120",
+        "discountRate": "Öğrenci Özel"
+      }
+    ],
+    "lostFound": [
+      {
+        "id": "lf_1781555000001",
+        "type": "Bulunan",
+        "image": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=960",
+        "title": "Düziçi Çarşıda Erkek Kol Saati Bulundu",
+        "isPaid": true,
+        "address": "Belediye Meydanı, Düziçi",
+        "contact": "0505 999 88 77",
+        "category": "Diğer",
+        "isActive": true,
+        "whatsapp": "+905059998877",
+        "createdAt": "2026-06-16T11:00:00.000Z",
+        "description": "15 Haziran pazartesi günü belediye meydanındaki bankta gümüş renkli metal kordonlu bir erkek kol saati bulunmuştur. Sahibi irtibata geçip teslim alabilir.",
+        "lostFoundDate": "2026-06-15"
+      },
+      {
+        "id": "lf_1781555000002",
+        "type": "Kayıp",
+        "image": "https://images.unsplash.com/photo-1627124357773-41319df4e9c2?w=960",
+        "title": "Mavi Cüzdan Kayıp (Kimlik ve Kartlar)",
+        "isPaid": false,
+        "address": "Refik Cesur Bulvarı güzergahı",
+        "contact": "0545 777 66 55",
+        "category": "Cüzdan & Kart",
+        "isActive": true,
+        "whatsapp": "+905457776655",
+        "createdAt": "2026-06-16T10:00:00.000Z",
+        "description": "Refik Cesur Bulvarı üzerinde içinde kimlik kartı, ehliyet ve Düziçi belediye kartı olan mavi deri cüzdan kaybolmuştur. Bulanların insaniyet namına irtibat kurmasını rica ederim.",
+        "lostFoundDate": "2026-06-14"
+      }
+    ],
     "categories": [
       {
         "id": "guide",
@@ -347,6 +410,310 @@
           }
         ],
         "subtitle": "Ulaşım, merkez noktalar ve günlük hayat"
+      },
+      {
+        "id": "ibadet",
+        "icon": "mosque",
+        "badge": "İbadet",
+        "title": "İbadethaneler",
+        "places": [
+          {
+            "lat": 37.232,
+            "lng": 36.441,
+            "tag": "MERKEZ",
+            "name": "Kurtuluş Çarşı ve Yeraltı Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "İlçe merkezinin en hareketli ticaret caddesi olan Kurtuluş Mahallesi'nde yer alır. Çarşı esnafı ve ziyaretçiler için önemli bir ibadet noktasıdır.",
+            "address": "Kurtuluş Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.232,36.441",
+            "shortDescription": "Kurtuluş Mahallesi çarşı merkezinde yer alan yeraltı camii."
+          },
+          {
+            "lat": 37.24,
+            "lng": 36.446,
+            "tag": "MERKEZ",
+            "name": "Düziçi Çarşı ve Ulu Cami",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Uzun Banı ve Üzümlü mahalleleri arasında, eski pazar yerine yakın, geniş cemaat kapasiteli ve tarihi mimariye sahip merkez ulu camimizdir.",
+            "address": "Üzümlü Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240,36.446",
+            "shortDescription": "Merkez çarşıda yer alan Düziçi'nin en eski camilerinden biri."
+          },
+          {
+            "lat": 37.2462,
+            "lng": 36.4535,
+            "tag": "MAHALLE",
+            "name": "İrfanlı Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "İlçe stadyumu ve yeni belediye binası civarında yer alan, modern mimariye sahip ve geniş bir bahçesi bulunan mahalle camimizdir.",
+            "address": "İrfanlı Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2462,36.4535",
+            "shortDescription": "İrfanlı Mahallesi'nin en büyük cemaat kapasiteli camii."
+          },
+          {
+            "lat": 37.2515,
+            "lng": 36.4625,
+            "tag": "MAHALLE",
+            "name": "Hacılar Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Çerçioğlu ve Yeşildere yolları kavşağına yakın, Hürriyet Mahallesi sınırları içerisindeki en büyük camidir.",
+            "address": "Hürriyet Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2515,36.4625",
+            "shortDescription": "Hacılar (Hürriyet) bölgesinin merkezi ibadethanesi."
+          },
+          {
+            "lat": 37.2592,
+            "lng": 36.4415,
+            "tag": "TOKİ",
+            "name": "Toki Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Karacaören ve Toki Konutları bölgesinde yaşayan hemşehrilerimizin ibadet ihtiyaçlarını karşılamak üzere inşa edilmiş modern camidir.",
+            "address": "Toki Konutları, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2592,36.4415",
+            "shortDescription": "Düziçi Toki Konutları bölgesi camii."
+          },
+          {
+            "lat": 37.2455,
+            "lng": 36.439,
+            "tag": "MAHALLE",
+            "name": "Uzunbanı Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Çamiçi caddesi güzergâhında, asırlık çınar ağaçları altındaki yeşillikler içinde yer alan huzurlu bir mahalle camisidir.",
+            "address": "Uzunbanı Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2455,36.4390",
+            "shortDescription": "Uzunbanı Mahallesi'nin tarihi dokulu camii."
+          },
+          {
+            "lat": 37.2355,
+            "lng": 36.458,
+            "tag": "MAHALLE",
+            "name": "Veysel Karani Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Geniş avlusu, kubbe işlemeleri ve çift minaresiyle dikkat çeken, Çamiçi yolu üzerindeki modern ibadethanemizdir.",
+            "address": "Çamiçi Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2355,36.4580",
+            "shortDescription": "Refik Cesur Bulvarı Çamiçi yönündeki modern cami."
+          },
+          {
+            "lat": 37.228,
+            "lng": 36.451,
+            "tag": "MAHALLE",
+            "name": "Bilali Habeş Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Tren yolu ve Yarbaşı sınırına yakın, Üzümlü Mahallesi'nin alt kesiminde sakin ve nezih bir bölgede yer alır.",
+            "address": "Üzümlü Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2280,36.4510",
+            "shortDescription": "Üzümlü Mahallesi alt kesimi camii."
+          },
+          {
+            "lat": 37.234,
+            "lng": 36.4485,
+            "tag": "MAHALLE",
+            "name": "İmam-ı Azam Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Yeni otogar ve sanayi sitesi kavşağı yakınlarında bulunan, transit yolcuların ve çevre esnafın sıklıkla kullandığı camidir.",
+            "address": "Yeşilova Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2340,36.4485",
+            "shortDescription": "Yeşilova Mahallesi otogar kavşağı yakınındaki cami."
+          },
+          {
+            "lat": 37.2385,
+            "lng": 36.449,
+            "tag": "MAHALLE",
+            "name": "Yeşilova Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Mahalle okulunun hemen yanında yer alan, geleneksel taş mimariye sahip tarihi Yeşilova mahallesi camimizdir.",
+            "address": "Yeşilova Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2385,36.4490",
+            "shortDescription": "Yeşilova Mahallesi merkez camii."
+          },
+          {
+            "lat": 37.248,
+            "lng": 36.467,
+            "tag": "MAHALLE",
+            "name": "Hz. Ukkaşe Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Amanos Dağları eteklerine yakın, temiz havası ve panoramik Düziçi manzarası olan yeni ibadethanemizdir.",
+            "address": "Hürriyet Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2480,36.4670",
+            "shortDescription": "Hürriyet Mahallesi üst kesimlerindeki yeni cami."
+          },
+          {
+            "lat": 37.241,
+            "lng": 36.435,
+            "tag": "MAHALLE",
+            "name": "Milli Şair Mehmet Akif Ersoy Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Adını İstiklal Marşı şairimizden alan, Karlıca ve Hürriyet mahalleleri arasındaki yeni yerleşim bölgesinde hizmet veren camidir.",
+            "address": "Karlıca Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2410,36.4350",
+            "shortDescription": "Karlıca Mahallesi sınırındaki yeni cami projesi."
+          },
+          {
+            "lat": 37.233,
+            "lng": 36.431,
+            "tag": "MAHALLE",
+            "name": "Yıldırım Beyazıt Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Yarbaşı belde yoluna yakın, Kurtuluş Mahallesi'nin batı yönündeki yerleşim yerinde sakin bir ibadet alanıdır.",
+            "address": "Kurtuluş Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2330,36.4310",
+            "shortDescription": "Kurtuluş Mahallesi alt kesimlerindeki cami."
+          },
+          {
+            "lat": 37.381,
+            "lng": 36.492,
+            "tag": "BELDE",
+            "name": "Haruniye Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Haruniye kalesi eteklerinde, kaplıca yolu üzerindeki tarihi dokusu korunmuş ve restorasyon görmüş ulu camidir.",
+            "address": "Haruniye Beldesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3810,36.4920",
+            "shortDescription": "Tarihi Haruniye belde merkezindeki ulu cami."
+          },
+          {
+            "lat": 37.288,
+            "lng": 36.48,
+            "tag": "BELDE",
+            "name": "Ellek Merkez Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Ellek belediye binası meydanında yer alan, geniş kubbesi ve yüksek minareleri olan beldenin kalbi niteliğindeki camidir.",
+            "address": "Ellek Beldesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2880,36.4800",
+            "shortDescription": "Ellek Beldesi'nin en büyük camii."
+          },
+          {
+            "lat": 37.199,
+            "lng": 36.43,
+            "tag": "BELDE",
+            "name": "Yarbaşı Merkez Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "Yarbaşı belediyesi ve okulunun yakınlarında bulunan, yeşilliklerle çevrili ve huzurlu bir belde camisidir.",
+            "address": "Yarbaşı Beldesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.1990,36.4300",
+            "shortDescription": "Yarbaşı Beldesi merkez caddesindeki cami."
+          },
+          {
+            "lat": 37.2425,
+            "lng": 36.455,
+            "tag": "MAHALLE",
+            "name": "28 Mart Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "İlçe kurtuluş günü olan 28 Mart adını taşıyan cadde üzerinde, çarşı girişine yakın merkezi camidir.",
+            "address": "İstiklal Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2425,36.4550",
+            "shortDescription": "İstiklal Mahallesi 28 Mart caddesi üzerindeki cami."
+          },
+          {
+            "lat": 37.2475,
+            "lng": 36.4455,
+            "tag": "MAHALLE",
+            "name": "48 Evler Camii",
+            "image": "assets/images/mosque_placeholder.jpg",
+            "detail": "İlçe kütüphanesi ve 48 Evler konut yapı kooperatifi sitesi yakınında sakin bir park içinde yer alan camidir.",
+            "address": "İrfanlı Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2475,36.4455",
+            "shortDescription": "İrfanlı Mahallesi 48 Evler sitesi camii."
+          },
+          {
+            "name": "Boğaziçi Camii",
+            "shortDescription": "Boğaziçi Mahallesi'nin huzurlu camisi.",
+            "detail": "Boğaziçi Mahallesi sakinlerinin ibadet ve buluşma noktası olan, temiz çevre düzenlemesine sahip camidir.",
+            "address": "Boğaziçi Mah., Düziçi",
+            "tag": "CAMİ",
+            "lat": 37.2285,
+            "lng": 36.4385,
+            "image": "assets/images/mosque_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2285,36.4385"
+          },
+          {
+            "name": "Çiftlik Mahallesi Camii",
+            "shortDescription": "Çiftlik Mahallesi camisi.",
+            "detail": "Çiftlik Mahallesi'nde yer alan, geniş cemaat kapasiteli ve hayırsever hemşehrilerimizin katkılarıyla yapılmış camidir.",
+            "address": "Çiftlik Mah., Düziçi",
+            "tag": "CAMİ",
+            "lat": 37.218,
+            "lng": 36.452,
+            "image": "assets/images/mosque_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.218,36.452"
+          },
+          {
+            "name": "Karacaoğlan Camii",
+            "shortDescription": "Cumhuriyet Mahallesi Karacaoğlan sokak camii.",
+            "detail": "Karacaoğlan sokak civarındaki vatandaşlarımıza hizmet veren, manevi atmosferi yüksek mahalle camimizdir.",
+            "address": "Cumhuriyet Mah., Karacaoğlan Mevkii, Düziçi",
+            "tag": "CAMİ",
+            "lat": 37.2435,
+            "lng": 36.448,
+            "image": "assets/images/mosque_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2435,36.448"
+          },
+          {
+            "name": "Şehitler Camii",
+            "shortDescription": "Şehitler Parkı yakınındaki yeni camimiz.",
+            "detail": "İrfanlı Mahallesi Şehitler Parkı bölgesinde, modern mimarisi ve estetik iç tasarımıyla dikkat çeken huzur dolu ibadethane.",
+            "address": "İrfanlı Mah., Şehitler Mevkii, Düziçi",
+            "tag": "CAMİ",
+            "lat": 37.2438,
+            "lng": 36.451,
+            "image": "assets/images/mosque_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2438,36.451"
+          },
+          {
+            "name": "Yenimahalle Camii",
+            "shortDescription": "Yenimahalle sakinlerine hizmet veren cami.",
+            "detail": "Yenimahalle bölgesinde yer alan, taziye evi ve Kur'an kursu müştemilatı da bulunan büyük mahalle camisi.",
+            "address": "Yenimahalle, Düziçi",
+            "tag": "CAMİ",
+            "lat": 37.235,
+            "lng": 36.465,
+            "image": "assets/images/mosque_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.235,36.465"
+          }
+        ],
+        "subtitle": "Düziçi ve beldelerindeki camilerimiz"
+      },
+      {
+        "id": "hotels",
+        "icon": "hotel",
+        "badge": "Otel",
+        "title": "Oteller",
+        "places": [
+          {
+            "lat": 37.2405,
+            "lng": 36.4475,
+            "tag": "MERKEZ",
+            "name": "Karacaoğlan Otel",
+            "image": "assets/images/hotel_placeholder.jpg",
+            "detail": "İlçe merkezinde, çarşıya ve resmi kurumlara yürüme mesafesinde yer alan temiz ve konforlu mahalle otelidir.",
+            "address": "Kurtuluş Mahallesi, Refik Cesur Bulvarı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2405,36.4475",
+            "shortDescription": "Düziçi ilçe merkezinde konforlu konaklama hizmeti."
+          },
+          {
+            "lat": 37.382,
+            "lng": 36.491,
+            "tag": "KAPLICA",
+            "name": "Düziçi Termal Otel",
+            "image": "assets/images/hotel_placeholder.jpg",
+            "detail": "Düziçi'nin en önemli turizm noktası olan Haruniye Kaplıcaları içerisinde, şifalı kaplıca suları ve doğa manzarası eşliğinde konaklama imkanı.",
+            "address": "Haruniye Kaplıcaları Mevkii, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.382,36.491",
+            "shortDescription": "Haruniye Kaplıcaları bünyesinde şifalı termal otel."
+          },
+          {
+            "lat": 37.2422,
+            "lng": 36.453,
+            "tag": "MERKEZ",
+            "name": "Düziçi Öğretmenevi",
+            "image": "assets/images/hotel_placeholder.jpg",
+            "detail": "Geniş bahçesi, kafeteryası ve otoparkı bulunan, tüm vatandaşlarımızın yararlanabileceği konforlu konaklama tesisi.",
+            "address": "İrfanlı Mahallesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2422,36.453",
+            "shortDescription": "İrfanlı Mahallesi'nde güvenilir ve ekonomik konaklama tesisi."
+          }
+        ],
+        "subtitle": "Düziçi ve çevresindeki konaklama yerleri"
       },
       {
         "id": "historical",
@@ -1280,6 +1647,1446 @@
           }
         ],
         "subtitle": "Tüm ilçeler dahil: Merkez, Kadirli, Bahçe, Toprakkale, Hasanbeyli, Sumbas"
+      },
+      {
+        "id": "wc",
+        "icon": "wc",
+        "badge": "WC",
+        "title": "Umumi Tuvaletler",
+        "places": [
+          {
+            "lat": 37.2395,
+            "lng": 36.4462,
+            "tag": "ÇARŞI",
+            "name": "Merkez Çarşı Umumi WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "Kurtuluş Mahallesi çarşı merkezinde, esnaf ve vatandaşlarımızın kolayca ulaşabileceği belediyeye ait temiz tuvalettir.",
+            "address": "Kurtuluş Mah., Çarşı İçi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2395,36.4462",
+            "shortDescription": "Merkez çarşı içerisinde yer alan belediye tuvaleti."
+          },
+          {
+            "lat": 37.2432,
+            "lng": 36.4505,
+            "tag": "PARK",
+            "name": "Şehitler Parkı WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "İrfanlı Mahallesi Şehitler Parkı içerisinde yer alan, engelli erişimine uygun temiz umumi tuvalettir.",
+            "address": "İrfanlı Mah., Şehitler Parkı İçi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2432,36.4505",
+            "shortDescription": "Şehitler Parkı içerisindeki engelli erişimli umumi tuvalet."
+          },
+          {
+            "lat": 37.2335,
+            "lng": 36.448,
+            "tag": "OTOGAR",
+            "name": "Yeni Otogar WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "Yeni otogar binası içerisinde yer alan, transit yolcular ve şoför hemşehrilerimiz için 7/24 açık tuvalettir.",
+            "address": "Yeşilova Mah., Yeni Otogar İçi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2335,36.448",
+            "shortDescription": "Düziçi Şehirlerarası Otobüs Terminali 7/24 tuvaleti."
+          },
+          {
+            "lat": 37.2445,
+            "lng": 36.4512,
+            "tag": "MEYDAN",
+            "name": "Belediye Meydanı WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "Cumhuriyet Mahallesi belediye meydanında yer alan, modern tasarımlı ve temiz umumi tuvalettir.",
+            "address": "Cumhuriyet Mah., Belediye Meydanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2445,36.4512",
+            "shortDescription": "Belediye binası önü temiz umumi tuvaleti."
+          },
+          {
+            "lat": 37.251,
+            "lng": 36.435,
+            "tag": "HASTANe",
+            "name": "Devlet Hastanesi WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "Hastane girişinde ve koridorlarında yer alan, hasta ve hasta yakınlarına açık temiz tuvaletlerdir.",
+            "address": "Karlıca Mah., Hastane Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.435",
+            "shortDescription": "Düziçi Devlet Hastanesi hasta ve ziyaretçi tuvaleti."
+          },
+          {
+            "lat": 37.283,
+            "lng": 36.467,
+            "tag": "DOĞA",
+            "name": "Sabun Çayı Mesire Alanı WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "Sabun Çayı doğa alanı girişinde yer alan, hafta sonu ve tatil günlerinde yoğun kullanılan temiz doğa tuvaleti.",
+            "address": "Sabun Çayı Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467",
+            "shortDescription": "Sabun Çayı piknik alanındaki umumi tuvalet."
+          },
+          {
+            "lat": 37.381,
+            "lng": 36.492,
+            "tag": "TERMAl",
+            "name": "Haruniye Kaplıcaları WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "Haruniye Kaplıcaları tesis girişinde, ziyaretçilere açık temiz tuvalet ve duş kabinleri.",
+            "address": "Haruniye Beldesi, Kaplıca Girişi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492",
+            "shortDescription": "Haruniye termal tesisi ziyaretçi tuvaleti."
+          },
+          {
+            "lat": 37.2468,
+            "lng": 36.4548,
+            "tag": "SPOR",
+            "name": "İrfanlı Mahallesi Futbol Sahası WC",
+            "image": "assets/images/wc_placeholder.jpg",
+            "detail": "İlçe stadyumu yanındaki soyunma odaları ve sporcular için ayrılmış temiz tuvalet tesisi.",
+            "address": "İrfanlı Mah., Stadyum Yanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2468,36.4548",
+            "shortDescription": "Stadyum çevresi sporcular için tuvalet."
+          }
+        ],
+        "subtitle": "Düziçi genelindeki temiz umumi tuvaletler"
+      },
+      {
+        "id": "supermarket",
+        "icon": "shopping_cart",
+        "badge": "Market",
+        "title": "Marketler",
+        "places": [
+          {
+            "lat": 37.2412,
+            "lng": 36.4485,
+            "tag": "ZİNCİR",
+            "name": "A101 İrfanlı Şubesi",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Haftalık indirimler ve temel gıda ihtiyaçları için İrfanlı caddesi üzerinde hizmet veren zincir market şubesidir.",
+            "address": "İrfanlı Mah., Atatürk Cad., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2412,36.4485",
+            "shortDescription": "İrfanlı Mahallesi'ndeki büyük A101 market şubesi."
+          },
+          {
+            "lat": 37.2382,
+            "lng": 36.4452,
+            "tag": "ZİNCİR",
+            "name": "A101 Çarşı Şubesi",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Çarşı yoğunluğuna yakın, alışveriş kolaylığı sunan A101 zincir marketi şubesi.",
+            "address": "Kurtuluş Mah., Çarşı Cad., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2382,36.4452",
+            "shortDescription": "Kurtuluş çarşı içindeki ikinci A101 şubesi."
+          },
+          {
+            "lat": 37.2392,
+            "lng": 36.4455,
+            "tag": "ZİNCİR",
+            "name": "BİM Çarşı Şubesi",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Kurtuluş Mahallesi çarşı merkezinde esnaf ve halkımızın sıklıkla tercih ettiği süpermarket zinciri şubesidir.",
+            "address": "Kurtuluş Mah., Çarşı Girişi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2392,36.4455",
+            "shortDescription": "Merkez çarşıda yer alan BİM market şubesi."
+          },
+          {
+            "lat": 37.2475,
+            "lng": 36.4558,
+            "tag": "ZİNCİR",
+            "name": "BİM İrfanlı Şubesi",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "İrfanlı caddesinde ev hanımlarının ve ailelerin tercih ettiği BİM zincir marketidir.",
+            "address": "İrfanlı Mah., Lise Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2475,36.4558",
+            "shortDescription": "İrfanlı Mahallesi BİM market şubesi."
+          },
+          {
+            "lat": 37.246,
+            "lng": 36.453,
+            "tag": "ZİNCİR",
+            "name": "Şok Yeşilova Şubesi",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Yeşilova Mahallesi otogar yolu üzerinde, geniş ürün yelpazesi ile hizmet sunan perakende market şubesidir.",
+            "address": "Yeşilova Mah., Otogar Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.246,36.453",
+            "shortDescription": "Yeşilova Mahallesi Şok market şubesi."
+          },
+          {
+            "lat": 37.2452,
+            "lng": 36.4392,
+            "tag": "ZİNCİR",
+            "name": "Şok Uzunbanı Şubesi",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Uzunbanı ve Hürriyet mahallesini besleyen, kolay erişilebilir Şok market şubesidir.",
+            "address": "Uzunbanı Mah., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2452,36.4392",
+            "shortDescription": "Uzunbanı Mahallesi köşe başındaki Şok market."
+          },
+          {
+            "lat": 37.2428,
+            "lng": 36.4468,
+            "tag": "ZİNCİR",
+            "name": "Migros (Mini Migros) Çarşı",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Ülker, Migros markalı ürünler ve günlük gıda ihtiyaçları için çarşı içinde yeni açılan zincir market.",
+            "address": "Cumhuriyet Mah., Refik Cesur Bulvarı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2428,36.4468",
+            "shortDescription": "Migros zincirinin Düziçi çarşı içindeki market."
+          },
+          {
+            "lat": 37.2425,
+            "lng": 36.449,
+            "tag": "KOOPERATİF",
+            "name": "Tarım Kredi Kooperatif Market",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Belediye binası yakınında, yerli üreticilerden alınan doğal ürünleri uygun fiyatlarla sunan devlet kooperatif marketidir.",
+            "address": "Cumhuriyet Mah., Refik Cesur Bulvarı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2425,36.449",
+            "shortDescription": "Doğal ve uygun fiyatlı kooperatif ürünleri marketi."
+          },
+          {
+            "lat": 37.2435,
+            "lng": 36.4498,
+            "tag": "YEREL",
+            "name": "Doğanlar Süpermarket",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Düziçi köklü yerel market zinciri. Taze et, şarküteri ve manav bölümüyle her mahalleye yakın şubesi bulunan güvenilir marketlerden biridir.",
+            "address": "İrfanlı Mah., Refik Cesur Bulvarı No:124, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2435,36.4498",
+            "shortDescription": "Yerel zincir; geniş et ve şarküteri bölümü."
+          },
+          {
+            "lat": 37.2405,
+            "lng": 36.4575,
+            "tag": "HİPERMARKET",
+            "name": "CarrefourSA Düziçi",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Geniş alanı, otopark imkânı ve her kategoride ürünü ile ilçemizin en büyük alışveriş noktasıdır.",
+            "address": "İstiklal Mah., Çevre Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2405,36.4575",
+            "shortDescription": "Düziçi'nin en büyük hipermarket şubesi."
+          },
+          {
+            "lat": 37.381,
+            "lng": 36.491,
+            "tag": "BELDE",
+            "name": "DP Market Haruniye",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Haruniye Beldesi sakinlerinin günlük gıda ihtiyaçlarını karşıladığı, taze ürün ve et bölümü olan belde marketi.",
+            "address": "Haruniye Beldesi, Merkez, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.491",
+            "shortDescription": "Haruniye beldesi merkez market."
+          },
+          {
+            "lat": 37.2882,
+            "lng": 36.4798,
+            "tag": "BELDE",
+            "name": "Ellek Mahalle Market",
+            "image": "assets/images/market_placeholder.jpg",
+            "detail": "Ellek beldesinde tek büyük market olan, temel gıda, temizlik ve ambalajlı ürünlerin bulunduğu belde marketidir.",
+            "address": "Ellek Beldesi, Merkez, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2882,36.4798",
+            "shortDescription": "Ellek Beldesi'nin merkezi süpermarketi."
+          },
+          {
+            "name": "BİM Cumhuriyet Şubesi",
+            "shortDescription": "Cumhuriyet Mahallesi BİM market şubesi.",
+            "detail": "Cumhuriyet Mahallesi'nde temel gıda ve aktüel ürünler ile vatandaşlarımıza hizmet sunan BİM şubesi.",
+            "address": "Cumhuriyet Mah., Atatürk Cad., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.244,
+            "lng": 36.4495,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.4495"
+          },
+          {
+            "name": "A101 Cumhuriyet Şubesi",
+            "shortDescription": "Cumhuriyet Mahallesi A101 market şubesi.",
+            "detail": "Geniş ürün yelpazesi ve uygun fiyatlarıyla Cumhuriyet caddesi üzerinde hizmet veren A101 market şubesi.",
+            "address": "Cumhuriyet Mah., Atatürk Cad., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.2432,
+            "lng": 36.4502,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2432,36.4502"
+          },
+          {
+            "name": "Şok Cumhuriyet Şubesi",
+            "shortDescription": "Cumhuriyet Mahallesi Şok market şubesi.",
+            "detail": "Cumhuriyet Mahallesi meydan civarında yer alan, haftalık kampanyalarıyla ünlü Şok market şubesi.",
+            "address": "Cumhuriyet Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.2448,
+            "lng": 36.4525,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2448,36.4525"
+          },
+          {
+            "name": "BİM Uzunbanı Şubesi",
+            "shortDescription": "Uzunbanı Mahallesi BİM market şubesi.",
+            "detail": "Uzunbanı Mahallesi sakinlerinin günlük gıda ihtiyaçları için hizmet sunan indirim marketi şubesi.",
+            "address": "Uzunbanı Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.246,
+            "lng": 36.4385,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.246,36.4385"
+          },
+          {
+            "name": "A101 Uzunbanı Şubesi",
+            "shortDescription": "Uzunbanı Mahallesi A101 market şubesi.",
+            "detail": "Uzunbanı caddesi üzerinde yer alan, ucuzluk ve kaliteyi bir arada sunan zincir perakende market şubesi.",
+            "address": "Uzunbanı Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.245,
+            "lng": 36.4398,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.245,36.4398"
+          },
+          {
+            "name": "BİM Yeşilova Şubesi",
+            "shortDescription": "Yeşilova Mahallesi BİM market şubesi.",
+            "detail": "Yeşilova Mahallesi otogar istikametinde bulunan, taze ve kaliteli gıda ürünleri sunan zincir market.",
+            "address": "Yeşilova Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.2345,
+            "lng": 36.449,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2345,36.449"
+          },
+          {
+            "name": "A101 Yeşilova Şubesi",
+            "shortDescription": "Yeşilova Mahallesi A101 market şubesi.",
+            "detail": "Yeşilova Mahallesi otogar kavşağında geniş aktüel ürün reyonlarıyla hizmet sunan A101 şubesi.",
+            "address": "Yeşilova Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.2355,
+            "lng": 36.4482,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2355,36.4482"
+          },
+          {
+            "name": "Şok İrfanlı Şubesi",
+            "shortDescription": "İrfanlı Mahallesi Şok market şubesi.",
+            "detail": "İrfanlı caddesinde stadyum yolu üzerinde yer alan, cazip fiyatlı zincir market şubesi.",
+            "address": "İrfanlı Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.2468,
+            "lng": 36.454,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2468,36.454"
+          },
+          {
+            "name": "BİM Hürriyet Şubesi",
+            "shortDescription": "Hürriyet Mahallesi BİM market şubesi.",
+            "detail": "Hürriyet Mahallesi Refik Cesur Bulvarı üzerinde zengin ürün çeşitleriyle hizmet sunan BİM market.",
+            "address": "Hürriyet Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.2425,
+            "lng": 36.4595,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2425,36.4595"
+          },
+          {
+            "name": "A101 Hürriyet Şubesi",
+            "shortDescription": "Hürriyet Mahallesi A101 market şubesi.",
+            "detail": "Hürriyet Mahallesi'nde vatandaşlarımızın yürüme mesafesinde ulaşabileceği zincir market şubesi.",
+            "address": "Hürriyet Mah., Düziçi",
+            "tag": "ZİNCİR",
+            "lat": 37.2418,
+            "lng": 36.4588,
+            "image": "assets/images/market_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2418,36.4588"
+          }
+        ],
+        "subtitle": "Düziçi'ndeki büyük süpermarket şubeleri"
+      },
+      {
+        "id": "parking",
+        "icon": "local_parking",
+        "badge": "Otopark",
+        "title": "Otoparklar",
+        "places": [
+          {
+            "lat": 37.2445,
+            "lng": 36.451,
+            "tag": "KAPALI",
+            "name": "Belediye Kapalı Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "İlçe merkezindeki trafik yoğunluğunu azaltmak amacıyla hizmet veren, 7/24 kameralarla izlenen güvenli kapalı otoparktır.",
+            "address": "Cumhuriyet Mah., Belediye Binası Altı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2445,36.451",
+            "shortDescription": "Belediye binası altındaki çok katlı kapalı otopark."
+          },
+          {
+            "lat": 37.239,
+            "lng": 36.446,
+            "tag": "AÇIK",
+            "name": "Çarşı Merkez Açık Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "Eski pazar yeri meydanında yer alan, çarşı alışverişine gelen hemşehrilerimizin kullandığı açık otopark alanıdır.",
+            "address": "Kurtuluş Mah., Eski Pazar Yeri, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.239,36.446",
+            "shortDescription": "Kurtuluş Mahallesi açık otopark alanı."
+          },
+          {
+            "lat": 37.251,
+            "lng": 36.435,
+            "tag": "ÜCRETSİZ",
+            "name": "Devlet Hastanesi Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "Hastane ziyaretçileri ve hastalarımız için tasarlanmış geniş kapasiteli açık otopark alanıdır.",
+            "address": "Karlıca Mah., Hastane Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.435",
+            "shortDescription": "Düziçi Devlet Hastanesi ücretsiz otoparkı."
+          },
+          {
+            "lat": 37.2468,
+            "lng": 36.4541,
+            "tag": "AÇIK",
+            "name": "Stadyum Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "Maç günleri ve etkinliklerde açık olan, günlük olarak da ücretli hizmet veren stadyum açık otopark alanı.",
+            "address": "İrfanlı Mah., Stadyum Yanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2468,36.4541",
+            "shortDescription": "İlçe stadyumu yanı açık otopark."
+          },
+          {
+            "lat": 37.2332,
+            "lng": 36.4475,
+            "tag": "TERMINAL",
+            "name": "Yeni Otogar Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "Otogar çevresinde yolcuların ve şoförlerin araçlarını bırakabileceği geniş açık otopark alanıdır.",
+            "address": "Yeşilova Mah., Terminal Çevresi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2332,36.4475",
+            "shortDescription": "Şehirlerarası terminal yolcu otoparkı."
+          },
+          {
+            "lat": 37.2442,
+            "lng": 36.4502,
+            "tag": "RESMI",
+            "name": "Kaymakamlık Önü Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "Kaymakamlık, nüfus ve tapu müdürlüklerine gelen vatandaşların kullandığı açık otopark alanıdır.",
+            "address": "Cumhuriyet Mah., Kaymakamlık Çevresi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2442,36.4502",
+            "shortDescription": "Kaymakamlık binası resmi ziyaretçi otoparkı."
+          },
+          {
+            "lat": 37.2408,
+            "lng": 36.4578,
+            "tag": "ÜCRETSİZ",
+            "name": "CarrefourSA Market Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "CarrefourSA alışveriş merkezi ile birlikte aynı alanda hizmet veren, geniş kapasiteli açık otopark.",
+            "address": "İstiklal Mah., Çevre Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2408,36.4578",
+            "shortDescription": "Market müşterilerine açık geniş ücretsiz otopark."
+          },
+          {
+            "lat": 37.381,
+            "lng": 36.492,
+            "tag": "TERMAl",
+            "name": "Haruniye Kaplıcaları Otoparkı",
+            "image": "assets/images/parking_placeholder.jpg",
+            "detail": "Haruniye Kaplıcaları ziyaretçileri için tesisin hemen önünde, geniş ve düzgün zemine sahip açık otopark.",
+            "address": "Haruniye Beldesi, Kaplıca Önü, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492",
+            "shortDescription": "Haruniye termal tesis ziyaretçi otoparkı."
+          },
+          {
+            "name": "Cumhuriyet Meydanı Açık Otoparkı",
+            "shortDescription": "Cumhuriyet Meydanı belediye açık otopark alanı.",
+            "detail": "İlçe merkezindeki etkinlik meydanı yakınında bulunan, kısa süreli araç parkı için tasarlanmış geniş otopark sahasıdır.",
+            "address": "Cumhuriyet Mah., Meydan Yanı, Düziçi",
+            "tag": "AÇIK",
+            "lat": 37.2441,
+            "lng": 36.4518,
+            "image": "assets/images/parking_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2441,36.4518"
+          },
+          {
+            "name": "İlçe Emniyet Yanı Açık Otopark",
+            "shortDescription": "İlçe emniyet müdürlüğü yanı açık park alanı.",
+            "detail": "Emniyet işlemleri olan vatandaşlarımız ve çarşı esnafı için tasarlanmış ücretsiz belediye açık otopark alanı.",
+            "address": "Cumhuriyet Mah., Emniyet Arkası, Düziçi",
+            "tag": "ÜCRETSİZ",
+            "lat": 37.2418,
+            "lng": 36.451,
+            "image": "assets/images/parking_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2418,36.451"
+          },
+          {
+            "name": "Sabun Çayı Mesire Alanı Otoparkı",
+            "shortDescription": "Sabun çayı mesire yeri otopark alanı.",
+            "detail": "Hafta sonu piknik ve doğa gezisine gelen hemşehrilerimizin araçlarını güvenle park edebileceği büyük toprak otopark sahası.",
+            "address": "Sabun Çayı Turizm Yolu, Düziçi",
+            "tag": "MESİRE",
+            "lat": 37.2842,
+            "lng": 36.4678,
+            "image": "assets/images/parking_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2842,36.4678"
+          },
+          {
+            "name": "Gençlik Merkezi Açık Otoparkı",
+            "shortDescription": "Düziçi Gençlik Merkezi ücretsiz otopark alanı.",
+            "detail": "Spor salonu ve Gençlik Merkezi ziyaretçileri için tasarlanmış asfalt zeminli, güvenli açık otopark.",
+            "address": "İrfanlı Mah., Gençlik Merkezi Yanı, Düziçi",
+            "tag": "ÜCRETSİZ",
+            "lat": 37.2462,
+            "lng": 36.4548,
+            "image": "assets/images/parking_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2462,36.4548"
+          }
+        ],
+        "subtitle": "Düziçi genelindeki açık ve kapalı otopark alanları"
+      },
+      {
+        "id": "ev_charge",
+        "icon": "ev_station",
+        "badge": "Şarj",
+        "title": "Elektrikli Araç Şarj İstasyonları",
+        "places": [
+          {
+            "lat": 37.2442,
+            "lng": 36.4514,
+            "tag": "DC HIZLI",
+            "name": "ZES Şarj İstasyonu (Belediye)",
+            "image": "assets/images/ev_placeholder.jpg",
+            "detail": "Zorlu Energy Solutions (ZES) altyapısı ile hizmet veren hızlı şarj (DC) istasyonudur. Aynı anda iki aracı şarj edebilir.",
+            "address": "Cumhuriyet Mah., Belediye Meydanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2442,36.4514",
+            "shortDescription": "Belediye binası önündeki ZES hızlı şarj ünitesi."
+          },
+          {
+            "lat": 37.222,
+            "lng": 36.431,
+            "tag": "DC HIGHPOWER",
+            "name": "Trugo Şarj İstasyonu (Dinlenme Tesis)",
+            "image": "assets/images/ev_placeholder.jpg",
+            "detail": "Togg ve diğer tüm elektrikli araçları çok kısa sürede şarj edebilen yüksek hızlı (180 kW DC) şarj istasyonudur.",
+            "address": "Yarbaşı Otoban Girişi, Dinlenme Tesisleri, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.222,36.431",
+            "shortDescription": "Otoban girişi dinlenme tesisindeki Trugo hızlı şarj noktası."
+          },
+          {
+            "lat": 37.2402,
+            "lng": 36.447,
+            "tag": "AC NORMAL",
+            "name": "Eşarj İstasyonu (Çarşı)",
+            "image": "assets/images/ev_placeholder.jpg",
+            "detail": "Alışveriş yaparken aracınızı şarj edebileceğiniz 22 kW gücünde AC şarj noktasıdır.",
+            "address": "Kurtuluş Mah., Atatürk Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2402,36.447",
+            "shortDescription": "Çarşı merkezindeki AC şarj ünitesi."
+          },
+          {
+            "lat": 37.2512,
+            "lng": 36.4352,
+            "tag": "AC NORMAL",
+            "name": "ZES Şarj (Hastane Otoparkı)",
+            "image": "assets/images/ev_placeholder.jpg",
+            "detail": "Devlet hastanesi ziyaretçileri ve doktorlar için hastane otoparkı içine kurulmuş ZES şarj noktasıdır.",
+            "address": "Karlıca Mah., Hastane Otoparkı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2512,36.4352",
+            "shortDescription": "Hastane otoparkındaki elektrikli araç şarj noktası."
+          },
+          {
+            "lat": 37.2415,
+            "lng": 36.4562,
+            "tag": "DC HIZLI",
+            "name": "OPET Elektrikli Araç Şarj (D-400)",
+            "image": "assets/images/ev_placeholder.jpg",
+            "detail": "OPET akaryakıt istasyonunun yanında kurulmuş, seyahat edenler için uygun konumda hızlı DC şarj noktası.",
+            "address": "D-400 Karayolu, OPET Düziçi Girişi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2415,36.4562",
+            "shortDescription": "D-400 karayolu OPET istasyonu EV şarj noktası."
+          },
+          {
+            "lat": 37.3814,
+            "lng": 36.4942,
+            "tag": "AC OTEL",
+            "name": "Haruniye Otel Şarj Noktası",
+            "image": "assets/images/ev_placeholder.jpg",
+            "detail": "Haruniye Termal Otel misafirleri için otel otoparkı içinde hizmet veren normal hızda AC şarj noktasıdır.",
+            "address": "Haruniye Beldesi, Termal Otel Otoparkı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3814,36.4942",
+            "shortDescription": "Haruniye Termal Otel konukları için EV şarj."
+          },
+          {
+            "name": "Trugo Şarj İstasyonu (Kaymakamlık)",
+            "shortDescription": "Hükümet Konağı otoparkı Trugo hızlı şarj noktası.",
+            "detail": "Hükümet Konağı otoparkında yer alan, Trugo altyapısıyla tüm elektrikli araçlara 180 kW DC yüksek hızlı şarj sağlayan ünite.",
+            "address": "Cumhuriyet Mah., Kaymakamlık Otoparkı, Düziçi",
+            "tag": "DC HIZLI",
+            "lat": 37.2443,
+            "lng": 36.4508,
+            "image": "assets/images/ev_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2443,36.4508"
+          },
+          {
+            "name": "Eşarj İstasyonu (Yeni Otogar)",
+            "shortDescription": "Düziçi Otogarı Eşarj şarj ünitesi.",
+            "detail": "Yeni otogarda bekleyen veya yolculuk yapan elektrikli araç sahipleri için konumlandırılmış Eşarj AC normal şarj ünitesi.",
+            "address": "Yeşilova Mah., Yeni Otogar İçi, Düziçi",
+            "tag": "AC NORMAL",
+            "lat": 37.2338,
+            "lng": 36.4482,
+            "image": "assets/images/ev_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2338,36.4482"
+          },
+          {
+            "name": "Voltrun Şarj İstasyonu (Çevre Yolu BP)",
+            "shortDescription": "Çevre yolu BP istasyonu içindeki Voltrun şarj noktası.",
+            "detail": "Çevre yolundaki BP akaryakıt istasyonunda yer alan, Voltrun altyapısı ile elektrikli araç şarjı sunan DC hızlı ünitedir.",
+            "address": "İstiklal Mah., Çevre Yolu Üzeri, Düziçi",
+            "tag": "DC HIZLI",
+            "lat": 37.2366,
+            "lng": 36.4447,
+            "image": "assets/images/ev_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2366,36.4447"
+          },
+          {
+            "name": "Astor Şarj İstasyonu (D-400 Girişi)",
+            "shortDescription": "D-400 karayolu Shell istasyonu şarj ünitesi.",
+            "detail": "Düziçi D-400 otoyol bağlantı noktasındaki Shell istasyonunda yer alan Astor DC hızlı şarj cihazıdır.",
+            "address": "D-400 Bağlantı Yolu, Düziçi Girişi",
+            "tag": "DC HIZLI",
+            "lat": 37.2309,
+            "lng": 36.4397,
+            "image": "assets/images/ev_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2309,36.4397"
+          }
+        ],
+        "subtitle": "Elektrikli araçlarınız için şarj noktaları"
+      },
+      {
+        "id": "school",
+        "icon": "school",
+        "badge": "Okul",
+        "title": "Eğitim Kurumları",
+        "places": [
+          {
+            "lat": 37.381,
+            "lng": 36.492,
+            "tag": "LİSE",
+            "name": "Düziçi Fen Lisesi",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Tarihi Haruniye Köy Enstitüsü binalarının da yer aldığı köklü kampüste eğitim veren, ilçemizin en başarılı ortaöğretim kurumudur.",
+            "address": "Haruniye Beldesi, Fen Lisesi Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492",
+            "shortDescription": "Tarihi enstitü kampüsünde yer alan fen lisemiz."
+          },
+          {
+            "lat": 37.248,
+            "lng": 36.456,
+            "tag": "LİSE",
+            "name": "Düziçi Anadolu Lisesi",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Geniş spor alanları ve modern laboratuvarları ile yüzlerce gencimizi geleceğe hazırlayan köklü lisemizdir.",
+            "address": "İrfanlı Mah., Lise Sokak, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.248,36.456",
+            "shortDescription": "İrfanlı Mahallesi'nin köklü anadolu lisesi."
+          },
+          {
+            "lat": 37.234,
+            "lng": 36.441,
+            "tag": "LİSE",
+            "name": "Düziçi Mesleki ve Teknik Anadolu Lisesi",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Elektrik, bilgisayar ve makine dallarında uygulamalı mesleki eğitim veren, gençleri iş hayatına hazırlayan lisemizdir.",
+            "address": "İstiklal Mah., Mesleki Eğitim Kampüsü, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.234,36.441",
+            "shortDescription": "Mesleki beceri ve teknik eğitim veren lise."
+          },
+          {
+            "lat": 37.2422,
+            "lng": 36.4488,
+            "tag": "İMAM HATİP",
+            "name": "Düziçi İmam Hatip Ortaokulu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Cumhuriyet Mahallesi'nde yer alan, hafızlık ve imam hatiplik hazırlık programlarına sahip ortaokulumuzdur.",
+            "address": "Cumhuriyet Mah., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2422,36.4488",
+            "shortDescription": "Dini eğitim veren imam hatip ortaokulu."
+          },
+          {
+            "lat": 37.2415,
+            "lng": 36.4495,
+            "tag": "İLKOKUL",
+            "name": "Cumhuriyet İlkokulu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Cumhuriyetin ilk yıllarından bu yana eğitim veren, ilçe merkezinde yer alan tarihi ve köklü ilkokulumuzdur.",
+            "address": "Cumhuriyet Mah., Çarşı Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2415,36.4495",
+            "shortDescription": "Düziçi ilçe merkezinin en eski ilkokulu."
+          },
+          {
+            "lat": 37.2388,
+            "lng": 36.4445,
+            "tag": "İLKOKUL",
+            "name": "Kurtuluş İlkokulu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Kurtuluş Mahallesi'nde onlarca yıldır eğitim veren, okul öncesinden 4. sınıfa kadar öğrenci kabul eden ilkokulumuzdur.",
+            "address": "Kurtuluş Mah., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2388,36.4445",
+            "shortDescription": "Kurtuluş Mahallesi'nin köklü ilkokulu."
+          },
+          {
+            "lat": 37.2455,
+            "lng": 36.4528,
+            "tag": "İLKOKUL",
+            "name": "İrfanlı İlkokulu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "İrfanlı Mahallesi'nin orta kesiminde, parkın hemen yanı başında, bahçeli ve modern derslik binası olan ilkokulumuzdur.",
+            "address": "İrfanlı Mah., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2455,36.4528",
+            "shortDescription": "İrfanlı Mahallesi Çocukları'nın ilkokulu."
+          },
+          {
+            "lat": 37.2518,
+            "lng": 36.4632,
+            "tag": "ORTAOKUL",
+            "name": "Hürriyet Ortaokulu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Hürriyet Mahallesi'nde yer alan, 5-8. sınıf eğitimi veren, spor salonu ve bilgisayar laboratuvarı bulunan ortaokulumuz.",
+            "address": "Hürriyet Mah., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2518,36.4632",
+            "shortDescription": "Hürriyet Mahallesi'nin orta okulu."
+          },
+          {
+            "lat": 37.2412,
+            "lng": 36.4548,
+            "tag": "ORTAOKUL",
+            "name": "Atatürk Ortaokulu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Merkezi konumuyla en fazla öğrenciye sahip, geniş bahçesi ve modern binaları olan ilçe ortaokulumuz.",
+            "address": "İstiklal Mah., Atatürk Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2412,36.4548",
+            "shortDescription": "İlçe merkezi en büyük ortaokulu."
+          },
+          {
+            "lat": 37.2005,
+            "lng": 36.4325,
+            "tag": "BELDE",
+            "name": "Yarbaşı İlkokuluu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Yarbaşı beldesinin merkezinde yer alan, hem ilkokul hem de ortaokul kademelerinde eğitim veren köy okulu.",
+            "address": "Yarbaşı Beldesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2005,36.4325",
+            "shortDescription": "Yarbaşı Beldesi'nin ilkokulu."
+          },
+          {
+            "lat": 37.2882,
+            "lng": 36.4802,
+            "tag": "BELDE",
+            "name": "Ellek İlköğretim Okulu",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Ellek beldesi merkezindeki okul, ilkokul ve ortaokul kademelerinde eğitim vermekte olup bölge çocuklarının tek eğitim yeridir.",
+            "address": "Ellek Beldesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2882,36.4802",
+            "shortDescription": "Ellek Beldesi'nin tek kapsamlı eğitim kurumu."
+          },
+          {
+            "lat": 37.2448,
+            "lng": 36.4512,
+            "tag": "KURS",
+            "name": "Özel Ders Merkezi Düziçi",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "YKS, LGS ve diğer sınavlara hazırlık kursları veren, birebir ve grup özel ders alanlarına sahip modern dershane.",
+            "address": "İrfanlı Mah., Atatürk Cad. No:32, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2448,36.4512",
+            "shortDescription": "Sınav hazırlık ve özel ders merkezi."
+          },
+          {
+            "lat": 37.2418,
+            "lng": 36.4505,
+            "tag": "ANAOKUL",
+            "name": "Anaokulu Cumhuriyet",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Cumhuriyet Mahallesi'nde 3-6 yaş arası çocuklara oyun odaları, yaratıcı atölyeler ve müzik derslerini kapsayan devlet anaokulumuz.",
+            "address": "Cumhuriyet Mah., Anaokulu Sokak, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2418,36.4505",
+            "shortDescription": "Merkez mahalledeki devlet anaokulsu."
+          },
+          {
+            "lat": 37.2408,
+            "lng": 36.4555,
+            "tag": "YETİŞKİN",
+            "name": "Düziçi Halk Eğitim Merkezi",
+            "image": "assets/images/school_placeholder.jpg",
+            "detail": "Kuaförlük, bilgisayar, el sanatları, aşçılık ve dil kurslarının ücretsiz verildiği devlet halk eğitim merkezimiz.",
+            "address": "İstiklal Mah., Halk Eğitim Binası, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2408,36.4555",
+            "shortDescription": "Yetişkin mesleki eğitim ve sertifika kursları."
+          },
+          {
+            "name": "Düziçi Meslek Yüksekokulu (OKÜ)",
+            "shortDescription": "Korkut Ata Üniversitesi Düziçi Meslek Yüksekokulu.",
+            "detail": "Osmaniye Korkut Ata Üniversitesi bünyesinde çeşitli ön lisans programlarıyla eğitim veren yükseköğretim kurumudur.",
+            "address": "Karşıyaka Mah., Düziçi Meslek Yüksekokulu Kampüsü, Düziçi",
+            "tag": "YÜKSEKOKUL",
+            "lat": 37.2325,
+            "lng": 36.462,
+            "image": "assets/images/school_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2325,36.462"
+          },
+          {
+            "name": "Düziçi Karacaoğlan Mesleki ve Teknik Anadolu Lisesi",
+            "shortDescription": "Karacaoğlan Mahallesi meslek lisemiz.",
+            "detail": "Gençlerimize mesleki ve teknik beceriler kazandıran, bünyesinde çeşitli atölyeler bulunduran başarılı lisedir.",
+            "address": "Cumhuriyet Mah., Karacaoğlan Sokak, Düziçi",
+            "tag": "LİSE",
+            "lat": 37.243,
+            "lng": 36.446,
+            "image": "assets/images/school_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.243,36.446"
+          },
+          {
+            "name": "Düziçi Fen Bilimleri Etüt Merkezi",
+            "shortDescription": "Düziçi ilçe merkezindeki başarılı özel öğretim kursu.",
+            "detail": "LGS, YKS hazırlık süreçlerinde öğrencilerimize destek eğitimleri sunan, modern dersliklere sahip etüt merkezidir.",
+            "address": "Cumhuriyet Mah., Refik Cesur Bulvarı, Düziçi",
+            "tag": "ETÜT",
+            "lat": 37.2442,
+            "lng": 36.4522,
+            "image": "assets/images/school_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2442,36.4522"
+          },
+          {
+            "name": "Düziçi Şehit Barış Aybek Mesleki ve Teknik Anadolu Lisesi",
+            "shortDescription": "Teknik ve mesleki eğitim veren lisemiz.",
+            "detail": "Elektrik, elektronik, makine ve bilişim alanlarında nitelikli eleman yetiştiren mesleki eğitim kurumumuzdur.",
+            "address": "İrfanlı Mah., Lise Caddesi, Düziçi",
+            "tag": "LİSE",
+            "lat": 37.2482,
+            "lng": 36.4552,
+            "image": "assets/images/school_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2482,36.4552"
+          }
+        ],
+        "subtitle": "Düziçi'ndeki liseler, ortaokullar ve ilkokullar"
+      },
+      {
+        "id": "library",
+        "icon": "local_library",
+        "badge": "Kütüphane",
+        "title": "Kütüphaneler",
+        "places": [
+          {
+            "lat": 37.247,
+            "lng": 36.446,
+            "tag": "KAMU",
+            "name": "Düziçi İlçe Halk Kütüphanesi",
+            "image": "assets/images/library_placeholder.jpg",
+            "detail": "İrfanlı caddesinde yer alan kütüphane; öğrenciler için internet ve bilgisayar erişimi, sessiz çalışma odaları ve binlerce kaynak kitap sunar.",
+            "address": "İrfanlı Mah., Kütüphane Sokak, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.247,36.446",
+            "shortDescription": "Sessiz çalışma odaları ve geniş kitap arşivi olan kütüphane."
+          },
+          {
+            "lat": 37.3812,
+            "lng": 36.4922,
+            "tag": "TARİHİ",
+            "name": "Köy Enstitüsü Arşiv Kütüphanesi",
+            "image": "assets/images/library_placeholder.jpg",
+            "detail": "Müze kompleksi içerisinde yer alan, 1940'lardan kalma eğitim materyalleri ve arşiv kitaplarını barındıran tarihi kütüphanedir.",
+            "address": "Haruniye Beldesi, Köy Enstitüsü Müzesi İçi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3812,36.4922",
+            "shortDescription": "Tarihi köy enstitüsü belgeleri ve arşiv kütüphanesi."
+          },
+          {
+            "lat": 37.2444,
+            "lng": 36.4513,
+            "tag": "SOSYAL",
+            "name": "Düziçi Belediyesi Kütüphane Kafe",
+            "image": "assets/images/library_placeholder.jpg",
+            "detail": "Belediye kültür merkezi bünyesindeki kütüphane kafe; hem kitap okuyup hem çay içebileceğiniz modern bir sosyal alan sunar.",
+            "address": "Cumhuriyet Mah., Belediye Kültür Merkezi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2444,36.4513",
+            "shortDescription": "Belediye kültür merkezindeki sessiz okuma ve kafe alanı."
+          },
+          {
+            "lat": 37.2482,
+            "lng": 36.4562,
+            "tag": "OKUL",
+            "name": "Anadolu Lisesi Okul Kütüphanesi",
+            "image": "assets/images/library_placeholder.jpg",
+            "detail": "Düziçi Anadolu Lisesi bünyesindeki kütüphane, okul saatlerinde tüm öğrencilere açık olup ders kitabı ve kaynak kitap sunmaktadır.",
+            "address": "İrfanlı Mah., Anadolu Lisesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2482,36.4562",
+            "shortDescription": "Öğrencilere açık lise bünyesindeki kaynak kütüphane."
+          }
+        ],
+        "subtitle": "Kitap okuma ve sessiz çalışma alanları"
+      },
+      {
+        "id": "police",
+        "icon": "shield",
+        "badge": "Karakol",
+        "title": "Karakollar ve Emniyet",
+        "places": [
+          {
+            "lat": 37.242,
+            "lng": 36.4515,
+            "tag": "POLİS",
+            "name": "Düziçi İlçe Emniyet Müdürlüğü",
+            "image": "assets/images/police_placeholder.jpg",
+            "detail": "Düziçi ilçe merkezinin huzur ve güvenliğinden sorumlu ana emniyet müdürlüğü kampüsüdür. Acil çağrı: 155.",
+            "address": "Cumhuriyet Mah., Atatürk Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.242,36.4515",
+            "shortDescription": "İlçe emniyet ve polis merkezi binası."
+          },
+          {
+            "lat": 37.2418,
+            "lng": 36.452,
+            "tag": "TRAFİK",
+            "name": "Düziçi Trafik Şube Müdürlüğü",
+            "image": "assets/images/police_placeholder.jpg",
+            "detail": "Trafik cezası itiraz, kaza tutanağı ve araç tescil itiraz işlemleri için başvurulacak trafik şubesidir.",
+            "address": "İstiklal Mah., Emniyet Yanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2418,36.452",
+            "shortDescription": "Trafik kazaları ve sürücü cezaları birimi."
+          },
+          {
+            "lat": 37.3805,
+            "lng": 36.4905,
+            "tag": "POLİS",
+            "name": "Haruniye Polis Merkezi Amirliği",
+            "image": "assets/images/police_placeholder.jpg",
+            "detail": "Haruniye ve çevre mahallelerin asayiş kontrolünden sorumlu emniyet birimidir. Acil çağrı: 155.",
+            "address": "Haruniye Beldesi, Cumhuriyet Cad., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3805,36.4905",
+            "shortDescription": "Haruniye bölgesindeki emniyet karakolu."
+          },
+          {
+            "lat": 37.2402,
+            "lng": 36.455,
+            "tag": "JANDARMA",
+            "name": "Düziçi İlçe Jandarma Komutanlığı",
+            "image": "assets/images/police_placeholder.jpg",
+            "detail": "Yarbaşı, Ellek beldeleri ve Düziçi'ne bağlı tüm köylerin asayişinden sorumlu ilçe jandarma komutanlığı karargahıdır. Acil: 156.",
+            "address": "İstiklal Mah., Refik Cesur Bulvarı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2402,36.455",
+            "shortDescription": "Kırsal alan ve köylerimizin güvenliğinden sorumlu jandarma binası."
+          },
+          {
+            "lat": 37.2002,
+            "lng": 36.4318,
+            "tag": "JANDARMA",
+            "name": "Yarbaşı Jandarma Karakolu",
+            "image": "assets/images/police_placeholder.jpg",
+            "detail": "Yarbaşı beldesi ve çevre köylerinin güvenliğinden sorumlu jandarma birimidir. Acil çağrı: 156.",
+            "address": "Yarbaşı Beldesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2002,36.4318",
+            "shortDescription": "Yarbaşı Beldesi jandarma karakolu."
+          }
+        ],
+        "subtitle": "Düziçi güvenlik birimleri ve karakolları"
+      },
+      {
+        "id": "restaurant",
+        "icon": "restaurant",
+        "badge": "Yemek",
+        "title": "Restoranlar",
+        "places": [
+          {
+            "lat": 37.2395,
+            "lng": 36.4465,
+            "tag": "KEBAP",
+            "name": "Düziçi Çarşı Kebapçısı",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Merkez çarşıda esnafın ve ziyaretçilerin vazgeçilmez durağı olan, zırh kıyması kebapları ile meşhur tarihi kebap salonudur.",
+            "address": "Kurtuluş Mah., Kebapçılar Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2395,36.4465",
+            "shortDescription": "Geleneksel zırh kıyması Adana kebabı salonu."
+          },
+          {
+            "lat": 37.2388,
+            "lng": 36.4458,
+            "tag": "DÖNER",
+            "name": "Kırmızı Döner Salonu",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "İlçe gençlerinin ve esnafın öğle favorisi; nefis et döneri, tavuk dürümü ve günlük değişen çorba çeşitleri sunan popüler fast-food salonudur.",
+            "address": "Kurtuluş Mah., RTE Bulvarı No:12, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2388,36.4458",
+            "shortDescription": "Et döner ve tavuk dürüm salonu, merkez çarşı."
+          },
+          {
+            "lat": 37.284,
+            "lng": 36.468,
+            "tag": "DOĞA",
+            "name": "Sabun Çayı Alabalık Tesisleri",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Sabun çayının buz gibi suları üzerine kurulmuş tahtlarda, taze kiremitte alabalık ve yöresel mezeler sunan doğa restoranıdır.",
+            "address": "Sabun Çayı Turizm Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.284,36.468",
+            "shortDescription": "Sabun çayı üzerinde nehir kenarında taze alabalık."
+          },
+          {
+            "lat": 37.381,
+            "lng": 36.4915,
+            "tag": "YÖRESEL",
+            "name": "Haruniye Lezzet Sofrası",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Haruniye merkezinde yer alan, anne eli değmiş lezzette ev yemekleri ve meşhur Haruniye sac kavurması yapan lokantadır.",
+            "address": "Haruniye Beldesi, Merkez Meydanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.4915",
+            "shortDescription": "Ev yemekleri ve yöresel sac kavurma salonu."
+          },
+          {
+            "lat": 37.2452,
+            "lng": 36.4522,
+            "tag": "LOKANTA",
+            "name": "Öğretmenevi Yemek Salonu",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "İlçe öğretmenevi içinde yer alan yemek salonunda her gün taze ev yemekleri, corba ve ikram sunulmaktadır.",
+            "address": "İrfanlı Mah., Öğretmenevi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2452,36.4522",
+            "shortDescription": "Öğretmenevi bünyesinde uygun fiyatlı yemek salonu."
+          },
+          {
+            "lat": 37.2412,
+            "lng": 36.4502,
+            "tag": "LOKANTA",
+            "name": "Lezzet Sarayı",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Atatürk caddesinde yer alan, fiyat/kalite açısından iyi dengede, öğle menüleri ile öğrencilerin sıklıkla tercih ettiği lokanta.",
+            "address": "Cumhuriyet Mah., Atatürk Cad. No:45, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2412,36.4502",
+            "shortDescription": "Günlük ev yemeği ve döner; öğrenci indirimi var."
+          },
+          {
+            "lat": 37.2445,
+            "lng": 36.4505,
+            "tag": "PİDE",
+            "name": "Yılmaz Pide Fırın Salonu",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Taş fırında odun ateşinde pişirilen kıymalı, peynirli ve kuşbaşılı pideleri; nefis lahmacunları ile meşhur pide salonu.",
+            "address": "İrfanlı Mah., Pide Sokak, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2445,36.4505",
+            "shortDescription": "Odun ateşinde pişen pide ve lahmacun salonu."
+          },
+          {
+            "lat": 37.252,
+            "lng": 36.4645,
+            "tag": "DOĞA",
+            "name": "Çamiçi Yolu Alabalık Tesisi",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Çamiçi yolu üzerinde, ormanlık alanda, akarsu kenarında hizmet veren, taze alabalık ve yöresel meze sunan doğa restoranı.",
+            "address": "Çamiçi Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.252,36.4645",
+            "shortDescription": "Çamiçi güzergahında dere kenarı balık restoranı."
+          },
+          {
+            "lat": 37.3816,
+            "lng": 36.494,
+            "tag": "OTEL",
+            "name": "Haruniye Kaplıca Restoranı",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Haruniye Termal Otel'in restoranında; yöresel Hatay ve Türk mutfağına ait lezzetler, serpme kahvaltı ve öğle-akşam yemekleri sunulmaktadır.",
+            "address": "Haruniye Beldesi, Termal Otel İçi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3816,36.494",
+            "shortDescription": "Haruniye termal otel bünyesindeki Türk mutfağı restoranı."
+          },
+          {
+            "lat": 37.283,
+            "lng": 36.467,
+            "tag": "BÜFE",
+            "name": "Karasu Şelalesi Simit & Piknik",
+            "image": "assets/images/restaurant_placeholder.jpg",
+            "detail": "Karasu Şelalesi mesire alanı girişinde yer alan küçük büfe; simit, poğaça, soğuk içecek ve piknik malzemeleri sunar.",
+            "address": "Sabun Çayı Mesire Alanı Girişi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.283,36.467",
+            "shortDescription": "Şelale girişinde hafif atıştırmalık ve piknik ürünleri."
+          }
+        ],
+        "subtitle": "Kebap, döner ve yöresel lezzet restoranları"
+      },
+      {
+        "id": "cafe",
+        "icon": "coffee",
+        "badge": "Kafe",
+        "title": "Kafeler",
+        "places": [
+          {
+            "lat": 37.2455,
+            "lng": 36.4525,
+            "tag": "MODERN",
+            "name": "Cadde Kahve Evi",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "İlçe stadyumu yakınında gençlerin buluşma noktası olan, kaliteli espresso bazlı kahveleri ve zengin tatlı menüsü olan nezih kafedir.",
+            "address": "İrfanlı Mah., Atatürk Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2455,36.4525",
+            "shortDescription": "Modern kahve çeşitleri ve tatlı menüsü sunan popüler kafe."
+          },
+          {
+            "lat": 37.2462,
+            "lng": 36.4402,
+            "tag": "DOĞAL",
+            "name": "Tarihi Çınar Kafe",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "Uzunbanı Mahallesi'nde yer alan, asırlık çınar ağaçlarının gölgesinde, kuş sesleri eşliğinde çayınızı yudumlayabileceğiniz huzurlu bir bahçedir.",
+            "address": "Uzunbanı Mah., Çınar Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2462,36.4402",
+            "shortDescription": "Asırlık çınarlar altında çay ve kahvaltı keyfi."
+          },
+          {
+            "lat": 37.2435,
+            "lng": 36.4502,
+            "tag": "SOSYAL",
+            "name": "Belediye Park Kafe & Bistro",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "Belediyemize ait, ailelerin güvenle gelip uygun fiyatlı çay, kahve içip aperatif yemekler yiyebileceği modern sosyal tesistir.",
+            "address": "İrfanlı Mah., Şehitler Parkı İçi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2435,36.4502",
+            "shortDescription": "Şehitler Parkı içerisindeki belediye sosyal tesisi."
+          },
+          {
+            "lat": 37.2392,
+            "lng": 36.4462,
+            "tag": "ÇAY BAHÇESİ",
+            "name": "Karaoğlan Çay Bahçesi",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "Çarşı koşuşturması içinde nefes alacak gölgeli oturma alanları, çay, Türk kahvesi ve nargile hizmeti sunan köklü çay bahçesi.",
+            "address": "Kurtuluş Mah., Çarşı Arkası, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2392,36.4462",
+            "shortDescription": "Merkez çarşıda açık hava çay bahçesi."
+          },
+          {
+            "lat": 37.2842,
+            "lng": 36.4675,
+            "tag": "DOĞA",
+            "name": "Sabun Çayı Kafe",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "Doğa yürüyüşü sonrası, serin suyun sesi eşliğinde çay veya kahvenizi içebileceğiniz, en gözde dinlenme noktasıdır.",
+            "address": "Sabun Çayı Mesire Yolu, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2842,36.4675",
+            "shortDescription": "Sabun Çayı kıyısında açık hava kafe."
+          },
+          {
+            "lat": 37.2454,
+            "lng": 36.452,
+            "tag": "SOSYAL",
+            "name": "Öğretmenevi Kafe",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "Öğretmenevi girişindeki kafe, rahat koltukları ve sessiz ortamıyla hem öğretmenler hem de genel halk için ideal bir ortam sunmaktadır.",
+            "address": "İrfanlı Mah., Öğretmenevi Girişi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2454,36.452",
+            "shortDescription": "Öğretmenevi bünyesindeki sessiz ve modern kafe."
+          },
+          {
+            "lat": 37.381,
+            "lng": 36.492,
+            "tag": "TERMAL",
+            "name": "Haruniye Termal Kafe",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "Haruniye Beldesi'nde termal tesise komşu, ormanlık yamaçlara ve dağlara karşı doğal manzara sunan açık hava kafedir.",
+            "address": "Haruniye Beldesi, Kaplıca Çevresi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492",
+            "shortDescription": "Haruniye termal alanı manzaralı kafe."
+          },
+          {
+            "lat": 37.2408,
+            "lng": 36.4468,
+            "tag": "PASTANE",
+            "name": "Düziçi Pastane & Kafe",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "50 yılı aşkın geçmişiyle ilçenin sembol pastanesi; taze sütlü tatlıları, çay ve kahvesiyle her saate uygun bir merkez duraği.",
+            "address": "Cumhuriyet Mah., Çarşı Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2408,36.4468",
+            "shortDescription": "Merkez çarşının en eski pastanesi."
+          },
+          {
+            "lat": 37.2885,
+            "lng": 36.48,
+            "tag": "KÖYLÜ",
+            "name": "Ellek Çay Ocağı",
+            "image": "assets/images/cafe_placeholder.jpg",
+            "detail": "Ellek belde merkezi meydanında, yerli köylü yaşamının ruhunu taşıyan köy tarzı çay ocağı. Beldenin misafirperver atmosferini yaşamanın en güzel yolu.",
+            "address": "Ellek Beldesi, Merkez Meydanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2885,36.480",
+            "shortDescription": "Ellek Beldesi'nde köy ortamında çay sohbeti."
+          }
+        ],
+        "subtitle": "Kahve ve çay eşliğinde hoşça vakit geçirebileceğiniz kafeler"
+      },
+      {
+        "id": "cinema",
+        "icon": "movie",
+        "badge": "Sinema",
+        "title": "Sinemalar ve Kültür",
+        "places": [
+          {
+            "lat": 37.2444,
+            "lng": 36.4512,
+            "tag": "SİNEMA",
+            "name": "Belediye Kültür & Sinema Salonu",
+            "image": "assets/images/cinema_placeholder.jpg",
+            "detail": "Belediye kültür merkezinde yer alan, güncel filmlerin vizyona girdiği, çocuk tiyatroları ve konferansların düzenlendiği modern sinema salonudur.",
+            "address": "Cumhuriyet Mah., Belediye Kültür Merkezi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2444,36.4512",
+            "shortDescription": "Kültür merkezi bünyesinde sinema ve tiyatro salonu."
+          },
+          {
+            "lat": 37.2432,
+            "lng": 36.4504,
+            "tag": "AÇIK HAVA",
+            "name": "Düziçi Açık Hava Sinema Alanı",
+            "image": "assets/images/cinema_placeholder.jpg",
+            "detail": "Belediyemizin yaz etkinlikleri çerçevesinde Şehitler Parkı'nda kurulan dev perdede filmlerin gösterildiği açık hava sinema etkinliğidir.",
+            "address": "İrfanlı Mah., Şehitler Parkı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2432,36.4504",
+            "shortDescription": "Yaz aylarında Şehitler Parkı'nda açık hava sinema."
+          },
+          {
+            "lat": 37.3808,
+            "lng": 36.491,
+            "tag": "KÜLTÜR",
+            "name": "Haruniye Kültür Evi",
+            "image": "assets/images/cinema_placeholder.jpg",
+            "detail": "Haruniye Beldesi'nde düzenlenen yerel tiyatro, sempozyum ve kültür etkinlikleri için kullanılan çok amaçlı salonun bulunduğu tarihi bina.",
+            "address": "Haruniye Beldesi, Atatürk Cad., Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3808,36.491",
+            "shortDescription": "Haruniye'de köy kültürü etkinlikleri ve konferanslar."
+          }
+        ],
+        "subtitle": "Sinema salonu ve tiyatro etkinlik merkezleri"
+      },
+      {
+        "id": "sports",
+        "icon": "sports_soccer",
+        "badge": "Spor",
+        "title": "Spor Tesisleri",
+        "places": [
+          {
+            "lat": 37.2465,
+            "lng": 36.4545,
+            "tag": "STADYUM",
+            "name": "Düziçi İlçe Stadyumu",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "İrfanlı Mahallesi'nde bulunan, etrafında yürüyüş parkurları ve tenis kortları da barındıran Düziçi'nin en büyük spor kompleksidir.",
+            "address": "İrfanlı Mah., Stadyum Caddesi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2465,36.4545",
+            "shortDescription": "Profesyonel futbol müsabakalarının yapıldığı ilçe stadı."
+          },
+          {
+            "lat": 37.2458,
+            "lng": 36.4538,
+            "tag": "SALON",
+            "name": "Karacaoğlan Kapalı Spor Salonu",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "Gençlik Spor İlçe Müdürlüğü bünyesinde yer alan, voleybol, basketbol, güreş ve jimnastik eğitimlerinin verildiği kapalı spor salonudur.",
+            "address": "İrfanlı Mah., Stadyum Yanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2458,36.4538",
+            "shortDescription": "Basketbol ve voleybol müsabakalarına uygun kapalı spor salonu."
+          },
+          {
+            "lat": 37.2405,
+            "lng": 36.458,
+            "tag": "HALI SAHA",
+            "name": "Belediye Olimpik Halı Saha",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "Suni çim zeminli, aydınlatmalı ve soyunma odaları bulunan belediyeye ait kiralık halı saha tesisidir.",
+            "address": "İstiklal Mah., Çevre Yolu Üzeri, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2405,36.458",
+            "shortDescription": "Haftalık arkadaş maçları için kiralanabilen sentetik saha."
+          },
+          {
+            "lat": 37.2452,
+            "lng": 36.4528,
+            "tag": "FİTNESS",
+            "name": "Özel Spor Salonu Düziçi Fit",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "Kardiyovasküler aletler, ağırlık seti ve kişisel antrenör hizmetiyle tam donanımlı modern fitness merkezi.",
+            "address": "İrfanlı Mah., Atatürk Cad. No:55, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2452,36.4528",
+            "shortDescription": "Modern ekipmanlarla donatılmış özel fitness merkezi."
+          },
+          {
+            "lat": 37.2468,
+            "lng": 36.4542,
+            "tag": "TENİS",
+            "name": "Tenis Kortu (Stadyum Yanı)",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "Düziçi Gençlik Spor İlçe Müdürlüğü bünyesinde, ücretli veya ücretsiz saatler halinde açık olan 2 kort alanı mevcuttur.",
+            "address": "İrfanlı Mah., Stadyum Kompleksi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2468,36.4542",
+            "shortDescription": "İlçe stadyumu yanındaki açık tenis kortu."
+          },
+          {
+            "lat": 37.3815,
+            "lng": 36.4938,
+            "tag": "HAVUZ",
+            "name": "Yüzme Havuzu (Termal Otel)",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "Haruniye Kaplıcaları bünyesinde jeotermal ısıtmalı hem açık hem kapalı yüzme havuzları; termal mineral suyuyla doldurulmuştur.",
+            "address": "Haruniye Beldesi, Termal Otel Kompleksi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3815,36.4938",
+            "shortDescription": "Haruniye termal tesisindeki açık ve kapalı yüzme havuzları."
+          },
+          {
+            "lat": 37.2445,
+            "lng": 36.4508,
+            "tag": "MASA TENİSİ",
+            "name": "Düziçi Masa Tenisi Kulübü",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "İlçe belediyesi destekli masa tenisi kulübü; tüm yaş gruplarına antrenman imkânı ve turnuva organizasyonları sunmaktadır.",
+            "address": "Cumhuriyet Mah., Belediye Spor Kompleksi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2445,36.4508",
+            "shortDescription": "Masa tenisi antrenman ve turnuva salonu."
+          },
+          {
+            "lat": 37.2458,
+            "lng": 36.4535,
+            "tag": "GÜREŞ",
+            "name": "Güreş Salonu (İrfanlı)",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "İrfanlı Mahallesi kapalı spor salonunun içinde ayrılmış güreş pisti; haftalık antrenmanlar ve ilçe güreş turnuvaları burada gerçekleştirilir.",
+            "address": "İrfanlı Mah., Kapalı Spor Salonu İçi, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2458,36.4535",
+            "shortDescription": "Geleneksel Türk güreşi antrenman salonu."
+          },
+          {
+            "lat": 37.2888,
+            "lng": 36.4802,
+            "tag": "HALI SAHA",
+            "name": "Ellek Beldesi Halı Saha",
+            "image": "assets/images/sports_placeholder.jpg",
+            "detail": "Ellek beldesi gençleri için belediye tarafından yaptırılan, akşam aydınlatmalı sentetik çim zemin halı sahadır.",
+            "address": "Ellek Beldesi, Belediye Yanı, Düziçi",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2888,36.4802",
+            "shortDescription": "Ellek Beldesi'nin halı saha tesisi."
+          }
+        ],
+        "subtitle": "Stadyumlar, spor salonları ve halı sahalar"
+      },
+      {
+        "id": "public",
+        "icon": "account_balance",
+        "badge": "Kamu",
+        "title": "Kamu Kurumları",
+        "subtitle": "Düziçi resmi kurum ve hükümet daireleri",
+        "places": [
+          {
+            "name": "Düziçi Kaymakamlığı",
+            "shortDescription": "Düziçi Hükümet Konağı idari merkezi.",
+            "detail": "İlçemizin mülki idare merkezi olan, tüm resmi müdürlükleri bünyesinde barındıran Hükümet Konağı binasıdır.",
+            "address": "Cumhuriyet Mah., Hükümet Konağı, Düziçi",
+            "tag": "KAMU",
+            "lat": 37.2444,
+            "lng": 36.4507,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2444,36.4507"
+          },
+          {
+            "name": "Düziçi Belediye Başkanlığı",
+            "shortDescription": "Düziçi Belediyesi ana hizmet binası.",
+            "detail": "Düziçi yerel yönetim merkezi. İmar, fen işleri ve sosyal hizmetler birimleri ile halkımıza hizmet sunmaktadır.",
+            "address": "Cumhuriyet Mah., Belediye Meydanı No:1, Düziçi",
+            "tag": "BELEDİYE",
+            "lat": 37.2446,
+            "lng": 36.4513,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2446,36.4513"
+          },
+          {
+            "name": "Düziçi Adliyesi",
+            "shortDescription": "Düziçi adalet sarayı ve mahkemeleri.",
+            "detail": "Düziçi ilçesi adalet hizmetlerinin yürütüldüğü, Hükümet Konağı ek binasında bulunan adliye sarayıdır.",
+            "address": "Cumhuriyet Mah., Hükümet Konağı Yanı, Düziçi",
+            "tag": "ADLİYE",
+            "lat": 37.244,
+            "lng": 36.4504,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.4504"
+          },
+          {
+            "name": "Düziçi PTT Merkez Müdürlüğü",
+            "shortDescription": "Düziçi merkez PTT kargo ve posta şubesi.",
+            "detail": "Kurtuluş Mahallesi'nde posta, telgraf, bankacılık ve lojistik hizmetleri sunan PTT ana hizmet binası.",
+            "address": "Kurtuluş Mah., Atatürk Caddesi, Düziçi",
+            "tag": "POSTA",
+            "lat": 37.2398,
+            "lng": 36.4478,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2398,36.4478"
+          },
+          {
+            "name": "Düziçi İlçe Nüfus Müdürlüğü",
+            "shortDescription": "Kimlik, pasaport ve ehliyet işlemleri dairesi.",
+            "detail": "Hükümet Konağı içerisinde yer alan, vatandaşlık, kimlik kartı ve adres tescili işlemlerini gerçekleştiren kamu dairesi.",
+            "address": "Cumhuriyet Mah., Hükümet Konağı Zemin Kat, Düziçi",
+            "tag": "NÜFUS",
+            "lat": 37.2444,
+            "lng": 36.4507,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2444,36.4507"
+          },
+          {
+            "name": "Düziçi Tapu Müdürlüğü",
+            "shortDescription": "Gayrimenkul tescil ve tapu kadastro işlemleri.",
+            "detail": "İlçemizdeki gayrimenkul tapu tescil, devir ve kadastro işlemlerini yürüten Çevre ve Şehircilik Bakanlığına bağlı dairedir.",
+            "address": "Cumhuriyet Mah., Hükümet Konağı 2. Kat, Düziçi",
+            "tag": "TAPU",
+            "lat": 37.2444,
+            "lng": 36.4507,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2444,36.4507"
+          },
+          {
+            "name": "Düziçi Sosyal Güvenlik Merkezi (SGK)",
+            "shortDescription": "SGK emeklilik, sigorta ve sağlık prim dairesi.",
+            "detail": "Hürriyet Mahallesi'nde yer alan, emeklilik, bağkur, ssk ve genel sağlık sigortası hizmetleri veren merkez binası.",
+            "address": "Hürriyet Mah., Refik Cesur Bulvarı, Düziçi",
+            "tag": "SOSYAL GÜVENLİK",
+            "lat": 37.2425,
+            "lng": 36.4552,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2425,36.4552"
+          },
+          {
+            "name": "Düziçi Sosyal Yardımlaşma ve Dayanışma Vakfı",
+            "shortDescription": "İhtiyaç sahibi vatandaşlarımıza sosyal destek dairesi.",
+            "detail": "Cumhuriyet Mahallesi Hükümet Konağı bünyesinde, muhtaç durumdaki ailelerimize nakdi ve ayni sosyal yardımları koordine eden vakıftır.",
+            "address": "Cumhuriyet Mah., Hükümet Konağı İçi, Düziçi",
+            "tag": "SOSYAL YARDIM",
+            "lat": 37.2444,
+            "lng": 36.4507,
+            "image": "assets/images/police_placeholder.jpg",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2444,36.4507"
+          }
+        ]
+      }
+    ],
+    "jobListings": [
+      {
+        "id": "jl_1781555000001",
+        "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=960",
+        "title": "Kasa Görevlisi ve Satış Danışmanı Aranıyor",
+        "isPaid": true,
+        "salary": "Asgari Ücret + Yemek",
+        "address": "İrfanlı Mahallesi, Refik Cesur Bulvarı No: 124",
+        "contact": "0532 111 22 33",
+        "jobType": "Tam Zamanlı",
+        "category": "Satış & Mağazacılık",
+        "isActive": true,
+        "whatsapp": "+905321112233",
+        "createdAt": "2026-06-16T12:00:00.000Z",
+        "companyName": "Doğanlar Süpermarket",
+        "description": "Süpermarketimizin merkez şubesinde kasa ve reyonlarda görev alacak, güler yüzlü ve takım çalışmasına yatkın takım arkadaşları arıyoruz."
+      },
+      {
+        "id": "jl_1781555000002",
+        "image": "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=960",
+        "title": "Part-time Kurye (A2 Ehliyetli)",
+        "isPaid": false,
+        "salary": "Saatlik Ücret + Paket Başı Prim",
+        "address": "Kurtuluş Mahallesi, Park Caddesi No: 45",
+        "contact": "0544 333 44 55",
+        "jobType": "Yarı Zamanlı",
+        "category": "Restoran & Kafe",
+        "isActive": true,
+        "whatsapp": "+905443334455",
+        "createdAt": "2026-06-16T13:00:00.000Z",
+        "companyName": "Öz Döner Salonu",
+        "description": "Akşam saatlerinde (17:00 - 22:00) çalışacak, A2 ehliyete sahip, Düziçi sokaklarını iyi bilen paket servis elemanı aranıyor."
       }
     ],
     "realEstates": [
@@ -1424,14 +3231,14 @@
             "shortDescription": "Tarihi köprü ziyareti"
           },
           {
-            "lat": 37.244,
-            "lng": 36.451,
+            "lat": 37.24,
+            "lng": 36.446,
             "tag": "3",
             "name": "Düziçi Çarşı ve Ulu Cami",
             "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Osmaniye_Market_in_2010_1919.jpg/960px-Osmaniye_Market_in_2010_1919.jpg",
             "detail": "Esnaf lokantasında öğle yemeği, çarşıda yöresel alışveriş.",
             "address": "Düziçi merkez çarşı",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240,36.446",
             "shortDescription": "Öğle yemeği ve tarihi çarşı turu"
           }
         ],
@@ -1756,16 +3563,22 @@
         "subtitle": "Pazar günleri, kurulma yerleri",
         "directoryData": [
           {
+            "lat": 37.2398,
+            "lng": 36.4468,
             "name": "Pazartesi Pazarı",
             "phone": "",
             "address": "Mehmet Yalçın Pazar Yeri (Merkez)"
           },
           {
+            "lat": 37.2322,
+            "lng": 36.4409,
             "name": "Çarşamba Pazarı",
             "phone": "",
             "address": "Kurtuluş Mahallesi"
           },
           {
+            "lat": 37.2442,
+            "lng": 36.4512,
             "name": "Cuma Pazarı",
             "phone": "",
             "address": "İlçe Geneli Geleneksel Pazar Alanı"
@@ -1932,161 +3745,57 @@
     "localProducts": [
       {
         "id": "lp_1781555000001",
-        "title": "Taze Organik Köy Yoğurdu",
-        "category": "Süt & Yoğurt",
         "unit": "Kg",
+        "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=960",
         "price": "120",
-        "description": "Günlük taze sağılmış inek sütünden, tamamen doğal köy mayasıyla mayalanmış taş gibi sert, lezzetli süzme yoğurt.",
-        "address": "Karlıca Mahallesi",
-        "sellerName": "Fatma Abla",
-        "contact": "0541 123 45 67",
+        "title": "Taze Organik Köy Yoğurdu",
         "images": [
           "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=960"
         ],
-        "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=960",
         "isPaid": true,
+        "address": "Karlıca Mahallesi",
+        "contact": "0541 123 45 67",
+        "category": "Süt & Yoğurt",
         "isActive": true,
-        "createdAt": "2026-06-16T12:00:00.000Z"
+        "createdAt": "2026-06-16T12:00:00.000Z",
+        "sellerName": "Fatma Abla",
+        "description": "Günlük taze sağılmış inek sütünden, tamamen doğal köy mayasıyla mayalanmış taş gibi sert, lezzetli süzme yoğurt."
       },
       {
         "id": "lp_1781555000002",
-        "title": "Serbest Gezen Köy Yumurtası",
-        "category": "Yumurta",
         "unit": "Adet",
+        "image": "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?w=960",
         "price": "5",
-        "description": "Doğal yemlerle beslenen köy tavuklarımızın günlük taze yumurtaları. Minimum 30 adet siparişlerde ilçe merkezine teslimat yapılır.",
-        "address": "Yeşilova Mahallesi",
-        "sellerName": "Mehmet Amca",
-        "contact": "0532 987 65 43",
+        "title": "Serbest Gezen Köy Yumurtası",
         "images": [
           "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?w=960"
         ],
-        "image": "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?w=960",
         "isPaid": false,
+        "address": "Yeşilova Mahallesi",
+        "contact": "0532 987 65 43",
+        "category": "Yumurta",
         "isActive": true,
-        "createdAt": "2026-06-16T12:10:00.000Z"
+        "createdAt": "2026-06-16T12:10:00.000Z",
+        "sellerName": "Mehmet Amca",
+        "description": "Doğal yemlerle beslenen köy tavuklarımızın günlük taze yumurtaları. Minimum 30 adet siparişlerde ilçe merkezine teslimat yapılır."
       },
       {
         "id": "lp_1781555000003",
-        "title": "Fırından Sıcak Ev Yapımı Etli Kömbe",
-        "category": "Ev Yemekleri",
         "unit": "Tepsi",
+        "image": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=960",
         "price": "380",
-        "description": "Düziçi yöremizin meşhur, bol malzemeli, taş fırında odun ateşinde pişirilmiş çıtır çıtır etli kömbesi. Sipariş üzerine günlük taze yapılır.",
-        "address": "Cumhuriyet Mahallesi",
-        "sellerName": "Hatice Teyze",
-        "contact": "0545 444 33 22",
+        "title": "Fırından Sıcak Ev Yapımı Etli Kömbe",
         "images": [
           "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=960"
         ],
-        "image": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=960",
         "isPaid": true,
+        "address": "Cumhuriyet Mahallesi",
+        "contact": "0545 444 33 22",
+        "category": "Ev Yemekleri",
         "isActive": true,
-        "createdAt": "2026-06-16T12:20:00.000Z"
-      }
-    ],
-    "cityDeals": [
-      {
-        "id": "cd_1781555000001",
-        "title": "Bugüne Özel 1 Alana 1 Bedava Tavuk Dürüm Fırsatı!",
-        "storeName": "Kırmızı Döner",
-        "category": "Gıda & Restoran",
-        "discountRate": "1 Alana 1 Bedava",
-        "priceBefore": "160",
-        "priceAfter": "80",
-        "description": "Kırmızı Döner'de bugüne özel efsane kampanya! 1 adet tavuk dürüm alana, ikincisi bizden hediye. Kaçırmayın!",
-        "address": "Kurtuluş Mahallesi, Recep Tayyip Erdoğan Bulvarı No: 12",
-        "contact": "0328 123 45 67",
-        "whatsapp": "+905051234567",
-        "image": "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=960",
-        "endDate": "2026-06-20",
-        "isPaid": true,
-        "isActive": true,
-        "createdAt": "2026-06-16T12:00:00.000Z"
-      },
-      {
-        "id": "cd_1781555000002",
-        "title": "Öğrenci Menüsü: Döner + Ayran Sadece 90 ₺",
-        "storeName": "Lezzet Sarayı",
-        "category": "Gıda & Restoran",
-        "discountRate": "Öğrenci Özel",
-        "priceBefore": "120",
-        "priceAfter": "90",
-        "description": "Tüm öğrencilere özel lezzetli tavuk döner menümüz şimdi sadece 90 ₺. Kampanyadan yararlanmak için öğrenci kartınızı göstermeniz yeterlidir.",
-        "address": "Cumhuriyet Mahallesi, Atatürk Caddesi No: 45",
-        "contact": "0328 765 43 21",
-        "whatsapp": "+905327654321",
-        "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=960",
-        "endDate": "2026-06-30",
-        "isPaid": false,
-        "isActive": true,
-        "createdAt": "2026-06-16T12:30:00.000Z"
-      }
-    ],
-    "jobListings": [
-      {
-        "id": "jl_1781555000001",
-        "title": "Kasa Görevlisi ve Satış Danışmanı Aranıyor",
-        "companyName": "Doğanlar Süpermarket",
-        "category": "Satış & Mağazacılık",
-        "jobType": "Tam Zamanlı",
-        "salary": "Asgari Ücret + Yemek",
-        "description": "Süpermarketimizin merkez şubesinde kasa ve reyonlarda görev alacak, güler yüzlü ve takım çalışmasına yatkın takım arkadaşları arıyoruz.",
-        "address": "İrfanlı Mahallesi, Refik Cesur Bulvarı No: 124",
-        "contact": "0532 111 22 33",
-        "whatsapp": "+905321112233",
-        "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=960",
-        "isPaid": true,
-        "isActive": true,
-        "createdAt": "2026-06-16T12:00:00.000Z"
-      },
-      {
-        "id": "jl_1781555000002",
-        "title": "Part-time Kurye (A2 Ehliyetli)",
-        "companyName": "Öz Döner Salonu",
-        "category": "Restoran & Kafe",
-        "jobType": "Yarı Zamanlı",
-        "salary": "Saatlik Ücret + Paket Başı Prim",
-        "description": "Akşam saatlerinde (17:00 - 22:00) çalışacak, A2 ehliyete sahip, Düziçi sokaklarını iyi bilen paket servis elemanı aranıyor.",
-        "address": "Kurtuluş Mahallesi, Park Caddesi No: 45",
-        "contact": "0544 333 44 55",
-        "whatsapp": "+905443334455",
-        "image": "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=960",
-        "isPaid": false,
-        "isActive": true,
-        "createdAt": "2026-06-16T13:00:00.000Z"
-      }
-    ],
-    "lostFound": [
-      {
-        "id": "lf_1781555000001",
-        "title": "Düziçi Çarşıda Erkek Kol Saati Bulundu",
-        "type": "Bulunan",
-        "category": "Diğer",
-        "lostFoundDate": "2026-06-15",
-        "description": "15 Haziran pazartesi günü belediye meydanındaki bankta gümüş renkli metal kordonlu bir erkek kol saati bulunmuştur. Sahibi irtibata geçip teslim alabilir.",
-        "address": "Belediye Meydanı, Düziçi",
-        "contact": "0505 999 88 77",
-        "whatsapp": "+905059998877",
-        "image": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=960",
-        "isPaid": true,
-        "isActive": true,
-        "createdAt": "2026-06-16T11:00:00.000Z"
-      },
-      {
-        "id": "lf_1781555000002",
-        "title": "Mavi Cüzdan Kayıp (Kimlik ve Kartlar)",
-        "type": "Kayıp",
-        "category": "Cüzdan & Kart",
-        "lostFoundDate": "2026-06-14",
-        "description": "Refik Cesur Bulvarı üzerinde içinde kimlik kartı, ehliyet ve Düziçi belediye kartı olan mavi deri cüzdan kaybolmuştur. Bulanların insaniyet namına irtibat kurmasını rica ederim.",
-        "address": "Refik Cesur Bulvarı güzergahı",
-        "contact": "0545 777 66 55",
-        "whatsapp": "+905457776655",
-        "image": "https://images.unsplash.com/photo-1627124357773-41319df4e9c2?w=960",
-        "isPaid": false,
-        "isActive": true,
-        "createdAt": "2026-06-16T10:00:00.000Z"
+        "createdAt": "2026-06-16T12:20:00.000Z",
+        "sellerName": "Hatice Teyze",
+        "description": "Düziçi yöremizin meşhur, bol malzemeli, taş fırında odun ateşinde pişirilmiş çıtır çıtır etli kömbesi. Sipariş üzerine günlük taze yapılır."
       }
     ]
   },
@@ -2146,6 +3855,74 @@
           "brand": "Total",
           "hours": "07:00 – 23:00",
           "address": "Yarbaşı Beldesi, Atatürk Bulvarı"
+        },
+        {
+          "id": "fuel_tp_merkez",
+          "lat": 37.2435,
+          "lng": 36.4522,
+          "name": "TP Petrol Merkez",
+          "brand": "TP",
+          "hours": "7/24",
+          "address": "İrfanlı Mah., Atatürk Caddesi, Düziçi"
+        },
+        {
+          "id": "fuel_bp_merkez",
+          "lat": 37.2365,
+          "lng": 36.4445,
+          "name": "BP Çarşı",
+          "brand": "BP",
+          "hours": "7/24",
+          "address": "Kurtuluş Mah., Şehit Ahmet Metlioğlu Cad., Düziçi"
+        },
+        {
+          "id": "fuel_lukoil_merkez",
+          "lat": 37.2422,
+          "lng": 36.4605,
+          "name": "Lukoil Hürriyet",
+          "brand": "Lukoil",
+          "hours": "06:00 – 24:00",
+          "address": "Hürriyet Mah., Refik Cesur Bulvarı, Düziçi"
+        },
+        {
+          "id": "fuel_aytemiz_yarbasi",
+          "lat": 37.221,
+          "lng": 36.432,
+          "name": "Aytemiz Yarbaşı",
+          "brand": "Aytemiz",
+          "hours": "7/24",
+          "address": "Yarbaşı Girişi, D.400 Karayolu Üzeri, Düziçi"
+        },
+        {
+          "name": "Milangaz Otogaz İstasyonu",
+          "brand": "Petrol",
+          "lat": 37.2315,
+          "lng": 36.457,
+          "address": "Karşıyaka Mah., Otogar Yolu, Düziçi",
+          "hours": "7/24"
+        },
+        {
+          "name": "Aygaz Otogaz İstasyonu",
+          "brand": "Petrol",
+          "lat": 37.2348,
+          "lng": 36.4488,
+          "address": "Yeşilova Mah., Yeni Otogar Civarı, Düziçi",
+          "hours": "7/24"
+        },
+        {
+          "name": "TP Petrol Çevre Yolu",
+          "brand": "TP",
+          "lat": 37.2392,
+          "lng": 36.4578,
+          "address": "İstiklal Mah., Çevre Yolu, Düziçi",
+          "hours": "7/24"
+        },
+        {
+          "name": "Memoil Akaryakıt",
+          "brand": "Petrol",
+          "lat": 37.2185,
+          "lng": 36.4305,
+          "address": "Yarbaşı Mevkii, D-400 Karayolu, Düziçi",
+          "hours": "7/24"
         }
       ],
       "disclaimer": "Pompa fiyatları istasyona göre birkaç kuruş farklı olabilir. Resmî tarife EPDK ve dağıtıcı firmalara göre değişir.",
@@ -2963,60 +4740,88 @@
   "privateTutors": [
     {
       "id": "tutor-001",
+      "bio": "8 yılı aşkın özel ders deneyimimle, özellikle YKS ve LGS hazırlık süreçlerinde öğrencilerimi başarıya taşımaktayım. Sabırlı ve sistematik bir öğretim anlayışıyla, her öğrencinin kendi hızında ilerlemesine destek olurum.",
       "name": "Ahmet Yılmaz",
       "title": "Matematik ve Fizik Öğretmeni",
-      "subjects": ["Matematik", "Fizik", "Geometri"],
-      "levels": ["İlkokul", "Ortaokul", "Lise", "YKS"],
-      "experience": "8 yıl deneyimli",
-      "education": "Çukurova Üniversitesi – Matematik Öğretmenliği",
-      "bio": "8 yılı aşkın özel ders deneyimimle, özellikle YKS ve LGS hazırlık süreçlerinde öğrencilerimi başarıya taşımaktayım. Sabırlı ve sistematik bir öğretim anlayışıyla, her öğrencinin kendi hızında ilerlemesine destek olurum.",
+      "isPaid": false,
+      "levels": [
+        "İlkokul",
+        "Ortaokul",
+        "Lise",
+        "YKS"
+      ],
       "contact": "0532 111 22 33",
-      "whatsapp": "905321112233",
-      "location": "Düziçi Merkez",
-      "sessionType": "Yüz Yüze & Online",
-      "pricePerHour": "250 ₺",
       "imageUrl": "",
       "isActive": true,
-      "isPaid": false,
-      "createdAt": "2026-06-17"
+      "location": "Düziçi Merkez",
+      "subjects": [
+        "Matematik",
+        "Fizik",
+        "Geometri"
+      ],
+      "whatsapp": "905321112233",
+      "createdAt": "2026-06-17",
+      "education": "Çukurova Üniversitesi – Matematik Öğretmenliği",
+      "experience": "8 yıl deneyimli",
+      "sessionType": "Yüz Yüze & Online",
+      "pricePerHour": "250 ₺"
     },
     {
       "id": "tutor-002",
+      "bio": "Günlük konuşmadan akademik İngilizceye kadar her seviyede ders veriyorum. Özellikle üniversite öğrencilerine YDS/YÖKDİL hazırlığı ve çeviri desteği sunuyorum. Online ders imkânım da mevcut.",
       "name": "Elif Demir",
       "title": "İngilizce Öğretmeni & Çevirmen",
-      "subjects": ["İngilizce", "YDS Hazırlık", "Konuşma Pratiği"],
-      "levels": ["İlkokul", "Ortaokul", "Lise", "Üniversite", "Yetişkin"],
-      "experience": "5 yıl deneyimli",
-      "education": "Gaziantep Üniversitesi – İngiliz Dili ve Edebiyatı",
-      "bio": "Günlük konuşmadan akademik İngilizceye kadar her seviyede ders veriyorum. Özellikle üniversite öğrencilerine YDS/YÖKDİL hazırlığı ve çeviri desteği sunuyorum. Online ders imkânım da mevcut.",
+      "isPaid": true,
+      "levels": [
+        "İlkokul",
+        "Ortaokul",
+        "Lise",
+        "Üniversite",
+        "Yetişkin"
+      ],
       "contact": "0543 222 33 44",
-      "whatsapp": "905432223344",
-      "location": "Düziçi / Online",
-      "sessionType": "Online & Yüz Yüze",
-      "pricePerHour": "200 ₺",
       "imageUrl": "",
       "isActive": true,
-      "isPaid": true,
-      "createdAt": "2026-06-17"
+      "location": "Düziçi / Online",
+      "subjects": [
+        "İngilizce",
+        "YDS Hazırlık",
+        "Konuşma Pratiği"
+      ],
+      "whatsapp": "905432223344",
+      "createdAt": "2026-06-17",
+      "education": "Gaziantep Üniversitesi – İngiliz Dili ve Edebiyatı",
+      "experience": "5 yıl deneyimli",
+      "sessionType": "Online & Yüz Yüze",
+      "pricePerHour": "200 ₺"
     },
     {
       "id": "tutor-003",
+      "bio": "12 yıldır özel ders ve kurs merkezlerinde Türkçe ve Edebiyat dersleri veriyorum. TYT Türkçe puanını kısa sürede ciddi ölçüde artırma konusunda kanıtlanmış bir metodum var.",
       "name": "Murat Kaya",
       "title": "Türkçe ve Edebiyat Öğretmeni",
-      "subjects": ["Türkçe", "TYT Türkçe", "Edebiyat", "Kompozisyon"],
-      "levels": ["Ortaokul", "Lise", "YKS"],
-      "experience": "12 yıl deneyimli",
-      "education": "Selçuk Üniversitesi – Türk Dili ve Edebiyatı Öğretmenliği",
-      "bio": "12 yıldır özel ders ve kurs merkezlerinde Türkçe ve Edebiyat dersleri veriyorum. TYT Türkçe puanını kısa sürede ciddi ölçüde artırma konusunda kanıtlanmış bir metodum var.",
+      "isPaid": false,
+      "levels": [
+        "Ortaokul",
+        "Lise",
+        "YKS"
+      ],
       "contact": "0555 333 44 55",
-      "whatsapp": "905553334455",
-      "location": "Düziçi Merkez",
-      "sessionType": "Yüz Yüze",
-      "pricePerHour": "220 ₺",
       "imageUrl": "",
       "isActive": true,
-      "isPaid": false,
-      "createdAt": "2026-06-17"
+      "location": "Düziçi Merkez",
+      "subjects": [
+        "Türkçe",
+        "TYT Türkçe",
+        "Edebiyat",
+        "Kompozisyon"
+      ],
+      "whatsapp": "905553334455",
+      "createdAt": "2026-06-17",
+      "education": "Selçuk Üniversitesi – Türk Dili ve Edebiyatı Öğretmenliği",
+      "experience": "12 yıl deneyimli",
+      "sessionType": "Yüz Yüze",
+      "pricePerHour": "220 ₺"
     }
   ]
 }

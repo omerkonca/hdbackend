@@ -25,6 +25,14 @@ CREATE TABLE IF NOT EXISTS city_contents (
   CONSTRAINT one_row CHECK (id = 1)
 );
 
+-- 1.5. Şehir İçerikleri Yedekleri (City Content Backups) Tablosu
+CREATE TABLE IF NOT EXISTS city_content_backups (
+  id SERIAL PRIMARY KEY,
+  data JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  description TEXT
+);
+
 -- 2. Haberler (News Items) Tablosu
 CREATE TABLE IF NOT EXISTS news_items (
   id TEXT PRIMARY KEY,

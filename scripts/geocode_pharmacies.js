@@ -36,6 +36,10 @@ const KNOWN_ADDRESSES = {
   'Şen Eczanesi': 'Kurtuluş Mahallesi, Düziçi, Osmaniye',
   'Yücel Eczanesi': 'İstiklal Mahallesi, Düziçi, Osmaniye',
   'Taşkın Eczanesi': 'Cumhuriyet Mahallesi, Düziçi, Osmaniye',
+  'Sağlam Eczanesi': 'İrfanlı Mahallesi, Dr. Selahattin Beyaz Sokak, No: 4/A, Düziçi, Osmaniye',
+  'Serkan Eczanesi': 'Yeşilova Mahallesi, Aydınlar Caddesi, No: 34/G, Düziçi, Osmaniye',
+  'Melike Eczanesi': 'Cumhuriyet Mahallesi, Düziçi, Osmaniye',
+  'Namlı Eczanesi': 'İrfanlı Mahallesi, Ilıca Caddesi, No: 100/A, Düziçi, Osmaniye',
 };
 
 async function geocode(query) {

@@ -181,9 +181,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.245,36.46"
     },
     "Düziçi Çarşı ve Ulu Cami": {
-      "lat": 37.244,
-      "lng": 36.451,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451"
+      "lat": 37.24,
+      "lng": 36.446,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240,36.446"
     },
     "Kastabala Antik Kenti": {
       "lat": 37.177,
@@ -349,6 +349,386 @@
       "lat": 37.288,
       "lng": 36.565,
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.288,36.565"
+    },
+    "İrfanlı Camii": {
+      "lat": 37.2462,
+      "lng": 36.4535,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2462,36.4535"
+    },
+    "Hacılar Camii": {
+      "lat": 37.2515,
+      "lng": 36.4625,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2515,36.4625"
+    },
+    "Toki Camii": {
+      "lat": 37.2592,
+      "lng": 36.4415,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2592,36.4415"
+    },
+    "Uzunbanı Camii": {
+      "lat": 37.2455,
+      "lng": 36.439,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2455,36.4390"
+    },
+    "Veysel Karani Camii": {
+      "lat": 37.2355,
+      "lng": 36.458,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2355,36.4580"
+    },
+    "Bilali Habeş Camii": {
+      "lat": 37.228,
+      "lng": 36.451,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2280,36.4510"
+    },
+    "İmam-ı Azam Camii": {
+      "lat": 37.234,
+      "lng": 36.4485,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2340,36.4485"
+    },
+    "Yeşilova Camii": {
+      "lat": 37.2385,
+      "lng": 36.449,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2385,36.4490"
+    },
+    "Hz. Ukkaşe Camii": {
+      "lat": 37.248,
+      "lng": 36.467,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2480,36.4670"
+    },
+    "Milli Şair Mehmet Akif Ersoy Camii": {
+      "lat": 37.241,
+      "lng": 36.435,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2410,36.4350"
+    },
+    "Yıldırım Beyazıt Camii": {
+      "lat": 37.233,
+      "lng": 36.431,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2330,36.4310"
+    },
+    "Haruniye Camii": {
+      "lat": 37.381,
+      "lng": 36.492,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3810,36.4920"
+    },
+    "Ellek Merkez Camii": {
+      "lat": 37.288,
+      "lng": 36.48,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2880,36.4800"
+    },
+    "Yarbaşı Merkez Camii": {
+      "lat": 37.199,
+      "lng": 36.43,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.1990,36.4300"
+    },
+    "28 Mart Camii": {
+      "lat": 37.2425,
+      "lng": 36.455,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2425,36.4550"
+    },
+    "48 Evler Camii": {
+      "lat": 37.2475,
+      "lng": 36.4455,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2475,36.4455"
+    },
+    "Pazartesi Pazarı": {
+      "lat": 37.2398,
+      "lng": 36.4468,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2398,36.4468"
+    },
+    "Çarşamba Pazarı": {
+      "lat": 37.2322,
+      "lng": 36.4409,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2322,36.4409"
+    },
+    "Cuma Pazarı": {
+      "lat": 37.2442,
+      "lng": 36.4512,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2442,36.4512"
+    },
+    "Karacaoğlan Otel": {
+      "lat": 37.2405,
+      "lng": 36.4475,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2405,36.4475"
+    },
+    "Düziçi Termal Otel": {
+      "lat": 37.382,
+      "lng": 36.491,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.382,36.491"
+    },
+    "Düziçi Öğretmenevi": {
+      "lat": 37.2422,
+      "lng": 36.453,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2422,36.453"
+    },
+    "Merkez Çarşı Umumi WC": {
+      "lat": 37.2395,
+      "lng": 36.4462,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2395,36.4462"
+    },
+    "Şehitler Parkı WC": {
+      "lat": 37.2432,
+      "lng": 36.4505,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2432,36.4505"
+    },
+    "Yeni Otogar WC": {
+      "lat": 37.2335,
+      "lng": 36.448,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2335,36.448"
+    },
+    "A101 İrfanlı Şubesi": {
+      "lat": 37.2412,
+      "lng": 36.4485,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2412,36.4485"
+    },
+    "BİM Çarşı Şubesi": {
+      "lat": 37.2392,
+      "lng": 36.4455,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2392,36.4455"
+    },
+    "Şok Yeşilova Şubesi": {
+      "lat": 37.246,
+      "lng": 36.453,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.246,36.453"
+    },
+    "Tarım Kredi Kooperatif Market": {
+      "lat": 37.2425,
+      "lng": 36.449,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2425,36.449"
+    },
+    "Belediye Kapalı Otoparkı": {
+      "lat": 37.2445,
+      "lng": 36.451,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2445,36.451"
+    },
+    "Çarşı Merkez Açık Otoparkı": {
+      "lat": 37.239,
+      "lng": 36.446,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.239,36.446"
+    },
+    "Devlet Hastanesi Otoparkı": {
+      "lat": 37.251,
+      "lng": 36.435,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.251,36.435"
+    },
+    "ZES Şarj İstasyonu (Belediye)": {
+      "lat": 37.2442,
+      "lng": 36.4514,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2442,36.4514"
+    },
+    "Trugo Şarj İstasyonu (Dinlenme Tesis)": {
+      "lat": 37.222,
+      "lng": 36.431,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.222,36.431"
+    },
+    "Eşarj İstasyonu (Çarşı)": {
+      "lat": 37.2402,
+      "lng": 36.447,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2402,36.447"
+    },
+    "Düziçi Fen Lisesi": {
+      "lat": 37.381,
+      "lng": 36.492,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.492"
+    },
+    "Düziçi Anadolu Lisesi": {
+      "lat": 37.248,
+      "lng": 36.456,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.248,36.456"
+    },
+    "Cumhuriyet İlkokulu": {
+      "lat": 37.2415,
+      "lng": 36.4495,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2415,36.4495"
+    },
+    "Düziçi İlçe Halk Kütüphanesi": {
+      "lat": 37.247,
+      "lng": 36.446,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.247,36.446"
+    },
+    "Köy Enstitüsü Arşiv Kütüphanesi": {
+      "lat": 37.3812,
+      "lng": 36.4922,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3812,36.4922"
+    },
+    "Düziçi İlçe Emniyet Müdürlüğü": {
+      "lat": 37.242,
+      "lng": 36.4515,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.242,36.4515"
+    },
+    "Haruniye Polis Merkezi Amirliği": {
+      "lat": 37.3805,
+      "lng": 36.4905,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.3805,36.4905"
+    },
+    "Düziçi İlçe Jandarma Komutanlığı": {
+      "lat": 37.2402,
+      "lng": 36.455,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2402,36.455"
+    },
+    "Düziçi Çarşı Kebapçısı": {
+      "lat": 37.2395,
+      "lng": 36.4465,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2395,36.4465"
+    },
+    "Sabun Çayı Alabalık Tesisleri": {
+      "lat": 37.284,
+      "lng": 36.468,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.284,36.468"
+    },
+    "Haruniye Lezzet Sofrası": {
+      "lat": 37.381,
+      "lng": 36.4915,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.381,36.4915"
+    },
+    "Cadde Kahve Evi": {
+      "lat": 37.2455,
+      "lng": 36.4525,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2455,36.4525"
+    },
+    "Tarihi Çınar Kafe": {
+      "lat": 37.2462,
+      "lng": 36.4402,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2462,36.4402"
+    },
+    "Belediye Park Kafe & Bistro": {
+      "lat": 37.2435,
+      "lng": 36.4502,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2435,36.4502"
+    },
+    "Belediye Kültür & Sinema Salonu": {
+      "lat": 37.2444,
+      "lng": 36.4512,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2444,36.4512"
+    },
+    "Düziçi İlçe Stadyumu": {
+      "lat": 37.2465,
+      "lng": 36.4545,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2465,36.4545"
+    },
+    "Karacaoğlan Kapalı Spor Salonu": {
+      "lat": 37.2458,
+      "lng": 36.4538,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2458,36.4538"
+    },
+    "Belediye Olimpik Halı Saha": {
+      "lat": 37.2405,
+      "lng": 36.458,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2405,36.458"
+    },
+    "Demokrasi Parkı WC": {
+      "lat": 37.2405,
+      "lng": 36.452,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2405,36.452"
+    },
+    "Belediye Yanı Park WC": {
+      "lat": 37.2448,
+      "lng": 36.4515,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2448,36.4515"
+    },
+    "Düziçi M Migros": {
+      "lat": 37.243,
+      "lng": 36.4555,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.243,36.4555"
+    },
+    "BİM Abdurrahman Gazi Şubesi": {
+      "lat": 37.2485,
+      "lng": 36.4415,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2485,36.4415"
+    },
+    "Şok Cumhuriyet Şubesi": {
+      "lat": 37.241,
+      "lng": 36.4525,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241,36.4525"
+    },
+    "A101 Asaf Namlı Şubesi": {
+      "lat": 37.235,
+      "lng": 36.459,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.235,36.459"
+    },
+    "Gözde Süpermarket": {
+      "lat": 37.2385,
+      "lng": 36.4475,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2385,36.4475"
+    },
+    "Hürriyet Mahallesi Otopark Alanı": {
+      "lat": 37.242,
+      "lng": 36.4602,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.242,36.4602"
+    },
+    "RTE Bulvarı Yol Üstü Otoparkı": {
+      "lat": 37.237,
+      "lng": 36.4485,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.237,36.4485"
+    },
+    "Trugo Şarj İstasyonu (RTE Bulvarı)": {
+      "lat": 37.2415,
+      "lng": 36.456,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2415,36.456"
+    },
+    "Düziçi Mesleki ve Teknik Anadolu Lisesi": {
+      "lat": 37.234,
+      "lng": 36.441,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.234,36.441"
+    },
+    "Karacaoğlan Ortaokulu": {
+      "lat": 37.243,
+      "lng": 36.447,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.243,36.447"
+    },
+    "Düziçi Gençlik Merkezi Kütüphanesi": {
+      "lat": 37.246,
+      "lng": 36.455,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.246,36.455"
+    },
+    "Düziçi Trafik Denetleme Büro Amirliği": {
+      "lat": 37.239,
+      "lng": 36.449,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.239,36.449"
+    },
+    "Harmanyeri Restaurant": {
+      "lat": 37.236,
+      "lng": 36.449,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.236,36.449"
+    },
+    "Şafak Lokantası": {
+      "lat": 37.2398,
+      "lng": 36.4462,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2398,36.4462"
+    },
+    "Esentepe Aile Restaurant": {
+      "lat": 37.255,
+      "lng": 36.438,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.255,36.438"
+    },
+    "Cadde Saray Cafe": {
+      "lat": 37.245,
+      "lng": 36.452,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.245,36.452"
+    },
+    "Story House Cafe": {
+      "lat": 37.2458,
+      "lng": 36.4532,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2458,36.4532"
+    },
+    "Kafe De Keyf": {
+      "lat": 37.2405,
+      "lng": 36.4585,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2405,36.4585"
+    },
+    "Çavuşoğlu N'Fess Cafe": {
+      "lat": 37.238,
+      "lng": 36.447,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.238,36.447"
+    },
+    "Mina Otel": {
+      "lat": 37.241,
+      "lng": 36.4505,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241,36.4505"
+    },
+    "Göllüoğlu Apart": {
+      "lat": 37.244,
+      "lng": 36.457,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.457"
     }
   },
   "pharmacies": {
@@ -451,6 +831,26 @@
       "lat": 37.254381,
       "lng": 36.467004,
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.254381,36.467004"
+    },
+    "Sağlam Eczanesi": {
+      "lat": 37.243441,
+      "lng": 36.46135,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.243441,36.46135"
+    },
+    "Serkan Eczanesi": {
+      "lat": 37.240801,
+      "lng": 36.454215,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240801,36.454215"
+    },
+    "Melike Eczanesi": {
+      "lat": 37.240338,
+      "lng": 36.445485,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240338,36.445485"
+    },
+    "Namlı Eczanesi": {
+      "lat": 37.2588,
+      "lng": 36.4684,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2588,36.4684"
     }
   }
 }

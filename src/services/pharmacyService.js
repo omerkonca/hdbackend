@@ -3,12 +3,13 @@ const { normalizeText, fetchWithTimeout, stripHtml } = require('../utils/helpers
 const { normalizePharmacyDateLabels } = require('../utils/pharmacyDutyLabels');
 
 function istanbulDateKey(ms = Date.now()) {
+  const shiftMs = 8.5 * 60 * 60 * 1000;
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Istanbul',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).format(new Date(ms));
+  }).format(new Date(ms - shiftMs));
 }
 
 class PharmacyService {
@@ -104,7 +105,10 @@ class PharmacyService {
 
       const latestFetchedAt = data[0].fetched_at;
       if (!latestFetchedAt) return null;
-      if (istanbulDateKey(new Date(latestFetchedAt).getTime()) !== istanbulDateKey()) {
+
+      const ageMs = Date.now() - new Date(latestFetchedAt).getTime();
+      if (ageMs > 30 * 60 * 60 * 1000) {
+        console.log(`[pharmacy] Supabase cache is too old (${Math.round(ageMs / 3600000)} hours)`);
         return null;
       }
 

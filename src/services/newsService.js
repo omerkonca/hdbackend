@@ -27,6 +27,7 @@ class NewsService {
     this.RSS_TIMEOUT_MS = 20000;
     this.ARTICLE_TIMEOUT_MS = 25000;
     this.SLOW_HOST_TIMEOUT_MS = 30000;
+    this._currentRefreshPromise = null;
   }
 
   getFetchTimeoutMs(url = '') {
@@ -378,20 +379,37 @@ class NewsService {
   }
 
   async _fetchAndCacheNews(max) {
-    const now = Date.now();
-    let items = await this.scrapeNews({ max: Math.max(max, 80) });
-    items = await this.enrichItemsFromCache(items);
-    this.cache = {
-      fetchedAt: now,
-      items,
-    };
+    if (this._currentRefreshPromise) {
+      console.log('[news] Fetch already in progress, waiting for existing promise...');
+      const items = await this._currentRefreshPromise;
+      return items.slice(0, max);
+    }
 
-    // Supabase cache sync (in background)
-    this._syncNewsToSupabase(items).catch(err => {
-      console.error('❌ Supabase news cache sync background error:', err.message);
-    });
+    this._currentRefreshPromise = (async () => {
+      const now = Date.now();
+      let items = await this.scrapeNews({ max: Math.max(max, 80) });
+      items = await this.enrichItemsFromCache(items);
+      this.cache = {
+        fetchedAt: now,
+        items,
+      };
 
-    return items.slice(0, max);
+      // Supabase cache sync (awaited within the lock so it runs atomically)
+      try {
+        await this._syncNewsToSupabase(items);
+      } catch (err) {
+        console.error('❌ Supabase news cache sync error:', err.message);
+      }
+
+      return items;
+    })();
+
+    try {
+      const items = await this._currentRefreshPromise;
+      return items.slice(0, max);
+    } finally {
+      this._currentRefreshPromise = null;
+    }
   }
 
   async _syncNewsToSupabase(items) {

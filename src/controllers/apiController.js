@@ -241,11 +241,28 @@ class ApiController {
 
   async restoreLastBackup(req, res) {
     try {
-      const backups = await fileService.listBackups();
-      if (backups.length === 0) return res.status(404).json({ ok: false, message: 'Yedek bulunamadi.' });
-      const lastBackup = backups[0];
-      res.json({ ok: true, message: 'Geri yukleme simule edildi (son yedek: ' + lastBackup + ')' });
+      const supabase = require('../utils/supabaseClient');
+      const { data: lastBackup, error: fetchErr } = await supabase
+        .from('city_content_backups')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (fetchErr) throw fetchErr;
+      if (!lastBackup) {
+        return res.status(404).json({ ok: false, message: 'Veritabanında geri yüklenecek yedek bulunamadı.' });
+      }
+
+      // Geri yükle (writeCityContent çağrısı öncesinde otomatik olarak mevcudun yedeğini alır)
+      await fileService.writeCityContent(lastBackup.data);
+
+      res.json({
+        ok: true,
+        message: `Yedek başarıyla geri yüklendi (Yedek ID: ${lastBackup.id}, Tarih: ${lastBackup.created_at})`
+      });
     } catch (error) {
+      console.error('❌ Geri yükleme hatası:', error.message);
       res.status(500).json({ ok: false, message: 'Geri yukleme hatasi.', detail: error.message });
     }
   }

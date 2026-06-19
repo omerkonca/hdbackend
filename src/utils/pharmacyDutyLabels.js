@@ -26,12 +26,13 @@ function normTr(s) {
 }
 
 function istanbulDateKeyLocal(ms = Date.now()) {
+  const shiftMs = 8.5 * 60 * 60 * 1000;
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Istanbul',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).format(new Date(ms));
+  }).format(new Date(ms - shiftMs));
 }
 
 function addDaysToDateKey(dateKey, days) {
@@ -62,20 +63,25 @@ function effectiveDateLabel(pharmacy, nowMs = Date.now()) {
   const todayKey = istanbulDateKeyLocal(nowMs);
   const tomorrowKey = addDaysToDateKey(todayKey, 1);
   const refYear = parseInt(todayKey.slice(0, 4), 10);
+  const refMonth = parseInt(todayKey.slice(5, 7), 10);
 
   const start = parseDutyStartFromRange(pharmacy.dateRange, refYear);
   if (!start) {
     return pharmacy.dateLabel === 'Yarın' ? 'Yarın' : 'Bugün';
   }
 
-  let startKey = toDateKey(start);
-  if (startKey < todayKey && start.month === 12) {
-    startKey = toDateKey({ ...start, year: refYear + 1 });
+  let year = refYear;
+  if (start.month === 12 && refMonth === 1) {
+    year = refYear - 1;
+  } else if (start.month === 1 && refMonth === 12) {
+    year = refYear + 1;
   }
+
+  const startKey = toDateKey({ ...start, year });
 
   if (startKey === todayKey) return 'Bugün';
   if (startKey === tomorrowKey) return 'Yarın';
-  return pharmacy.dateLabel === 'Yarın' ? 'Yarın' : 'Bugün';
+  return 'Eski';
 }
 
 function normalizePharmacyDateLabels(pharmacies, nowMs = Date.now()) {
@@ -85,6 +91,7 @@ function normalizePharmacyDateLabels(pharmacies, nowMs = Date.now()) {
       ...p,
       dateLabel: effectiveDateLabel(p, nowMs),
     }))
+    .filter((p) => p.dateLabel === 'Bugün' || p.dateLabel === 'Yarın')
     .sort((a, b) => {
       const order = (label) => (label === 'Bugün' ? 0 : 1);
       return order(a.dateLabel) - order(b.dateLabel);
