@@ -621,6 +621,24 @@ class NewsService {
   }
 
   parseArticleHtmlToText(html) {
+    // Standalone related news links removal using Cheerio
+    try {
+      const $ = cheerio.load(html);
+      $('a').each((i, el) => {
+        const $el = $(el);
+        const text = $el.text().trim();
+        const parent = $el.parent();
+        if (parent.length && (parent.is('p') || parent.is('h1') || parent.is('h2') || parent.is('h3') || parent.is('h4') || parent.is('h5') || parent.is('h6') || parent.is('div'))) {
+          if (parent.text().trim() === text) {
+            parent.remove();
+          }
+        }
+      });
+      html = $.html();
+    } catch (e) {
+      console.error('[news] Cheerio pre-processing failed:', e.message);
+    }
+
     // 1) Tum sayfada gurultu olabilecek blok tag'leri ic icerik ile birlikte sil.
     const noiseTags = [
       'script', 'style', 'noscript', 'nav', 'header', 'footer', 'aside',

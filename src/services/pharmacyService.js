@@ -106,9 +106,10 @@ class PharmacyService {
       const latestFetchedAt = data[0].fetched_at;
       if (!latestFetchedAt) return null;
 
-      const ageMs = Date.now() - new Date(latestFetchedAt).getTime();
-      if (ageMs > 30 * 60 * 60 * 1000) {
-        console.log(`[pharmacy] Supabase cache is too old (${Math.round(ageMs / 3600000)} hours)`);
+      const cacheDate = istanbulDateKey(new Date(latestFetchedAt).getTime());
+      const nowDate = istanbulDateKey();
+      if (cacheDate !== nowDate) {
+        console.log(`[pharmacy] Supabase cache is from a different day (${cacheDate} vs ${nowDate})`);
         return null;
       }
 
