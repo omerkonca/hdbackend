@@ -6,6 +6,65 @@ const mapCorrectionsPath = path.resolve(__dirname, '../data/map_corrections.json
 
 const newCategories = [
   {
+    id: "wifi",
+    icon: "wifi",
+    badge: "Wi-Fi",
+    title: "Ücretsiz Wi-Fi Alanları",
+    subtitle: "Düziçi Belediyesi ücretsiz kablosuz internet noktaları",
+    places: [
+      {
+        name: "Atatürk ve Demokrasi Meydanı Wi-Fi",
+        shortDescription: "Cumhuriyet Meydanı ücretsiz Wi-Fi alanı.",
+        detail: "Düziçi Belediyesi tarafından sunulan, MERNİS kimlik doğrulamalı yüksek hızlı ücretsiz internet bağlantı noktası.",
+        address: "Cumhuriyet Mah., Atatürk Meydanı, Düziçi",
+        tag: "MEYDAN",
+        lat: 37.2442,
+        lng: 36.4513,
+        image: "assets/images/wifi_placeholder.jpg"
+      },
+      {
+        name: "Çocuk Köyü Wi-Fi",
+        shortDescription: "Bekir İlyas Kara Çocuk Köyü ücretsiz internet noktası.",
+        detail: "Çocuk Köyü içerisinde ailelerin ve gençlerimizin kullanımı için belediyemiz tarafından aktif edilen ücretsiz kablosuz internet alanı.",
+        address: "İrfanlı Mah., Çocuk Köyü İçi, Düziçi",
+        tag: "PARK",
+        lat: 37.2440,
+        lng: 36.4510,
+        image: "assets/images/wifi_placeholder.jpg"
+      },
+      {
+        name: "Atatürk Parkı Wi-Fi",
+        shortDescription: "Atatürk Parkı ücretsiz internet erişim noktası.",
+        detail: "Atatürk Parkı (Park Restorant) içerisindeki dinlenme ve yeşil alanlarda kullanılabilen ücretsiz belediye Wi-Fi bağlantısı.",
+        address: "Kurtuluş Mah., Atatürk Parkı, Düziçi",
+        tag: "PARK",
+        lat: 37.2400,
+        lng: 36.4460,
+        image: "assets/images/wifi_placeholder.jpg"
+      },
+      {
+        name: "Harun Reşit Parkı Wi-Fi",
+        shortDescription: "Harun Reşit Çocuk Parkı ücretsiz internet noktası.",
+        detail: "Harun Reşit Çocuk Parkı ve Millet Bahçesi genelinde aktif olan belediye ücretsiz kablosuz ağ bağlantısı.",
+        address: "Kurtuluş Mah., Harun Reşit Parkı, Düziçi",
+        tag: "PARK",
+        lat: 37.2395,
+        lng: 36.4468,
+        image: "assets/images/wifi_placeholder.jpg"
+      },
+      {
+        name: "İlçe Halk Kütüphanesi Wi-Fi",
+        shortDescription: "Halk Kütüphanesi internet ve Wi-Fi alanı.",
+        detail: "Düziçi İlçe Halk Kütüphanesi bünyesinde ders çalışan öğrencilerimiz için sunulan ücretsiz internet erişimi.",
+        address: "İrfanlı Mah., Kütüphane İçi, Düziçi",
+        tag: "KÜTÜPHANE",
+        lat: 37.2470,
+        lng: 36.4460,
+        image: "assets/images/wifi_placeholder.jpg"
+      }
+    ]
+  },
+  {
     id: "wc",
     icon: "wc",
     badge: "WC",

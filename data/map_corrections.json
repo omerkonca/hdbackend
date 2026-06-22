@@ -729,6 +729,31 @@
       "lat": 37.244,
       "lng": 36.457,
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.457"
+    },
+    "Atatürk ve Demokrasi Meydanı Wi-Fi": {
+      "lat": 37.2442,
+      "lng": 36.4513,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2442,36.4513"
+    },
+    "Çocuk Köyü Wi-Fi": {
+      "lat": 37.244,
+      "lng": 36.451,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244,36.451"
+    },
+    "Atatürk Parkı Wi-Fi": {
+      "lat": 37.24,
+      "lng": 36.446,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.24,36.446"
+    },
+    "Harun Reşit Parkı Wi-Fi": {
+      "lat": 37.2395,
+      "lng": 36.4468,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2395,36.4468"
+    },
+    "İlçe Halk Kütüphanesi Wi-Fi": {
+      "lat": 37.247,
+      "lng": 36.446,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.247,36.446"
     }
   },
   "pharmacies": {

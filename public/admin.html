@@ -1974,9 +1974,41 @@
     function deletePlace(i) {
       if (!confirm('Bu yeri silmek istediğinize emin misiniz?')) return;
       const category = rawData.explore.categories[currentExploreCategoryIndex];
+      const place = category.places[i];
+      const placeName = place ? place.name : null;
+
       category.places.splice(i, 1);
+
+      let cascadeCount = 0;
+      if (placeName) {
+        if (Array.isArray(rawData.explore.autoVehicles)) {
+          const initialLen = rawData.explore.autoVehicles.length;
+          rawData.explore.autoVehicles = rawData.explore.autoVehicles.filter(v => v.sellerName !== placeName);
+          cascadeCount += (initialLen - rawData.explore.autoVehicles.length);
+        }
+        if (Array.isArray(rawData.explore.realEstates)) {
+          const initialLen = rawData.explore.realEstates.length;
+          rawData.explore.realEstates = rawData.explore.realEstates.filter(re => re.sellerName !== placeName);
+          cascadeCount += (initialLen - rawData.explore.realEstates.length);
+        }
+        if (Array.isArray(rawData.explore.jobListings)) {
+          const initialLen = rawData.explore.jobListings.length;
+          rawData.explore.jobListings = rawData.explore.jobListings.filter(j => j.companyName !== placeName);
+          cascadeCount += (initialLen - rawData.explore.jobListings.length);
+        }
+        if (Array.isArray(rawData.explore.cityDeals)) {
+          const initialLen = rawData.explore.cityDeals.length;
+          rawData.explore.cityDeals = rawData.explore.cityDeals.filter(d => d.storeName !== placeName);
+          cascadeCount += (initialLen - rawData.explore.cityDeals.length);
+        }
+      }
+
       renderPlacesList();
-      showToast('Yer siliniyor...');
+      if (cascadeCount > 0) {
+        showToast(`Yer silindi. Bu yere ait ${cascadeCount} adet ilan da temizlendi.`);
+      } else {
+        showToast('Yer siliniyor...');
+      }
       saveData();
     }
 
