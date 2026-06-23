@@ -156,6 +156,46 @@
       {
         "tiles": [
           {
+            "icon": "camera_alt_rounded",
+            "color": "#E1306C",
+            "title": "Instagram",
+            "target": "url:https://instagram.com/hepsiduzici",
+            "subtitle": "@hepsiduzici"
+          },
+          {
+            "icon": "public_rounded",
+            "color": "#1877F2",
+            "title": "Facebook",
+            "target": "url:https://facebook.com/hepsiduzici",
+            "subtitle": "@hepsiduzici"
+          },
+          {
+            "icon": "favorite_rounded",
+            "color": "#000000",
+            "title": "TikTok",
+            "target": "url:https://www.tiktok.com/@hepsiduzici",
+            "subtitle": "@hepsiduzici"
+          },
+          {
+            "icon": "article_rounded",
+            "color": "#111111",
+            "title": "X",
+            "target": "url:https://x.com/hepsiduzici",
+            "subtitle": "@hepsiduzici"
+          },
+          {
+            "icon": "menu_book_rounded",
+            "color": "#101010",
+            "title": "Threads",
+            "target": "url:https://www.threads.net/@hepsiduzici",
+            "subtitle": "@hepsiduzici"
+          }
+        ],
+        "title": "Sosyal Medya"
+      },
+      {
+        "tiles": [
+          {
             "icon": "campaign_rounded",
             "color": "#E65100",
             "title": "İhbar ve Öneri",
