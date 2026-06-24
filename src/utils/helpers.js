@@ -221,9 +221,23 @@ async function fetchPage(targetUrl, options = {}, timeoutMs = 20000) {
         fetchUrl = proxyTemplate;
       }
 
+      // node-fetch tarayıcıya özgü mode/dest/site alanlarını desteklemez.
+      const {
+        accept: _accept,
+        referer: _referer,
+        dest: _dest,
+        mode: _mode,
+        site: _site,
+        cookie: _cookie,
+        forceProxy: _forceProxy,
+        maxAttempts: _maxAttempts,
+        headers: extraHeaders,
+        ...fetchOptions
+      } = options;
+
       const res = await fetchWithTimeout(
         fetchUrl,
-        { ...options, headers, redirect: 'follow' },
+        { ...fetchOptions, headers, redirect: 'follow' },
         timeoutMs,
       );
 

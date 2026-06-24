@@ -1,5 +1,5 @@
 const config = require('../config');
-const { normalizeText, fetchPage, stripHtml } = require('../utils/helpers');
+const { normalizeText, fetchPage, stripHtml, fetchWithTimeout } = require('../utils/helpers');
 const { normalizePharmacyDateLabels } = require('../utils/pharmacyDutyLabels');
 
 function istanbulDateKey(ms = Date.now()) {
@@ -70,10 +70,63 @@ class PharmacyService {
     return [...bugun, ...yarin];
   }
 
-  async scrapeDutyPharmacies() {
+  parseJinaPharmacyMarkdown(text) {
+    const body = String(text || '').includes('Markdown Content:')
+      ? String(text).split('Markdown Content:')[1]
+      : String(text || '');
+
+    const re =
+      /\[([^\]]+)\]\(https:\/\/www\.eczaneler\.gen\.tr\/eczane\/[^)]+\)(?:[^\n]*\n+)+([^\n!→][^\n]+)\n+(0 \(\d{3}\)[^\n]+)/g;
+
+    const pharmacies = [];
+    let match;
+    let index = 0;
+    while ((match = re.exec(body)) !== null && index < 4) {
+      const dateLabel = index === 0 ? 'Bugün' : 'Yarın';
+      pharmacies.push({
+        name: normalizeText(match[1]),
+        address: normalizeText(match[2].replace(/^→\s*/, '')),
+        phone: normalizeText(match[3]),
+        dateLabel,
+        dateRange: '',
+      });
+      index += 1;
+    }
+
+    if (pharmacies.length === 0) {
+      throw new Error('Jina eczane verisi parse edilemedi.');
+    }
+    return pharmacies;
+  }
+
+  async scrapeDutyPharmaciesViaJina() {
+    const target = config.PHARMACY.URL;
+    const jinaUrl = `https://r.jina.ai/${target}`;
+    const res = await fetchWithTimeout(
+      jinaUrl,
+      {
+        headers: {
+          Accept: 'text/plain',
+          'User-Agent':
+            'Mozilla/5.0 (compatible; HepsiDuziciBot/1.0; +https://hdbackend-vo99.onrender.com)',
+        },
+      },
+      30000,
+    );
+    if (!res.ok) {
+      throw new Error(`Jina proxy ${res.status}`);
+    }
+    const text = await res.text();
+    return this.parseJinaPharmacyMarkdown(text);
+  }
+
+  async scrapeDutyPharmaciesHtml() {
     const response = await fetchPage(
       config.PHARMACY.URL,
-      {},
+      {
+        referer: 'https://www.google.com/',
+        site: 'cross-site',
+      },
       25000,
     );
     const html = await response.text();
@@ -82,6 +135,15 @@ class PharmacyService {
       throw new Error('Eczane verisi parse edilemedi.');
     }
     return pharmacies;
+  }
+
+  async scrapeDutyPharmacies() {
+    try {
+      return await this.scrapeDutyPharmaciesHtml();
+    } catch (err) {
+      console.warn('[pharmacy] HTML scrape failed, trying Jina fallback:', err.message);
+      return await this.scrapeDutyPharmaciesViaJina();
+    }
   }
 
   async loadFromSupabase() {
@@ -99,9 +161,14 @@ class PharmacyService {
 
       const cacheDate = istanbulDateKey(new Date(latestFetchedAt).getTime());
       const nowDate = istanbulDateKey();
+      const ageMs = Date.now() - new Date(latestFetchedAt).getTime();
+      const maxStaleMs = 36 * 60 * 60 * 1000;
       if (cacheDate !== nowDate) {
-        console.log(`[pharmacy] Supabase cache is from a different day (${cacheDate} vs ${nowDate})`);
-        return null;
+        if (ageMs > maxStaleMs) {
+          console.log(`[pharmacy] Supabase cache too old (${cacheDate} vs ${nowDate})`);
+          return null;
+        }
+        console.warn(`[pharmacy] Supabase cache farklı gün ama yedek olarak kullanılıyor (${cacheDate})`);
       }
 
       const latestBatch = data.filter(

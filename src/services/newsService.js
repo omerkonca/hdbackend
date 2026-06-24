@@ -92,6 +92,9 @@ class NewsService {
 
   inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
     if (scope === 'osmaniye') return 'Osmaniye';
+    if (scope === 'duzici') return 'Düziçi';
+    const source = normalizeForCompare(sourceName || '');
+    if (/duzici/.test(source)) return 'Düziçi';
     if (this.isDuziciRelated(title, summary)) return 'Düziçi';
     return 'Osmaniye';
   }
