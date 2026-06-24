@@ -23,11 +23,19 @@ function extractJsonObject(text) {
   }
 }
 
-async function generateWithGemini({ systemPrompt, userPrompt }) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
+function geminiModelCandidates() {
+  if (process.env.GEMINI_MODEL) {
+    return [process.env.GEMINI_MODEL];
+  }
+  return [
+    'gemini-2.5-flash',
+    'gemini-3.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-1.5-flash',
+  ];
+}
 
-  const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+async function generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt }) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   const res = await fetch(url, {
@@ -45,12 +53,31 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Gemini API ${res.status}: ${errText.slice(0, 240)}`);
+    throw new Error(`Gemini ${model} ${res.status}: ${errText.slice(0, 240)}`);
   }
 
   const data = await res.json();
   const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
+  if (!text.trim()) {
+    throw new Error(`Gemini ${model} boş yanıt döndü`);
+  }
   return { text, model: `gemini:${model}` };
+}
+
+async function generateWithGemini({ systemPrompt, userPrompt }) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  let lastError = null;
+  for (const model of geminiModelCandidates()) {
+    try {
+      return await generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt });
+    } catch (err) {
+      lastError = err;
+      console.warn(`[ai] ${model} başarısız: ${err.message}`);
+    }
+  }
+  throw lastError || new Error('Gemini modellerinin hiçbiri çalışmadı');
 }
 
 async function generateWithOpenAI({ systemPrompt, userPrompt }) {

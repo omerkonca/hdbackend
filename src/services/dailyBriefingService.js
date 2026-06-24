@@ -1,4 +1,5 @@
 const supabase = require('../utils/supabaseClient');
+const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
 const newsService = require('./newsService');
 const aiClient = require('./aiClient');
 const { normalizeForCompare } = require('../utils/helpers');
@@ -44,7 +45,8 @@ class DailyBriefingService {
   }
 
   async getLatestBriefing() {
-    const { data, error } = await supabase
+    const db = requireSupabaseAdmin();
+    const { data, error } = await db
       .from('daily_news_briefings')
       .select('*')
       .order('briefing_date', { ascending: false })
@@ -55,7 +57,8 @@ class DailyBriefingService {
   }
 
   async getBriefingByDate(briefingDate) {
-    const { data, error } = await supabase
+    const db = requireSupabaseAdmin();
+    const { data, error } = await db
       .from('daily_news_briefings')
       .select('*')
       .eq('briefing_date', briefingDate)
@@ -170,7 +173,8 @@ JSON formatı:
       generated_at: new Date().toISOString(),
     };
 
-    const { data: saved, error } = await supabase
+    const db = requireSupabaseAdmin();
+    const { data: saved, error } = await db
       .from('daily_news_briefings')
       .upsert(row, { onConflict: 'briefing_date' })
       .select('*')
@@ -216,7 +220,12 @@ JSON formatı:
       return null;
     }
     if (this._generating) return null;
-    return this.generateBriefing({ force: false, briefingDate: tr.date });
+    try {
+      return await this.generateBriefing({ force: false, briefingDate: tr.date });
+    } catch (err) {
+      console.error('[daily-briefing] ensureTodayBriefing hata:', err.message);
+      return null;
+    }
   }
 }
 
