@@ -1,4 +1,4 @@
-const supabase = require('../utils/supabaseClient');
+const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
 
 const VALID_CATEGORIES = new Set(['problem', 'suggestion', 'tip', 'other']);
 const VALID_STATUSES = new Set(['new', 'reviewing', 'resolved', 'dismissed']);
@@ -24,7 +24,8 @@ class CitizenReportService {
       throw new Error('Mesaj en fazla 2000 karakter olabilir.');
     }
 
-    const { data, error } = await supabase
+    const db = requireSupabaseAdmin();
+    const { data, error } = await db
       .from('citizen_reports')
       .insert({
         category,
@@ -66,7 +67,8 @@ class CitizenReportService {
       throw new Error('Geçersiz durum.');
     }
 
-    const { data, error } = await supabase
+    const db = requireSupabaseAdmin();
+    const { data, error } = await db
       .from('citizen_reports')
       .update({ status })
       .eq('id', id)

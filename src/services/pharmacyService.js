@@ -132,8 +132,9 @@ class PharmacyService {
 
   async syncToSupabase(pharmacies) {
     try {
-      const supabase = require('../utils/supabaseClient');
-      await supabase.from('pharmacies').delete().gt('id', 0);
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const db = requireSupabaseAdmin();
+      await db.from('pharmacies').delete().gt('id', 0);
 
       const rows = pharmacies.map((p) => ({
         name: p.name,
@@ -144,7 +145,7 @@ class PharmacyService {
         fetched_at: new Date().toISOString(),
       }));
       if (rows.length > 0) {
-        await supabase.from('pharmacies').insert(rows);
+        await db.from('pharmacies').insert(rows);
         console.log(`[pharmacy] ${rows.length} pharmacies synced to Supabase.`);
       }
     } catch (err) {

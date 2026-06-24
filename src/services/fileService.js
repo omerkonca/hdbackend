@@ -2,6 +2,7 @@ const fs = require('fs/promises');
 const path = require('path');
 const config = require('../config');
 const supabase = require('../utils/supabaseClient');
+const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
 
 class FileService {
   async readCityContent() {
@@ -39,43 +40,43 @@ class FileService {
 
   async writeCityContent(content) {
     try {
+      const db = requireSupabaseAdmin();
+
       // 1. Get current content to backup
       try {
-        const { data: current } = await supabase
+        const { data: current } = await db
           .from('city_contents')
           .select('data')
           .eq('id', 1)
           .maybeSingle();
 
         if (current?.data) {
-          // Save backup
-          await supabase
+          await db
             .from('city_content_backups')
             .insert({
               data: current.data,
-              description: `Backup before update on ${new Date().toISOString()}`
+              description: `Backup before update on ${new Date().toISOString()}`,
             });
 
-          // Keep only last 15 backups
-          const { data: list } = await supabase
+          const { data: list } = await db
             .from('city_content_backups')
             .select('id')
             .order('created_at', { ascending: false });
 
           if (list && list.length > 15) {
-            const deleteIds = list.slice(15).map(x => x.id);
-            await supabase
-              .from('city_content_backups')
-              .delete()
-              .in('id', deleteIds);
+            const deleteIds = list.slice(15).map((x) => x.id);
+            await db.from('city_content_backups').delete().in('id', deleteIds);
           }
         }
       } catch (err) {
         console.error('⚠️ [fileService] Failed to create database backup:', err.message);
       }
 
-      // 2. Veritabanına kaydet (Veya güncelle)
-      const { error } = await supabase
+      const headerCount = content?.home?.headerMedia?.length ?? 0;
+      const bubbleCount = content?.home?.storyBubbles?.length ?? 0;
+      console.log(`[city-content] Kaydediliyor: ${headerCount} hikaye medyası, ${bubbleCount} baloncuk`);
+
+      const { error } = await db
         .from('city_contents')
         .upsert({ id: 1, data: content, updated_at: new Date().toISOString() });
 

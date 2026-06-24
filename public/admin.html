@@ -1300,6 +1300,10 @@
     }
 
     async function saveData() {
+      // JSON editör aktif değilse hikaye gruplarını rawData'ya senkronize et
+      if (!document.getElementById('jsonView').classList.contains('active')) {
+        saveStoryGroupsToRawData();
+      }
       // Sync from JSON editor if active
       if (document.getElementById('jsonView').classList.contains('active')) {
         try { rawData = JSON.parse(document.getElementById('jsonEditor').value); }
@@ -1312,11 +1316,12 @@
         body: JSON.stringify(rawData)
       });
       
-      if (res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.ok !== false) {
         showToast('Tüm Değişiklikler Kaydedildi!');
         loadData();
       } else {
-        showToast('Kayıt Başarısız!', true);
+        showToast(data.message || data.detail || 'Kayıt Başarısız!', true);
       }
     }
 
@@ -1790,8 +1795,7 @@
       });
       saveStoryGroupsToRawData();
       renderAll();
-      showToast('Baloncuk oluşturuldu! Kaydediliyor...');
-      saveData();
+      showToast('Baloncuk oluşturuldu — medya ekleyip kaydedin (boş baloncuk uygulamada görünmez).');
     }
 
     function deleteStoryGroup(gi) {
@@ -1860,6 +1864,7 @@
           const type = ['mp4', 'mov', 'avi'].includes(ext) ? 'video' : 'image';
           
           storyGroups[gi].items.push({
+            id: 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
             url,
             type,
             isActive: true
@@ -1890,6 +1895,7 @@
       }
       
       storyGroups[gi].items.push({
+        id: 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
         url,
         type,
         isActive: true

@@ -1,7 +1,9 @@
 const supabase = require('../utils/supabaseClient');
+const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
 
 async function upsertDeviceToken({ token, platform, appVersion, marketingOptIn }) {
-  const { error } = await supabase.from('device_tokens').upsert(
+  const db = requireSupabaseAdmin();
+  const { error } = await db.from('device_tokens').upsert(
     {
       token,
       platform,
@@ -17,7 +19,8 @@ async function upsertDeviceToken({ token, platform, appVersion, marketingOptIn }
 }
 
 async function fetchMarketingTokens() {
-  const { data, error } = await supabase
+  const db = requireSupabaseAdmin();
+  const { data, error } = await db
     .from('device_tokens')
     .select('token')
     .eq('marketing_opt_in', true);
@@ -30,7 +33,8 @@ async function fetchMarketingTokens() {
 }
 
 async function logPush({ title, body, target, sent, failed }) {
-  await supabase.from('push_logs').insert({
+  const db = requireSupabaseAdmin();
+  await db.from('push_logs').insert({
     title,
     body,
     target,

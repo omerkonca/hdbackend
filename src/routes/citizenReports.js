@@ -69,7 +69,8 @@ router.post('/', (req, res, next) => {
 
     const imageUrls = [];
     if (useSupabaseStorage && req.files && req.files.length > 0) {
-      const supabase = require('../utils/supabaseClient');
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const supabase = requireSupabaseAdmin();
       for (const file of req.files) {
         const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
         const filename = `report-${unique}${path.extname(file.originalname)}`;

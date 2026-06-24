@@ -442,7 +442,9 @@ class ObituaryService {
         detail_url: item.detailUrl,
         fetched_at: item.fetchedAt,
       }));
-      const { error } = await supabase.from('obituary_items').upsert(rows, { onConflict: 'id' });
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const db = requireSupabaseAdmin();
+      const { error } = await db.from('obituary_items').upsert(rows, { onConflict: 'id' });
       if (error) throw error;
       console.log(`[obituaries] Supabase synced (${rows.length} items)`);
     } catch (err) {

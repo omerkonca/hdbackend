@@ -57,7 +57,8 @@ router.post('/', requireAdminToken, (req, res, next) => {
   
   try {
     if (useSupabaseStorage) {
-      const supabase = require('../utils/supabaseClient');
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const supabase = requireSupabaseAdmin();
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
       const filename = `file-${uniqueSuffix}${path.extname(req.file.originalname)}`;
       

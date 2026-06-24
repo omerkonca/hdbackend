@@ -414,7 +414,9 @@ class NewsService {
 
   async _syncNewsToSupabase(items) {
     try {
-      const supabase = require('../utils/supabaseClient');
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const newsPushLog = require('../utils/newsPushLog');
+      const db = requireSupabaseAdmin();
       const rows = items.map(item => ({
         id: item.id,
         title: item.title,
@@ -427,12 +429,15 @@ class NewsService {
         fetched_at: new Date().toISOString(),
       }));
 
-      // Yeni haberlerin tespiti (veritabanında henüz yer almayanlar)
       const ids = items.map(item => item.id);
-      const { data: existing, error: checkError } = await supabase
+      const { data: existing, error: checkError } = await db
         .from('news_items')
         .select('id')
         .in('id', ids);
+
+      if (checkError) {
+        console.error('[news] Supabase mevcut haber kontrolü başarısız:', checkError.message);
+      }
 
       if (!checkError && existing) {
         const existingIds = new Set(existing.map(row => row.id));
@@ -440,37 +445,50 @@ class NewsService {
 
         if (newItems.length > 0) {
           console.log(`[news] ${newItems.length} yeni haber tespit edildi. Push bildirimleri kontrol ediliyor...`);
-          
-          // Spam koruması: Sadece son 30 dakika içinde yayınlanmış haberleri ve en fazla 3 tanesini al
-          const nowCutoff = new Date(Date.now() - 30 * 60 * 1000);
-          const freshNewItems = newItems
-            .filter(item => new Date(item.createdAt) >= nowCutoff)
-            .slice(0, 3);
 
-          if (freshNewItems.length > 0) {
-            const fcmService = require('./fcmService');
-            for (const item of freshNewItems) {
-              const isDuzici = item.category.toLowerCase().includes('düziçi') ||
-                  item.category.toLowerCase().includes('duzici') ||
-                  this.isDuziciRelated(item.title, item.summary);
-              
-              const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
-              const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
-              
-              console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
-              await fcmService.sendToTopic(topic, {
-                title: pushTitle,
-                body: item.title,
-                data: {
-                  route: item.id,
-                },
-              });
+          const fcmService = require('./fcmService');
+          let pushCount = 0;
+
+          for (const item of newItems.slice(0, 5)) {
+            if (await newsPushLog.wasPushed(item.id)) {
+              continue;
             }
+
+            const isDuzici = item.category.toLowerCase().includes('düziçi') ||
+                item.category.toLowerCase().includes('duzici') ||
+                this.isDuziciRelated(item.title, item.summary);
+
+            const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
+            const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
+
+            console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
+            const result = await fcmService.sendToTopic(topic, {
+              title: pushTitle,
+              body: item.title,
+              data: {
+                route: String(item.id),
+              },
+            });
+
+            if (result.success) {
+              await newsPushLog.markPushed(item.id);
+              pushCount += 1;
+            } else {
+              console.error(`[news] FCM başarısız (${item.id}):`, result.error);
+            }
+          }
+
+          if (pushCount > 0) {
+            console.log(`[news] ${pushCount} haber bildirimi gönderildi.`);
           }
         }
       }
 
-      await supabase.from('news_items').upsert(rows);
+      const { error: upsertError } = await db.from('news_items').upsert(rows);
+      if (upsertError) {
+        console.error('❌ Supabase news upsert failed:', upsertError.message);
+        return;
+      }
       console.log(`[news] ${rows.length} news items synced to Supabase.`);
 
       // Arka planda yeni eklenen veya tam metni bulunmayan haberleri pre-fetch et
