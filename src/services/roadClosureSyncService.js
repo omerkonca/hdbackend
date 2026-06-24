@@ -1,4 +1,6 @@
 const municipalityAnnouncementScraper = require('./municipalityAnnouncementScraper');
+const osmaniyeMunicipalityScraper = require('./osmaniyeMunicipalityScraper');
+const kgmRoadClosureScraper = require('./kgmRoadClosureScraper');
 const roadClosureStore = require('./roadClosureStore');
 const { isValidRoadClosureRecord } = require('./roadClosureFilters');
 const { loadBaseline } = require('./roadClosureBaseline');
@@ -11,8 +13,10 @@ class RoadClosureSyncService {
   }
 
   async _collectLive() {
-    const [belediye, baseline] = await Promise.all([
-      municipalityAnnouncementScraper.fetchRoadRelatedAnnouncements({ max: 20 }),
+    const [duziciBel, osmaniyeBel, kgm, baseline] = await Promise.all([
+      municipalityAnnouncementScraper.fetchRoadRelatedAnnouncements({ max: 25 }),
+      osmaniyeMunicipalityScraper.fetchRoadRelatedAnnouncements({ max: 15 }),
+      kgmRoadClosureScraper.fetchRelevantClosures(),
       loadBaseline(),
     ]);
 
@@ -23,12 +27,25 @@ class RoadClosureSyncService {
       if (t.includes('yenileniyor') && (t.includes('erdogan') || t.includes('erdoğan'))) {
         return 'rte-bulvari';
       }
+      if (item.kind === 'kgm' && item.kgmMeta?.kkNo) {
+        return `kgm-${item.kgmMeta.kkNo}`;
+      }
       return item.fingerprint || item.id;
     };
-    for (const item of baseline) byKey.set(mergeKey(item), item);
-    for (const item of belediye) {
+
+    const sources = [...baseline, ...kgm, ...duziciBel, ...osmaniyeBel];
+    for (const item of sources) {
       const key = mergeKey(item);
-      if (!byKey.has(key)) byKey.set(key, item);
+      const existing = byKey.get(key);
+      if (!existing) {
+        byKey.set(key, item);
+        continue;
+      }
+      // KGM ve baseline manuel kayıtlar öncelikli kalsın
+      if (existing.autoManaged === false) continue;
+      if (item.kind === 'kgm' || item.autoManaged === false) {
+        byKey.set(key, item);
+      }
     }
 
     return Array.from(byKey.values()).filter((item) =>

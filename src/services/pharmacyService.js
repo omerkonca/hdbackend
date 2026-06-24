@@ -1,15 +1,14 @@
 const config = require('../config');
-const { normalizeText, fetchWithTimeout, stripHtml } = require('../utils/helpers');
+const { normalizeText, fetchPage, stripHtml } = require('../utils/helpers');
 const { normalizePharmacyDateLabels } = require('../utils/pharmacyDutyLabels');
 
 function istanbulDateKey(ms = Date.now()) {
-  const shiftMs = 8.5 * 60 * 60 * 1000;
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Istanbul',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
-  }).format(new Date(ms - shiftMs));
+  }).format(new Date(ms));
 }
 
 class PharmacyService {
@@ -72,19 +71,11 @@ class PharmacyService {
   }
 
   async scrapeDutyPharmacies() {
-    const response = await fetchWithTimeout(config.PHARMACY.URL, {
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
-        accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'accept-language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-        referer: 'https://www.eczaneler.gen.tr/',
-        'cache-control': 'no-cache',
-      },
-    });
-    if (!response.ok) {
-      throw new Error(`Kaynak sayfa alinamadi: ${response.status}`);
-    }
+    const response = await fetchPage(
+      config.PHARMACY.URL,
+      {},
+      25000,
+    );
     const html = await response.text();
     const pharmacies = this.parseDutyPharmacyHtml(html);
     if (pharmacies.length === 0) {

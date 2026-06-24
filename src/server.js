@@ -11,6 +11,7 @@ const eventService = require('./services/eventService');
 const roadClosureService = require('./services/roadClosureService');
 const obituaryService = require('./services/obituaryService');
 const weatherService = require('./services/weatherService');
+const dailyBriefingService = require('./services/dailyBriefingService');
 const { ensureCitizenReportsTable } = require('./utils/runMigrations');
 const emailService = require('./services/emailService');
 
@@ -134,4 +135,13 @@ const server = app.listen(config.PORT, () => {
   setInterval(() => {
     weatherService.getWeather().catch(() => {});
   }, config.WEATHER.CACHE_TTL_MS);
+
+  // Akşam günlük AI haber özeti (günde bir kez, tüm cihazlar Supabase'den okur)
+  const runDailyBriefingJob = () => {
+    dailyBriefingService.generateIfDue().catch((err) => {
+      console.warn('[daily-briefing] zamanlanmış üretim başarısız:', err.message);
+    });
+  };
+  setTimeout(runDailyBriefingJob, 2 * 60 * 1000);
+  setInterval(runDailyBriefingJob, config.DAILY_BRIEFING.CHECK_INTERVAL_MS);
 });

@@ -26,9 +26,9 @@
       "googleMapsUrl": ""
     },
     "Haftalık Pazar Yerleri": {
-      "lat": 37.238,
-      "lng": 36.445,
-      "googleMapsUrl": ""
+      "lat": 37.248763,
+      "lng": 36.46625,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.248763,36.466250"
     },
     "Düziçi Belediyesi İletişim": {
       "lat": 37.244,
@@ -431,9 +431,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2475,36.4455"
     },
     "Pazartesi Pazarı": {
-      "lat": 37.2398,
-      "lng": 36.4468,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2398,36.4468"
+      "lat": 37.248763,
+      "lng": 36.46625,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.248763,36.466250"
     },
     "Çarşamba Pazarı": {
       "lat": 37.2322,
@@ -828,9 +828,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.241304,36.45511"
     },
     "Sağlık Eczanesi": {
-      "lat": 37.242,
-      "lng": 36.449,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.242,36.449"
+      "lat": 37.29665,
+      "lng": 36.360214,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.296650,36.360214"
     },
     "Şerife Eczanesi": {
       "lat": 37.238,
@@ -853,9 +853,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.244637,36.461584"
     },
     "Murat Eczanesi": {
-      "lat": 37.254381,
-      "lng": 36.467004,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.254381,36.467004"
+      "lat": 37.2538,
+      "lng": 36.4655,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.253800,36.465500"
     },
     "Sağlam Eczanesi": {
       "lat": 37.243441,
@@ -873,9 +873,9 @@
       "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.240338,36.445485"
     },
     "Namlı Eczanesi": {
-      "lat": 37.2588,
-      "lng": 36.4684,
-      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2588,36.4684"
+      "lat": 37.259924,
+      "lng": 36.463888,
+      "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.259924,36.463888"
     }
   }
 }

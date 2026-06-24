@@ -56,7 +56,12 @@ const config = {
     LAT: 37.24,
     LON: 36.45,
     CACHE_TTL_MS: 1000 * 60 * 15, // 15 mins
-  }
+  },
+
+  DAILY_BRIEFING: {
+    SCHEDULE_HOUR_TR: Number(process.env.DAILY_BRIEFING_HOUR_TR || 20),
+    CHECK_INTERVAL_MS: 15 * 60 * 1000,
+  },
 };
 
 module.exports = config;

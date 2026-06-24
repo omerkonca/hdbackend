@@ -16,10 +16,11 @@ const CLOSURE_STRONG_PATTERN =
   /yol kapalı|yol kapali|cadde kapalı|cadde kapali|şerit kapalı|kapanış|kapanis|kapatıld|kapatildi|trafik komisyon|güzergah|guzergah|yol çalış|asfalt (çalış|yenile)|yenileniyor|heyelan|kavşak düzen|geçici trafik düzen/i;
 
 const NOISE_PATTERN =
-  /kapalı sistem|kapali sistem|sulama altyap|ekmek fabrikas|hortum|maddi hasara yol aç|motosiklet|sürücüye (ceza|para)|trafik uygulamasında \d+|trafik denetim|otoyol.*bayram|bayram yoğunluğu|feribot kuyruğu|köprü geçiş(?!i)|çarpışt|yaraland|korkutan kaza|google news/i;
+  /kapalı sistem|kapali sistem|sulama altyap|ekmek fabrikas|hortum|maddi hasara yol aç|motosiklet|sürücüye (ceza|para)|trafik uygulamasında \d+|trafik denetim|otoyol.*bayram|bayram yoğunluğu|feribot kuyruğu|köprü geçiş(?!i)|çarpışt|yaraland|korkutan kaza|google news|başkanın mesaj|baskanin mesaj|meclis toplant|festival|yüzme havuz|havuz müjde|milletvekili|kaymakam|galerici|kooperatif.*açılış|birliği meclis|emlak gelir|istimlak|e-belediye|belediye başkan|ağaç.*budama|agac.*budama|içme suyu kuyusu|kursiyer|sertifika|maraton|kıbrıs gazi/i;
 
 function isDuziciArea(text) {
-  return /d[uü]zi[cç]i|duzici|osmaniye il trafik|irfanlı|irfanli/i.test(text);
+  const { isRelevantToDuziciCorridor } = require('./duziciAreaFilter');
+  return isRelevantToDuziciCorridor(text);
 }
 
 function hasClosureIntent(text) {
@@ -38,11 +39,26 @@ function isValidRoadClosureRecord({ title, subtitle = '', source = '', kind = ''
 
   if (kind === 'news') return false;
   if (isNoiseNews(text)) return false;
-  if (!hasClosureIntent(text)) return false;
+
+  if (kind === 'kgm') {
+    const { isRelevantToDuziciCorridor } = require('./duziciAreaFilter');
+    return isRelevantToDuziciCorridor(text);
+  }
 
   if (kind === 'municipality') {
-    return isDuziciArea(text) || /belediye|duzici\.bel\.tr/i.test(text);
+    const { isRelevantToDuziciCorridor } = require('./duziciAreaFilter');
+    if (isNoiseNews(text)) return false;
+    const roadish =
+      hasClosureIntent(text) ||
+      /asfalt|yenilen|yol yatırım|yol yatirim|trafik düzen|trafik duzen/i.test(text);
+    if (!roadish) return false;
+    if (/osmaniye belediyesi/i.test(text) || /osmaniye-bld\.gov\.tr/i.test(text)) {
+      return true;
+    }
+    return isRelevantToDuziciCorridor(text) || /duzici\.bel\.tr/i.test(text);
   }
+
+  if (!hasClosureIntent(text)) return false;
 
   return isDuziciArea(text);
 }

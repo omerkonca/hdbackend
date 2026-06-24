@@ -10,6 +10,7 @@ const roadClosureService = require('../services/roadClosureService');
 const weatherService = require('../services/weatherService');
 const prayerService = require('../services/prayerService');
 const obituaryService = require('../services/obituaryService');
+const dailyBriefingService = require('../services/dailyBriefingService');
 const config = require('../config');
 const { enrichExploreWithCorrections } = require('../utils/mapCorrections');
 
@@ -370,6 +371,57 @@ class ApiController {
       res.json({ ok: true, message: 'Vefat listesi yenilendi.', count: items.length });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Vefat listesi yenilenemedi.', detail: error.message });
+    }
+  }
+
+  async getDailyBriefing(req, res) {
+    try {
+      const date = req.query.date;
+      const briefing = date
+        ? await dailyBriefingService.getBriefingByDate(date)
+        : await dailyBriefingService.getLatestBriefing();
+
+      if (!briefing) {
+        return res.json({
+          ok: true,
+          briefing: null,
+          message: 'Henüz günlük özet üretilmedi.',
+        });
+      }
+
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      return res.json({
+        ok: true,
+        briefing: {
+          briefingDate: briefing.briefing_date,
+          todayTitle: briefing.today_title,
+          todaySummary: briefing.today_summary,
+          weekSummary: briefing.week_summary,
+          highlights: briefing.highlights || [],
+          sourceNewsCount: briefing.source_news_count,
+          model: briefing.model,
+          generatedAt: briefing.generated_at,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Günlük özet alınamadı.', detail: error.message });
+    }
+  }
+
+  async refreshDailyBriefing(req, res) {
+    try {
+      const briefing = await dailyBriefingService.generateBriefing({ force: true });
+      res.json({
+        ok: true,
+        message: 'Günlük AI özeti üretildi.',
+        briefing: {
+          briefingDate: briefing.briefing_date,
+          todayTitle: briefing.today_title,
+          generatedAt: briefing.generated_at,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Günlük özet üretilemedi.', detail: error.message });
     }
   }
 }

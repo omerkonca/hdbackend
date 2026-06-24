@@ -80,6 +80,18 @@ CREATE TABLE IF NOT EXISTS obituary_items (
 
 CREATE INDEX IF NOT EXISTS idx_obituary_items_death_date ON obituary_items(death_date DESC);
 CREATE INDEX IF NOT EXISTS idx_obituary_items_scope ON obituary_items(scope);
+
+-- 5. Günlük AI haber özeti
+CREATE TABLE IF NOT EXISTS daily_news_briefings (
+  briefing_date DATE PRIMARY KEY,
+  today_title TEXT NOT NULL DEFAULT '',
+  today_summary TEXT NOT NULL DEFAULT '',
+  week_summary TEXT NOT NULL DEFAULT '',
+  highlights JSONB NOT NULL DEFAULT '[]'::jsonb,
+  source_news_count INT NOT NULL DEFAULT 0,
+  model TEXT,
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
 `;
 
 async function run() {

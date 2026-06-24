@@ -1,6 +1,8 @@
 const cheerio = require('cheerio');
 const supabase = require('../utils/supabaseClient');
-const { fetchWithTimeout } = require('../utils/helpers');
+const { fetchWithTimeout, fetchPage, buildBrowserHeaders } = require('../utils/helpers');
+
+const FETCH_HEADERS = buildBrowserHeaders('https://www.akdenizgazetesi.com/');
 
 const MONTHS = [
   '', 'ocak', 'subat', 'mart', 'nisan', 'mayis', 'haziran',
@@ -9,12 +11,6 @@ const MONTHS = [
 const WEEKDAYS = [
   '', 'pazartesi', 'sali', 'carsamba', 'persembe', 'cuma', 'cumartesi', 'pazar',
 ];
-
-const FETCH_HEADERS = {
-  'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
-  'Accept-Language': 'tr-TR,tr;q=0.9',
-};
 
 class ObituaryService {
   constructor() {
@@ -454,8 +450,7 @@ class ObituaryService {
 
   async fetchHtml(url) {
     try {
-      const res = await fetchWithTimeout(url, { headers: FETCH_HEADERS });
-      if (!res.ok) return null;
+      const res = await fetchPage(url, { headers: FETCH_HEADERS }, 25000);
       return res.text();
     } catch (err) {
       console.warn(`[obituaries] fetch failed ${url}:`, err.message);

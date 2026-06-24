@@ -10,6 +10,8 @@ const {
   normalizeText,
   normalizeForCompare,
   fetchWithTimeout,
+  fetchPage,
+  buildBrowserHeaders,
 } = require('../utils/helpers');
 
 class NewsService {
@@ -18,12 +20,8 @@ class NewsService {
       fetchedAt: 0,
       items: [],
     };
-    this.FETCH_OPTIONS = {
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
-      },
-    };
+    this.RSS_ACCEPT =
+      'application/rss+xml, application/xml, text/xml, application/atom+xml, */*;q=0.8';
     this.RSS_TIMEOUT_MS = 20000;
     this.ARTICLE_TIMEOUT_MS = 25000;
     this.SLOW_HOST_TIMEOUT_MS = 30000;
@@ -103,9 +101,14 @@ class NewsService {
     if (!url || !url.startsWith('http')) return url;
     if (!/news\.google\.com|google\.com\/url/i.test(url)) return url;
     try {
-      const response = await fetchWithTimeout(
+      const response = await fetchPage(
         url,
-        { headers: this.FETCH_OPTIONS.headers },
+        {
+          accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          dest: 'document',
+          mode: 'navigate',
+          site: 'cross-site',
+        },
         this.getFetchTimeoutMs(url),
       );
       const html = await response.text();
@@ -127,9 +130,9 @@ class NewsService {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-            'user-agent': this.FETCH_OPTIONS.headers['user-agent']
+            ...buildBrowserHeaders('https://news.google.com/'),
           },
-          body: new URLSearchParams(payload).toString()
+          body: new URLSearchParams(payload).toString(),
         },
         this.ARTICLE_TIMEOUT_MS,
       );
@@ -183,20 +186,21 @@ class NewsService {
 
   async fetchRss(url) {
     const timeoutMs = this.getFetchTimeoutMs(url) || this.RSS_TIMEOUT_MS;
-    let lastError;
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const res = await fetchWithTimeout(url, this.FETCH_OPTIONS, timeoutMs);
-        if (res.ok) return res.text();
-        lastError = new Error(`RSS alinamadi: ${res.status}`);
-        if (res.status < 500 || attempt === 3) throw lastError;
-      } catch (err) {
-        lastError = err;
-        if (attempt === 3) break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, attempt * 1500));
+    try {
+      const res = await fetchPage(
+        url,
+        {
+          accept: this.RSS_ACCEPT,
+          dest: 'document',
+          mode: 'navigate',
+          site: 'cross-site',
+        },
+        timeoutMs,
+      );
+      return res.text();
+    } catch (err) {
+      throw new Error(err.message?.includes('alinamadi') ? `RSS alinamadi: ${err.message}` : err.message);
     }
-    throw lastError;
   }
 
   async resolveSources() {
@@ -536,6 +540,9 @@ class NewsService {
         const chunk = itemsToFetch.slice(i, i + limit);
         await Promise.all(chunk.map(async (item) => {
           try {
+            if (/news\.google\.com/i.test(item.sourceUrl || '')) {
+              return;
+            }
             const details = await this.fetchArticleDetails(item.sourceUrl);
             const update = {};
             if (details.fullText && details.fullText.trim().length > 0) {
@@ -601,12 +608,16 @@ class NewsService {
     if (!url || !url.startsWith('http')) {
       throw new Error('Gecersiz URL');
     }
-    const res = await fetchWithTimeout(
+    const res = await fetchPage(
       url,
-      this.FETCH_OPTIONS,
+      {
+        accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        dest: 'document',
+        mode: 'navigate',
+        site: 'cross-site',
+      },
       this.getFetchTimeoutMs(url),
     );
-    if (!res.ok) throw new Error(`Sayfa alinamadi: ${res.status}`);
     const buf = Buffer.from(await res.arrayBuffer());
     let html = new TextDecoder('utf-8', { fatal: false }).decode(buf);
     const replacementRatio = (html.match(/\uFFFD/g) || []).length / Math.max(html.length, 1);
