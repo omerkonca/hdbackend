@@ -90,16 +90,8 @@ const server = app.listen(config.PORT, () => {
     .catch(err => console.warn('[pharmacy] initial fetch failed:', err.message));
 
   newsService.getNews({ forceRefresh: true, max: 150 })
-    .then((items) => {
-      console.log(`[news] cache ready (${items.length} items)`);
-      return dailyBriefingService.ensureTodayBriefing();
-    })
-    .then((briefing) => {
-      if (briefing?.today_title) {
-        console.log(`[daily-briefing] bugünkü özet hazır: ${briefing.today_title}`);
-      }
-    })
-    .catch((err) => console.warn('[news/daily-briefing] warmup failed:', err.message));
+    .then((items) => console.log(`[news] cache ready (${items.length} items)`))
+    .catch((err) => console.warn('[news] initial fetch failed:', err.message));
 
   console.log('[server] warming up events cache...');
   eventService.getEvents({ forceRefresh: true })
@@ -144,12 +136,11 @@ const server = app.listen(config.PORT, () => {
     weatherService.getWeather().catch(() => {});
   }, config.WEATHER.CACHE_TTL_MS);
 
-  // Akşam günlük AI haber özeti (günde bir kez, tüm cihazlar Supabase'den okur)
+  // Akşam günlük AI haber özeti — günde tek sefer (20:00 TR), AI yalnızca burada çağrılır
   const runDailyBriefingJob = () => {
     dailyBriefingService.generateIfDue().catch((err) => {
       console.warn('[daily-briefing] zamanlanmış üretim başarısız:', err.message);
     });
   };
-  setTimeout(runDailyBriefingJob, 2 * 60 * 1000);
   setInterval(runDailyBriefingJob, config.DAILY_BRIEFING.CHECK_INTERVAL_MS);
 });

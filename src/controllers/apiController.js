@@ -382,17 +382,14 @@ class ApiController {
         : await dailyBriefingService.getLatestBriefing();
 
       if (!briefing) {
-        dailyBriefingService.ensureTodayBriefing().catch((err) => {
-          console.warn('[daily-briefing] arka plan üretimi başarısız:', err.message);
-        });
         return res.json({
           ok: true,
           briefing: null,
-          message: 'Henüz günlük özet üretilmedi.',
+          message: 'Akşam saatlerinde günlük özet hazırlanır.',
         });
       }
 
-      res.setHeader('Cache-Control', 'public, max-age=300');
+      res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
       return res.json({
         ok: true,
         briefing: {

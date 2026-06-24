@@ -42,9 +42,19 @@ class DailyBriefingService {
   constructor() {
     this._generating = false;
     this._lastAttemptDate = null;
+    this._readCache = { trDate: null, row: null };
+  }
+
+  _setReadCache(row) {
+    this._readCache = { trDate: turkeyDateParts().date, row: row || null };
   }
 
   async getLatestBriefing() {
+    const tr = turkeyDateParts();
+    if (this._readCache.trDate === tr.date) {
+      return this._readCache.row;
+    }
+
     const db = requireSupabaseAdmin();
     const { data, error } = await db
       .from('daily_news_briefings')
@@ -53,10 +63,17 @@ class DailyBriefingService {
       .limit(1);
 
     if (error) throw new Error(error.message);
-    return data?.[0] || null;
+    const row = data?.[0] || null;
+    this._setReadCache(row);
+    return row;
   }
 
   async getBriefingByDate(briefingDate) {
+    const tr = turkeyDateParts();
+    if (this._readCache.trDate === tr.date && this._readCache.row?.briefing_date === briefingDate) {
+      return this._readCache.row;
+    }
+
     const db = requireSupabaseAdmin();
     const { data, error } = await db
       .from('daily_news_briefings')
@@ -65,7 +82,11 @@ class DailyBriefingService {
       .maybeSingle();
 
     if (error) throw new Error(error.message);
-    return data;
+    const row = data || null;
+    if (row && briefingDate === tr.date) {
+      this._setReadCache(row);
+    }
+    return row;
   }
 
   async collectDuziciNews() {
@@ -182,6 +203,7 @@ JSON formatı:
 
     if (error) throw new Error(error.message);
     console.log(`[daily-briefing] ${targetDate} özeti kaydedildi (${todayNews.length} bugünkü haber, model: ${model})`);
+    this._setReadCache(saved);
     return saved;
   }
 
@@ -207,24 +229,6 @@ JSON formatı:
       return await this.generateBriefing({ force, briefingDate: tr.date });
     } finally {
       this._generating = false;
-    }
-  }
-
-  /** Bugünkü özet yoksa üretir (saat kısıtı yok — deploy / ilk açılış için). */
-  async ensureTodayBriefing() {
-    const tr = turkeyDateParts();
-    const existing = await this.getBriefingByDate(tr.date);
-    if (existing) return existing;
-    if (!aiClient.isConfigured()) {
-      console.warn('[daily-briefing] AI anahtarı yok, özet üretilemedi.');
-      return null;
-    }
-    if (this._generating) return null;
-    try {
-      return await this.generateBriefing({ force: false, briefingDate: tr.date });
-    } catch (err) {
-      console.error('[daily-briefing] ensureTodayBriefing hata:', err.message);
-      return null;
     }
   }
 }
