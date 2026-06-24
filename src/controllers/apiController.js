@@ -377,11 +377,14 @@ class ApiController {
   async getDailyBriefing(req, res) {
     try {
       const date = req.query.date;
-      const briefing = date
+      let briefing = date
         ? await dailyBriefingService.getBriefingByDate(date)
         : await dailyBriefingService.getLatestBriefing();
 
       if (!briefing) {
+        dailyBriefingService.ensureTodayBriefing().catch((err) => {
+          console.warn('[daily-briefing] arka plan üretimi başarısız:', err.message);
+        });
         return res.json({
           ok: true,
           briefing: null,

@@ -205,6 +205,19 @@ JSON formatı:
       this._generating = false;
     }
   }
+
+  /** Bugünkü özet yoksa üretir (saat kısıtı yok — deploy / ilk açılış için). */
+  async ensureTodayBriefing() {
+    const tr = turkeyDateParts();
+    const existing = await this.getBriefingByDate(tr.date);
+    if (existing) return existing;
+    if (!aiClient.isConfigured()) {
+      console.warn('[daily-briefing] AI anahtarı yok, özet üretilemedi.');
+      return null;
+    }
+    if (this._generating) return null;
+    return this.generateBriefing({ force: false, briefingDate: tr.date });
+  }
 }
 
 module.exports = new DailyBriefingService();

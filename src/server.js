@@ -90,8 +90,16 @@ const server = app.listen(config.PORT, () => {
     .catch(err => console.warn('[pharmacy] initial fetch failed:', err.message));
 
   newsService.getNews({ forceRefresh: true, max: 150 })
-    .then(items => console.log(`[news] cache ready (${items.length} items)`))
-    .catch(err => console.warn('[news] initial fetch failed:', err.message));
+    .then((items) => {
+      console.log(`[news] cache ready (${items.length} items)`);
+      return dailyBriefingService.ensureTodayBriefing();
+    })
+    .then((briefing) => {
+      if (briefing?.today_title) {
+        console.log(`[daily-briefing] bugünkü özet hazır: ${briefing.today_title}`);
+      }
+    })
+    .catch((err) => console.warn('[news/daily-briefing] warmup failed:', err.message));
 
   console.log('[server] warming up events cache...');
   eventService.getEvents({ forceRefresh: true })
