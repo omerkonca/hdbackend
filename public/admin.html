@@ -269,6 +269,14 @@
       align-items: center;
     }
 
+    .story-pick-btn {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .story-upload-panel .btn {
+      touch-action: manipulation;
+    }
+
     @media (max-width: 768px) {
       body.authenticated .menu-toggle { display: flex !important; }
       
@@ -1564,20 +1572,28 @@
             `).join('') || '<p style="color:var(--text-muted); font-size:12px; text-align:center; padding:10px">Bu baloncuğun içinde henüz hiç fotoğraf veya video yok.</p>'}
           </div>
           
-          <div style="margin-top:14px; padding-top:12px; border-top:1px dashed #eee; display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:10px; border-radius:8px">
+          <div class="story-upload-panel" style="margin-top:14px; padding-top:12px; border-top:1px dashed #eee; display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:10px; border-radius:8px">
             <div class="form-group" style="margin:0">
-              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Bilgisayardan Toplu Yükle (çoklu seçim)</label>
-              <div style="display:flex; gap:6px; align-items:center">
-                <input type="file" id="file_input_${gi}" multiple accept="image/*,video/*,.mp4,.mov,.avi,.webm,.mkv,.heic,.heif" style="font-size:12px; padding:2px; flex:1">
-                <button class="btn btn-secondary" onclick="uploadStoryFiles(${gi})" style="font-size:11px; padding:4px 10px; white-space:nowrap">⬆ Toplu Yükle</button>
-              </div>
-              <p style="font-size:10px; color:var(--text-muted); margin:4px 0 0 0">Ctrl / Shift ile birden fazla dosya seçin. Videolar sırayla yüklenir.</p>
+              <label style="font-size:11px; margin-bottom:6px; font-weight:bold">Galeriden / dosyadan toplu yükle</label>
+              <input type="file" id="file_input_${gi}" class="story-file-input" multiple accept="image/*,video/*" style="display:none" onchange="onStoryFilesSelected(${gi}, this)">
+              <label for="file_input_${gi}" class="btn btn-secondary story-pick-btn" style="display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:44px; margin-bottom:6px; cursor:pointer; font-size:13px; font-weight:600">
+                📷 Fotoğraf / video seç
+              </label>
+              <p id="file_count_${gi}" style="font-size:11px; color:var(--text-muted); margin:0 0 6px 0; min-height:14px"></p>
+              <button type="button" class="btn btn-primary" onclick="uploadStoryFiles(${gi})" style="width:100%; min-height:40px; font-size:12px">⬆ Seçilenleri yükle</button>
+              <p class="story-upload-hint" style="font-size:10px; color:var(--text-muted); margin:6px 0 0 0; line-height:1.35">
+                <strong>Telefon:</strong> Galeri açılınca sağ üstten <em>Seç</em> → birden fazla fotoğraf işaretle → <em>Ekle</em>.
+                Mobilde seçince yükleme otomatik başlar.
+                <br><strong>Bilgisayar:</strong> Ctrl / Shift ile çoklu seçim.
+              </p>
             </div>
             <div class="form-group" style="margin:0">
-              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Veya Manuel Link Ekle</label>
-              <div style="display:flex; gap:6px">
-                <input id="url_input_${gi}" placeholder="https://..." style="font-size:12px; flex:1">
-                <button class="btn btn-primary" onclick="addStoryUrl(${gi})" style="font-size:11px; padding:4px 10px">➕ Ekle</button>
+              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Toplu link ekle (her satıra bir URL)</label>
+              <textarea id="urls_bulk_${gi}" rows="4" placeholder="https://...&#10;https://..." style="font-size:12px; width:100%; resize:vertical; min-height:72px"></textarea>
+              <button type="button" class="btn btn-primary" onclick="addStoryUrlsBulk(${gi})" style="width:100%; margin-top:6px; min-height:40px; font-size:12px">➕ Linkleri ekle</button>
+              <div style="display:flex; gap:6px; margin-top:8px">
+                <input id="url_input_${gi}" placeholder="Tek link..." style="font-size:12px; flex:1">
+                <button type="button" class="btn btn-secondary" onclick="addStoryUrl(${gi})" style="font-size:11px; padding:4px 10px; white-space:nowrap">➕</button>
               </div>
             </div>
           </div>
@@ -1878,11 +1894,31 @@
       };
     }
 
+    function isCoarseMobile() {
+      return window.matchMedia('(pointer: coarse)').matches || window.innerWidth <= 768;
+    }
+
+    let storyUploadBusy = false;
+
+    function onStoryFilesSelected(gi, input) {
+      const count = input?.files?.length || 0;
+      const hint = document.getElementById(`file_count_${gi}`);
+      if (hint) {
+        hint.textContent = count > 0 ? `${count} dosya seçildi` : '';
+        hint.style.color = count > 0 ? 'var(--success)' : 'var(--text-muted)';
+      }
+      if (count > 0 && isCoarseMobile() && !storyUploadBusy) {
+        uploadStoryFiles(gi);
+      }
+    }
+
     async function uploadStoryFiles(gi) {
+      if (storyUploadBusy) return;
       const fileInput = document.getElementById(`file_input_${gi}`);
       const files = Array.from(fileInput?.files || []);
-      if (files.length === 0) return showToast('Lütfen en az bir dosya seçin!', true);
+      if (files.length === 0) return showToast('Önce galeriden fotoğraf/video seçin!', true);
 
+      storyUploadBusy = true;
       let success = 0;
       let failed = 0;
       const errors = [];
@@ -1896,19 +1932,21 @@
           if (result.ok) {
             storyGroups[gi].items.push(result.item);
             success++;
-            showToast(`Yükleniyor... (${success + failed}/${files.length}) — ${file.name}`);
+            showToast(`Yükleniyor... (${success + failed}/${files.length})`);
           } else {
             failed++;
-            errors.push(`${file.name}: ${result.error}`);
+            errors.push(`${file.name || 'dosya'}: ${result.error}`);
           }
         } catch (e) {
           failed++;
-          errors.push(`${file.name}: bağlantı hatası`);
+          errors.push(`${file.name || 'dosya'}: bağlantı hatası`);
           console.error(e);
         }
       }
 
       fileInput.value = '';
+      const hint = document.getElementById(`file_count_${gi}`);
+      if (hint) hint.textContent = '';
 
       if (success > 0) {
         saveStoryGroupsToRawData();
@@ -1916,19 +1954,47 @@
         saveData();
       }
 
+      storyUploadBusy = false;
+
       if (success > 0 && failed === 0) {
-        showToast(`${success} dosya baloncuğa eklendi ve kaydedildi!`);
+        showToast(`${success} dosya eklendi ve kaydedildi!`);
       } else if (success > 0) {
-        showToast(`${success} dosya eklendi, ${failed} başarısız.`, true);
+        showToast(`${success} eklendi, ${failed} başarısız.`, true);
         if (errors.length) console.warn('[story upload]', errors);
       } else {
-        showToast(errors[0] || 'Hiçbir dosya yüklenemedi!', true);
+        showToast(errors[0] || 'Yükleme başarısız!', true);
       }
     }
 
     // Geriye uyumluluk
     async function uploadStoryFile(gi) {
       return uploadStoryFiles(gi);
+    }
+
+    function addStoryUrlsBulk(gi) {
+      const box = document.getElementById(`urls_bulk_${gi}`);
+      const raw = (box?.value || '').trim();
+      if (!raw) return showToast('En az bir link yapıştırın (her satıra bir URL).', true);
+
+      const urls = raw.split(/\r?\n/).map((u) => u.trim()).filter(Boolean);
+      if (urls.length === 0) return showToast('Geçerli URL bulunamadı.', true);
+
+      let added = 0;
+      for (const url of urls) {
+        storyGroups[gi].items.push({
+          id: makeStoryItemId(),
+          url,
+          type: detectStoryMediaType(url),
+          isActive: true
+        });
+        added++;
+      }
+
+      if (box) box.value = '';
+      saveStoryGroupsToRawData();
+      renderAll();
+      showToast(`${added} link eklendi, kaydediliyor...`);
+      saveData();
     }
 
     function addStoryUrl(gi) {
