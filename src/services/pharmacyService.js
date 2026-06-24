@@ -75,22 +75,30 @@ class PharmacyService {
       ? String(text).split('Markdown Content:')[1]
       : String(text || '');
 
-    const re =
-      /\[([^\]]+)\]\(https:\/\/www\.eczaneler\.gen\.tr\/eczane\/[^)]+\)(?:[^\n]*\n+)+([^\n!→][^\n]+)\n+(0 \(\d{3}\)[^\n]+)/g;
+    const chunks = body.split(
+      /(?=\[[^\]]+\]\(https:\/\/www\.eczaneler\.gen\.tr\/eczane\/)/,
+    );
 
     const pharmacies = [];
-    let match;
-    let index = 0;
-    while ((match = re.exec(body)) !== null && index < 4) {
-      const dateLabel = index === 0 ? 'Bugün' : 'Yarın';
+    for (const chunk of chunks) {
+      const nameMatch = chunk.match(/^\[([^\]]+)\]/);
+      if (!nameMatch) continue;
+
+      const phoneMatch = chunk.match(/(0 \(\d{3}\)[^\n]+)/);
+      const addressMatch = chunk.match(
+        /\)[^\n]*\n+(?:[^\n]*\n+)*([^\n!→][^\n]*Düziçi[^\n]+)/,
+      );
+      if (!phoneMatch || !addressMatch) continue;
+
+      const dateLabel = pharmacies.length === 0 ? 'Bugün' : 'Yarın';
       pharmacies.push({
-        name: normalizeText(match[1]),
-        address: normalizeText(match[2].replace(/^→\s*/, '')),
-        phone: normalizeText(match[3]),
+        name: normalizeText(nameMatch[1]),
+        address: normalizeText(addressMatch[1]),
+        phone: normalizeText(phoneMatch[1]),
         dateLabel,
         dateRange: '',
       });
-      index += 1;
+      if (pharmacies.length >= 2) break;
     }
 
     if (pharmacies.length === 0) {

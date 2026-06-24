@@ -102,7 +102,11 @@ class ApiController {
   async getNews(req, res) {
     try {
       const max = Math.min(Number(req.query.max || 20), 150);
-      const items = await newsService.getNews({ max });
+      const forceRefresh =
+        req.query.refresh === '1' ||
+        req.query.refresh === 'true' ||
+        req.query.force === '1';
+      const items = await newsService.getNews({ max, forceRefresh });
       res.json({
         ok: true,
         fetchedAt: new Date(newsService.cache.fetchedAt).toISOString(),
