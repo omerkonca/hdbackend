@@ -823,7 +823,7 @@
           <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:14px">
             <div>
               <div class="section-title" style="margin:0">🖼️ Ana Ekran Hikaye Baloncukları (Instagram Stories)</div>
-              <p style="color:var(--text-muted); font-size:13px; margin:4px 0 0 0">Bu alandan eklediğiniz görsel ve videolar Instagram tarzı hikaye baloncukları halinde gruplanır. Her baloncuğun içine bilgisayardan yükleme yapabilir veya manuel URL ekleyebilirsiniz.</p>
+              <p style="color:var(--text-muted); font-size:13px; margin:4px 0 0 0">Bu alandan eklediğiniz görsel ve videolar Instagram tarzı hikaye baloncukları halinde gruplanır. Bilgisayardan <strong>birden fazla fotoğraf/video</strong> seçip toplu yükleyebilir veya manuel URL ekleyebilirsiniz.</p>
             </div>
             <button class="btn btn-primary" onclick="createStoryGroup()">➕ Yeni Baloncuk (Hikaye Grubu) Ekle</button>
           </div>
@@ -1566,11 +1566,12 @@
           
           <div style="margin-top:14px; padding-top:12px; border-top:1px dashed #eee; display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#f9f9f9; padding:10px; border-radius:8px">
             <div class="form-group" style="margin:0">
-              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Bilgisayardan Dosya Yükle</label>
-              <div style="display:flex; gap:6px">
-                <input type="file" id="file_input_${gi}" style="font-size:12px; padding:2px; flex:1">
-                <button class="btn btn-secondary" onclick="uploadStoryFile(${gi})" style="font-size:11px; padding:4px 10px">⬆ Yükle</button>
+              <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Bilgisayardan Toplu Yükle (çoklu seçim)</label>
+              <div style="display:flex; gap:6px; align-items:center">
+                <input type="file" id="file_input_${gi}" multiple accept="image/*,video/*,.mp4,.mov,.avi,.webm,.mkv,.heic,.heif" style="font-size:12px; padding:2px; flex:1">
+                <button class="btn btn-secondary" onclick="uploadStoryFiles(${gi})" style="font-size:11px; padding:4px 10px; white-space:nowrap">⬆ Toplu Yükle</button>
               </div>
+              <p style="font-size:10px; color:var(--text-muted); margin:4px 0 0 0">Ctrl / Shift ile birden fazla dosya seçin. Videolar sırayla yüklenir.</p>
             </div>
             <div class="form-group" style="margin:0">
               <label style="font-size:11px; margin-bottom:4px; font-weight:bold">Veya Manuel Link Ekle</label>
@@ -1834,53 +1835,100 @@
       saveData();
     }
 
-    async function uploadStoryFile(gi) {
-      const fileInput = document.getElementById(`file_input_${gi}`);
-      if (fileInput.files.length === 0) return showToast('Lütfen yüklemek için dosya seçin!', true);
-      
-      const file = fileInput.files[0];
+    function detectStoryMediaType(fileOrUrl) {
+      const name = typeof fileOrUrl === 'string'
+        ? fileOrUrl.toLowerCase()
+        : (fileOrUrl?.name || '').toLowerCase();
+      if (name.includes('youtube.com') || name.includes('youtu.be')) return 'video';
+      const ext = name.split('.').pop() || '';
+      return ['mp4', 'mov', 'avi', 'webm', 'mkv', 'm4v', '3gp'].includes(ext) ? 'video' : 'image';
+    }
+
+    function makeStoryItemId() {
+      return 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+    }
+
+    async function uploadOneStoryAsset(file) {
       const formData = new FormData();
       formData.append('file', file);
-      
-      showToast('Dosya yükleniyor...');
-      try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'x-admin-token': currentToken },
-          body: formData
-        });
-        
-        if (res.status === 413) {
-          return showToast('Dosya çok büyük! (Maksimum 500MB)', true);
-        }
-        
-        const data = await res.json();
-        if (data.ok) {
-          let url = data.fileUrl;
-          if (url.startsWith('/uploads/')) {
-            url = window.location.origin + url;
-          }
-          const ext = file.name.split('.').pop().toLowerCase();
-          const type = ['mp4', 'mov', 'avi'].includes(ext) ? 'video' : 'image';
-          
-          storyGroups[gi].items.push({
-            id: 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-            url,
-            type,
-            isActive: true
-          });
-          fileInput.value = '';
-          saveStoryGroupsToRawData();
-          renderAll();
-          showToast('Dosya yüklendi ve eklendi!');
-          saveData();
-        } else {
-          showToast('Hata: ' + (data.message || 'Dosya yüklenemedi'), true);
-        }
-      } catch (e) {
-        console.error(e);
-        showToast('Dosya yüklenirken bağlantı hatası oluştu!', true);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'x-admin-token': currentToken },
+        body: formData
+      });
+      if (res.status === 413) {
+        return { ok: false, error: 'Dosya çok büyük (maks. 500MB)' };
       }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        return { ok: false, error: data.message || 'Yükleme başarısız' };
+      }
+      let url = data.fileUrl;
+      if (url.startsWith('/uploads/')) {
+        url = window.location.origin + url;
+      }
+      return {
+        ok: true,
+        item: {
+          id: makeStoryItemId(),
+          url,
+          type: detectStoryMediaType(file),
+          isActive: true
+        }
+      };
+    }
+
+    async function uploadStoryFiles(gi) {
+      const fileInput = document.getElementById(`file_input_${gi}`);
+      const files = Array.from(fileInput?.files || []);
+      if (files.length === 0) return showToast('Lütfen en az bir dosya seçin!', true);
+
+      let success = 0;
+      let failed = 0;
+      const errors = [];
+
+      showToast(`${files.length} dosya yükleniyor... (0/${files.length})`);
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const result = await uploadOneStoryAsset(file);
+          if (result.ok) {
+            storyGroups[gi].items.push(result.item);
+            success++;
+            showToast(`Yükleniyor... (${success + failed}/${files.length}) — ${file.name}`);
+          } else {
+            failed++;
+            errors.push(`${file.name}: ${result.error}`);
+          }
+        } catch (e) {
+          failed++;
+          errors.push(`${file.name}: bağlantı hatası`);
+          console.error(e);
+        }
+      }
+
+      fileInput.value = '';
+
+      if (success > 0) {
+        saveStoryGroupsToRawData();
+        renderAll();
+        saveData();
+      }
+
+      if (success > 0 && failed === 0) {
+        showToast(`${success} dosya baloncuğa eklendi ve kaydedildi!`);
+      } else if (success > 0) {
+        showToast(`${success} dosya eklendi, ${failed} başarısız.`, true);
+        if (errors.length) console.warn('[story upload]', errors);
+      } else {
+        showToast(errors[0] || 'Hiçbir dosya yüklenemedi!', true);
+      }
+    }
+
+    // Geriye uyumluluk
+    async function uploadStoryFile(gi) {
+      return uploadStoryFiles(gi);
     }
 
     function addStoryUrl(gi) {
@@ -1889,13 +1937,10 @@
       if (!url) return showToast('Lütfen geçerli bir URL girin!', true);
       
       const lowercaseUrl = url.toLowerCase();
-      let type = 'image';
-      if (lowercaseUrl.includes('youtube.com') || lowercaseUrl.includes('youtu.be') || lowercaseUrl.endsWith('.mp4') || lowercaseUrl.endsWith('.mov') || lowercaseUrl.endsWith('.avi')) {
-        type = 'video';
-      }
+      const type = detectStoryMediaType(lowercaseUrl);
       
       storyGroups[gi].items.push({
-        id: 'story_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+        id: makeStoryItemId(),
         url,
         type,
         isActive: true
