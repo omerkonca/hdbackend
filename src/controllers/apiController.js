@@ -381,6 +381,9 @@ class ApiController {
   async getDailyBriefing(req, res) {
     try {
       const date = req.query.date;
+      if (!date) {
+        await dailyBriefingService.generateIfDue().catch(() => {});
+      }
       let briefing = date
         ? await dailyBriefingService.getBriefingByDate(date)
         : await dailyBriefingService.getLatestBriefing();

@@ -25,6 +25,28 @@ function turkeyDateParts(date = new Date()) {
   };
 }
 
+function turkeyCalendarDayKey(date) {
+  return turkeyDateParts(new Date(date)).date;
+}
+
+function calendarDaysBetween(olderKey, newerKey) {
+  const older = new Date(`${olderKey}T12:00:00Z`).getTime();
+  const newer = new Date(`${newerKey}T12:00:00Z`).getTime();
+  return Math.round((newer - older) / (24 * 60 * 60 * 1000));
+}
+
+function needsEveningRegeneration(existing, tr) {
+  if (!existing) return true;
+  if (existing.briefing_date !== tr.date) return false;
+
+  const genTr = turkeyDateParts(new Date(existing.generated_at));
+  if (genTr.date < tr.date) return true;
+  if (genTr.date === tr.date && genTr.hour < SCHEDULE_HOUR_TR && tr.hour >= SCHEDULE_HOUR_TR) {
+    return true;
+  }
+  return false;
+}
+
 function isDuziciNews(item) {
   const category = String(item.category || '').toLowerCase();
   if (category.includes('duzici') || category.includes('düziçi')) return true;
@@ -51,7 +73,11 @@ class DailyBriefingService {
 
   async getLatestBriefing() {
     const tr = turkeyDateParts();
-    if (this._readCache.trDate === tr.date) {
+    if (
+      this._readCache.trDate === tr.date &&
+      this._readCache.row &&
+      !needsEveningRegeneration(this._readCache.row, tr)
+    ) {
       return this._readCache.row;
     }
 
@@ -70,7 +96,11 @@ class DailyBriefingService {
 
   async getBriefingByDate(briefingDate) {
     const tr = turkeyDateParts();
-    if (this._readCache.trDate === tr.date && this._readCache.row?.briefing_date === briefingDate) {
+    if (
+      this._readCache.trDate === tr.date &&
+      this._readCache.row?.briefing_date === briefingDate &&
+      !needsEveningRegeneration(this._readCache.row, tr)
+    ) {
       return this._readCache.row;
     }
 
@@ -89,10 +119,10 @@ class DailyBriefingService {
     return row;
   }
 
-  async collectDuziciNews() {
+  async collectDuziciNews({ forceRefresh = false, briefingDate } = {}) {
     let items = [];
     try {
-      items = await newsService.getNews({ forceRefresh: false, max: 200 });
+      items = await newsService.getNews({ forceRefresh, max: 200 });
     } catch (_) {
       const { data } = await supabase
         .from('news_items')
@@ -109,17 +139,15 @@ class DailyBriefingService {
     }
 
     const duzici = items.filter(isDuziciNews);
-    const now = Date.now();
-    const dayMs = 24 * 60 * 60 * 1000;
+    const tr = turkeyDateParts();
+    const todayKey = briefingDate || tr.date;
 
-    const todayNews = duzici.filter((item) => {
-      const ts = new Date(item.createdAt).getTime();
-      return Number.isFinite(ts) && now - ts <= dayMs;
-    });
+    const todayNews = duzici.filter((item) => turkeyCalendarDayKey(item.createdAt) === todayKey);
 
     const weekNews = duzici.filter((item) => {
-      const ts = new Date(item.createdAt).getTime();
-      return Number.isFinite(ts) && now - ts <= 7 * dayMs;
+      const itemKey = turkeyCalendarDayKey(item.createdAt);
+      const diff = calendarDaysBetween(itemKey, todayKey);
+      return diff >= 0 && diff <= 6;
     });
 
     return { todayNews, weekNews };
@@ -168,7 +196,10 @@ JSON formatı:
       throw new Error('AI anahtarı yapılandırılmamış (GEMINI_API_KEY veya OPENAI_API_KEY)');
     }
 
-    const { todayNews, weekNews } = await this.collectDuziciNews();
+    const { todayNews, weekNews } = await this.collectDuziciNews({
+      forceRefresh: force,
+      briefingDate: targetDate,
+    });
     const systemPrompt =
       'Sen Düziçi yerel haber editörüsün. Yalnızca verilen haber listesinden özet çıkarırsın. ' +
       'Spekülasyon yapmaz, kişisel görüş eklemezsin. Yanıtın yalnızca geçerli JSON olmalı.';
@@ -212,21 +243,19 @@ JSON formatı:
 
     if (!force) {
       if (tr.hour < SCHEDULE_HOUR_TR) return null;
-      if (this._lastAttemptDate === tr.date) return null;
 
       const existing = await this.getBriefingByDate(tr.date);
-      if (existing) {
-        this._lastAttemptDate = tr.date;
+      if (existing && !needsEveningRegeneration(existing, tr)) {
         return existing;
       }
     }
 
     if (this._generating) return null;
     this._generating = true;
-    this._lastAttemptDate = tr.date;
 
     try {
-      return await this.generateBriefing({ force, briefingDate: tr.date });
+      this._readCache = { trDate: null, row: null };
+      return await this.generateBriefing({ force: true, briefingDate: tr.date });
     } finally {
       this._generating = false;
     }
