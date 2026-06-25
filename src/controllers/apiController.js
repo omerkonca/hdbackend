@@ -289,10 +289,12 @@ class ApiController {
   async getOutages(req, res) {
     try {
       const items = await outageService.getOutages();
+      const history = outageService.getHistory();
       res.json({
         ok: true,
         fetchedAt: new Date(outageService.cache.fetchedAt).toISOString(),
         items,
+        history,
       });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Kesinti verileri alinamadi.', detail: error.message });

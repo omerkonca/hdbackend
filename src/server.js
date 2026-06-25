@@ -12,6 +12,7 @@ const roadClosureService = require('./services/roadClosureService');
 const obituaryService = require('./services/obituaryService');
 const weatherService = require('./services/weatherService');
 const dailyBriefingService = require('./services/dailyBriefingService');
+const outageService = require('./services/outageService');
 const { ensureCitizenReportsTable } = require('./utils/runMigrations');
 const emailService = require('./services/emailService');
 
@@ -135,6 +136,10 @@ const server = app.listen(config.PORT, () => {
   setInterval(() => {
     weatherService.getWeather().catch(() => {});
   }, config.WEATHER.CACHE_TTL_MS);
+
+  setInterval(() => {
+    outageService.getOutages({ forceRefresh: true }).catch(() => {});
+  }, 30 * 60 * 1000); // 30 dk
 
   // Akşam günlük AI haber özeti — günde tek sefer (20:00 TR), AI yalnızca burada çağrılır
   const runDailyBriefingJob = () => {

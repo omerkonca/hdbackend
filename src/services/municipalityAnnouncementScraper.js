@@ -178,6 +178,23 @@ function inferStatus(title, summary) {
   return 'Devam Ediyor';
 }
 
+function parsePublishedDate(title, summary = '', html = '') {
+  const text = `${title} ${summary} ${stripHtml(html)}`;
+  const m = text.match(/(\d{1,2})[./](\d{1,2})[./](20\d{2})/);
+  if (!m) return new Date().toISOString();
+  const [, d, mo, y] = m;
+  return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}T12:00:00.000Z`;
+}
+
+function parseStartDate(title, summary = '') {
+  const text = `${title} ${summary}`;
+  const m = text.match(
+    /(?:başlangıç|baslangic|başlama)\s*(?:tarihi?)?\s*[:\-]?\s*(\d{1,2})[./](\d{1,2})[./](\d{4})/i,
+  );
+  if (!m) return null;
+  const [, d, mo, y] = m;
+  return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}T12:00:00.000Z`;
+}
 function parseEndDate(title, summary = '') {
   const text = `${title} ${summary}`;
   if (/trafik komisyon|sayılı karar/i.test(text) && !/bitiş|sona er|kapanış tarih/i.test(text)) {
@@ -200,16 +217,16 @@ async function fetchHtml(url) {
 }
 
 async function fetchDetailSummary(url) {
-  if (!url || !url.startsWith('http')) return '';
+  if (!url || !url.startsWith('http')) return { summary: '', html: '' };
   try {
     const html = await fetchHtml(url);
     const block =
       html.match(/<div[^>]+class="[^"]*content[^"]*"[^>]*>([\s\S]*?)<\/div>/i)?.[1] ||
       html.match(/<article[^>]*>([\s\S]*?)<\/article>/i)?.[1] ||
       html;
-    return stripHtml(block).slice(0, 600);
+    return { summary: stripHtml(block).slice(0, 600), html: block };
   } catch {
-    return '';
+    return { summary: '', html: '' };
   }
 }
 
@@ -248,6 +265,8 @@ function announcementToRoadClosure(item, summary) {
 
 function announcementToOutage(item, summary) {
   const status = inferStatus(item.title, summary);
+  const loc = resolveLocation(item.title, summary);
+  const fp = fingerprintFor(item);
   const title =
     item.title.length > 88 ? `${item.title.slice(0, 85)}...` : item.title;
   const subtitle = summary
@@ -255,20 +274,30 @@ function announcementToOutage(item, summary) {
       ? `${summary.slice(0, 197)}...`
       : summary
     : 'Düziçi Belediyesi resmî duyurusu — detay için bağlantıyı açın.';
+  const publishedAt = parsePublishedDate(item.title, summary, item.detailHtml || '');
 
   return {
+    id: fp,
     title,
     subtitle,
     type: inferOutageType(item.title, summary),
     status,
-    date: new Date().toISOString(),
+    date: publishedAt,
+    publishedAt,
+    startAt: parseStartDate(item.title, summary),
+    endAt: parseEndDate(item.title, summary),
     source: 'Düziçi Belediyesi',
+    sourceKind: 'belediye',
     url: item.url || DUYURULAR_URL,
+    area: loc.label,
+    lat: loc.lat,
+    lng: loc.lng,
+    isActive: status !== 'Tamamlandı',
   };
 }
 
 class MunicipalityAnnouncementScraper {
-  async fetchOutageAnnouncements({ max = 25 } = {}) {
+  async fetchOutageAnnouncements({ max = 40 } = {}) {
     const collected = [];
     const seen = new Set();
     const pages = [DUYURULAR_URL, HABERLER_URL];
@@ -279,10 +308,13 @@ class MunicipalityAnnouncementScraper {
         const items = extractListItems(html);
         for (const item of items) {
           let summary = item.summary || '';
+          let detailHtml = '';
           if (!isOutageRelated(item.title, summary)) continue;
 
-          if (!summary && item.url) {
-            summary = await fetchDetailSummary(item.url);
+          if (item.url) {
+            const detail = await fetchDetailSummary(item.url);
+            summary = detail.summary || summary;
+            detailHtml = detail.html;
             if (!isOutageRelated(item.title, summary)) continue;
           }
 
@@ -290,7 +322,7 @@ class MunicipalityAnnouncementScraper {
           if (seen.has(fp)) continue;
           seen.add(fp);
 
-          collected.push(announcementToOutage(item, summary));
+          collected.push(announcementToOutage({ ...item, detailHtml }, summary));
           if (collected.length >= max) return collected;
         }
       } catch (err) {
@@ -314,7 +346,8 @@ class MunicipalityAnnouncementScraper {
           if (!isRoadRelated(item.title, item.summary || '')) continue;
           let summary = item.summary || '';
           if (!summary && item.url) {
-            summary = await fetchDetailSummary(item.url);
+            const detail = await fetchDetailSummary(item.url);
+            summary = detail.summary;
           }
           const closure = announcementToRoadClosure(item, summary);
           if (seenFp.has(closure.fingerprint)) continue;
