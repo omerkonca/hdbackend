@@ -32,6 +32,7 @@ app.use('/assets', express.static(path.join(__dirname, '../../assets')));
 app.use('/api', apiRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/push', require('./routes/push'));
+app.use('/api/announcements', require('./routes/announcements'));
 
 // Health check
 app.get('/health', (req, res) => {
@@ -85,67 +86,89 @@ const server = app.listen(config.PORT, () => {
   server.headersTimeout = 605000;
   server.keepAliveTimeout = 600000;
 
-  // Initial Cache Warmup
-  pharmacyService.getDutyPharmacies({ forceRefresh: true })
-    .then(items => console.log(`[pharmacy] cache ready (${items.length} items)`))
-    .catch(err => console.warn('[pharmacy] initial fetch failed:', err.message));
+  // Initial Cache Warmup (Render ücretsizde atlanır — ilk istekte cache dolar, sunucu uyuyabilir)
+  if (!config.RUNTIME.SKIP_STARTUP_WARMUP) {
+    pharmacyService.getDutyPharmacies({ forceRefresh: true })
+      .then(items => console.log(`[pharmacy] cache ready (${items.length} items)`))
+      .catch(err => console.warn('[pharmacy] initial fetch failed:', err.message));
 
-  newsService.getNews({ forceRefresh: true, max: 150 })
-    .then((items) => console.log(`[news] cache ready (${items.length} items)`))
-    .catch((err) => console.warn('[news] initial fetch failed:', err.message));
+    newsService.getNews({ forceRefresh: true, max: 150 })
+      .then((items) => console.log(`[news] cache ready (${items.length} items)`))
+      .catch((err) => console.warn('[news] initial fetch failed:', err.message));
 
-  console.log('[server] warming up events cache...');
-  eventService.getEvents({ forceRefresh: true })
-    .then(items => console.log(`[events] cache ready (${items.length} items)`))
-    .catch(err => console.warn('[events] initial fetch failed:', err.message));
+    console.log('[server] warming up events cache...');
+    eventService.getEvents({ forceRefresh: true })
+      .then(items => console.log(`[events] cache ready (${items.length} items)`))
+      .catch(err => console.warn('[events] initial fetch failed:', err.message));
 
-  roadClosureService.sync({ force: true })
-    .then(items => console.log(`[road-closures] otomatik sync hazır (${items.length} kayıt)`))
-    .catch(err => console.warn('[road-closures] ilk sync başarısız:', err.message));
+    roadClosureService.sync({ force: true })
+      .then(items => console.log(`[road-closures] otomatik sync hazır (${items.length} kayıt)`))
+      .catch(err => console.warn('[road-closures] ilk sync başarısız:', err.message));
 
-  obituaryService.getObituaries({ forceRefresh: true })
-    .then(items => console.log(`[obituaries] cache ready (${items.length} items)`))
-    .catch(err => console.warn('[obituaries] initial fetch failed:', err.message));
+    obituaryService.getObituaries({ forceRefresh: true })
+      .then(items => console.log(`[obituaries] cache ready (${items.length} items)`))
+      .catch(err => console.warn('[obituaries] initial fetch failed:', err.message));
 
-  console.log('[server] warming up weather cache...');
-  weatherService.getWeather()
-    .then(data => console.log(`[weather] cache ready (temp: ${data.current?.temp}°C)`))
-    .catch(err => console.warn('[weather] initial fetch failed:', err.message));
+    console.log('[server] warming up weather cache...');
+    weatherService.getWeather()
+      .then(data => console.log(`[weather] cache ready (temp: ${data.current?.temp}°C)`))
+      .catch(err => console.warn('[weather] initial fetch failed:', err.message));
+  } else {
+    console.log('[server] Render/light mod — başlangıç warmup atlandı (kota tasarrufu)');
+  }
 
-  // Periodic Refresh
-  setInterval(() => {
-    pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});
-  }, config.PHARMACY.CACHE_TTL_MS);
-
-  setInterval(() => {
-    newsService.getNews({ forceRefresh: true, max: 150 }).catch(() => {});
-  }, config.NEWS.CACHE_TTL_MS);
-
-  setInterval(() => {
-    eventService.getEvents({ forceRefresh: true }).catch(() => {});
-  }, 60 * 60 * 1000); // 1 hour
-
-  setInterval(() => {
-    roadClosureService.sync({ force: true }).catch(() => {});
-  }, 8 * 60 * 1000); // 8 dk — belediye + haber taraması
-
-  setInterval(() => {
-    obituaryService.getObituaries({ forceRefresh: true }).catch(() => {});
-  }, 30 * 60 * 1000); // 30 dk
-
-  setInterval(() => {
-    weatherService.getWeather().catch(() => {});
-  }, config.WEATHER.CACHE_TTL_MS);
-
-  setInterval(() => {
-    outageService.getOutages({ forceRefresh: true }).catch(() => {});
-  }, 30 * 60 * 1000); // 30 dk
-
-  // Akşam günlük AI haber özeti — günde tek sefer (20:00 TR), AI yalnızca burada çağrılır
   const runDailyBriefingJob = () => {
     dailyBriefingService.generateIfDue().catch((err) => {
-      console.warn('[daily-briefing] zamanlanmış üretim başarısız:', err.message);
+      console.warn('[daily-briefing] job failed:', err.message);
     });
   };
-  setInterval(runDailyBriefingJob, config.DAILY_BRIEFING.CHECK_INTERVAL_MS);
+
+  const intervals = config.RUNTIME.LIGHT_BACKGROUND_JOBS
+    ? config.INTERVALS
+    : {
+        pharmacyMs: config.PHARMACY.CACHE_TTL_MS,
+        newsMs: config.NEWS.CACHE_TTL_MS,
+        eventsMs: 60 * 60 * 1000,
+        roadClosuresMs: 8 * 60 * 1000,
+        obituariesMs: 30 * 60 * 1000,
+        weatherMs: config.WEATHER.CACHE_TTL_MS,
+        outagesMs: 30 * 60 * 1000,
+        dailyBriefingMs: config.DAILY_BRIEFING.CHECK_INTERVAL_MS,
+      };
+
+  if (config.RUNTIME.LIGHT_BACKGROUND_JOBS) {
+    console.log('[server] hafif arka plan modu — periyodik tarama yok, cache API isteğinde yenilenir');
+    // Akşam özeti için saatte bir kontrol yeterli (günde tek AI çağrısı)
+    setInterval(runDailyBriefingJob, 60 * 60 * 1000);
+  } else {
+    setInterval(() => {
+      pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});
+    }, intervals.pharmacyMs);
+
+    setInterval(() => {
+      newsService.getNews({ forceRefresh: true, max: 150 }).catch(() => {});
+    }, intervals.newsMs);
+
+    setInterval(() => {
+      eventService.getEvents({ forceRefresh: true }).catch(() => {});
+    }, intervals.eventsMs);
+
+    setInterval(() => {
+      roadClosureService.sync({ force: true }).catch(() => {});
+    }, intervals.roadClosuresMs);
+
+    setInterval(() => {
+      obituaryService.getObituaries({ forceRefresh: true }).catch(() => {});
+    }, intervals.obituariesMs);
+
+    setInterval(() => {
+      weatherService.getWeather().catch(() => {});
+    }, intervals.weatherMs);
+
+    setInterval(() => {
+      outageService.getOutages({ forceRefresh: true }).catch(() => {});
+    }, intervals.outagesMs);
+
+    setInterval(runDailyBriefingJob, intervals.dailyBriefingMs);
+  }
 });

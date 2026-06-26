@@ -1,32 +1,45 @@
 const { createClient } = require('@supabase/supabase-js');
-const config = require('../config');
 
 let adminClient;
 
-function getSupabaseAdmin() {
+function requireSupabaseAdmin() {
   if (adminClient) return adminClient;
-
-  const url = config.SUPABASE_URL;
+  const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
   if (!url || !key) {
-    return null;
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY tanımlı değil');
   }
-
-  adminClient = createClient(url, key, {
-    auth: { persistSession: false },
-  });
+  adminClient = createClient(url, key, { auth: { persistSession: false } });
   return adminClient;
 }
 
-function requireSupabaseAdmin() {
-  const client = getSupabaseAdmin();
-  if (!client) {
-    throw new Error(
-      'SUPABASE_SERVICE_ROLE_KEY eksik — veritabanı yazma işlemleri çalışmaz. Render ortam değişkenlerine ekleyin.',
-    );
+async function fetchMarketingTokens() {
+  const sb = requireSupabaseAdmin();
+  const { data, error } = await sb
+    .from('device_tokens')
+    .select('token')
+    .eq('marketing_opt_in', true);
+
+  if (error) {
+    console.error('[supabase] device_tokens:', error.message);
+    return [];
   }
-  return client;
+  return (data || []).map((row) => row.token).filter(Boolean);
 }
 
-module.exports = { getSupabaseAdmin, requireSupabaseAdmin };
+async function logPush({ title, body, target, sent, failed }) {
+  const sb = requireSupabaseAdmin();
+  await sb.from('push_logs').insert({
+    title,
+    body,
+    target,
+    sent_count: sent,
+    failed_count: failed,
+  });
+}
+
+module.exports = {
+  requireSupabaseAdmin,
+  fetchMarketingTokens,
+  logPush,
+};

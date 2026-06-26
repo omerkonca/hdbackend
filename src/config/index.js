@@ -25,6 +25,8 @@ const config = {
 
   NEWS: {
     CACHE_TTL_MS: 1000 * 60 * 10, // 10 mins
+    // Bildirim yalnızca bu süre içinde yayınlanmış haberler için gönderilir.
+    PUSH_MAX_AGE_HOURS: Number(process.env.NEWS_PUSH_MAX_AGE_HOURS || 36),
     SOURCES: [
       { url: 'https://www.sabirgazetesi.com/rss/duzici', name: 'Sabir Gazetesi Düziçi', scope: 'duzici', filterDuzici: true },
       { url: 'https://www.sabirgazetesi.com/rss', name: 'Sabir Gazetesi', scope: 'osmaniye' },
@@ -61,6 +63,29 @@ const config = {
   DAILY_BRIEFING: {
     SCHEDULE_HOUR_TR: Number(process.env.DAILY_BRIEFING_HOUR_TR || 20),
     CHECK_INTERVAL_MS: 15 * 60 * 1000,
+  },
+
+  // Render ücretsiz planda instance saati = sunucunun ayakta kalma süresi (kullanıcı sayısından bağımsız).
+  // Sık arka plan taraması sunucuyu uyutmaz → kota hızla biter.
+  RUNTIME: {
+    IS_RENDER: process.env.RENDER === 'true',
+    LIGHT_BACKGROUND_JOBS:
+      process.env.BACKGROUND_JOBS === 'light' ||
+      process.env.BACKGROUND_JOBS === 'off' ||
+      process.env.RENDER === 'true',
+    SKIP_STARTUP_WARMUP:
+      process.env.SKIP_STARTUP_WARMUP === '1' || process.env.RENDER === 'true',
+  },
+
+  INTERVALS: {
+    pharmacyMs: 6 * 60 * 60 * 1000,
+    newsMs: 30 * 60 * 1000,
+    eventsMs: 2 * 60 * 60 * 1000,
+    roadClosuresMs: 60 * 60 * 1000,
+    obituariesMs: 2 * 60 * 60 * 1000,
+    weatherMs: 30 * 60 * 1000,
+    outagesMs: 60 * 60 * 1000,
+    dailyBriefingMs: 15 * 60 * 1000,
   },
 };
 

@@ -13,8 +13,8 @@ function ensureFirebase() {
     }
     initialized = true;
     return true;
-  } catch (e) {
-    console.error('[FCM] init failed:', e.message);
+  } catch (err) {
+    console.error('[FCM] init failed:', err.message);
     return false;
   }
 }
@@ -22,6 +22,11 @@ function ensureFirebase() {
 async function sendMulticast(tokens, { title, body, data = {} }) {
   if (!ensureFirebase() || tokens.length === 0) {
     return { sent: 0, failed: tokens.length, error: 'FCM not configured or no tokens' };
+  }
+
+  const stringData = {};
+  for (const [key, value] of Object.entries(data || {})) {
+    stringData[String(key)] = String(value ?? '');
   }
 
   const chunks = [];
@@ -36,20 +41,12 @@ async function sendMulticast(tokens, { title, body, data = {} }) {
     const response = await admin.messaging().sendEachForMulticast({
       tokens: batch,
       notification: { title, body },
-      data,
+      data: stringData,
       android: { priority: 'high' },
       apns: { payload: { aps: { sound: 'default' } } },
     });
     sent += response.successCount;
     failed += response.failureCount;
-
-    if (response.failureCount > 0) {
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          console.error(`[FCM] Send failed to token: ${batch[idx].substring(0, 30)}... Error:`, resp.error);
-        }
-      });
-    }
   }
 
   return { sent, failed };
@@ -59,23 +56,7 @@ function isFcmConfigured() {
   return ensureFirebase();
 }
 
-async function sendToTopic(topic, { title, body, data = {} }) {
-  if (!ensureFirebase()) {
-    return { success: false, error: 'FCM not configured' };
-  }
-  try {
-    const response = await admin.messaging().send({
-      topic,
-      notification: { title, body },
-      data,
-      android: { priority: 'high' },
-      apns: { payload: { aps: { sound: 'default', badge: 1 } } },
-    });
-    return { success: true, messageId: response };
-  } catch (error) {
-    console.error(`[FCM] Send to topic ${topic} failed:`, error.message);
-    return { success: false, error: error.message };
-  }
-}
-
-module.exports = { sendMulticast, isFcmConfigured, sendToTopic };
+module.exports = {
+  sendMulticast,
+  isFcmConfigured,
+};

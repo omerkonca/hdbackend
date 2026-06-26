@@ -75,6 +75,39 @@ class NewsService {
       .slice(0, 120);
   }
 
+  extractPubDate(itemBlock) {
+    const tags = ['pubDate', 'dc:date', 'published', 'updated', 'date'];
+    for (const tag of tags) {
+      const raw = getTagValue(itemBlock, tag);
+      if (!raw) continue;
+      const parsed = new Date(raw);
+      if (!Number.isNaN(parsed.getTime()) && parsed.getFullYear() >= 2020) {
+        return parsed.toISOString();
+      }
+    }
+    return null;
+  }
+
+  isEligibleForPush(item) {
+    const maxAgeMs = (config.NEWS.PUSH_MAX_AGE_HOURS || 36) * 60 * 60 * 1000;
+    const publishedAt = item?.createdAt ? new Date(item.createdAt).getTime() : NaN;
+    if (!Number.isFinite(publishedAt) || publishedAt <= 0) {
+      console.log(`[news] push atlandı (yayın tarihi yok): "${item?.title || ''}"`);
+      return false;
+    }
+    const ageMs = Date.now() - publishedAt;
+    if (ageMs > maxAgeMs) {
+      const hoursAgo = Math.round(ageMs / (60 * 60 * 1000));
+      console.log(`[news] push atlandı (${hoursAgo} saat önce yayınlandı): "${item.title}"`);
+      return false;
+    }
+    if (ageMs < -5 * 60 * 1000) {
+      console.log(`[news] push atlandı (gelecek tarihli): "${item.title}"`);
+      return false;
+    }
+    return true;
+  }
+
   mergeItemPreferBetter(existing, candidate) {
     return this.itemQualityScore(candidate) > this.itemQualityScore(existing)
       ? candidate
@@ -161,7 +194,7 @@ class NewsService {
       .map((item, index) => {
         const title = getTagValue(item, 'title');
         const link = getTagValue(item, 'link');
-        const pubDate = getTagValue(item, 'pubDate');
+        const pubDateIso = this.extractPubDate(item);
         const descriptionRaw = getTagValue(item, 'description');
         const source = getTagValue(item, 'source') || sourceName;
         const imageUrl = this.extractImageFromItem(item);
@@ -174,7 +207,7 @@ class NewsService {
           title,
           summary: summary || title,
           imageUrl: imageUrl || null,
-          createdAt: new Date(pubDate || Date.now()).toISOString(),
+          createdAt: pubDateIso,
           sourceUrl: link || null,
           sourceName: resolvedSourceName,
           category: this.inferNewsCategory(title, summary || title, resolvedSourceName, { scope }),
@@ -277,10 +310,15 @@ class NewsService {
     const merged = [...byTitle.values()];
     const maxAgeMs = 90 * 24 * 60 * 60 * 1000;
     const cutoff = Date.now() - maxAgeMs;
-    const fresh = merged.filter(
-      (item) => new Date(item.createdAt).getTime() >= cutoff,
-    );
-    fresh.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const fresh = merged.filter((item) => {
+      if (!item.createdAt) return true;
+      return new Date(item.createdAt).getTime() >= cutoff;
+    });
+    fresh.sort((a, b) => {
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return tb - ta;
+    });
     return fresh.slice(0, max);
   }
 
@@ -437,18 +475,48 @@ class NewsService {
       }));
 
       const ids = items.map(item => item.id);
+      const urls = [...new Set(items.map(item => item.sourceUrl).filter(Boolean))];
       const { data: existing, error: checkError } = await db
         .from('news_items')
-        .select('id')
+        .select('id, title, source_url')
         .in('id', ids);
+
+      let existingByUrl = [];
+      if (urls.length > 0) {
+        const { data: urlRows, error: urlError } = await db
+          .from('news_items')
+          .select('id, title, source_url')
+          .in('source_url', urls);
+        if (urlError) {
+          console.error('[news] Supabase URL kontrolü başarısız:', urlError.message);
+        } else if (urlRows) {
+          existingByUrl = urlRows;
+        }
+      }
 
       if (checkError) {
         console.error('[news] Supabase mevcut haber kontrolü başarısız:', checkError.message);
       }
 
       if (!checkError && existing) {
-        const existingIds = new Set(existing.map(row => row.id));
-        const newItems = items.filter(item => !existingIds.has(item.id));
+        const existingIds = new Set([
+          ...(existing || []).map((row) => row.id),
+          ...existingByUrl.map((row) => row.id),
+        ]);
+        const existingUrls = new Set(existingByUrl.map((row) => row.source_url).filter(Boolean));
+        const existingTitleKeys = new Set(
+          [...(existing || []), ...existingByUrl]
+            .map((row) => this.normalizeNewsTitleKey(row.title))
+            .filter(Boolean),
+        );
+
+        const newItems = items.filter((item) => {
+          if (existingIds.has(item.id)) return false;
+          if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
+          const titleKey = this.normalizeNewsTitleKey(item.title);
+          if (titleKey && existingTitleKeys.has(titleKey)) return false;
+          return true;
+        });
 
         if (newItems.length > 0) {
           console.log(`[news] ${newItems.length} yeni haber tespit edildi. Push bildirimleri kontrol ediliyor...`);
@@ -457,6 +525,9 @@ class NewsService {
           let pushCount = 0;
 
           for (const item of newItems.slice(0, 5)) {
+            if (!this.isEligibleForPush(item)) {
+              continue;
+            }
             if (await newsPushLog.wasPushed(item.id)) {
               continue;
             }
