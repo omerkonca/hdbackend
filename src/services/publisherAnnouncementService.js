@@ -1,4 +1,5 @@
-const { requireSupabaseAdmin, fetchMarketingTokens, logPush } = require('../utils/supabaseAdmin');
+const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+const { fetchMarketingTokens, logPush } = require('./pushTokenService');
 const fcmService = require('./fcmService');
 
 function mapRow(row) {
