@@ -20,6 +20,17 @@ class PharmacyService {
   }
 
   parseDutyPharmacyHtml(html) {
+    // Find all tab IDs matching id="nav-xxxx"
+    const tabIdRegex = /id=["'](nav-[a-zA-Z0-9_-]+)["']/g;
+    const tabIds = [];
+    let match;
+    while ((match = tabIdRegex.exec(html)) !== null) {
+      tabIds.push(match[1]);
+    }
+
+    // If no nav- tabs found, fallback to hardcoded ones
+    const uniqueTabIds = tabIds.length > 0 ? [...new Set(tabIds)] : ['nav-bugun', 'nav-yarin'];
+
     const parseTab = (tabId, dateLabel) => {
       const startIdx = html.indexOf(`id="${tabId}"`);
       if (startIdx === -1) return [];
@@ -60,14 +71,17 @@ class PharmacyService {
       return list;
     };
 
-    const bugun = parseTab('nav-bugun', 'Bugün');
-    const yarin = parseTab('nav-yarin', 'Yarın');
+    const list = [];
+    for (const tabId of uniqueTabIds) {
+      const dateLabel = tabId.toLowerCase().includes('yarin') ? 'Yarın' : 'Bugün';
+      list.push(...parseTab(tabId, dateLabel));
+    }
 
-    if (bugun.length === 0 && yarin.length === 0) {
+    if (list.length === 0) {
       throw new Error('Eczane verisi parse edilemedi.');
     }
 
-    return [...bugun, ...yarin];
+    return list;
   }
 
   parseJinaPharmacyMarkdown(text) {
@@ -75,30 +89,53 @@ class PharmacyService {
       ? String(text).split('Markdown Content:')[1]
       : String(text || '');
 
-    const chunks = body.split(
-      /(?=\[[^\]]+\]\(https:\/\/www\.eczaneler\.gen\.tr\/eczane\/)/,
-    );
-
+    const lines = body.split('\n').map(line => line.trim()).filter(Boolean);
     const pharmacies = [];
-    for (const chunk of chunks) {
-      const nameMatch = chunk.match(/^\[([^\]]+)\]/);
-      if (!nameMatch) continue;
+    let activeDateRange = '';
 
-      const phoneMatch = chunk.match(/(0 \(\d{3}\)[^\n]+)/);
-      const addressMatch = chunk.match(
-        /\)[^\n]*\n+(?:[^\n]*\n+)*([^\n!→][^\n]*Düziçi[^\n]+)/,
-      );
-      if (!phoneMatch || !addressMatch) continue;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
 
-      const dateLabel = pharmacies.length === 0 ? 'Bugün' : 'Yarın';
-      pharmacies.push({
-        name: normalizeText(nameMatch[1]),
-        address: normalizeText(addressMatch[1]),
-        phone: normalizeText(phoneMatch[1]),
-        dateLabel,
-        dateRange: '',
-      });
-      if (pharmacies.length >= 2) break;
+      // Check if line is a date range, e.g. "26 Haziran Cuma akşamından 27 Haziran C.tesi sabahına kadar."
+      if (/^\d{1,2}\s+[a-zA-ZçğıöşüÇĞİÖŞÜ]/i.test(line) && (line.includes('sabahına kadar') || line.includes('gün boyu') || line.includes('sabahına kadar'))) {
+        activeDateRange = line;
+        continue;
+      }
+
+      // Check if line contains a pharmacy link, e.g. "[Yeşilova Şifa Eczanesi](...)"
+      const nameMatch = line.match(/^\[([^\]]+)\]\(https:\/\/www\.eczaneler\.gen\.tr\/eczane\//);
+      if (nameMatch) {
+        const name = normalizeText(nameMatch[1]);
+        let address = '';
+        let phone = '';
+
+        // Look ahead to find address and phone
+        for (let j = i + 1; j < Math.min(i + 5, lines.length); j++) {
+          const nextLine = lines[j];
+          if (nextLine.startsWith('[') || /^\d{1,2}\s+[a-zA-ZçğıöşüÇĞİÖŞÜ]/i.test(nextLine)) {
+            break; // Met another pharmacy or date range
+          }
+          if ((/^(0\s*\(?\d{3}\)?)/.test(nextLine) || /^\d{10,11}/.test(nextLine) || nextLine.includes('(')) && !nextLine.startsWith('![') && !nextLine.includes('http')) {
+            phone = normalizeText(nextLine);
+          } else if (nextLine.includes('Mahallesi') || nextLine.includes('Cad') || nextLine.includes('Sok') || nextLine.includes('No:') || nextLine.includes('Karşısı') || nextLine.includes('karşısı') || nextLine.startsWith('→') || nextLine.startsWith('-')) {
+            if (address) {
+              address += ' ' + normalizeText(nextLine);
+            } else {
+              address = normalizeText(nextLine);
+            }
+          }
+        }
+
+        if (name && (phone || address)) {
+          pharmacies.push({
+            name,
+            address: address || 'Düziçi / Osmaniye',
+            phone: phone || '',
+            dateLabel: 'Bugün', // Will be corrected by normalizePharmacyDateLabels
+            dateRange: activeDateRange,
+          });
+        }
+      }
     }
 
     if (pharmacies.length === 0) {

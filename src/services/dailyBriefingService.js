@@ -166,20 +166,25 @@ ${todayLines || '(bugün Düziçi ile ilgili kayıtlı haber yok)'}
 BU HAFTANIN HABERLERİ (${weekNews.length} kayıt):
 ${weekLines || '(bu hafta Düziçi ile ilgili kayıtlı haber yok)'}
 
-Görev:
-- Sadece verilen haber listesine dayan; uydurma.
-- Düziçi sakinlerine samimi, net ve kısa Türkçe özet yaz.
-- today_title: tek satır çarpıcı başlık (max 60 karakter)
-- today_summary: bugün Düziçi'de ne oldu (2-4 cümle)
-- week_summary: bu haftanın özeti (3-5 cümle)
-- highlights: en önemli 3 madde (kısa string dizisi)
+GÖREV TALİMATLARI:
+1. Haber özetlerini doğrudan ve akıcı bir anlatımla yaz. Cümleler birbirine mantıklı bir şekilde bağlansın.
+2. KRİTİK KURAL: Asla "Bugün Düziçi'nde hareketli bir gün yaşandı" veya "Bu hafta Düziçi'nde çeşitli etkinlikler gerçekleştirildi" gibi yapay zeka jenerik/dolgu giriş cümleleri kullanma! Doğrudan günün en önemli, somut olayına değinerek başla (Örn: "Karne şenliğinde itfaiyenin su sürpriziyle serinleyen Düziçili çocuklar eğlenceli anlar yaşadı.").
+3. today_title: Günün en önemli olayını yansıtan, merak uyandırıcı, profesyonel bir gazete manşeti başlığı (en fazla 70 karakter). Başlıkta jenerik kelimelerden kaçın.
+4. today_summary: Bugünün gelişmelerini özetleyen samimi, net ve bilgi dolu 2-4 cümle.
+5. week_summary: Haftalık gelişmeleri toparlayan, olaylar arası bağlantı kuran 3-5 cümle.
+6. highlights: Öne çıkan en önemli 3 farklı somut gelişmeyi özetleyen kısa cümleler dizisi (her biri en fazla 85 karakter). Bullet listesinde jenerik ifadeler kullanma, net bilgi ver.
+7. Değerlerin hiçbirinde markdown biçimlendirmesi (kalın yazı, eğik yazı vb.) veya HTML kullanma.
 
-JSON formatı:
+JSON FORMATI:
 {
   "today_title": "...",
   "today_summary": "...",
   "week_summary": "...",
-  "highlights": ["...", "...", "..."]
+  "highlights": [
+    "...",
+    "...",
+    "..."
+  ]
 }`;
   }
 
@@ -201,8 +206,10 @@ JSON formatı:
       briefingDate: targetDate,
     });
     const systemPrompt =
-      'Sen Düziçi yerel haber editörüsün. Yalnızca verilen haber listesinden özet çıkarırsın. ' +
-      'Spekülasyon yapmaz, kişisel görüş eklemezsin. Yanıtın yalnızca geçerli JSON olmalı.';
+      'Sen Düziçi ve Osmaniye bölgesinde yayın yapan, son derece profesyonel, samimi ve güvenilir bir yerel haber baş editörüsün. ' +
+      'Görevin, günlük haberleri analiz ederek Düziçi halkına anlaşılır, akıcı ve ilgi çekici özetler hazırlamaktır. ' +
+      'Sadece verilen haber kaynaklarına dayanmalı, asla bilgi uydurmamalı, spekülasyon veya kişisel yorum eklememelisin. ' +
+      'Yanıtın yalnızca geçerli bir JSON objesi olmalıdır.';
 
     const userPrompt = this.buildPrompt({
       briefingDate: targetDate,
