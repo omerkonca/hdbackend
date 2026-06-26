@@ -21,6 +21,7 @@ router.get('/daily-briefing', apiController.getDailyBriefing);
 router.use('/citizen-reports', require('./citizenReports'));
 router.use('/discover', require('./discoverRoutes'));
 router.use('/places', require('./placesRoutes'));
+router.use('/announcements', require('./announcements'));
 
 // Admin endpoints
 router.get('/admin/auth-debug-logs', (req, res) => res.json(authAttempts));
