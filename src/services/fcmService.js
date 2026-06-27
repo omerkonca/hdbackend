@@ -52,11 +52,51 @@ async function sendMulticast(tokens, { title, body, data = {} }) {
   return { sent, failed };
 }
 
+async function sendToTopic(topic, { title, body, data = {} }) {
+  if (!ensureFirebase()) {
+    return { success: false, error: 'FCM not configured' };
+  }
+  const topicName = String(topic || '').trim();
+  if (!topicName) {
+    return { success: false, error: 'Topic required' };
+  }
+
+  const stringData = {};
+  for (const [key, value] of Object.entries(data || {})) {
+    stringData[String(key)] = String(value ?? '');
+  }
+
+  try {
+    const messageId = await admin.messaging().send({
+      topic: topicName,
+      notification: {
+        title: String(title || '').trim() || 'Yeni haber',
+        body: String(body || '').trim() || 'Detaylar için uygulamayı açın.',
+      },
+      data: stringData,
+      android: { priority: 'high' },
+      apns: {
+        payload: {
+          aps: {
+            sound: 'default',
+            badge: 1,
+          },
+        },
+      },
+    });
+    return { success: true, messageId };
+  } catch (err) {
+    console.error(`[FCM] sendToTopic(${topicName}) failed:`, err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 function isFcmConfigured() {
   return ensureFirebase();
 }
 
 module.exports = {
   sendMulticast,
+  sendToTopic,
   isFcmConfigured,
 };

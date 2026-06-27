@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const fileService = require('../services/fileService');
 const pharmacyService = require('../services/pharmacyService');
 const newsService = require('../services/newsService');
+const { truncateNewsExcerpt } = require('../utils/helpers');
 const financeService = require('../services/financeService');
 const fuelService = require('../services/fuelService');
 const eventService = require('../services/eventService');
@@ -139,7 +140,7 @@ class ApiController {
           if (hasText) {
             return res.json({
               ok: true,
-              fullText: cached.full_text,
+              fullText: truncateNewsExcerpt(cached.full_text),
               imageUrl: hasImage ? cached.image_url : null,
             });
           }

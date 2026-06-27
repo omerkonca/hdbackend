@@ -259,6 +259,100 @@ async function fetchPage(targetUrl, options = {}, timeoutMs = 20000) {
   throw lastError || new Error('Sayfa alinamadi');
 }
 
+/** Telif: uygulamada gosterilecek haber ozeti — tek paragraf, karakter limiti. */
+const NEWS_EXCERPT_MAX_CHARS = 250;
+
+const NEWS_TITLE_STOP_WORDS = new Set([
+  've', 'ile', 'icin', 'de', 'da', 'den', 'dan', 'ten', 'tan',
+  'bir', 'bu', 'su', 'o', 'mi', 'mu', 'gibi', 'kadar', 'olan', 'olarak',
+  'uzerine', 'son', 'yeni', 'haber', 'gazetesi', 'gazete', 'kaynak', 'video',
+  'foto', 'fotograf', 'fotografi', 'gorsel', 'detay', 'devami', 'oku',
+]);
+
+function extractNewsTitleTokens(title) {
+  const words = String(title || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s*-\s*(sabir|hasret|akdeniz|google)\s+gazetesi.*$/i, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length >= 3 && !NEWS_TITLE_STOP_WORDS.has(w));
+  return [...new Set(words)];
+}
+
+function jaccardSimilarity(tokensA, tokensB) {
+  if (!tokensA.length || !tokensB.length) return 0;
+  const setA = new Set(tokensA);
+  const setB = new Set(tokensB);
+  let intersection = 0;
+  for (const token of setA) {
+    if (setB.has(token)) intersection += 1;
+  }
+  const union = new Set([...setA, ...setB]).size;
+  return union ? intersection / union : 0;
+}
+
+function newsTitleSimilarity(titleA, titleB) {
+  return jaccardSimilarity(extractNewsTitleTokens(titleA), extractNewsTitleTokens(titleB));
+}
+
+function newsPublishedWithinHours(a, b, hours = 96) {
+  const rawA = a?.createdAt || a?.created_at;
+  const rawB = b?.createdAt || b?.created_at;
+  const ta = rawA ? new Date(rawA).getTime() : NaN;
+  const tb = rawB ? new Date(rawB).getTime() : NaN;
+  if (!Number.isFinite(ta) || !Number.isFinite(tb)) return true;
+  return Math.abs(ta - tb) <= hours * 60 * 60 * 1000;
+}
+
+function areNewsTitlesDuplicate(titleA, titleB, { withinHours = 96, createdAtA, createdAtB } = {}) {
+  if (!titleA || !titleB) return false;
+  if (!newsPublishedWithinHours({ createdAt: createdAtA }, { createdAt: createdAtB }, withinHours)) {
+    return false;
+  }
+
+  const normalizeKey = (title) => normalizeForCompare(String(title || ''))
+    .replace(/\s*-\s*(sabir|hasret|akdeniz|google)\s+gazetesi.*$/i, '')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .slice(0, 120);
+
+  const keyA = normalizeKey(titleA);
+  const keyB = normalizeKey(titleB);
+  if (keyA && keyB && keyA === keyB) return true;
+
+  if (keyA && keyB) {
+    const shorter = keyA.length <= keyB.length ? keyA : keyB;
+    const longer = keyA.length <= keyB.length ? keyB : keyA;
+    if (shorter.length >= 24 && longer.includes(shorter)) return true;
+  }
+
+  const tokensA = extractNewsTitleTokens(titleA);
+  const tokensB = extractNewsTitleTokens(titleB);
+  const shared = tokensA.filter((token) => tokensB.includes(token));
+  if (shared.length >= 3) return true;
+
+  return newsTitleSimilarity(titleA, titleB) >= 0.55;
+}
+
+function truncateNewsExcerpt(text, maxChars = NEWS_EXCERPT_MAX_CHARS) {
+  const raw = String(text || '').trim();
+  if (!raw) return '';
+
+  const paragraphs = raw
+    .split(/\n{2,}/)
+    .map((p) => p.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+  let excerpt = paragraphs[0] || raw.replace(/\s+/g, ' ').trim();
+  if (excerpt.length <= maxChars) return excerpt;
+
+  const slice = excerpt.slice(0, maxChars);
+  const lastSpace = slice.lastIndexOf(' ');
+  const cut = lastSpace > maxChars * 0.6 ? slice.slice(0, lastSpace) : slice;
+  return `${cut.trim()}…`;
+}
+
 module.exports = {
   normalizeText,
   decodeXmlEntities,
@@ -268,6 +362,11 @@ module.exports = {
   stripHtml,
   extractImageUrlFromHtml,
   extractOgImageFromHtml,
+  truncateNewsExcerpt,
+  NEWS_EXCERPT_MAX_CHARS,
+  extractNewsTitleTokens,
+  newsTitleSimilarity,
+  areNewsTitlesDuplicate,
   fetchWithTimeout,
   buildBrowserHeaders,
   fetchPage,

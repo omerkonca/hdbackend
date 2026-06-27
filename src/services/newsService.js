@@ -9,6 +9,8 @@ const {
   decodeXmlEntities,
   normalizeText,
   normalizeForCompare,
+  truncateNewsExcerpt,
+  areNewsTitlesDuplicate,
   fetchWithTimeout,
   fetchPage,
   buildBrowserHeaders,
@@ -112,6 +114,31 @@ class NewsService {
     return this.itemQualityScore(candidate) > this.itemQualityScore(existing)
       ? candidate
       : existing;
+  }
+
+  areDuplicateNews(existing, candidate) {
+    return areNewsTitlesDuplicate(existing?.title, candidate?.title, {
+      createdAtA: existing?.createdAt || existing?.created_at,
+      createdAtB: candidate?.createdAt || candidate?.created_at,
+    });
+  }
+
+  dedupeNewsList(items) {
+    const sorted = [...items].sort((a, b) => {
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return tb - ta;
+    });
+    const kept = [];
+    for (const item of sorted) {
+      const dupIndex = kept.findIndex((existing) => this.areDuplicateNews(existing, item));
+      if (dupIndex >= 0) {
+        kept[dupIndex] = this.mergeItemPreferBetter(kept[dupIndex], item);
+      } else {
+        kept.push(item);
+      }
+    }
+    return kept;
   }
 
   duziciKeywordRe() {
@@ -296,18 +323,11 @@ class NewsService {
   }
 
   mergeAndDedupeNews(allItems, max) {
-    const byTitle = new Map();
-    for (const raw of allItems) {
-      const item = {
-        ...raw,
-        category: raw.category || this.inferNewsCategory(raw.title, raw.summary, raw.sourceName),
-      };
-      const titleKey = this.normalizeNewsTitleKey(item.title);
-      if (!titleKey) continue;
-      const prev = byTitle.get(titleKey);
-      byTitle.set(titleKey, prev ? this.mergeItemPreferBetter(prev, item) : item);
-    }
-    const merged = [...byTitle.values()];
+    const enriched = allItems.map((raw) => ({
+      ...raw,
+      category: raw.category || this.inferNewsCategory(raw.title, raw.summary, raw.sourceName),
+    }));
+    const merged = this.dedupeNewsList(enriched);
     const maxAgeMs = 90 * 24 * 60 * 60 * 1000;
     const cutoff = Date.now() - maxAgeMs;
     const fresh = merged.filter((item) => {
@@ -483,14 +503,22 @@ class NewsService {
 
       let existingByUrl = [];
       if (urls.length > 0) {
-        const { data: urlRows, error: urlError } = await db
-          .from('news_items')
-          .select('id, title, source_url')
-          .in('source_url', urls);
-        if (urlError) {
-          console.error('[news] Supabase URL kontrolü başarısız:', urlError.message);
-        } else if (urlRows) {
-          existingByUrl = urlRows;
+        const urlChunkSize = 20;
+        for (let i = 0; i < urls.length; i += urlChunkSize) {
+          const chunk = urls.slice(i, i + urlChunkSize);
+          try {
+            const { data: urlRows, error: urlError } = await db
+              .from('news_items')
+              .select('id, title, source_url')
+              .in('source_url', chunk);
+            if (urlError) {
+              console.error('[news] Supabase URL kontrolü başarısız:', urlError.message);
+            } else if (urlRows) {
+              existingByUrl.push(...urlRows);
+            }
+          } catch (urlErr) {
+            console.error('[news] Supabase URL kontrolü başarısız:', urlErr.message);
+          }
         }
       }
 
@@ -509,55 +537,65 @@ class NewsService {
             .map((row) => this.normalizeNewsTitleKey(row.title))
             .filter(Boolean),
         );
+        const existingRows = [...(existing || []), ...existingByUrl];
 
         const newItems = items.filter((item) => {
           if (existingIds.has(item.id)) return false;
           if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
           const titleKey = this.normalizeNewsTitleKey(item.title);
           if (titleKey && existingTitleKeys.has(titleKey)) return false;
+          if (existingRows.some((row) => this.areDuplicateNews(row, item))) return false;
           return true;
         });
 
         if (newItems.length > 0) {
           console.log(`[news] ${newItems.length} yeni haber tespit edildi. Push bildirimleri kontrol ediliyor...`);
 
-          const fcmService = require('./fcmService');
-          let pushCount = 0;
-
-          for (const item of newItems.slice(0, 5)) {
-            if (!this.isEligibleForPush(item)) {
-              continue;
-            }
-            if (await newsPushLog.wasPushed(item.id)) {
-              continue;
-            }
-
-            const isDuzici = item.category.toLowerCase().includes('düziçi') ||
-                item.category.toLowerCase().includes('duzici') ||
-                this.isDuziciRelated(item.title, item.summary);
-
-            const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
-            const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
-
-            console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
-            const result = await fcmService.sendToTopic(topic, {
-              title: pushTitle,
-              body: item.title,
-              data: {
-                route: String(item.id),
-              },
-            });
-
-            if (result.success) {
-              await newsPushLog.markPushed(item.id);
-              pushCount += 1;
+          try {
+            const fcmService = require('./fcmService');
+            if (!fcmService.isFcmConfigured()) {
+              console.warn('[news] FCM yapılandırılmamış (FIREBASE_SERVICE_ACCOUNT_JSON). Push atlanıyor.');
             } else {
-              console.error(`[news] FCM başarısız (${item.id}):`, result.error);
-            }
-          }
+              let pushCount = 0;
 
-          if (pushCount > 0) {
-            console.log(`[news] ${pushCount} haber bildirimi gönderildi.`);
+              for (const item of newItems.slice(0, 5)) {
+                if (!this.isEligibleForPush(item)) {
+                  continue;
+                }
+                if (await newsPushLog.wasPushed(item.id)) {
+                  continue;
+                }
+
+                const isDuzici = item.category.toLowerCase().includes('düziçi') ||
+                    item.category.toLowerCase().includes('duzici') ||
+                    this.isDuziciRelated(item.title, item.summary);
+
+                const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
+                const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
+
+                console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
+                const result = await fcmService.sendToTopic(topic, {
+                  title: pushTitle,
+                  body: item.title,
+                  data: {
+                    route: String(item.id),
+                  },
+                });
+
+                if (result.success) {
+                  await newsPushLog.markPushed(item.id);
+                  pushCount += 1;
+                } else {
+                  console.error(`[news] FCM başarısız (${item.id}):`, result.error);
+                }
+              }
+
+              if (pushCount > 0) {
+                console.log(`[news] ${pushCount} haber bildirimi gönderildi.`);
+              }
+            }
+          } catch (pushErr) {
+            console.error('[news] Push bildirimleri gönderilemedi:', pushErr.message);
           }
         }
       }
@@ -600,7 +638,7 @@ class NewsService {
       const itemsToFetch = items.filter((item) => {
         if (!item.sourceUrl) return false;
         const cached = cachedByUrl.get(item.sourceUrl);
-        const hasText = cached?.full_text && cached.full_text.trim().length > 300;
+        const hasText = cached?.full_text && cached.full_text.trim().length > 80;
         const hasImage = (cached?.image_url && cached.image_url.trim()) || (item.imageUrl && item.imageUrl.trim());
         return !hasText || !hasImage;
       });
@@ -907,7 +945,7 @@ class NewsService {
     text = paragraphs.join('\n\n');
 
     text = text.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
-    return text.slice(0, 50000);
+    return truncateNewsExcerpt(text);
   }
 }
 
