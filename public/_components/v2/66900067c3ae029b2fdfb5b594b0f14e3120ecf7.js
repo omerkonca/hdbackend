@@ -430,7 +430,9 @@ function V() {
                 /* @__PURE__ */ a(
                   "a",
                   {
-                    href: "#download",
+                    href: "https://apps.apple.com/tr/app/hepsi-d%C3%BCzi%C3%A7i/id6775205369?l=tr",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
                     className: "flex items-center gap-3 px-6 py-3.5 rounded-2xl font-bold text-[#090d18] transition-all hover:opacity-90 active:scale-95 shadow-lg shadow-[#c8a200]/20",
                     style: { background: "#c8a200" },
                     children: [
@@ -708,7 +710,9 @@ function V() {
                   /* @__PURE__ */ a(
                     "a",
                     {
-                      href: "#",
+                      href: "https://apps.apple.com/tr/app/hepsi-d%C3%BCzi%C3%A7i/id6775205369?l=tr",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
                       className: "flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-[#090d18] text-lg transition-all hover:opacity-90 active:scale-95 shadow-xl shadow-[#c8a200]/25",
                       style: { background: "#c8a200" },
                       children: [
@@ -720,7 +724,9 @@ function V() {
                   /* @__PURE__ */ a(
                     "a",
                     {
-                      href: "#",
+                      href: "https://play.google.com/store/apps/details?id=net.hepsiduzici.hepsi_duzici",
+                      target: "_blank",
+                      rel: "noopener noreferrer",
                       className: "flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-white text-lg border transition-all hover:bg-white/5",
                       style: { borderColor: "rgba(255,255,255,0.20)" },
                       children: [
