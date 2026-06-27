@@ -25,6 +25,21 @@ console.log('✅ Supabase initialized: URL =', config.SUPABASE_URL);
 app.use(cors());
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ limit: '500mb', extended: true }));
+
+// Yasal / admin sayfaları (static'ten önce — Play Store URL'leri korunur)
+app.get(['/gizlilik-politikasi', '/gizlilik-politikasi.html', '/privacy-policy'], (req, res) => {
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'gizlilik-politikasi.html'));
+});
+app.get(['/iletisim', '/iletisim.html', '/contact'], (req, res) => {
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'iletisim.html'));
+});
+app.get(['/kullanim-kosullari', '/kullanim-kosullari.html', '/terms'], (req, res) => {
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'kullanim-kosullari.html'));
+});
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'admin.html'));
+});
+
 app.use(express.static(config.PATHS.PUBLIC_DIR));
 app.use('/assets', express.static(path.join(__dirname, '../../assets')));
 
@@ -37,21 +52,6 @@ app.use('/api/announcements', require('./routes/announcements'));
 // Health check
 app.get('/health', (req, res) => {
   res.json({ ok: true, service: 'hepsi-duzici-city-content-api', timestamp: new Date().toISOString() });
-});
-
-// Gizlilik politikasi (Google Play Store)
-app.get(['/gizlilik-politikasi', '/gizlilik-politikasi.html', '/privacy-policy'], (req, res) => {
-  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'gizlilik-politikasi.html'));
-});
-
-// Yayıncı iletisim (Google Play Store - Haber uygulamalari beyani)
-app.get(['/iletisim', '/iletisim.html', '/contact'], (req, res) => {
-  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'iletisim.html'));
-});
-
-// Admin Panel redirect
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'admin.html'));
 });
 
 // Global Error Handler

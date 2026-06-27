@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Hepsi Düziçi — Düziçi ve Osmaniye yerel haberleri, nöbetçi eczaneler, kesintiler ve şehir rehberi uygulaması." />
+  <title>Hepsi Düziçi | Resmi Haber ve Şehir Portalı</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #c98b18;
+      --primary-dark: #a06e10;
+      --navy: #0f172a;
+      --navy-light: #1e293b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #090d16;
+        --card: #111827;
+        --text: #f3f5fa;
+        --text-muted: #94a3b8;
+        --border: #1f2937;
+        --shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Header & Navigation */
+    header {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background-color 0.3s;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      header {
+        background-color: rgba(17, 24, 39, 0.8);
+      }
+    }
+
+    .nav-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .btn-admin {
+      background-color: var(--primary-dark);
+      color: white !important;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 12px rgba(201, 139, 24, 0.2);
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 80px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-container {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background-color: rgba(201, 139, 24, 0.15);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #94a3b8;
+      margin-bottom: 32px;
+      font-weight: 500;
+      max-width: 650px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .download-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background-color: white;
+      color: #0f172a;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-download.playstore {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 10px 25px rgba(201, 139, 24, 0.3);
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Grid Section */
+    .main-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-bottom: 60px;
+    }
+
+    .card {
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+
+    /* Contact Details List */
+    .contact-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background-color: var(--bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .contact-item-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .contact-item-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .contact-item-value a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .contact-item-value a:hover {
+      text-decoration: underline;
+    }
+
+    /* News Sources List */
+    .sources-list {
+      list-style: none;
+    }
+
+    .sources-list li {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sources-list li:last-child {
+      border-bottom: none;
+    }
+
+    .sources-list span.type {
+      font-size: 11px;
+      padding: 2px 6px;
+      background-color: var(--primary-soft);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      border-radius: 4px;
+    }
+
+    /* Footer */
+    footer {
+      background-color: var(--navy);
+      color: #94a3b8;
+      padding: 40px 20px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-copy {
+      font-size: 13px;
+    }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 32px;
+      }
+      .hero p {
+        font-size: 16px;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">🏢 Hepsi Düziçi</a>
+      <div class="nav-links">
+        <a href="#iletisim">İletişim</a>
+        <a href="#hakkimizda">Hakkımızda</a>
+        <a href="#kaynaklar">Haber Kaynakları</a>
+        <a href="/gizlilik-politikasi.html">Gizlilik Politikası</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-container">
+      <span class="hero-badge">Resmi Web Sitesi</span>
+      <h1>Düziçi'nin Nabzı Cebinizde</h1>
+      <p>Düziçi ve Osmaniye genelinden en güncel yerel haberler, nöbetçi eczaneler, anlık belediye kesinti duyuruları ve şehir rehberi uygulaması.</p>
+      
+      <div class="download-buttons">
+        <a href="https://play.google.com/store/apps/details?id=net.hepsiduzici.hepsi_duzici" class="btn-download playstore" target="_blank">
+          🤖 Google Play'den İndir
+        </a>
+        <a href="https://apps.apple.com/tr/app/hepsi-düziçi/id6775205369?l=tr" class="btn-download" target="_blank">
+          🍏 App Store'dan Yükle
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Wrap -->
+  <main class="main-wrap">
+    <div class="grid">
+      
+      <!-- Bize Ulaşın (Google Play News Policy Requirement) -->
+      <div class="card" id="iletisim">
+        <h2 class="card-title">📞 Bize Ulaşın (İletişim)</h2>
+        <p>Hepsi Düziçi uygulaması ve haber portalıyla ilgili içerik kaldırma, telif hakkı, iş birliği veya geri bildirim talepleriniz için aşağıdaki iletişim kanallarını 7/24 kullanabilirsiniz.</p>
+        
+        <div class="contact-list">
+          <div class="contact-item">
+            <div>
+              <div class="contact-item-label">Yayıncı / Geliştirici</div>
+              <div class="contact-item-value">Ömer Faruk Konca</div>
+            </div>
+          </div>
+          
+          <div class="contact-item">
+            <div>
+              <div class="contact-item-label">E-posta Adresi</div>
+              <div class="contact-item-value">
+                <a href="mailto:hepsiduzici@gmail.com">hepsiduzici@gmail.com</a>
+              </div>
+            </div>
+          </div>
+          
+          <div class="contact-item">
+            <div>
+              <div class="contact-item-label">Konum / Adres</div>
+              <div class="contact-item-value">Düziçi, Osmaniye, Türkiye</div>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div>
+              <div class="contact-item-label">Uygulama Paket Adı (Bundle ID)</div>
+              <div class="contact-item-value">net.hepsiduzici.hepsi_duzici</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hakkımızda -->
+      <div class="card" id="hakkimizda">
+        <h2 class="card-title">📖 Uygulama Hakkında</h2>
+        <p>Hepsi Düziçi, Düziçi ilçesi ve Osmaniye ili genelindeki sakinlere şehir yaşamını kolaylaştırmak amacıyla bağımsız olarak geliştirilmiş bir yerel haber toplayıcı ve şehir rehberi uygulamasıdır.</p>
+        
+        <p><strong>Önemli Kurallarımız:</strong></p>
+        <p>✓ Uygulamada gösterilen haberler tamamen güncel olup, son 90 gün (3 ay) içerisindeki makaleleri kapsar. Eski haberler sistemden otomatik olarak silinir.</p>
+        <p>✓ Tüm makalelerin orijinal kaynakları (yayıncı adı, yazar ve doğrudan haber linki) haber detaylarında açıkça belirtilmektedir.</p>
+        <p>✓ Herhangi bir haberin yayından kaldırılması veya düzeltilmesi için lütfen iletişim kısmındaki mail adresimize bildirimde bulunun.</p>
+      </div>
+
+      <!-- Haber Kaynakları -->
+      <div class="card" id="kaynaklar">
+        <h2 class="card-title">📰 Haber Kaynakları</h2>
+        <p>Uygulamamızdaki haberler, Düziçi ve Osmaniye genelinde yayın yapan bağımsız gazetelerin açık paylaşımlı RSS beslemelerinden toplanmaktadır. Kaynaklarımız:</p>
+        
+        <ul class="sources-list">
+          <li>
+            <span>Sabir Gazetesi</span>
+            <span class="type">Yerel Basın</span>
+          </li>
+          <li>
+            <span>Hasret Gazetesi</span>
+            <span class="type">Yerel Basın</span>
+          </li>
+          <li>
+            <span>Akdeniz Gazetesi</span>
+            <span class="type">Yerel Basın</span>
+          </li>
+          <li>
+            <span>Osmaniye Haber</span>
+            <span class="type">İl Geneli</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-links">
+        <a href="/">Ana Sayfa</a>
+        <a href="#iletisim">Bize Ulaşın</a>
+        <a href="/gizlilik-politikasi.html">Gizlilik Politikası</a>
+      </div>
+      <p class="footer-copy">© 2026 Hepsi Düziçi · Tüm hakları saklıdır. Geliştirici: Ömer Faruk Konca</p>
+    </div>
+  </footer>
+
+</body>
+</html>
