@@ -275,15 +275,65 @@ class ApiController {
 
   async getEvents(req, res) {
     try {
-      const items = await eventService.getEvents();
+      const forceRefresh =
+        req.query.refresh === '1' ||
+        req.query.refresh === 'true' ||
+        req.query.force === '1';
+      const items = await eventService.getEvents({ forceRefresh });
       res.json({
         ok: true,
-        fetchedAt: new Date().toISOString(),
+        fetchedAt: new Date(eventService.cache.fetchedAt || Date.now()).toISOString(),
         items,
       });
     } catch (error) {
       console.error('❌ getEvents error:', error);
       res.status(500).json({ ok: false, message: 'Etkinlikler alinamadi.', detail: error.message });
+    }
+  }
+
+  async refreshEvents(req, res) {
+    try {
+      const items = await eventService.getEvents({ forceRefresh: true });
+      res.json({
+        ok: true,
+        message: 'Etkinlik cache yenilendi.',
+        count: items.length,
+        fetchedAt: new Date(eventService.cache.fetchedAt || Date.now()).toISOString(),
+      });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Etkinlikler yenilenemedi.', detail: error.message });
+    }
+  }
+
+  async getCustomEvents(req, res) {
+    try {
+      const content = await fileService.readCityContent();
+      const events = eventService.normalizeCustomEvents(content?.customEvents || []);
+      res.json({ ok: true, events });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Etkinlikler okunamadi.', detail: error.message });
+    }
+  }
+
+  async updateCustomEvents(req, res) {
+    try {
+      const { events } = req.body ?? {};
+      if (!Array.isArray(events)) {
+        return res.status(400).json({ ok: false, message: 'events dizisi gerekli.' });
+      }
+      const content = await fileService.readCityContent();
+      content.customEvents = eventService.normalizeCustomEvents(events);
+      await fileService.createBackupBeforeWrite();
+      await fileService.writeCityContent(content);
+      eventService.invalidateCache();
+      await eventService.getEvents({ forceRefresh: true });
+      res.json({
+        ok: true,
+        message: 'Özel etkinlikler kaydedildi.',
+        count: content.customEvents.length,
+      });
+    } catch (error) {
+      res.status(500).json({ ok: false, message: 'Etkinlikler kaydedilemedi.', detail: error.message });
     }
   }
 

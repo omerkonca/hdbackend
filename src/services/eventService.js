@@ -1,4 +1,5 @@
 const cheerio = require('cheerio');
+const config = require('../config');
 const { getTagValue, stripHtml, extractImageUrlFromHtml, fetchWithTimeout } = require('../utils/helpers');
 const fileService = require('./fileService');
 
@@ -8,8 +9,79 @@ class EventService {
       fetchedAt: 0,
       items: [],
     };
-    this.CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+    this.CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour (full server)
     this.CITIES = ['Osmaniye', 'Adana', 'Hatay', 'Gaziantep', 'Kahramanmaraş'];
+  }
+
+  getCacheTtlMs() {
+    if (config.RUNTIME?.LIGHT_BACKGROUND_JOBS) {
+      return 30 * 60 * 1000; // Render: 30 dk
+    }
+    return this.CACHE_TTL_MS;
+  }
+
+  invalidateCache() {
+    this.cache = { fetchedAt: 0, items: [] };
+  }
+
+  parseBubiletDate(dateText) {
+    const parts = String(dateText || '').trim().split(/\s+/).filter(Boolean);
+    if (parts.length < 2) return null;
+
+    const day = parseInt(parts[0], 10);
+    if (!Number.isFinite(day) || day < 1 || day > 31) return null;
+
+    const monthKey = parts[1]
+      .toLowerCase()
+      .replace(/ı/g, 'i')
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c');
+    const months = {
+      ocak: 0, subat: 1, mart: 2, nisan: 3, mayis: 4, haziran: 5,
+      temmuz: 6, agustos: 7, eylul: 8, ekim: 9, kasim: 10, aralik: 11,
+    };
+    const month = months[monthKey];
+    if (month === undefined) return null;
+
+    let hour = 21;
+    let minute = 0;
+    const timePart = parts.find((p) => /^\d{1,2}:\d{2}$/.test(p));
+    if (timePart) {
+      const [h, m] = timePart.split(':').map((n) => parseInt(n, 10));
+      if (Number.isFinite(h)) hour = h;
+      if (Number.isFinite(m)) minute = m;
+    }
+
+    const now = new Date();
+    let year = now.getFullYear();
+    let eventDate = new Date(year, month, day, hour, minute);
+    const staleMs = 45 * 24 * 60 * 60 * 1000;
+    if (eventDate.getTime() < now.getTime() - staleMs) {
+      eventDate = new Date(year + 1, month, day, hour, minute);
+    }
+    return eventDate;
+  }
+
+  normalizeCustomEvents(raw = []) {
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .filter((e) => e && typeof e === 'object' && String(e.title || '').trim())
+      .map((e, index) => ({
+        id: String(e.id || `custom-${index + 1}`),
+        title: String(e.title || '').trim(),
+        category: String(e.category || 'Etkinlik').trim(),
+        city: String(e.city || 'Osmaniye').trim(),
+        district: String(e.district || 'Merkez').trim(),
+        location: String(e.location || e.district || 'Merkez').trim(),
+        date: e.date ? new Date(e.date).toISOString() : new Date().toISOString(),
+        imageUrl: String(e.imageUrl || this.getImageForCategory(e.category || '')),
+        price: String(e.price || 'Ücretsiz').trim(),
+        link: String(e.link || '').trim(),
+        source: String(e.source || 'Yönetici').trim(),
+      }));
   }
 
   async scrapeBubiletEvents(cityName) {
@@ -44,19 +116,14 @@ class EventService {
         const link = 'https://www.bubilet.com.tr' + $(el).attr('href');
 
         if (title && dateText) {
-          // Basit tarih parse (yılı 2026 varsayıyoruz)
-          const parts = dateText.split(' ');
-          const day = parts[0];
-          const monthStr = parts[1];
-          const time = parts[3];
-          
-          const months = { 'Ocak': 0, 'Şubat': 1, 'Mart': 2, 'Nisan': 3, 'Mayıs': 4, 'Haziran': 5, 'Temmuz': 6, 'Ağustos': 7, 'Eylül': 8, 'Ekim': 9, 'Kasım': 10, 'Aralık': 11 };
-          const month = months[monthStr] || 4;
-          
-          const eventDate = new Date(2026, month, parseInt(day), 21, 0); // Varsayılan 21:00
+          const eventDate = this.parseBubiletDate(dateText);
+          if (!eventDate) return;
+
+          const href = String($(el).attr('href') || '');
+          const hrefSlug = href.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').slice(0, 48) || `evt-${i}`;
 
           events.push({
-            id: `bubilet-${slug}-${i}-${Date.now()}`,
+            id: `bubilet-${slug}-${hrefSlug}`,
             title,
             category: this.inferCategory(title),
             city: cityName,
@@ -125,7 +192,8 @@ class EventService {
 
   async getEvents({ forceRefresh = false } = {}) {
     const now = Date.now();
-    const isFresh = now - this.cache.fetchedAt < this.CACHE_TTL_MS;
+    const ttl = this.getCacheTtlMs();
+    const isFresh = now - this.cache.fetchedAt < ttl;
 
     if (!forceRefresh && isFresh && this.cache.items.length > 0) {
       return this.cache.items;
@@ -154,7 +222,7 @@ class EventService {
       try {
         const content = await fileService.readCityContent();
         if (content && Array.isArray(content.customEvents) && content.customEvents.length > 0) {
-          manualEvents = content.customEvents;
+          manualEvents = this.normalizeCustomEvents(content.customEvents);
         } else {
           manualEvents = this.getManualEvents();
         }
@@ -239,7 +307,7 @@ class EventService {
     const all = [...mayEvents, ...juneEvents, ...julyEvents];
     
     return all.map((e, i) => ({
-      id: `manual-${i}-${Date.now()}`,
+      id: `manual-seed-${e.city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${i}`,
       title: e.title,
       category: e.cat,
       city: e.city,

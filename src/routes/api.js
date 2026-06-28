@@ -45,6 +45,9 @@ router.post('/admin/test-email', requireAdminToken, async (req, res) => {
 router.get('/backups', requireAdminToken, apiController.getBackups);
 router.post('/city-content', requireAdminToken, apiController.updateCityContent);
 router.post('/city-content/update-branding', requireAdminToken, apiController.updateBrandingFields);
+router.get('/admin/custom-events', requireAdminToken, apiController.getCustomEvents);
+router.post('/admin/custom-events', requireAdminToken, apiController.updateCustomEvents);
+router.post('/events/refresh', requireAdminToken, apiController.refreshEvents);
 router.post('/city-content/restore-last', requireAdminToken, apiController.restoreLastBackup);
 router.post('/pharmacies/refresh', requireAdminToken, apiController.refreshPharmacies);
 router.post('/news/refresh', requireAdminToken, apiController.refreshNews);

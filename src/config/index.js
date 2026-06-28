@@ -80,7 +80,7 @@ const config = {
   INTERVALS: {
     pharmacyMs: 6 * 60 * 60 * 1000,
     newsMs: 30 * 60 * 1000,
-    eventsMs: 2 * 60 * 60 * 1000,
+    eventsMs: 30 * 60 * 1000,
     roadClosuresMs: 60 * 60 * 1000,
     obituariesMs: 2 * 60 * 60 * 1000,
     weatherMs: 30 * 60 * 1000,
