@@ -24,6 +24,36 @@ class EventService {
     this.cache = { fetchedAt: 0, items: [] };
   }
 
+  normalizeEventImageUrl(url, maxWidth = 480) {
+    let u = String(url || '').trim();
+    if (!u) return u;
+    if (u.startsWith('//')) u = `https:${u}`;
+    if (u.startsWith('/')) u = `https://www.bubilet.com.tr${u}`;
+    if (u.includes('cdn.bubilet.com.tr/cdn-cgi/image/')) {
+      return u.replace(/width=\d+/, `width=${maxWidth}`);
+    }
+    if (u.includes('images.unsplash.com') && !/[?&]w=/.test(u)) {
+      return `${u}${u.includes('?') ? '&' : '?'}w=${maxWidth}&q=80&auto=format`;
+    }
+    return u;
+  }
+
+  extractBubiletImageUrl($el) {
+    const img = $el.find('img').first();
+    const direct =
+      img.attr('src') ||
+      img.attr('data-src') ||
+      img.attr('data-nimg') ||
+      '';
+    if (direct && !direct.startsWith('data:')) {
+      return this.normalizeEventImageUrl(direct);
+    }
+
+    const srcset = img.attr('srcset') || $el.find('source').attr('srcset') || '';
+    const first = String(srcset).split(',')[0]?.trim().split(/\s+/)[0] || '';
+    return first ? this.normalizeEventImageUrl(first) : '';
+  }
+
   parseBubiletDate(dateText) {
     const parts = String(dateText || '').trim().split(/\s+/).filter(Boolean);
     if (parts.length < 2) return null;
@@ -77,7 +107,9 @@ class EventService {
         district: String(e.district || 'Merkez').trim(),
         location: String(e.location || e.district || 'Merkez').trim(),
         date: e.date ? new Date(e.date).toISOString() : new Date().toISOString(),
-        imageUrl: String(e.imageUrl || this.getImageForCategory(e.category || '')),
+        imageUrl: this.normalizeEventImageUrl(
+          String(e.imageUrl || this.getImageForCategory(e.category || '')),
+        ),
         price: String(e.price || 'Ücretsiz').trim(),
         link: String(e.link || '').trim(),
         source: String(e.source || 'Yönetici').trim(),
@@ -112,7 +144,7 @@ class EventService {
         const location = $(el).find('p').first().text().trim();
         const dateText = $(el).find('p').eq(1).text().trim(); // örn: 01 Mayıs Paz 22:00
         const price = $(el).find('span').text().trim() || 'Biletli';
-        const imageUrl = $(el).find('img').attr('src');
+        const imageUrl = this.extractBubiletImageUrl($(el));
         const link = 'https://www.bubilet.com.tr' + $(el).attr('href');
 
         if (title && dateText) {
@@ -130,7 +162,7 @@ class EventService {
             district: location.split(',')[0].trim(),
             location: location,
             date: eventDate.toISOString(),
-            imageUrl: imageUrl || 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14',
+            imageUrl: imageUrl || this.getImageForCategory(this.inferCategory(title)),
             price: price.includes('TL') ? price : 'Biletli',
             link,
             source: 'Bubilet'
@@ -170,7 +202,9 @@ class EventService {
           district: 'Merkez',
           location: cityName,
           date: new Date(pubDate).toISOString(),
-          imageUrl: imageUrl || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4',
+          imageUrl: this.normalizeEventImageUrl(
+            imageUrl || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4',
+          ),
           price: 'Biletli',
           link,
           source: 'Haber Kaynağı'
@@ -314,7 +348,7 @@ class EventService {
       district: 'Merkez',
       location: e.loc,
       date: e.date,
-      imageUrl: this.getImageForCategory(e.cat),
+      imageUrl: this.normalizeEventImageUrl(this.getImageForCategory(e.cat)),
       price: e.cat === 'Festival' || e.cat === 'Kültür & Sanat' ? 'Ücretsiz' : '450 TL',
       link: 'https://www.biletix.com',
       source: 'Küratör'
