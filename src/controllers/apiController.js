@@ -128,7 +128,7 @@ class ApiController {
       try {
         const { data, error } = await supabase
           .from('news_items')
-          .select('full_text, image_url')
+          .select('full_text, image_url, images')
           .eq('source_url', url)
           .order('created_at', { ascending: false })
           .limit(1);
@@ -142,6 +142,7 @@ class ApiController {
               ok: true,
               fullText: truncateNewsExcerpt(cached.full_text),
               imageUrl: hasImage ? cached.image_url : null,
+              images: Array.isArray(cached.images) ? cached.images : (hasImage ? [cached.image_url] : []),
             });
           }
         }
@@ -153,12 +154,14 @@ class ApiController {
       const details = await newsService.fetchArticleDetails(url);
       const fullText = details.fullText;
       const imageUrl = details.imageUrl;
+      const images = details.images || (imageUrl ? [imageUrl] : []);
       
       // 3. Save/Update cache in Supabase background
       if ((fullText && fullText.trim().length > 0) || (imageUrl && imageUrl.trim().length > 0)) {
         const update = {};
         if (fullText && fullText.trim().length > 0) update.full_text = fullText;
         if (imageUrl && imageUrl.trim().length > 0) update.image_url = imageUrl;
+        if (images && images.length > 0) update.images = images;
         supabase
           .from('news_items')
           .update(update)
@@ -167,7 +170,7 @@ class ApiController {
           .catch(e => console.error('❌ Failed to cache full-text in Supabase:', e.message));
       }
 
-      res.json({ ok: true, fullText, imageUrl: imageUrl || null });
+      res.json({ ok: true, fullText, imageUrl: imageUrl || null, images });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Haber metni alinamadi.', detail: error.message });
     }

@@ -44,10 +44,12 @@ CREATE TABLE IF NOT EXISTS news_items (
   source_name TEXT,
   full_text TEXT,
   category TEXT DEFAULT 'Osmaniye',
+  images TEXT[] DEFAULT '{}',
   fetched_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE news_items ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Osmaniye';
+ALTER TABLE news_items ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
 
 -- 3. Eczaneler (Pharmacies) Tablosu
 CREATE TABLE IF NOT EXISTS pharmacies (

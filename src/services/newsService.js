@@ -354,7 +354,7 @@ class NewsService {
         const chunk = urls.slice(i, i + chunkSize);
         const { data, error } = await supabase
           .from('news_items')
-          .select('source_url, image_url, full_text, category')
+          .select('source_url, image_url, full_text, category, images')
           .in('source_url', chunk);
         if (error) throw error;
         if (data) allData.push(...data);
@@ -367,6 +367,7 @@ class NewsService {
         return {
           ...item,
           imageUrl: item.imageUrl || cached.image_url || null,
+          images: Array.isArray(cached.images) ? cached.images : (cached.image_url ? [cached.image_url] : (item.imageUrl ? [item.imageUrl] : [])),
           category: item.category || cached.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
         };
       });
@@ -399,7 +400,7 @@ class NewsService {
         const supabase = require('../utils/supabaseClient');
         const { data, error } = await supabase
           .from('news_items')
-          .select('id, title, summary, image_url, created_at, source_url, source_name, category')
+          .select('id, title, summary, image_url, images, created_at, source_url, source_name, category')
           .order('created_at', { ascending: false })
           .limit(100);
 
@@ -409,6 +410,7 @@ class NewsService {
             title: row.title,
             summary: row.summary,
             imageUrl: row.image_url,
+            images: Array.isArray(row.images) ? row.images : (row.image_url ? [row.image_url] : []),
             createdAt: row.created_at,
             sourceUrl: row.source_url,
             sourceName: row.source_name,
@@ -663,6 +665,9 @@ class NewsService {
             if (details.imageUrl && details.imageUrl.trim().length > 0) {
               update.image_url = details.imageUrl;
             }
+            if (details.images && details.images.length > 0) {
+              update.images = details.images;
+            }
             if (Object.keys(update).length > 0) {
               await supabase
                 .from('news_items')
@@ -694,11 +699,20 @@ class NewsService {
     const openToken = `<${tagName}`;
     const closeToken = `</${tagName}>`;
     
+    const openRegex = new RegExp(openToken.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+    const closeRegex = new RegExp(closeToken.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'i');
+    
     let openTags = 1;
     let pos = contentStartIdx;
+    
+    const regexIndexOf = (str, re, start) => {
+      const idx = str.substring(start).search(re);
+      return idx >= 0 ? idx + start : -1;
+    };
+    
     while (openTags > 0 && pos < html.length) {
-      const nextOpen = html.toLowerCase().indexOf(openToken, pos);
-      const nextClose = html.toLowerCase().indexOf(closeToken, pos);
+      const nextOpen = regexIndexOf(html, openRegex, pos);
+      const nextClose = regexIndexOf(html, closeRegex, pos);
       
       if (nextClose === -1) break;
       
@@ -749,11 +763,70 @@ class NewsService {
     return imageUrl || null;
   }
 
+  extractArticleImages(html) {
+    const images = [];
+    try {
+      const $ = cheerio.load(html);
+      
+      // 1. .detail-photo sınıfı ve benzeri özel görsel sınıflarını ara
+      $('.detail-photo, .detail-image, img[class*="detail-"]').each((i, el) => {
+        const src = $(el).attr('src');
+        if (src && src.startsWith('http') && !images.includes(src)) {
+          images.push(src);
+        }
+      });
+      
+      // 2. Makale gövdesi olabilecek alanlardaki img etiketlerini tara
+      const bodySelectors = [
+        'div[itemprop="articleBody"]',
+        'div[property="articleBody"]',
+        '.article-body',
+        '.entry-content',
+        '.article-content',
+        '.post-content',
+        '.news-content',
+        '.haber-icerik',
+        '.haberDetay',
+        '.haber-detay',
+        '.content-body',
+        'article',
+        'main',
+        '.story-body',
+        '.detail-content'
+      ];
+      
+      for (const sel of bodySelectors) {
+        $(sel).find('img').each((i, el) => {
+          const src = $(el).attr('src');
+          if (src && src.startsWith('http') && !/logo|icon|avatar|sprite|favicon|widget|google-news/i.test(src) && !images.includes(src)) {
+            images.push(src);
+          }
+        });
+      }
+    } catch (e) {
+      console.error('[news] Failed to extract article images:', e.message);
+    }
+    return images;
+  }
+
   async fetchArticleDetails(articleUrl) {
     const { html } = await this.fetchArticleHtml(articleUrl);
     const imageUrl = extractOgImageFromHtml(html) || null;
     const fullText = this.parseArticleHtmlToText(html);
-    return { fullText, imageUrl };
+    
+    // Tüm resimleri çek ve ana resmi ilk sıraya yerleştir
+    const bodyImages = this.extractArticleImages(html);
+    const images = [];
+    if (imageUrl) {
+      images.push(imageUrl);
+    }
+    for (const src of bodyImages) {
+      if (!images.includes(src)) {
+        images.push(src);
+      }
+    }
+    
+    return { fullText, imageUrl, images };
   }
 
   async fetchArticleFullText(articleUrl) {
