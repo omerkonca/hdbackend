@@ -364,11 +364,15 @@ class NewsService {
       return items.map((item) => {
         const cached = cacheByUrl.get(item.sourceUrl);
         if (!cached) return item;
+        const excerpt = cached.full_text && cached.full_text.trim().length > 0
+          ? truncateNewsExcerpt(cached.full_text)
+          : null;
         return {
           ...item,
           imageUrl: item.imageUrl || cached.image_url || null,
           images: Array.isArray(cached.images) ? cached.images : (cached.image_url ? [cached.image_url] : (item.imageUrl ? [item.imageUrl] : [])),
           category: item.category || cached.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
+          fullText: excerpt || item.fullText || null,
         };
       });
     } catch (err) {

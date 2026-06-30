@@ -122,6 +122,10 @@ class ApiController {
     try {
       const url = req.query.url;
       if (!url) return res.status(400).json({ ok: false, message: 'url parametresi gerekli.' });
+      const skipLiveImages =
+        req.query.images === '0' ||
+        req.query.images === 'false' ||
+        req.query.skipImages === '1';
       
       // 1. Check if cached in Supabase news_items table
       const supabase = require('../utils/supabaseClient');
@@ -136,24 +140,38 @@ class ApiController {
         if (!error && data && data.length > 0) {
           const cached = data[0];
           const hasText = cached.full_text && cached.full_text.trim().length > 0;
+          const cachedImages = Array.isArray(cached.images)
+            ? cached.images.filter(Boolean)
+            : (cached.image_url ? [cached.image_url] : []);
           if (hasText) {
-            // Metin cache'den; gorseller her istekte taze cekilir (eski yanlis cache'i onler)
-            const imageDetails = await newsService.fetchArticleImages(url);
-            const images = imageDetails.images || [];
-            const imageUrl = imageDetails.imageUrl || cached.image_url || null;
-            if (images.length > 0) {
-              supabase
-                .from('news_items')
-                .update({ images, image_url: imageUrl })
-                .eq('source_url', url)
-                .then(() => console.log(`[news] Images refreshed in Supabase for: ${url}`))
-                .catch((err) => console.error('[news] Image cache update failed:', err.message));
+            if (skipLiveImages || cachedImages.length > 0) {
+              return res.json({
+                ok: true,
+                fullText: truncateNewsExcerpt(cached.full_text),
+                imageUrl: cached.image_url || cachedImages[0] || null,
+                images: cachedImages,
+              });
             }
+
+            // Gorsel cache bos: metni hemen don, gorselleri arka planda yenile
+            newsService.fetchArticleImages(url)
+              .then((imageDetails) => {
+                const images = imageDetails.images || [];
+                const imageUrl = imageDetails.imageUrl || cached.image_url || null;
+                if (images.length === 0) return;
+                return supabase
+                  .from('news_items')
+                  .update({ images, image_url: imageUrl })
+                  .eq('source_url', url);
+              })
+              .then(() => console.log(`[news] Images refreshed in background for: ${url}`))
+              .catch((err) => console.error('[news] Background image refresh failed:', err.message));
+
             return res.json({
               ok: true,
               fullText: truncateNewsExcerpt(cached.full_text),
-              imageUrl,
-              images,
+              imageUrl: cached.image_url || null,
+              images: cachedImages,
             });
           }
         }
