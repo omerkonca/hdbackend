@@ -763,50 +763,240 @@ class NewsService {
     return imageUrl || null;
   }
 
-  extractArticleImages(html) {
+  extractArticleSlug(articleUrl) {
+    try {
+      const path = new URL(String(articleUrl || '')).pathname;
+      const slug = path.split('/').filter(Boolean).pop() || '';
+      return slug.replace(/\.html?$/i, '').toLowerCase();
+    } catch (_) {
+      return '';
+    }
+  }
+
+  imageBelongsToArticle(url, slug) {
+    if (!slug) return true;
+    const u = String(url || '').toLowerCase();
+    if (u.includes(slug)) return true;
+    const filename = u.split('/').pop().replace(/\.\w+$/, '').replace(/\d+$/, '');
+    const slugCore = slug.slice(0, Math.min(slug.length, 24));
+    return filename.includes(slugCore);
+  }
+
+  filterImagesForArticle(images, articleUrl) {
+    const slug = this.extractArticleSlug(articleUrl);
+    if (!slug) return images.slice(0, 8);
+    const filtered = images.filter((url) => this.imageBelongsToArticle(url, slug));
+    if (filtered.length > 0) return filtered.slice(0, 8);
+    return images.slice(0, 1);
+  }
+
+  isInsideForeignArticleLink($, el, articleSlug) {
+    if (!articleSlug) return false;
+    const $link = $(el).closest('a[href]');
+    if (!$link.length) return false;
+    const href = String($link.attr('href') || '').toLowerCase();
+    if (!href || href === '#' || href.startsWith('javascript:')) return false;
+    if (href.includes(articleSlug)) return false;
+    if (/\/[a-z0-9][\w-]{8,}/i.test(href) && !href.includes(articleSlug.slice(0, 16))) {
+      return true;
+    }
+    return false;
+  }
+
+  resolveImgSrc($el) {
+    const attrs = ['src', 'data-src', 'data-lazy-src', 'data-original', 'data-lazy'];
+    for (const attr of attrs) {
+      const val = String($el.attr(attr) || '').trim();
+      if (!val || val.startsWith('data:')) continue;
+      if (val.startsWith('http')) return val;
+      if (val.startsWith('//')) return `https:${val}`;
+    }
+    const srcset = String($el.attr('srcset') || '').trim();
+    if (srcset) {
+      const best = srcset
+        .split(',')
+        .map((part) => part.trim().split(/\s+/))
+        .filter((parts) => parts[0])
+        .sort((a, b) => {
+          const wA = parseInt(a[1], 10) || 0;
+          const wB = parseInt(b[1], 10) || 0;
+          return wB - wA;
+        })[0];
+      if (best && best[0]) {
+        const url = best[0];
+        if (url.startsWith('http')) return url;
+        if (url.startsWith('//')) return `https:${url}`;
+      }
+    }
+    return null;
+  }
+
+  normalizeImageUrlForDedup(url) {
+    try {
+      const u = new URL(url);
+      u.hash = '';
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'gclid'].forEach((k) => {
+        u.searchParams.delete(k);
+      });
+      return u.toString().replace(/\/+$/, '');
+    } catch (_) {
+      return String(url || '').trim();
+    }
+  }
+
+  isNoiseImageUrl(url) {
+    const u = String(url || '').toLowerCase();
+    if (!u.startsWith('http')) return true;
+    if (/logo|icon|avatar|sprite|favicon|widget|google-news|emoji|badge|pixel|spacer|placeholder|blank\.gif|1x1\.|tracking|doubleclick|googlesyndication|facebook\.com\/tr|gravatar|profile|yazar|author|social|sosyal|share|paylas/i.test(u)) {
+      return true;
+    }
+    if (/\b(related|ilgili|sidebar|banner|reklam|advert|\bads?\b|thumb(?:nail)?|small)\b/i.test(u)) {
+      return true;
+    }
+    // WordPress / CDN kucuk onizleme boyutlari (ilgili haber listelerinde cok yaygin)
+    if (/-\d{2,3}x\d{2,3}\.(jpe?g|png|webp|gif)(\?|$)/i.test(u)) {
+      return true;
+    }
+    if (/\/crop\/\d{2,3}x\d{2,3}\//i.test(u)) {
+      return true;
+    }
+    if (/[?&](w|width|h|height)=\d{1,3}(?:&|$)/i.test(u)) {
+      return true;
+    }
+    return false;
+  }
+
+  isNoiseImageElement($, el) {
+    const $el = $(el);
+    const ancestors = $el.parents().addBack();
+    const noiseClassRe = /share|sosyal|social|related|ilgili|comment|yorum|sidebar|breadcrumb|tag-list|tags|author|byline|meta|footer|menu|popup|modal|advert|\bads?\b|banner|newsletter|subscribe|widget|toolbar|read-more|next-prev|pagination|cookie|post-info|post-meta|haber-info|haber-meta|stats|tools|other-news|diger-haber|son-haber|editor|muhabir/i;
+    for (let i = 0; i < ancestors.length; i++) {
+      const node = ancestors.eq(i);
+      const cls = String(node.attr('class') || '');
+      const id = String(node.attr('id') || '');
+      if (noiseClassRe.test(cls) || noiseClassRe.test(id)) return true;
+      if (node.is('nav, header, footer, aside, figure figcaption')) return true;
+    }
+    const width = parseInt($el.attr('width'), 10);
+    const height = parseInt($el.attr('height'), 10);
+    if ((width > 0 && width < 120) || (height > 0 && height < 120)) return true;
+    return false;
+  }
+
+  findArticleBodyContainer($) {
+    $('script, style, noscript, nav, header, footer, aside, form, iframe, svg').remove();
+    const noiseClassRe = /share|sosyal|social|related|ilgili|comment|yorum|sidebar|breadcrumb|tag-list|tags|author|byline|meta|footer|menu|popup|modal|advert|\bads?\b|banner|newsletter|subscribe|widget|toolbar|read-more|next-prev|pagination|cookie|post-info|post-meta|haber-info|haber-meta|stats|tools|other-news|diger-haber|son-haber/i;
+    $('[class],[id]').each((_, el) => {
+      const $node = $(el);
+      const cls = String($node.attr('class') || '');
+      const id = String($node.attr('id') || '');
+      if (noiseClassRe.test(cls) || noiseClassRe.test(id)) {
+        $node.remove();
+      }
+    });
+
+    const bodySelectors = [
+      'div[itemprop="articleBody"]',
+      'div[property="articleBody"]',
+      '.article-body',
+      '.entry-content',
+      '.article-content',
+      '.post-content',
+      '.news-content',
+      '.haber-icerik',
+      '.haberDetay',
+      '.haber-detay',
+      '.content-body',
+      '.article__body',
+      '.article-text',
+      '.story-body',
+      '.detail-content',
+      'article',
+      'main',
+    ];
+
+    for (const sel of bodySelectors) {
+      const $candidate = $(sel).first();
+      if ($candidate.length && $candidate.text().trim().length > 100) {
+        return $candidate;
+      }
+    }
+    return $('body');
+  }
+
+  extractArticleImages(html, articleUrl = '') {
+    const MAX_IMAGES = 8;
     const images = [];
+    const seen = new Set();
+    const slug = this.extractArticleSlug(articleUrl);
+    const addImage = ($, el) => {
+      if (images.length >= MAX_IMAGES) return;
+      if (this.isNoiseImageElement($, el)) return;
+      if (this.isInsideForeignArticleLink($, el, slug)) return;
+      const src = this.resolveImgSrc($(el));
+      if (!src || this.isNoiseImageUrl(src)) return;
+      const key = this.normalizeImageUrlForDedup(src);
+      if (seen.has(key)) return;
+      seen.add(key);
+      images.push(src);
+    };
+
     try {
       const $ = cheerio.load(html);
-      
-      // 1. .detail-photo sınıfı ve benzeri özel görsel sınıflarını ara
-      $('.detail-photo, .detail-image, img[class*="detail-"]').each((i, el) => {
-        const src = $(el).attr('src');
-        if (src && src.startsWith('http') && !images.includes(src)) {
-          images.push(src);
-        }
-      });
-      
-      // 2. Makale gövdesi olabilecek alanlardaki img etiketlerini tara
-      const bodySelectors = [
-        'div[itemprop="articleBody"]',
-        'div[property="articleBody"]',
-        '.article-body',
-        '.entry-content',
-        '.article-content',
-        '.post-content',
-        '.news-content',
-        '.haber-icerik',
-        '.haberDetay',
-        '.haber-detay',
-        '.content-body',
-        'article',
-        'main',
-        '.story-body',
-        '.detail-content'
+
+      // 1) Kapak / hero gorseli (icerik metninin ustundeki ana foto)
+      const heroSelectors = [
+        'article .col-lg-8 .inner img',
+        'article .position-relative.d-block img',
+        '.detail-photo img',
+        '.detail-image img',
+        '.post-thumbnail img',
+        'article header img',
       ];
-      
-      for (const sel of bodySelectors) {
-        $(sel).find('img').each((i, el) => {
-          const src = $(el).attr('src');
-          if (src && src.startsWith('http') && !/logo|icon|avatar|sprite|favicon|widget|google-news/i.test(src) && !images.includes(src)) {
-            images.push(src);
-          }
-        });
+      for (const sel of heroSelectors) {
+        $(sel).each((_, el) => addImage($, el));
+        if (images.length > 0) break;
+      }
+
+      // 2) Sadece haber metni alanindaki gorseller (paragraf / figure)
+      const contentSelectors = [
+        '.article-text p img',
+        '.article-text figure img',
+        '.entry-content p img',
+        '.entry-content figure img',
+        '.article-body p img',
+        '.article-body figure img',
+        '.haber-icerik p img',
+        '.haber-detay p img',
+        'div[itemprop="articleBody"] p img',
+        'div[itemprop="articleBody"] figure img',
+        '.post-content p img',
+        '.news-content p img',
+      ];
+      for (const sel of contentSelectors) {
+        $(sel).each((_, el) => addImage($, el));
       }
     } catch (e) {
       console.error('[news] Failed to extract article images:', e.message);
     }
-    return images;
+    return this.filterImagesForArticle(images, articleUrl);
+  }
+
+  async fetchArticleImages(articleUrl) {
+    const { html } = await this.fetchArticleHtml(articleUrl);
+    const imageUrl = extractOgImageFromHtml(html) || null;
+    const bodyImages = this.extractArticleImages(html, articleUrl);
+    const images = [];
+    if (imageUrl && this.imageBelongsToArticle(imageUrl, this.extractArticleSlug(articleUrl))) {
+      images.push(imageUrl);
+    } else if (imageUrl && bodyImages.length === 0) {
+      images.push(imageUrl);
+    }
+    for (const src of bodyImages) {
+      if (!images.includes(src)) images.push(src);
+      if (images.length >= 8) break;
+    }
+    return { imageUrl: images[0] || imageUrl, images };
   }
 
   async fetchArticleDetails(articleUrl) {
@@ -814,19 +1004,21 @@ class NewsService {
     const imageUrl = extractOgImageFromHtml(html) || null;
     const fullText = this.parseArticleHtmlToText(html);
     
-    // Tüm resimleri çek ve ana resmi ilk sıraya yerleştir
-    const bodyImages = this.extractArticleImages(html);
+    // Tüm resimleri çek ve ana resmi ilk sıraya yerleştir (max 8)
+    const bodyImages = this.extractArticleImages(html, articleUrl);
+    const slug = this.extractArticleSlug(articleUrl);
     const images = [];
-    if (imageUrl) {
+    if (imageUrl && (this.imageBelongsToArticle(imageUrl, slug) || bodyImages.length === 0)) {
       images.push(imageUrl);
     }
     for (const src of bodyImages) {
       if (!images.includes(src)) {
         images.push(src);
       }
+      if (images.length >= 8) break;
     }
     
-    return { fullText, imageUrl, images };
+    return { fullText, imageUrl: images[0] || imageUrl, images };
   }
 
   async fetchArticleFullText(articleUrl) {

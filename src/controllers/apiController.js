@@ -136,13 +136,24 @@ class ApiController {
         if (!error && data && data.length > 0) {
           const cached = data[0];
           const hasText = cached.full_text && cached.full_text.trim().length > 0;
-          const hasImage = cached.image_url && cached.image_url.trim().length > 0;
           if (hasText) {
+            // Metin cache'den; gorseller her istekte taze cekilir (eski yanlis cache'i onler)
+            const imageDetails = await newsService.fetchArticleImages(url);
+            const images = imageDetails.images || [];
+            const imageUrl = imageDetails.imageUrl || cached.image_url || null;
+            if (images.length > 0) {
+              supabase
+                .from('news_items')
+                .update({ images, image_url: imageUrl })
+                .eq('source_url', url)
+                .then(() => console.log(`[news] Images refreshed in Supabase for: ${url}`))
+                .catch((err) => console.error('[news] Image cache update failed:', err.message));
+            }
             return res.json({
               ok: true,
               fullText: truncateNewsExcerpt(cached.full_text),
-              imageUrl: hasImage ? cached.image_url : null,
-              images: Array.isArray(cached.images) ? cached.images : (hasImage ? [cached.image_url] : []),
+              imageUrl,
+              images,
             });
           }
         }
