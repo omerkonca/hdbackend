@@ -4,7 +4,7 @@ const newsService = require('./newsService');
 const aiClient = require('./aiClient');
 const { normalizeForCompare } = require('../utils/helpers');
 
-const SCHEDULE_HOUR_TR = Number(process.env.DAILY_BRIEFING_HOUR_TR || 20);
+const SCHEDULE_HOUR_TR = Number(process.env.DAILY_BRIEFING_HOUR_TR || 8);
 const TZ = 'Europe/Istanbul';
 
 function turkeyDateParts(date = new Date()) {
@@ -153,14 +153,14 @@ class DailyBriefingService {
     return { todayNews, weekNews };
   }
 
-  buildPrompt({ briefingDate, todayNews, weekNews }) {
+  buildPrompt({ briefingDate, todayNews, weekNews, weatherInfoText }) {
     const todayLines = todayNews.slice(0, 40).map(formatNewsLine).join('\n');
     const weekLines = weekNews.slice(0, 80).map(formatNewsLine).join('\n');
 
     return `Tarih: ${briefingDate}
 Konum: Düziçi / Osmaniye
 
-BUGÜNÜN HABERLERİ (${todayNews.length} kayıt):
+${weatherInfoText ? `${weatherInfoText}\n\n` : ''}BUGÜNÜN HABERLERİ (${todayNews.length} kayıt):
 ${todayLines || '(bugün Düziçi ile ilgili kayıtlı haber yok)'}
 
 BU HAFTANIN HABERLERİ (${weekNews.length} kayıt):
@@ -170,7 +170,7 @@ GÖREV TALİMATLARI:
 1. Haber özetlerini doğrudan ve akıcı bir anlatımla yaz. Cümleler birbirine mantıklı bir şekilde bağlansın.
 2. KRİTİK KURAL: Asla "Bugün Düziçi'nde hareketli bir gün yaşandı" veya "Bu hafta Düziçi'nde çeşitli etkinlikler gerçekleştirildi" gibi yapay zeka jenerik/dolgu giriş cümleleri kullanma! Doğrudan günün en önemli, somut olayına değinerek başla (Örn: "Karne şenliğinde itfaiyenin su sürpriziyle serinleyen Düziçili çocuklar eğlenceli anlar yaşadı.").
 3. today_title: Günün en önemli olayını yansıtan, merak uyandırıcı, profesyonel bir gazete manşeti başlığı (en fazla 70 karakter). Başlıkta jenerik kelimelerden kaçın.
-4. today_summary: Bugünün gelişmelerini özetleyen samimi, net ve bilgi dolu 2-4 cümle.
+4. today_summary: Bugünün gelişmelerini özetleyen samimi, net ve bilgi dolu 2-4 cümle. today_summary içinde günün hava durumuna kısaca değinerek halka giyim, dışarı çıkma veya günün gidişatı hakkında samimi ve pratik bir editör tavsiyesi (örneğin hava sıcaklığına göre kıyafet seçimi, yağmura karşı şemsiye vb.) ver.
 5. week_summary: Haftalık gelişmeleri toparlayan, olaylar arası bağlantı kuran 3-5 cümle.
 6. highlights: Öne çıkan en önemli 3 farklı somut gelişmeyi özetleyen kısa cümleler dizisi (her biri en fazla 85 karakter). Bullet listesinde jenerik ifadeler kullanma, net bilgi ver.
 7. Değerlerin hiçbirinde markdown biçimlendirmesi (kalın yazı, eğik yazı vb.) veya HTML kullanma.
@@ -205,6 +205,18 @@ JSON FORMATI:
       forceRefresh: force,
       briefingDate: targetDate,
     });
+
+    let weatherInfoText = '';
+    try {
+      const weatherService = require('./weatherService');
+      const weather = await weatherService.getWeather();
+      if (weather && weather.current) {
+        weatherInfoText = `BUGÜNÜN HAVA DURUMU:\nSıcaklık: ${weather.current.temp}°C (Hissedilen: ${weather.current.feelsLike}°C)\nDurum: ${weather.current.condition.text}\nNem: %${weather.current.humidity}\n\nÜÇ GÜNLÜK HAVA TAHMİNİ:\n${(weather.forecast || []).map(f => `- ${f.date}: En yüksek ${f.maxTemp}°C, En düşük ${f.minTemp}°C, ${f.condition.text}`).join('\n')}`;
+      }
+    } catch (err) {
+      console.warn('[daily-briefing] Weather info fetch failed for prompt:', err.message);
+    }
+
     const systemPrompt =
       'Sen Düziçi ve Osmaniye bölgesinde yayın yapan, son derece profesyonel, samimi ve güvenilir bir yerel haber baş editörüsün. ' +
       'Görevin, günlük haberleri analiz ederek Düziçi halkına anlaşılır, akıcı ve ilgi çekici özetler hazırlamaktır. ' +
@@ -215,6 +227,7 @@ JSON FORMATI:
       briefingDate: targetDate,
       todayNews,
       weekNews,
+      weatherInfoText,
     });
 
     const { data, model } = await aiClient.generateJson({ systemPrompt, userPrompt });

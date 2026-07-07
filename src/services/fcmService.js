@@ -43,7 +43,16 @@ async function sendMulticast(tokens, { title, body, data = {} }) {
       notification: { title, body },
       data: stringData,
       android: { priority: 'high' },
-      apns: { payload: { aps: { sound: 'default' } } },
+      apns: {
+        headers: {
+          'apns-priority': '10',
+        },
+        payload: {
+          aps: {
+            sound: 'default',
+          },
+        },
+      },
     });
     sent += response.successCount;
     failed += response.failureCount;
@@ -76,6 +85,9 @@ async function sendToTopic(topic, { title, body, data = {} }) {
       data: stringData,
       android: { priority: 'high' },
       apns: {
+        headers: {
+          'apns-priority': '10',
+        },
         payload: {
           aps: {
             sound: 'default',
