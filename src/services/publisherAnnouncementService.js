@@ -4,6 +4,7 @@ const fcmService = require('./fcmService');
 
 function mapRow(row) {
   if (!row) return null;
+  const badgeLabel = (row.badge_label || row.source_label || '').toString().trim();
   return {
     id: row.id,
     title: row.title,
@@ -15,6 +16,7 @@ function mapRow(row) {
     publishedAt: row.published_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    badgeLabel: badgeLabel || 'YAYINCI DUYURUSU',
   };
 }
 
