@@ -419,7 +419,8 @@ class ApiController {
 
   async getWeather(req, res) {
     try {
-      const data = await weatherService.getWeather();
+      const forceRefresh = req.query.refresh === '1' || req.query.refresh === 'true';
+      const data = await weatherService.getWeather({ forceRefresh });
       res.json({ ok: true, ...data });
     } catch (error) {
       console.error('❌ getWeather error:', error);

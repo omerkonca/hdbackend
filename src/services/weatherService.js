@@ -9,9 +9,9 @@ class WeatherService {
     };
   }
 
-  async getWeather() {
+  async getWeather({ forceRefresh = false } = {}) {
     const now = Date.now();
-    if (this.cache.data && now - this.cache.fetchedAt < config.WEATHER.CACHE_TTL_MS) {
+    if (!forceRefresh && this.cache.data && now - this.cache.fetchedAt < config.WEATHER.CACHE_TTL_MS) {
       return this.cache.data;
     }
 
