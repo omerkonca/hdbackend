@@ -57,11 +57,13 @@ const config = {
     API_URL: 'https://api.open-meteo.com/v1/forecast',
     LAT: 37.24,
     LON: 36.45,
-    CACHE_TTL_MS: 1000 * 60 * 15, // 15 mins
+    // Sabah 08:00 TR'de bir kez yenilenir; TTL yedek güvenlik ağı
+    CACHE_TTL_MS: 1000 * 60 * 60 * 24,
+    REFRESH_HOUR_TR: Number(process.env.WEATHER_REFRESH_HOUR_TR || 8),
   },
 
   DAILY_BRIEFING: {
-    SCHEDULE_HOUR_TR: Number(process.env.DAILY_BRIEFING_HOUR_TR || 20),
+    SCHEDULE_HOUR_TR: Number(process.env.DAILY_BRIEFING_HOUR_TR || 19),
     CHECK_INTERVAL_MS: 15 * 60 * 1000,
   },
 
@@ -83,7 +85,7 @@ const config = {
     eventsMs: 30 * 60 * 1000,
     roadClosuresMs: 60 * 60 * 1000,
     obituariesMs: 2 * 60 * 60 * 1000,
-    weatherMs: 30 * 60 * 1000,
+    weatherMs: 60 * 60 * 1000, // saatte bir kontrol; asıl yenileme sabah 08:00'de bir kez
     outagesMs: 60 * 60 * 1000,
     dailyBriefingMs: 15 * 60 * 1000,
   },

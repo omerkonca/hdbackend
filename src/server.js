@@ -138,7 +138,7 @@ const server = app.listen(config.PORT, () => {
 
   if (config.RUNTIME.LIGHT_BACKGROUND_JOBS) {
     console.log('[server] hafif arka plan modu — periyodik tarama yok, cache API isteğinde yenilenir');
-    // Akşam özeti için saatte bir kontrol yeterli (günde tek AI çağrısı)
+    // Gün sonu özeti için saatte bir kontrol yeterli (günde tek AI çağrısı, 19:00 TR)
     setInterval(runDailyBriefingJob, 60 * 60 * 1000);
   } else {
     setInterval(() => {

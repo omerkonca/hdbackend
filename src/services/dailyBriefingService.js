@@ -4,7 +4,7 @@ const newsService = require('./newsService');
 const aiClient = require('./aiClient');
 const { normalizeForCompare } = require('../utils/helpers');
 
-const SCHEDULE_HOUR_TR = Number(process.env.DAILY_BRIEFING_HOUR_TR || 8);
+const SCHEDULE_HOUR_TR = Number(process.env.DAILY_BRIEFING_HOUR_TR || 19);
 const TZ = 'Europe/Istanbul';
 
 function turkeyDateParts(date = new Date()) {

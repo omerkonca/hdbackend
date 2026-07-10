@@ -1,6 +1,26 @@
 const config = require('../config');
 const { fetchWithTimeout } = require('../utils/helpers');
 
+const TZ = 'Europe/Istanbul';
+
+function turkeyDateParts(date = new Date()) {
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  const parts = Object.fromEntries(fmt.formatToParts(date).map((p) => [p.type, p.value]));
+  return {
+    date: `${parts.year}-${parts.month}-${parts.day}`,
+    hour: Number(parts.hour),
+    minute: Number(parts.minute),
+  };
+}
+
 class WeatherService {
   constructor() {
     this.cache = {
@@ -9,14 +29,34 @@ class WeatherService {
     };
   }
 
+  _needsMorningRefresh(fetchedAtMs) {
+    if (!fetchedAtMs) return true;
+    const refreshHour = config.WEATHER.REFRESH_HOUR_TR ?? 8;
+    const tr = turkeyDateParts();
+    const fetchedTr = turkeyDateParts(new Date(fetchedAtMs));
+
+    // 08:00 öncesi: gece boyunca yeni çekme; eldeki cache yeter
+    if (tr.hour < refreshHour) {
+      return false;
+    }
+
+    // 08:00 sonrası: bugün 08:00'den önce çekildiyse bir kez yenile
+    if (fetchedTr.date < tr.date) return true;
+    if (fetchedTr.date === tr.date && fetchedTr.hour < refreshHour) return true;
+    return false;
+  }
+
   async getWeather({ forceRefresh = false } = {}) {
-    const now = Date.now();
-    if (!forceRefresh && this.cache.data && now - this.cache.fetchedAt < config.WEATHER.CACHE_TTL_MS) {
+    if (forceRefresh) {
+      return this._fetchAndCacheWeather();
+    }
+
+    if (this.cache.data && !this._needsMorningRefresh(this.cache.fetchedAt)) {
       return this.cache.data;
     }
 
     if (this.cache.data) {
-      console.log('[weather] Returning stale weather cache, refreshing in background...');
+      console.log('[weather] Sabah 08:00 yenilemesi — arka planda güncelleniyor...');
       this._refreshWeatherBackground().catch(() => {});
       return this.cache.data;
     }
