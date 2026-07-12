@@ -46,8 +46,9 @@ class CitizenReportService {
 
   async list({ limit = 50, status } = {}) {
     const capped = Math.min(limit, 100);
+    const db = requireSupabaseAdmin();
 
-    let query = supabase
+    let query = db
       .from('citizen_reports')
       .select('*')
       .order('created_at', { ascending: false })
@@ -72,7 +73,7 @@ class CitizenReportService {
       .from('citizen_reports')
       .update({ status })
       .eq('id', id)
-      .select('id, status')
+      .select('id, status, category, message, contact_name, contact_email, image_urls, platform, app_version, created_at')
       .single();
 
     if (error) throw new Error(error.message);
