@@ -426,6 +426,7 @@
       <div class="menu-group-items" id="groupAnnounce">
         <div class="nav-item" onclick="switchView('announcements')">📣 Duyuru Yayınla (Canva + Push)</div>
         <div class="nav-item" onclick="switchView('push')">📲 Sadece Bildirim Gönder</div>
+        <div class="nav-item" onclick="switchView('citizenReports')">🚨 İhbar Yönetimi</div>
       </div>
       
       <!-- Ana Sayfa Grubu -->
@@ -630,6 +631,29 @@
           </div>
           <div id="pushResult" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
           <button type="button" class="btn btn-primary" id="pushSendBtn" onclick="sendPushNotification()">📤 Tüm kullanıcılara gönder</button>
+        </div>
+      </div>
+
+      <!-- Citizen Reports -->
+      <div id="citizenReportsView" class="view-section">
+        <div class="card">
+          <div class="section-title">🚨 Vatandaş İhbar Yönetimi</div>
+          <p style="color:var(--text-muted); font-size:14px; margin-top:0">
+            Uygulamadan gelen ihbarları buradan inceleyin. Durumu <strong>Alındı → İnceleniyor → Çözüldü</strong> olarak güncelleyin.
+            Kullanıcılar uygulamadaki <em>İhbar Takibi</em> ekranında durumu görür.
+          </p>
+          <div class="row" style="margin-bottom:16px; flex-wrap:wrap; gap:8px">
+            <select id="citizenReportFilter" onchange="loadCitizenReports()" style="min-width:180px">
+              <option value="all">Tümü</option>
+              <option value="new">Alındı</option>
+              <option value="reviewing">İnceleniyor</option>
+              <option value="resolved">Çözüldü</option>
+              <option value="dismissed">Kapatıldı</option>
+            </select>
+            <button type="button" class="btn btn-secondary" onclick="loadCitizenReports()">🔄 Yenile</button>
+          </div>
+          <div id="citizenReportsStatus" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
+          <div id="citizenReportsList"></div>
         </div>
       </div>
 
@@ -1443,6 +1467,99 @@
       }
     }
 
+    const CITIZEN_REPORT_STATUS_LABELS = {
+      new: 'Alındı',
+      reviewing: 'İnceleniyor',
+      resolved: 'Çözüldü',
+      dismissed: 'Kapatıldı',
+    };
+
+    async function loadCitizenReports() {
+      const listEl = document.getElementById('citizenReportsList');
+      const statusEl = document.getElementById('citizenReportsStatus');
+      const filter = document.getElementById('citizenReportFilter')?.value || 'all';
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="color:var(--text-muted)">Yükleniyor...</p>';
+      if (statusEl) statusEl.textContent = '';
+      try {
+        const qs = filter && filter !== 'all' ? `?status=${encodeURIComponent(filter)}` : '';
+        const res = await fetch(`/api/citizen-reports${qs}`, {
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.message || 'İhbarlar yüklenemedi');
+        }
+        const items = data.items || [];
+        if (statusEl) statusEl.textContent = `${items.length} ihbar listeleniyor`;
+        if (!items.length) {
+          listEl.innerHTML = '<p style="color:var(--text-muted)">Bu filtrede ihbar yok.</p>';
+          return;
+        }
+        listEl.innerHTML = items.map((item) => {
+          const id = escapeHtml(item.id);
+          const category = escapeHtml(item.category || '—');
+          const message = escapeHtml(item.message || '');
+          const contact = escapeHtml(
+            [item.contact_name, item.contact_email].filter(Boolean).join(' · ') || 'İletişim yok',
+          );
+          const created = item.created_at
+            ? escapeHtml(new Date(item.created_at).toLocaleString('tr-TR'))
+            : '—';
+          const current = item.status || 'new';
+          const photos = (item.image_urls || [])
+            .map((url) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-right:6px"></a>`)
+            .join('');
+          const options = Object.entries(CITIZEN_REPORT_STATUS_LABELS)
+            .map(([value, label]) => `<option value="${value}" ${value === current ? 'selected' : ''}>${label}</option>`)
+            .join('');
+          return `
+            <div class="card" style="margin-bottom:12px; padding:16px; border:1px solid var(--border)">
+              <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px">
+                <div>
+                  <strong>${category}</strong>
+                  <div style="font-size:12px; color:var(--text-muted); margin-top:4px">${created} · <code style="font-size:11px">${id}</code></div>
+                </div>
+                <div class="row" style="gap:8px; align-items:center">
+                  <select id="cr-status-${id}" style="min-width:140px">${options}</select>
+                  <button type="button" class="btn btn-primary" onclick="updateCitizenReportStatus('${id}')">Kaydet</button>
+                </div>
+              </div>
+              <p style="margin:8px 0; white-space:pre-wrap; font-size:14px">${message}</p>
+              <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px">${contact}</div>
+              ${photos ? `<div style="display:flex; flex-wrap:wrap">${photos}</div>` : ''}
+            </div>`;
+        }).join('');
+      } catch (e) {
+        listEl.innerHTML = `<p style="color:var(--danger)">${escapeHtml(e.message || 'Hata')}</p>`;
+        if (statusEl) statusEl.textContent = '';
+      }
+    }
+
+    async function updateCitizenReportStatus(id) {
+      const select = document.getElementById(`cr-status-${id}`);
+      const status = select?.value;
+      if (!status) return;
+      try {
+        const res = await fetch(`/api/citizen-reports/${encodeURIComponent(id)}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken,
+          },
+          body: JSON.stringify({ status }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.message || 'Durum güncellenemedi');
+        }
+        showToast(`Durum: ${CITIZEN_REPORT_STATUS_LABELS[status] || status}`);
+        loadCitizenReports();
+      } catch (e) {
+        showToast(e.message || 'Durum güncellenemedi', true);
+      }
+    }
+
     // Login logic
     async function handleLogin() {
       const pass = document.getElementById('passInput').value;
@@ -1528,6 +1645,7 @@
         sponsors: ['Sponsorlar', 'Uygulamadaki reklam ve sponsor alanları.'],
         announcements: ['Yayıncı Duyuruları', 'Canva görseli ve metin ile duyuru yayınlayın; isteğe bağlı push gönderin.'],
         push: ['Toplu Bildirim', 'Tüm kullanıcılara push bildirim gönderin.'],
+        citizenReports: ['İhbar Yönetimi', 'Vatandaş ihbarlarını inceleyin ve durumlarını güncelleyin.'],
         backups: ['Yedekler', 'Veri güvenliği ve geri yükleme merkezi.'],
         json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.'],
         autoGallery: ['Oto Galeri İlanları', 'Esnafların satılık/kiralık araç ilanlarını yönetin.'],
@@ -1543,6 +1661,9 @@
       
       if (view === 'push') {
         loadPushStatus();
+      }
+      if (view === 'citizenReports') {
+        loadCitizenReports();
       }
       if (view === 'announcements') {
         loadAnnouncementsAdminList();
