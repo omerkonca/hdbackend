@@ -63,17 +63,28 @@ class CitizenReportService {
     return data ?? [];
   }
 
-  async updateStatus(id, status) {
+  async updateStatus(id, status, resolutionMessage) {
     if (!VALID_STATUSES.has(status)) {
       throw new Error('Geçersiz durum.');
+    }
+
+    const patch = { status };
+    if (resolutionMessage !== undefined) {
+      const trimmed = String(resolutionMessage || '').trim();
+      if (trimmed.length > 2000) {
+        throw new Error('Yanıt mesajı en fazla 2000 karakter olabilir.');
+      }
+      patch.resolution_message = trimmed || null;
     }
 
     const db = requireSupabaseAdmin();
     const { data, error } = await db
       .from('citizen_reports')
-      .update({ status })
+      .update(patch)
       .eq('id', id)
-      .select('id, status, category, message, contact_name, contact_email, image_urls, platform, app_version, created_at')
+      .select(
+        'id, status, category, message, resolution_message, contact_name, contact_email, image_urls, platform, app_version, created_at',
+      )
       .single();
 
     if (error) throw new Error(error.message);

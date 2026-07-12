@@ -1507,6 +1507,7 @@
             ? escapeHtml(new Date(item.created_at).toLocaleString('tr-TR'))
             : '—';
           const current = item.status || 'new';
+          const resolution = escapeHtml(item.resolution_message || '');
           const photos = (item.image_urls || [])
             .map((url) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-right:6px"></a>`)
             .join('');
@@ -1527,7 +1528,11 @@
               </div>
               <p style="margin:8px 0; white-space:pre-wrap; font-size:14px">${message}</p>
               <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px">${contact}</div>
-              ${photos ? `<div style="display:flex; flex-wrap:wrap">${photos}</div>` : ''}
+              ${photos ? `<div style="display:flex; flex-wrap:wrap; margin-bottom:8px">${photos}</div>` : ''}
+              <div class="form-group" style="margin:0">
+                <label>Vatandaşa yanıt / çözüm mesajı</label>
+                <textarea id="cr-msg-${id}" rows="3" placeholder="Örn: Ekiplerimiz müdahale etti, sorun giderildi." style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px">${resolution}</textarea>
+              </div>
             </div>`;
         }).join('');
       } catch (e) {
@@ -1538,6 +1543,7 @@
 
     async function updateCitizenReportStatus(id) {
       const select = document.getElementById(`cr-status-${id}`);
+      const msgEl = document.getElementById(`cr-msg-${id}`);
       const status = select?.value;
       if (!status) return;
       try {
@@ -1547,7 +1553,10 @@
             'Content-Type': 'application/json',
             'x-admin-token': currentToken,
           },
-          body: JSON.stringify({ status }),
+          body: JSON.stringify({
+            status,
+            resolutionMessage: msgEl ? msgEl.value : '',
+          }),
         });
         const data = await res.json();
         if (!res.ok || !data.ok) {

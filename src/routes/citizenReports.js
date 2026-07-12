@@ -141,7 +141,17 @@ router.get('/', requireAdminToken, async (req, res) => {
 router.patch('/:id/status', requireAdminToken, async (req, res) => {
   try {
     const status = String(req.body?.status || '').trim();
-    const row = await citizenReportService.updateStatus(req.params.id, status);
+    const hasResolution =
+      Object.prototype.hasOwnProperty.call(req.body || {}, 'resolutionMessage') ||
+      Object.prototype.hasOwnProperty.call(req.body || {}, 'resolution_message');
+    const resolutionMessage = hasResolution
+      ? (req.body.resolutionMessage ?? req.body.resolution_message)
+      : undefined;
+    const row = await citizenReportService.updateStatus(
+      req.params.id,
+      status,
+      resolutionMessage,
+    );
     return res.json({ ok: true, item: row });
   } catch (e) {
     return res.status(400).json({ ok: false, message: e.message });
