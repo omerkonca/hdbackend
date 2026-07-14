@@ -102,6 +102,8 @@ class NewsService {
 
   itemQualityScore(item) {
     let score = 0;
+    if (this.isOwnPublisherItem(item)) score += 100;
+    if (item.verified === true) score += 40;
     if (item.imageUrl) score += 20;
     const url = String(item.sourceUrl || '');
     if (url && !/news\.google\.com/i.test(url)) score += 30;
@@ -152,9 +154,25 @@ class NewsService {
   }
 
   mergeItemPreferBetter(existing, candidate) {
+    const ownExisting = this.isOwnPublisherItem(existing);
+    const ownCandidate = this.isOwnPublisherItem(candidate);
+    if (ownExisting && !ownCandidate) return existing;
+    if (ownCandidate && !ownExisting) return candidate;
     return this.itemQualityScore(candidate) > this.itemQualityScore(existing)
       ? candidate
       : existing;
+  }
+
+  isOwnPublisherItem(item) {
+    if (!item) return false;
+    const id = String(item.id || '');
+    if (id.startsWith('news-custom-') || id.startsWith('news-ai-reporter-')) return true;
+    if (item.verified === true) {
+      const name = String(item.sourceName || item.source_name || '').toLowerCase();
+      if (name.includes('hepsi')) return true;
+    }
+    const url = String(item.sourceUrl || item.source_url || '').toLowerCase();
+    return url.includes('forvibe.app/duzici-news') || url.includes('forvibe.app/duzici-ai-reporter');
   }
 
   areDuplicateNews(existing, candidate) {
@@ -179,7 +197,12 @@ class NewsService {
         kept.push(item);
       }
     }
-    return kept;
+    const own = kept.filter((item) => this.isOwnPublisherItem(item));
+    if (own.length === 0) return kept;
+    return kept.filter((item) => {
+      if (this.isOwnPublisherItem(item)) return true;
+      return !own.some((o) => this.areDuplicateNews(o, item));
+    });
   }
 
   duziciKeywordRe() {
