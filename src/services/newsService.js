@@ -39,6 +39,48 @@ class NewsService {
     return this.ARTICLE_TIMEOUT_MS;
   }
 
+  mapDbRowToItem(row) {
+    return {
+      id: row.id,
+      title: row.title,
+      summary: row.summary,
+      imageUrl: row.image_url,
+      images: Array.isArray(row.images) ? row.images : (row.image_url ? [row.image_url] : []),
+      videoUrl: row.video_url || null,
+      createdAt: row.created_at,
+      sourceUrl: row.source_url,
+      sourceName: row.source_name,
+      category: row.category,
+      verified: row.verified === true,
+      isAiGenerated: row.is_ai_generated === true,
+      isAiOptimized: row.is_ai_optimized === true,
+      fullText: row.full_text || undefined,
+    };
+  }
+
+  async getPublisherNewsFromDb(limit = 40) {
+    const supabase = require('../utils/supabaseClient');
+    const { data, error } = await supabase
+      .from('news_items')
+      .select('id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text')
+      .or(
+        'verified.eq.true,id.like.news-custom-%,id.like.news-ai-reporter-%,source_name.eq.Hepsi Düziçi,source_name.eq.Yapay Zeka Muhabiri',
+      )
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw new Error(error.message);
+    return (data || []).map((row) => this.mapDbRowToItem(row));
+  }
+
+  prependToCache(item) {
+    if (!item?.id) return;
+    const rest = (this.cache.items || []).filter((x) => x.id !== item.id);
+    this.cache = {
+      fetchedAt: Date.now(),
+      items: [item, ...rest],
+    };
+  }
+
   extractImageFromItem(itemBlock) {
     const fields = [
       getTagValue(itemBlock, 'description'),
@@ -404,22 +446,12 @@ class NewsService {
         const supabase = require('../utils/supabaseClient');
         const { data, error } = await supabase
           .from('news_items')
-          .select('id, title, summary, image_url, images, created_at, source_url, source_name, category')
+          .select('id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized')
           .order('created_at', { ascending: false })
           .limit(100);
 
         if (!error && data && data.length > 0) {
-          const dbItems = data.map(row => ({
-            id: row.id,
-            title: row.title,
-            summary: row.summary,
-            imageUrl: row.image_url,
-            images: Array.isArray(row.images) ? row.images : (row.image_url ? [row.image_url] : []),
-            createdAt: row.created_at,
-            sourceUrl: row.source_url,
-            sourceName: row.source_name,
-            category: row.category,
-          }));
+          const dbItems = data.map(row => this.mapDbRowToItem(row));
 
           // Populate memory cache (mark fetchedAt as old so background refresh triggers)
           this.cache = {
@@ -460,6 +492,14 @@ class NewsService {
       const now = Date.now();
       let items = await this.scrapeNews({ max: Math.max(max, 80) });
       items = await this.enrichItemsFromCache(items);
+      try {
+        const publisherItems = await this.getPublisherNewsFromDb(40);
+        if (publisherItems.length > 0) {
+          items = this.mergeAndDedupeNews([...publisherItems, ...items], Math.max(max, 100));
+        }
+      } catch (pubErr) {
+        console.warn('[news] Publisher news merge skipped:', pubErr.message);
+      }
       this.cache = {
         fetchedAt: now,
         items,
@@ -673,7 +713,7 @@ class NewsService {
         const chunk = urls.slice(i, i + chunkSize);
         const { data, error } = await supabase
           .from('news_items')
-          .select('source_url, full_text, image_url')
+          .select('source_url, full_text, image_url, is_ai_optimized')
           .in('source_url', chunk);
         if (error) throw error;
         if (data) allData.push(...data);
@@ -706,8 +746,9 @@ class NewsService {
             // AI Beautification
             let optimized = null;
             let beautifyEnabled = config.AI_NEWS.BEAUTIFY_SCRAPED;
+            let cityContent = null;
             try {
-              const cityContent = await fileService.readCityContent();
+              cityContent = await fileService.readCityContent();
               if (cityContent?.aiNewsSettings?.beautifyScraped !== undefined) {
                 beautifyEnabled = cityContent.aiNewsSettings.beautifyScraped === true;
               }
@@ -715,11 +756,29 @@ class NewsService {
 
             if (beautifyEnabled && details.fullText && details.fullText.trim().length > 80) {
               try {
-                console.log(`[news-ai] Optimizing scraped article with AI: ${item.sourceUrl}`);
-                optimized = await this.optimizeNewsWithAI({
-                  title: item.title,
-                  fullText: details.fullText
-                });
+                const settings = cityContent?.aiNewsSettings || {};
+                const dailyLimit = Number(settings.beautifyDailyLimit ?? 25);
+                const today = new Date().toISOString().slice(0, 10);
+                let countToday = Number(settings.beautifyCountToday || 0);
+                if (settings.beautifyCountDate !== today) {
+                  countToday = 0;
+                }
+                const alreadyOptimized = cachedByUrl.get(item.sourceUrl)?.is_ai_optimized === true;
+                if (!alreadyOptimized && (dailyLimit <= 0 || countToday < dailyLimit)) {
+                  console.log(`[news-ai] Optimizing scraped article with AI: ${item.sourceUrl}`);
+                  optimized = await this.optimizeNewsWithAI({
+                    title: item.title,
+                    fullText: details.fullText
+                  });
+                  if (optimized && cityContent) {
+                    settings.beautifyCountDate = today;
+                    settings.beautifyCountToday = countToday + 1;
+                    settings.lastBeautifyAt = new Date().toISOString();
+                    settings.lastBeautifyOk = true;
+                    cityContent.aiNewsSettings = settings;
+                    await fileService.writeCityContent(cityContent).catch(() => {});
+                  }
+                }
               } catch (aiErr) {
                 console.warn(`[news-ai] AI optimization failed for ${item.sourceUrl}:`, aiErr.message);
               }

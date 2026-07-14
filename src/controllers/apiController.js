@@ -132,7 +132,7 @@ class ApiController {
       try {
         const { data, error } = await supabase
           .from('news_items')
-          .select('full_text, image_url, images')
+          .select('full_text, image_url, images, video_url, verified, is_ai_generated, is_ai_optimized, source_name')
           .eq('source_url', url)
           .order('created_at', { ascending: false })
           .limit(1);
@@ -144,12 +144,24 @@ class ApiController {
             ? cached.images.filter(Boolean)
             : (cached.image_url ? [cached.image_url] : []);
           if (hasText) {
-            if (skipLiveImages || cachedImages.length > 0) {
+            const isOwnPublisher =
+              cached.verified === true ||
+              cached.source_name === 'Hepsi Düziçi' ||
+              String(url || '').includes('forvibe.app');
+            const body = isOwnPublisher
+              ? cached.full_text
+              : truncateNewsExcerpt(cached.full_text);
+            if (skipLiveImages || cachedImages.length > 0 || isOwnPublisher) {
               return res.json({
                 ok: true,
-                fullText: truncateNewsExcerpt(cached.full_text),
+                fullText: body,
                 imageUrl: cached.image_url || cachedImages[0] || null,
                 images: cachedImages,
+                videoUrl: cached.video_url || null,
+                verified: cached.verified === true,
+                isAiGenerated: cached.is_ai_generated === true,
+                isAiOptimized: cached.is_ai_optimized === true,
+                sourceName: cached.source_name || null,
               });
             }
 
@@ -169,9 +181,14 @@ class ApiController {
 
             return res.json({
               ok: true,
-              fullText: truncateNewsExcerpt(cached.full_text),
+              fullText: body,
               imageUrl: cached.image_url || null,
               images: cachedImages,
+              videoUrl: cached.video_url || null,
+              verified: cached.verified === true,
+              isAiGenerated: cached.is_ai_generated === true,
+              isAiOptimized: cached.is_ai_optimized === true,
+              sourceName: cached.source_name || null,
             });
           }
         }
@@ -567,31 +584,59 @@ class ApiController {
 
   async publishNewsDraft(req, res) {
     try {
-      const { title, summary, fullText, category, imageUrl, images, sendPush } = req.body;
+      const {
+        title,
+        summary,
+        fullText,
+        category,
+        imageUrl,
+        images,
+        videoUrl,
+        sendPush,
+      } = req.body;
       if (!title || !fullText) {
         return res.status(400).json({ ok: false, message: 'Başlık ve Haber Metni alanları zorunludur.' });
+      }
+
+      const cover =
+        (typeof imageUrl === 'string' && imageUrl.trim()) ||
+        (Array.isArray(images) && images.find(Boolean)) ||
+        null;
+      if (!cover) {
+        return res.status(400).json({
+          ok: false,
+          message: 'Haber görseli zorunludur. Kapak görseli yükleyin veya URL girin.',
+        });
       }
 
       const crypto = require('crypto');
       const supabase = require('../utils/supabaseClient');
       const fcmService = require('../services/fcmService');
+      const newsService = require('../services/newsService');
+      const fileService = require('../services/fileService');
 
       const urlHash = crypto.createHash('md5').update(`custom-news-${title}-${Date.now()}`).digest('hex');
       const newsId = `news-custom-${urlHash}`;
+      const imageList = Array.isArray(images) && images.length > 0
+        ? images.filter(Boolean)
+        : [cover];
+      const video = typeof videoUrl === 'string' && videoUrl.trim() ? videoUrl.trim() : null;
 
       const newArticle = {
         id: newsId,
         title: String(title).slice(0, 120),
         summary: String(summary || '').trim(),
         full_text: String(fullText).trim(),
-        image_url: imageUrl || (images && images[0]) || null,
+        image_url: cover,
+        video_url: video,
         created_at: new Date().toISOString(),
         source_url: `https://forvibe.app/duzici-news/${newsId}`,
-        source_name: 'Yayıncı Paneli',
+        source_name: 'Hepsi Düziçi',
         category: category || 'Düziçi',
         is_ai_generated: true,
         is_ai_optimized: false,
-        images: Array.isArray(images) ? images : (imageUrl ? [imageUrl] : []),
+        verified: true,
+        images: imageList,
         fetched_at: new Date().toISOString(),
       };
 
@@ -603,22 +648,44 @@ class ApiController {
 
       if (error) throw error;
 
+      newsService.prependToCache(newsService.mapDbRowToItem(data));
+
+      let pushResult = null;
       if (sendPush === true && fcmService.isFcmConfigured()) {
         const isDuzici = String(category || '').toLowerCase().includes('düziçi') ||
                          String(category || '').toLowerCase().includes('duzici');
         const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
         const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
 
-        await fcmService.sendToTopic(topic, {
+        pushResult = await fcmService.sendToTopic(topic, {
           title: pushTitle,
           body: newArticle.title,
           data: {
             route: String(newArticle.id),
           },
-        }).catch(e => console.error('[push] FCM push failed:', e.message));
+        }).catch(e => {
+          console.error('[push] FCM push failed:', e.message);
+          return { ok: false, detail: e.message };
+        });
       }
 
-      return res.json({ ok: true, message: 'Haber başarıyla yayınlandı.', item: data });
+      try {
+        const city = await fileService.readCityContent();
+        city.aiNewsSettings = {
+          ...(city.aiNewsSettings || {}),
+          lastDraftPublishAt: new Date().toISOString(),
+          lastDraftPublishOk: true,
+          lastDraftTitle: newArticle.title,
+        };
+        await fileService.writeCityContent(city);
+      } catch (_) {}
+
+      return res.json({
+        ok: true,
+        message: 'Haber başarıyla yayınlandı (Hepsi Düziçi ✓).',
+        item: data,
+        push: pushResult,
+      });
     } catch (error) {
       console.error('❌ Custom news publish failed:', error.message);
       return res.status(500).json({ ok: false, message: 'Haber yayınlanamadı.', detail: error.message });
@@ -628,10 +695,32 @@ class ApiController {
   async triggerAiReporter(req, res) {
     try {
       const aiReporterService = require('../services/aiReporterService');
+      const fileService = require('../services/fileService');
       const result = await aiReporterService.generateDailyReport({ force: true });
       if (!result) {
+        try {
+          const city = await fileService.readCityContent();
+          city.aiNewsSettings = {
+            ...(city.aiNewsSettings || {}),
+            lastReporterAt: new Date().toISOString(),
+            lastReporterOk: false,
+            lastReporterError: 'Rapor üretilemedi',
+          };
+          await fileService.writeCityContent(city);
+        } catch (_) {}
         return res.status(500).json({ ok: false, message: 'Günlük şehir raporu üretilemedi.' });
       }
+      try {
+        const city = await fileService.readCityContent();
+        city.aiNewsSettings = {
+          ...(city.aiNewsSettings || {}),
+          lastReporterAt: new Date().toISOString(),
+          lastReporterOk: true,
+          lastReporterTitle: result.title || null,
+          lastReporterError: null,
+        };
+        await fileService.writeCityContent(city);
+      } catch (_) {}
       return res.json({ ok: true, message: 'Günlük şehir raporu üretildi ve yayınlandı.', item: result });
     } catch (error) {
       console.error('❌ AI Reporter trigger failed:', error.message);
@@ -642,12 +731,43 @@ class ApiController {
   async getAiNewsSettings(req, res) {
     try {
       const fileService = require('../services/fileService');
+      const dailyBriefingService = require('../services/dailyBriefingService');
       const data = await fileService.readCityContent();
-      const settings = data?.aiNewsSettings || {
+      const settings = data?.aiNewsSettings || {};
+      const defaults = {
         beautifyScraped: false,
-        reporterEnabled: false
+        reporterEnabled: false,
+        beautifyDailyLimit: 25,
+        beautifyCountToday: 0,
+        beautifyCountDate: null,
+        lastBeautifyAt: null,
+        lastBeautifyOk: null,
+        lastReporterAt: null,
+        lastReporterOk: null,
+        lastReporterTitle: null,
+        lastReporterError: null,
+        lastDraftPublishAt: null,
+        lastDraftPublishOk: null,
+        lastDraftTitle: null,
       };
-      return res.json({ ok: true, settings });
+      let briefing = null;
+      try {
+        const latest = await dailyBriefingService.getLatestBriefing();
+        if (latest) {
+          briefing = {
+            briefingDate: latest.briefing_date,
+            todayTitle: latest.today_title,
+            todaySummary: latest.today_summary,
+            generatedAt: latest.generated_at,
+            model: latest.model,
+          };
+        }
+      } catch (_) {}
+      return res.json({
+        ok: true,
+        settings: { ...defaults, ...settings },
+        briefing,
+      });
     } catch (error) {
       return res.status(500).json({ ok: false, message: 'Ayarlar okunamadı.', detail: error.message });
     }
@@ -655,13 +775,17 @@ class ApiController {
 
   async saveAiNewsSettings(req, res) {
     try {
-      const { beautifyScraped, reporterEnabled } = req.body;
+      const { beautifyScraped, reporterEnabled, beautifyDailyLimit } = req.body;
       const fileService = require('../services/fileService');
       const data = await fileService.readCityContent();
 
+      const prev = data.aiNewsSettings || {};
+      const limit = Number(beautifyDailyLimit);
       data.aiNewsSettings = {
+        ...prev,
         beautifyScraped: beautifyScraped === true,
-        reporterEnabled: reporterEnabled === true
+        reporterEnabled: reporterEnabled === true,
+        beautifyDailyLimit: Number.isFinite(limit) ? Math.max(0, Math.min(200, Math.round(limit))) : (prev.beautifyDailyLimit ?? 25),
       };
 
       await fileService.createBackupBeforeWrite();

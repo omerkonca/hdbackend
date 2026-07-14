@@ -996,7 +996,28 @@
 
       <!-- AI News Panel -->
       <div id="aiNewsView" class="view-section">
-        <!-- AI Settings Card -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="section-title">📊 AI Durum Paneli</div>
+          <div id="aiStatusBox" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px">
+            <div style="padding:14px; background:#f8fafc; border-radius:12px; border:1px solid var(--border)">
+              <div style="font-size:12px; color:var(--text-muted); font-weight:700">AI Editor (Beautify)</div>
+              <div id="aiStatusBeautify" style="margin-top:6px; font-weight:700">Yükleniyor...</div>
+            </div>
+            <div style="padding:14px; background:#f8fafc; border-radius:12px; border:1px solid var(--border)">
+              <div style="font-size:12px; color:var(--text-muted); font-weight:700">Şehir Muhabiri</div>
+              <div id="aiStatusReporter" style="margin-top:6px; font-weight:700">Yükleniyor...</div>
+            </div>
+            <div style="padding:14px; background:#f8fafc; border-radius:12px; border:1px solid var(--border)">
+              <div style="font-size:12px; color:var(--text-muted); font-weight:700">Son Yayın</div>
+              <div id="aiStatusDraft" style="margin-top:6px; font-weight:700">Yükleniyor...</div>
+            </div>
+            <div style="padding:14px; background:#f8fafc; border-radius:12px; border:1px solid var(--border)">
+              <div style="font-size:12px; color:var(--text-muted); font-weight:700">Gün Özeti</div>
+              <div id="aiStatusBriefing" style="margin-top:6px; font-weight:700">Yükleniyor...</div>
+            </div>
+          </div>
+        </div>
+
         <div class="card" style="margin-bottom:24px">
           <div class="section-title">🤖 Yapay Zeka Haber Ayarları</div>
           <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
@@ -1004,45 +1025,62 @@
           </p>
           <div style="display:flex; flex-direction:column; gap:12px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid var(--border)">
             <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600">
-              <input type="checkbox" id="aiBeautifyScraped" onchange="saveAiNewsSettings()" style="width:18px; height:18px; accent-color:var(--primary)">
+              <input type="checkbox" id="aiBeautifyScraped" style="width:18px; height:18px; accent-color:var(--primary)">
               Dış Kaynak Haberlerini Otomatik İyileştir (AI Editor)
             </label>
             <span style="color:var(--text-muted); font-size:12px; margin-left:28px; margin-top:-8px">
               RSS akışlarından çekilen ham haberleri otomatik olarak imla hatalarından arındırır, gereksiz reklam/linkleri siler ve akıcı bir yerel haber formatına dönüştürür.
             </span>
+            <div class="form-group" style="margin:4px 0 0 28px">
+              <label>Günlük Beautify limiti</label>
+              <input type="number" id="aiBeautifyDailyLimit" min="0" max="200" value="25" style="width:120px">
+              <span style="font-size:12px; color:var(--text-muted); margin-left:8px">0 = sınırsız</span>
+            </div>
 
             <hr style="border:0; border-top:1px solid var(--border); margin:8px 0">
 
             <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600">
-              <input type="checkbox" id="aiReporterEnabled" onchange="saveAiNewsSettings()" style="width:18px; height:18px; accent-color:var(--primary)">
+              <input type="checkbox" id="aiReporterEnabled" style="width:18px; height:18px; accent-color:var(--primary)">
               Yapay Zeka Şehir Muhabirini Etkinleştir (AI Reporter)
             </label>
             <span style="color:var(--text-muted); font-size:12px; margin-left:28px; margin-top:-8px">
               Her akşam saat 20:00'de otomatik olarak günün hava durumunu, kesintilerini, yol çalışmalarını, vefatlarını ve yerel haberlerini analiz ederek kapsamlı bir "Şehir Raporu" haberi yazar ve yayınlar.
             </span>
+            <button type="button" class="btn btn-secondary" onclick="saveAiNewsSettings()" style="align-self:flex-start; margin-top:8px">💾 Ayarları Kaydet</button>
           </div>
         </div>
 
-        <!-- AI Writer Card -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="section-title">🌙 Günlük AI Özeti (Briefing)</div>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px">
+            Uygulamadaki “Bugün / Bu hafta” özetini buradan görüntüleyip manuel yenileyebilirsiniz.
+          </p>
+          <div id="aiBriefingPreview" style="padding:14px; background:#f8fafc; border-radius:12px; border:1px solid var(--border); margin-bottom:12px; min-height:48px; color:var(--text-muted)">
+            Özet yükleniyor...
+          </div>
+          <button type="button" class="btn btn-secondary" id="aiBriefingRefreshBtn" onclick="refreshAiBriefing()">🔄 Özeti Şimdi Yenile</button>
+        </div>
+
         <div class="card" style="margin-bottom:24px">
           <div class="section-title">📝 Yapay Zeka ile Haber Yazdır</div>
           <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
-            Kısa notlarınızı veya taslak bilgilerinizi yazın, yapay zeka bunları profesyonel bir habere dönüştürsün.
+            Kısa notlarınızı yazın; AI profesyonel habere dönüştürsün. Yayınlanan haberlerde kaynak <strong>Hepsi Düziçi</strong> olur ve mavi tik görünür.
           </p>
           <div class="form-group">
             <label>Haber Notları / Prompt</label>
             <textarea id="aiNewsPrompt" placeholder="Örn: Ellek beldesinde yeni asfalt çalışmaları başladı. Belediye başkanı inceledi. Çalışmalar 3 gün sürecek, sürücüler alternatif yolları kullanmalı..." style="width:100%; height:120px; padding:12px; border-radius:8px; border:1px solid var(--border); font-family:inherit; resize:vertical"></textarea>
           </div>
-          <button class="btn btn-primary" onclick="generateNewsDraft()" style="margin-top:8px">🤖 Haberi Yapay Zeka ile Taslak Olarak Yaz</button>
+          <div id="aiDraftProgress" style="display:none; margin:10px 0; font-weight:700; color:var(--primary)"></div>
+          <button class="btn btn-primary" id="aiGenerateDraftBtn" onclick="generateNewsDraft()" style="margin-top:8px">🤖 Haberi Yapay Zeka ile Taslak Olarak Yaz</button>
         </div>
 
-        <!-- AI News Draft Editor Card -->
         <div class="card" id="aiNewsDraftCard" style="display:none; border: 2px solid rgba(201, 139, 24, 0.2)">
           <div class="section-title" style="color:var(--primary); display:flex; align-items:center; gap:8px">
             ✨ Yapay Zeka Taslağı Hazır!
+            <span style="font-size:12px; background:#E3F2FD; color:#1565C0; padding:4px 10px; border-radius:999px; font-weight:800">Hepsi Düziçi ✓</span>
           </div>
           <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
-            Yapay zekanın ürettiği metni aşağıdan inceleyebilir, düzenleyebilir ve hemen yayınlayabilirsiniz.
+            Metni düzenleyin, kapak görseli (zorunlu) ve isteğe bağlı video ekleyin, ardından yayınlayın.
           </p>
           <div class="form-group" style="margin-bottom:12px">
             <label>Haber Başlığı</label>
@@ -1063,29 +1101,54 @@
             <label>Haber Detay İçeriği (Gövde Metni)</label>
             <textarea id="aiNewsDraftFullText" style="width:100%; height:250px; padding:12px; border-radius:8px; border:1px solid var(--border); font-family:inherit; resize:vertical"></textarea>
           </div>
+
           <div class="form-group" style="margin-bottom:12px">
-            <label>Kapak Görseli URL'si (Opsiyonel)</label>
-            <input type="text" id="aiNewsDraftImageUrl" placeholder="https://..." style="width:100%">
+            <label>Kapak Görseli <span style="color:var(--danger)">*</span></label>
+            <div class="row" style="gap:8px; flex-wrap:wrap; align-items:center">
+              <input type="text" id="aiNewsDraftImageUrl" placeholder="https://... veya dosya yükleyin" style="flex:1; min-width:220px">
+              <input type="file" id="aiNewsDraftImageFile" accept="image/*" style="display:none" onchange="uploadAiNewsMedia('image')">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('aiNewsDraftImageFile').click()">🖼️ Görsel Yükle</button>
+            </div>
+            <div id="aiNewsDraftImagePreview" style="margin-top:10px; display:none">
+              <img id="aiNewsDraftImagePreviewImg" alt="" style="max-width:220px; max-height:140px; border-radius:10px; object-fit:cover; border:1px solid var(--border)">
+            </div>
           </div>
+
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Video (opsiyonel — YouTube linki veya dosya)</label>
+            <div class="row" style="gap:8px; flex-wrap:wrap; align-items:center">
+              <input type="text" id="aiNewsDraftVideoUrl" placeholder="https://youtube.com/... veya yüklenen video URL" style="flex:1; min-width:220px">
+              <input type="file" id="aiNewsDraftVideoFile" accept="video/*" style="display:none" onchange="uploadAiNewsMedia('video')">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('aiNewsDraftVideoFile').click()">🎬 Video Yükle</button>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Ek Görseller (galeri)</label>
+            <input type="file" id="aiNewsDraftExtraImages" accept="image/*" multiple style="display:none" onchange="uploadAiNewsExtraImages()">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('aiNewsDraftExtraImages').click()">➕ Görsel Ekle</button>
+            <div id="aiNewsDraftGallery" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px"></div>
+          </div>
+
           <div style="margin:16px 0">
             <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600">
               <input type="checkbox" id="aiNewsDraftSendPush" checked style="width:18px; height:18px; accent-color:var(--primary)">
               Yayınlandığında Kullanıcılara Bildirim (Push Notification) Gönder
             </label>
           </div>
-          <div style="display:flex; gap:10px">
-            <button class="btn btn-primary" onclick="publishNewsDraft()">📰 Haberi Yayınla</button>
+          <div id="aiPublishResult" style="min-height:20px; margin-bottom:10px; font-size:13px; font-weight:700; color:var(--text-muted)"></div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <button class="btn btn-primary" id="aiPublishDraftBtn" onclick="publishNewsDraft()">📰 Haberi Yayınla</button>
             <button class="btn btn-secondary" onclick="discardNewsDraft()">✕ Taslağı İptal Et</button>
           </div>
         </div>
 
-        <!-- AI Reporter Trigger Card -->
         <div class="card">
           <div class="section-title">📡 Şehir Muhabiri (AI Reporter) Kontrolü</div>
           <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
             Yapay Zeka Şehir Muhabirini manuel olarak tetikleyip anlık şehir haber bültenini hemen yayınlayabilirsiniz.
           </p>
-          <button class="btn btn-secondary" onclick="triggerAiReporterManual()">🚀 Şehir Raporu Haberi Üret & Bildirim Gönder</button>
+          <button class="btn btn-secondary" id="aiReporterBtn" onclick="triggerAiReporterManual()">🚀 Şehir Raporu Haberi Üret & Bildirim Gönder</button>
         </div>
       </div>
 
@@ -5063,12 +5126,67 @@
           headers: { 'x-admin-token': currentToken }
         });
         const data = await res.json();
-        if (data.ok && data.settings) {
-          document.getElementById('aiBeautifyScraped').checked = data.settings.beautifyScraped === true;
-          document.getElementById('aiReporterEnabled').checked = data.settings.reporterEnabled === true;
-        }
+        if (!data.ok) throw new Error(data.message || 'Ayarlar alınamadı');
+        const s = data.settings || {};
+        document.getElementById('aiBeautifyScraped').checked = s.beautifyScraped === true;
+        document.getElementById('aiReporterEnabled').checked = s.reporterEnabled === true;
+        const limitEl = document.getElementById('aiBeautifyDailyLimit');
+        if (limitEl) limitEl.value = Number(s.beautifyDailyLimit ?? 25);
+        renderAiStatus(s, data.briefing);
       } catch (err) {
         showToast('Yapay Zeka ayarları yüklenemedi: ' + err.message, true);
+      }
+    }
+
+    function formatAiTime(iso) {
+      if (!iso) return '—';
+      try {
+        return new Date(iso).toLocaleString('tr-TR');
+      } catch (_) {
+        return iso;
+      }
+    }
+
+    function renderAiStatus(s, briefing) {
+      const today = new Date().toISOString().slice(0, 10);
+      const count = s.beautifyCountDate === today ? (s.beautifyCountToday || 0) : 0;
+      const limit = Number(s.beautifyDailyLimit ?? 25);
+      const beautifyEl = document.getElementById('aiStatusBeautify');
+      if (beautifyEl) {
+        beautifyEl.innerHTML =
+          `${s.beautifyScraped ? 'Açık' : 'Kapalı'} · bugün ${count}/${limit || '∞'}<br>` +
+          `<span style="font-size:12px;color:var(--text-muted);font-weight:600">Son: ${formatAiTime(s.lastBeautifyAt)}</span>`;
+      }
+      const reporterEl = document.getElementById('aiStatusReporter');
+      if (reporterEl) {
+        const ok = s.lastReporterOk;
+        const badge = ok === true ? '✅' : ok === false ? '❌' : '—';
+        reporterEl.innerHTML =
+          `${s.reporterEnabled ? 'Açık' : 'Kapalı'} ${badge}<br>` +
+          `<span style="font-size:12px;color:var(--text-muted);font-weight:600">${escapeHtml(s.lastReporterTitle || '')} · ${formatAiTime(s.lastReporterAt)}</span>`;
+      }
+      const draftEl = document.getElementById('aiStatusDraft');
+      if (draftEl) {
+        draftEl.innerHTML =
+          `${s.lastDraftPublishOk === true ? '✅ Yayınlandı' : 'Henüz yok'}<br>` +
+          `<span style="font-size:12px;color:var(--text-muted);font-weight:600">${escapeHtml(s.lastDraftTitle || '')} · ${formatAiTime(s.lastDraftPublishAt)}</span>`;
+      }
+      const briefingStatusEl = document.getElementById('aiStatusBriefing');
+      const previewEl = document.getElementById('aiBriefingPreview');
+      if (briefing) {
+        if (briefingStatusEl) {
+          briefingStatusEl.innerHTML =
+            `${escapeHtml(briefing.todayTitle || 'Özet var')}<br>` +
+            `<span style="font-size:12px;color:var(--text-muted);font-weight:600">${formatAiTime(briefing.generatedAt)}</span>`;
+        }
+        if (previewEl) {
+          previewEl.innerHTML =
+            `<strong>${escapeHtml(briefing.todayTitle || '')}</strong><br>` +
+            `<span style="color:var(--text-muted)">${escapeHtml(briefing.todaySummary || '')}</span>`;
+        }
+      } else {
+        if (briefingStatusEl) briefingStatusEl.textContent = 'Henüz üretilmedi';
+        if (previewEl) previewEl.textContent = 'Akşam saatlerinde otomatik üretilir veya şimdi yenileyin.';
       }
     }
 
@@ -5076,17 +5194,19 @@
       try {
         const beautifyScraped = document.getElementById('aiBeautifyScraped').checked;
         const reporterEnabled = document.getElementById('aiReporterEnabled').checked;
+        const beautifyDailyLimit = Number(document.getElementById('aiBeautifyDailyLimit')?.value || 25);
         const res = await fetch('/api/admin/news/ai-settings', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'x-admin-token': currentToken
           },
-          body: JSON.stringify({ beautifyScraped, reporterEnabled })
+          body: JSON.stringify({ beautifyScraped, reporterEnabled, beautifyDailyLimit })
         });
         const data = await res.json();
         if (data.ok) {
           showToast('Yapay Zeka ayarları kaydedildi.');
+          loadAiNewsSettings();
         } else {
           showToast('Ayarlar kaydedilemedi: ' + data.message, true);
         }
@@ -5095,7 +5215,120 @@
       }
     }
 
+    async function refreshAiBriefing() {
+      const btn = document.getElementById('aiBriefingRefreshBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⌛ Üretiliyor...';
+      }
+      try {
+        const res = await fetch('/api/daily-briefing/refresh', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message || 'Özet üretilemedi');
+        showToast('Günlük özet yenilendi');
+        loadAiNewsSettings();
+      } catch (err) {
+        showToast(err.message || 'Özet yenilenemedi', true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '🔄 Özeti Şimdi Yenile';
+        }
+      }
+    }
+
     let generatedDraft = null;
+    let aiDraftExtraImages = [];
+
+    function setAiCoverPreview(url) {
+      const wrap = document.getElementById('aiNewsDraftImagePreview');
+      const img = document.getElementById('aiNewsDraftImagePreviewImg');
+      if (!wrap || !img) return;
+      if (url) {
+        img.src = url;
+        wrap.style.display = 'block';
+      } else {
+        wrap.style.display = 'none';
+        img.removeAttribute('src');
+      }
+    }
+
+    function renderAiGallery() {
+      const el = document.getElementById('aiNewsDraftGallery');
+      if (!el) return;
+      el.innerHTML = aiDraftExtraImages.map((url, i) => `
+        <div style="position:relative">
+          <img src="${escapeHtml(url)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">
+          <button type="button" onclick="removeAiExtraImage(${i})" style="position:absolute;top:-6px;right:-6px;border:none;border-radius:999px;background:#c62828;color:#fff;width:20px;height:20px;cursor:pointer">×</button>
+        </div>`).join('');
+    }
+
+    function removeAiExtraImage(index) {
+      aiDraftExtraImages.splice(index, 1);
+      renderAiGallery();
+    }
+
+    async function uploadAiNewsMedia(kind) {
+      const input = document.getElementById(kind === 'video' ? 'aiNewsDraftVideoFile' : 'aiNewsDraftImageFile');
+      if (!input || !input.files.length) return;
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      showToast(kind === 'video' ? 'Video yükleniyor...' : 'Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData,
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message || 'Yükleme başarısız');
+        let url = data.fileUrl;
+        if (url.startsWith('/uploads/')) url = window.location.origin + url;
+        if (kind === 'video') {
+          document.getElementById('aiNewsDraftVideoUrl').value = url;
+        } else {
+          document.getElementById('aiNewsDraftImageUrl').value = url;
+          setAiCoverPreview(url);
+        }
+        showToast('Yükleme tamam');
+      } catch (e) {
+        showToast(e.message || 'Yükleme hatası', true);
+      } finally {
+        input.value = '';
+      }
+    }
+
+    async function uploadAiNewsExtraImages() {
+      const input = document.getElementById('aiNewsDraftExtraImages');
+      if (!input || !input.files.length) return;
+      showToast('Görseller yükleniyor...');
+      try {
+        for (const file of input.files) {
+          const formData = new FormData();
+          formData.append('file', file);
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'x-admin-token': currentToken },
+            body: formData,
+          });
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.message || 'Yükleme başarısız');
+          let url = data.fileUrl;
+          if (url.startsWith('/uploads/')) url = window.location.origin + url;
+          aiDraftExtraImages.push(url);
+        }
+        renderAiGallery();
+        showToast('Ek görseller eklendi');
+      } catch (e) {
+        showToast(e.message || 'Yükleme hatası', true);
+      } finally {
+        input.value = '';
+      }
+    }
 
     async function generateNewsDraft() {
       const prompt = document.getElementById('aiNewsPrompt').value.trim();
@@ -5104,11 +5337,15 @@
         return;
       }
 
-      showToast('Yapay zeka haber taslağı oluşturuyor, lütfen bekleyin...');
-      const btn = document.querySelector('button[onclick="generateNewsDraft()"]');
+      const btn = document.getElementById('aiGenerateDraftBtn');
+      const progress = document.getElementById('aiDraftProgress');
       const oldText = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '⌛ Taslak Oluşturuluyor...';
+      if (progress) {
+        progress.style.display = 'block';
+        progress.textContent = 'AI metin üretiyor, lütfen bekleyin...';
+      }
 
       try {
         const res = await fetch('/api/admin/news/generate-draft', {
@@ -5122,21 +5359,29 @@
         const data = await res.json();
         if (data.ok && data.draft) {
           generatedDraft = data.draft;
+          aiDraftExtraImages = [];
+          renderAiGallery();
           document.getElementById('aiNewsDraftTitle').value = data.draft.title;
           document.getElementById('aiNewsDraftSummary').value = data.draft.summary;
           document.getElementById('aiNewsDraftFullText').value = data.draft.fullText;
           document.getElementById('aiNewsDraftImageUrl').value = '';
+          document.getElementById('aiNewsDraftVideoUrl').value = '';
+          setAiCoverPreview(null);
           document.getElementById('aiNewsDraftCategory').value = 'Düziçi';
           document.getElementById('aiNewsDraftSendPush').checked = true;
+          document.getElementById('aiPublishResult').textContent = data.model ? `Model: ${data.model}` : '';
 
           document.getElementById('aiNewsDraftCard').style.display = 'block';
           document.getElementById('aiNewsDraftCard').scrollIntoView({ behavior: 'smooth' });
           showToast('Haber taslağı üretildi!');
+          if (progress) progress.textContent = 'Taslak hazır — görsel ekleyip yayınlayabilirsiniz.';
         } else {
           showToast('Haber taslağı üretilemedi: ' + data.message, true);
+          if (progress) progress.style.display = 'none';
         }
       } catch (err) {
         showToast('Haber taslağı üretilemedi: ' + err.message, true);
+        if (progress) progress.style.display = 'none';
       } finally {
         btn.disabled = false;
         btn.innerHTML = oldText;
@@ -5149,14 +5394,29 @@
       const fullText = document.getElementById('aiNewsDraftFullText').value.trim();
       const category = document.getElementById('aiNewsDraftCategory').value;
       const imageUrl = document.getElementById('aiNewsDraftImageUrl').value.trim();
+      const videoUrl = document.getElementById('aiNewsDraftVideoUrl').value.trim();
       const sendPush = document.getElementById('aiNewsDraftSendPush').checked;
+      const resultEl = document.getElementById('aiPublishResult');
+      const btn = document.getElementById('aiPublishDraftBtn');
 
       if (!title || !fullText) {
         showToast('Lütfen Başlık ve Haber Metni alanlarını doldurun.', true);
         return;
       }
+      if (!imageUrl) {
+        showToast('Kapak görseli zorunludur. Görsel yükleyin veya URL girin.', true);
+        return;
+      }
 
-      showToast('Haber yayınlanıyor...');
+      const images = [imageUrl, ...aiDraftExtraImages.filter((u) => u !== imageUrl)];
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Yayınlanıyor...';
+      }
+      if (resultEl) {
+        resultEl.style.color = 'var(--text-muted)';
+        resultEl.textContent = 'Haber yayınlanıyor...';
+      }
 
       try {
         const res = await fetch('/api/admin/news/publish-draft', {
@@ -5171,29 +5431,55 @@
             fullText,
             category,
             imageUrl,
+            images,
+            videoUrl: videoUrl || null,
             sendPush
           })
         });
         const data = await res.json();
         if (data.ok) {
-          showToast('Haber başarıyla yayınlandı!');
+          showToast('Haber yayınlandı (Hepsi Düziçi ✓)');
+          if (resultEl) {
+            resultEl.style.color = 'var(--success)';
+            resultEl.textContent = 'Yayınlandı · kaynak Hepsi Düziçi · mavi tik aktif';
+          }
           discardNewsDraft();
           document.getElementById('aiNewsPrompt').value = '';
+          loadAiNewsSettings();
         } else {
           showToast('Haber yayınlanamadı: ' + data.message, true);
+          if (resultEl) {
+            resultEl.style.color = 'var(--danger)';
+            resultEl.textContent = data.message || 'Yayınlanamadı';
+          }
         }
       } catch (err) {
         showToast('Haber yayınlanamadı: ' + err.message, true);
+        if (resultEl) {
+          resultEl.style.color = 'var(--danger)';
+          resultEl.textContent = err.message || 'Bağlantı hatası';
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '📰 Haberi Yayınla';
+        }
       }
     }
 
     function discardNewsDraft() {
       generatedDraft = null;
+      aiDraftExtraImages = [];
+      renderAiGallery();
       document.getElementById('aiNewsDraftCard').style.display = 'none';
       document.getElementById('aiNewsDraftTitle').value = '';
       document.getElementById('aiNewsDraftSummary').value = '';
       document.getElementById('aiNewsDraftFullText').value = '';
       document.getElementById('aiNewsDraftImageUrl').value = '';
+      document.getElementById('aiNewsDraftVideoUrl').value = '';
+      setAiCoverPreview(null);
+      const progress = document.getElementById('aiDraftProgress');
+      if (progress) progress.style.display = 'none';
     }
 
     async function triggerAiReporterManual() {
@@ -5202,7 +5488,7 @@
       }
 
       showToast('Yapay Zeka Şehir Raporu üretiliyor, veriler toplanıyor...');
-      const btn = document.querySelector('button[onclick="triggerAiReporterManual()"]');
+      const btn = document.getElementById('aiReporterBtn') || document.querySelector('button[onclick="triggerAiReporterManual()"]');
       const oldText = btn.innerHTML;
       btn.disabled = true;
       btn.innerHTML = '⌛ Şehir Raporu Üretiliyor...';
@@ -5217,6 +5503,7 @@
         const data = await res.json();
         if (data.ok) {
           showToast('Başarılı: Şehir Raporu haberi üretildi ve bildirim gönderildi.');
+          loadAiNewsSettings();
         } else {
           showToast('Hata: ' + data.message, true);
         }

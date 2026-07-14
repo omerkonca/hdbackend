@@ -166,13 +166,15 @@ class AiReporterService {
       title: String(data.title || `Düziçi Şehir Raporu - ${targetDate}`).slice(0, 120),
       summary: String(data.summary || '').trim(),
       full_text: String(data.fullText || '').trim(),
-      image_url: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80', // Default local news image
+      image_url: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80',
       created_at: new Date().toISOString(),
       source_url: `https://forvibe.app/duzici-ai-reporter/${targetDate}`,
-      source_name: 'Yapay Zeka Muhabiri',
+      source_name: 'Hepsi Düziçi',
       category: 'Düziçi',
       is_ai_generated: true,
       is_ai_optimized: false,
+      verified: true,
+      images: ['https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=800&q=80'],
       fetched_at: new Date().toISOString()
     };
 
@@ -184,6 +186,11 @@ class AiReporterService {
       .single();
 
     if (error) throw new Error(error.message);
+
+    try {
+      const newsService = require('./newsService');
+      newsService.prependToCache(newsService.mapDbRowToItem(saved));
+    } catch (_) {}
 
     console.log(`[ai-reporter] Daily city news compiled & published successfully: "${newArticle.title}" (Model: ${model})`);
 
