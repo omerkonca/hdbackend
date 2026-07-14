@@ -60,12 +60,11 @@ class NewsService {
 
   async getPublisherNewsFromDb(limit = 40) {
     const supabase = require('../utils/supabaseClient');
+    // verified + kendi id önekleri (Türkçe source_name eq kaçın)
     const { data, error } = await supabase
       .from('news_items')
       .select('id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text')
-      .or(
-        'verified.eq.true,id.like.news-custom-%,id.like.news-ai-reporter-%,source_name.eq.Hepsi Düziçi,source_name.eq.Yapay Zeka Muhabiri',
-      )
+      .or('verified.eq.true,id.like.news-custom-%,id.like.news-ai-reporter-%')
       .order('created_at', { ascending: false })
       .limit(limit);
     if (error) throw new Error(error.message);
@@ -427,16 +426,16 @@ class NewsService {
     const now = Date.now();
     const isFresh = now - this.cache.fetchedAt < config.NEWS.CACHE_TTL_MS;
 
-    // 1. Memory cache is fresh -> return immediately
+    // 1. Memory cache is fresh -> return immediately (publisher inject)
     if (!forceRefresh && isFresh && this.cache.items.length > 0) {
-      return this.cache.items.slice(0, max);
+      return this.withPublisherNews(this.cache.items, max);
     }
 
     // 2. Memory cache is stale -> return immediately and refresh in background
     if (!forceRefresh && this.cache.items.length > 0) {
       console.log('[news] Returning stale memory cache, refreshing in background...');
       this._refreshNewsBackground(max).catch(() => {});
-      return this.cache.items.slice(0, max);
+      return this.withPublisherNews(this.cache.items, max);
     }
 
     // 3. Memory cache is empty -> check Supabase database (fast cache fallback)
@@ -446,7 +445,7 @@ class NewsService {
         const supabase = require('../utils/supabaseClient');
         const { data, error } = await supabase
           .from('news_items')
-          .select('id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized')
+          .select('id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text')
           .order('created_at', { ascending: false })
           .limit(100);
 
@@ -470,6 +469,17 @@ class NewsService {
 
     // 4. Fallback (cold start AND database empty, or forceRefresh) -> fetch synchronously
     return this._fetchAndCacheNews(max);
+  }
+
+  async withPublisherNews(items, max) {
+    try {
+      const publisherItems = await this.getPublisherNewsFromDb(30);
+      if (!publisherItems.length) return items.slice(0, max);
+      return this.mergeAndDedupeNews([...publisherItems, ...items], max);
+    } catch (err) {
+      console.warn('[news] withPublisherNews failed:', err.message);
+      return items.slice(0, max);
+    }
   }
 
   async _refreshNewsBackground(max) {
@@ -528,7 +538,14 @@ class NewsService {
       const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
       const newsPushLog = require('../utils/newsPushLog');
       const db = requireSupabaseAdmin();
-      const rows = items.map(item => ({
+      // Kendi yayıncı haberlerini RSS sync ile ezme (verified/video/full_text korunur)
+      const syncItems = items.filter(
+        (item) =>
+          !(item?.id || '').startsWith('news-custom-') &&
+          !(item?.id || '').startsWith('news-ai-reporter-') &&
+          item?.verified !== true,
+      );
+      const rows = syncItems.map(item => ({
         id: item.id,
         title: item.title,
         summary: item.summary,
@@ -542,8 +559,8 @@ class NewsService {
         is_ai_optimized: item.isAiOptimized || false,
       }));
 
-      const ids = items.map(item => item.id);
-      const urls = [...new Set(items.map(item => item.sourceUrl).filter(Boolean))];
+      const ids = syncItems.map(item => item.id);
+      const urls = [...new Set(syncItems.map(item => item.sourceUrl).filter(Boolean))];
       const { data: existing, error: checkError } = await db
         .from('news_items')
         .select('id, title, source_url')
@@ -587,7 +604,7 @@ class NewsService {
         );
         const existingRows = [...(existing || []), ...existingByUrl];
 
-        const newItems = items.filter((item) => {
+        const newItems = syncItems.filter((item) => {
           if (existingIds.has(item.id)) return false;
           if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
           const titleKey = this.normalizeNewsTitleKey(item.title);
@@ -648,15 +665,17 @@ class NewsService {
         }
       }
 
-      const { error: upsertError } = await db.from('news_items').upsert(rows);
-      if (upsertError) {
-        console.error('❌ Supabase news upsert failed:', upsertError.message);
-        return;
+      if (rows.length > 0) {
+        const { error: upsertError } = await db.from('news_items').upsert(rows);
+        if (upsertError) {
+          console.error('❌ Supabase news upsert failed:', upsertError.message);
+          return;
+        }
+        console.log(`[news] ${rows.length} news items synced to Supabase.`);
       }
-      console.log(`[news] ${rows.length} news items synced to Supabase.`);
 
       // Arka planda yeni eklenen veya tam metni bulunmayan haberleri pre-fetch et
-      this.preFetchFullTexts(items).catch(err => {
+      this.preFetchFullTexts(syncItems).catch(err => {
         console.error('❌ Background news pre-fetch trigger error:', err.message);
       });
     } catch (err) {
