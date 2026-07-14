@@ -498,6 +498,8 @@ class NewsService {
         source_name: item.sourceName,
         category: item.category,
         fetched_at: new Date().toISOString(),
+        is_ai_generated: item.isAiGenerated || false,
+        is_ai_optimized: item.isAiOptimized || false,
       }));
 
       const ids = items.map(item => item.id);
@@ -622,6 +624,43 @@ class NewsService {
     }
   }
 
+  async optimizeNewsWithAI({ title, fullText }) {
+    const aiClient = require('./aiClient');
+    if (!aiClient.isConfigured()) {
+      throw new Error('AI client is not configured.');
+    }
+
+    const systemPrompt =
+      'Sen Düziçi ve Osmaniye bölgesi için çalışan profesyonel bir yerel haber editörüsün. ' +
+      'Görevin, sana verilen ham haber başlığını ve gövde metnini yerel haberciliğe uygun, ' +
+      'akıcı, imlası düzgün ve ilgi çekici hale getirmektir. ' +
+      'Gereksiz reklamları, "haberin devamı için tıklayın", sosyal medya paylaşım linklerini veya ' +
+      'metin dışı kısımları tamamen temizlemelisin. ' +
+      'Haberin özünü asla değiştirmemeli ve bilgi uydurmamalısın. ' +
+      'Yanıtını sadece belirtilen JSON formatında vermelisin.';
+
+    const userPrompt =
+      `Ham Haber Başlığı: ${title}\n\n` +
+      `Ham Haber Gövde Metni:\n${fullText}\n\n` +
+      `GÖREV TALİMATLARI:\n` +
+      `1. title: Haber için ilgi çekici, clickbait olmayan, imlası düzgün yeni bir başlık yaz (max 100 karakter).\n` +
+      `2. summary: Haberden yola çıkarak 2 veya 3 cümlelik, merak uyandıran ve bilgilendirici samimi bir özet yaz (max 250 karakter).\n` +
+      `3. fullText: Haberin tamamını okunaklı paragraflar halinde yeniden yaz. Markdown veya HTML kullanma.\n\n` +
+      `JSON FORMATI:\n` +
+      `{\n` +
+      `  "title": "...",\n` +
+      `  "summary": "...",\n` +
+      `  "fullText": "..."\n` +
+      `}`;
+
+    const { data } = await aiClient.generateJson({ systemPrompt, userPrompt });
+    return {
+      title: data.title || title,
+      summary: data.summary || '',
+      fullText: data.fullText || fullText,
+    };
+  }
+
   async preFetchFullTexts(items) {
     const supabase = require('../utils/supabaseClient');
     const urls = items.map(item => item.sourceUrl).filter(Boolean);
@@ -663,9 +702,40 @@ class NewsService {
             }
             const details = await this.fetchArticleDetails(item.sourceUrl);
             const update = {};
-            if (details.fullText && details.fullText.trim().length > 0) {
-              update.full_text = details.fullText;
+
+            // AI Beautification
+            let optimized = null;
+            let beautifyEnabled = config.AI_NEWS.BEAUTIFY_SCRAPED;
+            try {
+              const cityContent = await fileService.readCityContent();
+              if (cityContent?.aiNewsSettings?.beautifyScraped !== undefined) {
+                beautifyEnabled = cityContent.aiNewsSettings.beautifyScraped === true;
+              }
+            } catch (_) {}
+
+            if (beautifyEnabled && details.fullText && details.fullText.trim().length > 80) {
+              try {
+                console.log(`[news-ai] Optimizing scraped article with AI: ${item.sourceUrl}`);
+                optimized = await this.optimizeNewsWithAI({
+                  title: item.title,
+                  fullText: details.fullText
+                });
+              } catch (aiErr) {
+                console.warn(`[news-ai] AI optimization failed for ${item.sourceUrl}:`, aiErr.message);
+              }
             }
+
+            if (optimized) {
+              update.title = optimized.title;
+              update.summary = optimized.summary;
+              update.full_text = optimized.fullText;
+              update.is_ai_optimized = true;
+            } else {
+              if (details.fullText && details.fullText.trim().length > 0) {
+                update.full_text = details.fullText;
+              }
+            }
+
             if (details.imageUrl && details.imageUrl.trim().length > 0) {
               update.image_url = details.imageUrl;
             }

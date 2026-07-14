@@ -443,6 +443,7 @@
       <div class="menu-group-items" id="groupNews">
         <div class="nav-item" onclick="switchView('newsSources')">📡 Haber Kaynakları</div>
         <div class="nav-item" onclick="switchView('announcements')">📣 Yayıncı Duyuruları</div>
+        <div class="nav-item" onclick="switchView('aiNews')">🤖 Yapay Zeka Haberleri</div>
         <div class="nav-item" onclick="refreshSystem('news')">🔄 Haberleri Yenile</div>
       </div>
 
@@ -990,6 +991,101 @@
         <div class="card" id="cityDealsEditorContainer" style="display:none">
           <div class="section-title" id="cityDealsEditorTitle">✏️ Kampanya Düzenle</div>
           <div id="cityDealsEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- AI News Panel -->
+      <div id="aiNewsView" class="view-section">
+        <!-- AI Settings Card -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="section-title">🤖 Yapay Zeka Haber Ayarları</div>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
+            Uygulamadaki yapay zeka entegrasyonlarını ve otomatik haber üretimini buradan kontrol edebilirsiniz.
+          </p>
+          <div style="display:flex; flex-direction:column; gap:12px; padding:16px; background:#f8fafc; border-radius:12px; border:1px solid var(--border)">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600">
+              <input type="checkbox" id="aiBeautifyScraped" onchange="saveAiNewsSettings()" style="width:18px; height:18px; accent-color:var(--primary)">
+              Dış Kaynak Haberlerini Otomatik İyileştir (AI Editor)
+            </label>
+            <span style="color:var(--text-muted); font-size:12px; margin-left:28px; margin-top:-8px">
+              RSS akışlarından çekilen ham haberleri otomatik olarak imla hatalarından arındırır, gereksiz reklam/linkleri siler ve akıcı bir yerel haber formatına dönüştürür.
+            </span>
+
+            <hr style="border:0; border-top:1px solid var(--border); margin:8px 0">
+
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600">
+              <input type="checkbox" id="aiReporterEnabled" onchange="saveAiNewsSettings()" style="width:18px; height:18px; accent-color:var(--primary)">
+              Yapay Zeka Şehir Muhabirini Etkinleştir (AI Reporter)
+            </label>
+            <span style="color:var(--text-muted); font-size:12px; margin-left:28px; margin-top:-8px">
+              Her akşam saat 20:00'de otomatik olarak günün hava durumunu, kesintilerini, yol çalışmalarını, vefatlarını ve yerel haberlerini analiz ederek kapsamlı bir "Şehir Raporu" haberi yazar ve yayınlar.
+            </span>
+          </div>
+        </div>
+
+        <!-- AI Writer Card -->
+        <div class="card" style="margin-bottom:24px">
+          <div class="section-title">📝 Yapay Zeka ile Haber Yazdır</div>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
+            Kısa notlarınızı veya taslak bilgilerinizi yazın, yapay zeka bunları profesyonel bir habere dönüştürsün.
+          </p>
+          <div class="form-group">
+            <label>Haber Notları / Prompt</label>
+            <textarea id="aiNewsPrompt" placeholder="Örn: Ellek beldesinde yeni asfalt çalışmaları başladı. Belediye başkanı inceledi. Çalışmalar 3 gün sürecek, sürücüler alternatif yolları kullanmalı..." style="width:100%; height:120px; padding:12px; border-radius:8px; border:1px solid var(--border); font-family:inherit; resize:vertical"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="generateNewsDraft()" style="margin-top:8px">🤖 Haberi Yapay Zeka ile Taslak Olarak Yaz</button>
+        </div>
+
+        <!-- AI News Draft Editor Card -->
+        <div class="card" id="aiNewsDraftCard" style="display:none; border: 2px solid rgba(201, 139, 24, 0.2)">
+          <div class="section-title" style="color:var(--primary); display:flex; align-items:center; gap:8px">
+            ✨ Yapay Zeka Taslağı Hazır!
+          </div>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
+            Yapay zekanın ürettiği metni aşağıdan inceleyebilir, düzenleyebilir ve hemen yayınlayabilirsiniz.
+          </p>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Haber Başlığı</label>
+            <input type="text" id="aiNewsDraftTitle" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Haber Kategorisi</label>
+            <select id="aiNewsDraftCategory" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border)">
+              <option value="Düziçi">Düziçi</option>
+              <option value="Osmaniye">Osmaniye</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Haber Özeti (Giriş/Spot Metni)</label>
+            <input type="text" id="aiNewsDraftSummary" style="width:100%">
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Haber Detay İçeriği (Gövde Metni)</label>
+            <textarea id="aiNewsDraftFullText" style="width:100%; height:250px; padding:12px; border-radius:8px; border:1px solid var(--border); font-family:inherit; resize:vertical"></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Kapak Görseli URL'si (Opsiyonel)</label>
+            <input type="text" id="aiNewsDraftImageUrl" placeholder="https://..." style="width:100%">
+          </div>
+          <div style="margin:16px 0">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600">
+              <input type="checkbox" id="aiNewsDraftSendPush" checked style="width:18px; height:18px; accent-color:var(--primary)">
+              Yayınlandığında Kullanıcılara Bildirim (Push Notification) Gönder
+            </label>
+          </div>
+          <div style="display:flex; gap:10px">
+            <button class="btn btn-primary" onclick="publishNewsDraft()">📰 Haberi Yayınla</button>
+            <button class="btn btn-secondary" onclick="discardNewsDraft()">✕ Taslağı İptal Et</button>
+          </div>
+        </div>
+
+        <!-- AI Reporter Trigger Card -->
+        <div class="card">
+          <div class="section-title">📡 Şehir Muhabiri (AI Reporter) Kontrolü</div>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
+            Yapay Zeka Şehir Muhabirini manuel olarak tetikleyip anlık şehir haber bültenini hemen yayınlayabilirsiniz.
+          </p>
+          <button class="btn btn-secondary" onclick="triggerAiReporterManual()">🚀 Şehir Raporu Haberi Üret & Bildirim Gönder</button>
         </div>
       </div>
 
@@ -1648,6 +1744,7 @@
         headerMedia: ['Vitrin & Hikayeler', 'Ana ekranın üstündeki vitrin alanı ve Instagram tarzı hikaye baloncukları.'],
         moreMenu: ['Daha Fazla Menüsü', 'Daha Fazla sekmesinin tile listesi.'],
         newsSources: ['Haber Kaynakları', 'RSS akışlarını ve aktif kaynakları yönetin.'],
+        aiNews: ['Yapay Zeka Haberleri', 'Yapay Zeka haber yazma, otomatik editör ve şehir muhabiri paneli.'],
         emergency: ['Acil Numaralar', 'Kritik yardım hatlarını buradan güncelleyin.'],
         services: ['Hizmetler', 'Ana ekrandaki hizmet kartlarını yönetin.'],
         explore: ['Keşfet', 'Şehir rehberi kategorilerini düzenleyin.'],
@@ -1670,6 +1767,9 @@
       
       if (view === 'push') {
         loadPushStatus();
+      }
+      if (view === 'aiNews') {
+        loadAiNewsSettings();
       }
       if (view === 'citizenReports') {
         loadCitizenReports();
@@ -4954,6 +5054,178 @@
 
       cancelPrivateTutorEdit();
       saveData();
+    }
+
+
+    async function loadAiNewsSettings() {
+      try {
+        const res = await fetch('/api/admin/news/ai-settings', {
+          headers: { 'x-admin-token': currentToken }
+        });
+        const data = await res.json();
+        if (data.ok && data.settings) {
+          document.getElementById('aiBeautifyScraped').checked = data.settings.beautifyScraped === true;
+          document.getElementById('aiReporterEnabled').checked = data.settings.reporterEnabled === true;
+        }
+      } catch (err) {
+        showToast('Yapay Zeka ayarları yüklenemedi: ' + err.message, true);
+      }
+    }
+
+    async function saveAiNewsSettings() {
+      try {
+        const beautifyScraped = document.getElementById('aiBeautifyScraped').checked;
+        const reporterEnabled = document.getElementById('aiReporterEnabled').checked;
+        const res = await fetch('/api/admin/news/ai-settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken
+          },
+          body: JSON.stringify({ beautifyScraped, reporterEnabled })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('Yapay Zeka ayarları kaydedildi.');
+        } else {
+          showToast('Ayarlar kaydedilemedi: ' + data.message, true);
+        }
+      } catch (err) {
+        showToast('Ayarlar kaydedilemedi: ' + err.message, true);
+      }
+    }
+
+    let generatedDraft = null;
+
+    async function generateNewsDraft() {
+      const prompt = document.getElementById('aiNewsPrompt').value.trim();
+      if (!prompt) {
+        showToast('Lütfen haber taslağı oluşturmak için notlar girin.', true);
+        return;
+      }
+
+      showToast('Yapay zeka haber taslağı oluşturuyor, lütfen bekleyin...');
+      const btn = document.querySelector('button[onclick="generateNewsDraft()"]');
+      const oldText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⌛ Taslak Oluşturuluyor...';
+
+      try {
+        const res = await fetch('/api/admin/news/generate-draft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken
+          },
+          body: JSON.stringify({ prompt })
+        });
+        const data = await res.json();
+        if (data.ok && data.draft) {
+          generatedDraft = data.draft;
+          document.getElementById('aiNewsDraftTitle').value = data.draft.title;
+          document.getElementById('aiNewsDraftSummary').value = data.draft.summary;
+          document.getElementById('aiNewsDraftFullText').value = data.draft.fullText;
+          document.getElementById('aiNewsDraftImageUrl').value = '';
+          document.getElementById('aiNewsDraftCategory').value = 'Düziçi';
+          document.getElementById('aiNewsDraftSendPush').checked = true;
+
+          document.getElementById('aiNewsDraftCard').style.display = 'block';
+          document.getElementById('aiNewsDraftCard').scrollIntoView({ behavior: 'smooth' });
+          showToast('Haber taslağı üretildi!');
+        } else {
+          showToast('Haber taslağı üretilemedi: ' + data.message, true);
+        }
+      } catch (err) {
+        showToast('Haber taslağı üretilemedi: ' + err.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+      }
+    }
+
+    async function publishNewsDraft() {
+      const title = document.getElementById('aiNewsDraftTitle').value.trim();
+      const summary = document.getElementById('aiNewsDraftSummary').value.trim();
+      const fullText = document.getElementById('aiNewsDraftFullText').value.trim();
+      const category = document.getElementById('aiNewsDraftCategory').value;
+      const imageUrl = document.getElementById('aiNewsDraftImageUrl').value.trim();
+      const sendPush = document.getElementById('aiNewsDraftSendPush').checked;
+
+      if (!title || !fullText) {
+        showToast('Lütfen Başlık ve Haber Metni alanlarını doldurun.', true);
+        return;
+      }
+
+      showToast('Haber yayınlanıyor...');
+
+      try {
+        const res = await fetch('/api/admin/news/publish-draft', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken
+          },
+          body: JSON.stringify({
+            title,
+            summary,
+            fullText,
+            category,
+            imageUrl,
+            sendPush
+          })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('Haber başarıyla yayınlandı!');
+          discardNewsDraft();
+          document.getElementById('aiNewsPrompt').value = '';
+        } else {
+          showToast('Haber yayınlanamadı: ' + data.message, true);
+        }
+      } catch (err) {
+        showToast('Haber yayınlanamadı: ' + err.message, true);
+      }
+    }
+
+    function discardNewsDraft() {
+      generatedDraft = null;
+      document.getElementById('aiNewsDraftCard').style.display = 'none';
+      document.getElementById('aiNewsDraftTitle').value = '';
+      document.getElementById('aiNewsDraftSummary').value = '';
+      document.getElementById('aiNewsDraftFullText').value = '';
+      document.getElementById('aiNewsDraftImageUrl').value = '';
+    }
+
+    async function triggerAiReporterManual() {
+      if (!confirm('Günlük Şehir Raporu üretilip haber listesinde yayınlanacak ve tüm Düziçi kullanıcılarına bildirim gönderilecek. Devam etmek istiyor musunuz?')) {
+        return;
+      }
+
+      showToast('Yapay Zeka Şehir Raporu üretiliyor, veriler toplanıyor...');
+      const btn = document.querySelector('button[onclick="triggerAiReporterManual()"]');
+      const oldText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⌛ Şehir Raporu Üretiliyor...';
+
+      try {
+        const res = await fetch('/api/admin/news/trigger-reporter', {
+          method: 'POST',
+          headers: {
+            'x-admin-token': currentToken
+          }
+        });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('Başarılı: Şehir Raporu haberi üretildi ve bildirim gönderildi.');
+        } else {
+          showToast('Hata: ' + data.message, true);
+        }
+      } catch (err) {
+        showToast('Rapor üretilirken hata oluştu: ' + err.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldText;
+      }
     }
 
 

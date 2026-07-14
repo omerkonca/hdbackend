@@ -58,4 +58,11 @@ router.post('/road-closures/refresh', requireAdminToken, apiController.refreshRo
 router.post('/obituaries/refresh', requireAdminToken, apiController.refreshObituaries);
 router.post('/daily-briefing/refresh', requireAdminToken, apiController.refreshDailyBriefing);
 
+// AI News Endpoints
+router.post('/admin/news/generate-draft', requireAdminToken, apiController.generateNewsDraft);
+router.post('/admin/news/publish-draft', requireAdminToken, apiController.publishNewsDraft);
+router.post('/admin/news/trigger-reporter', requireAdminToken, apiController.triggerAiReporter);
+router.get('/admin/news/ai-settings', requireAdminToken, apiController.getAiNewsSettings);
+router.post('/admin/news/ai-settings', requireAdminToken, apiController.saveAiNewsSettings);
+
 module.exports = router;

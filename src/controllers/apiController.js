@@ -517,6 +517,161 @@ class ApiController {
       res.status(500).json({ ok: false, message: 'Günlük özet üretilemedi.', detail: error.message });
     }
   }
+
+  async generateNewsDraft(req, res) {
+    try {
+      const { prompt } = req.body;
+      if (!prompt) {
+        return res.status(400).json({ ok: false, message: 'prompt parametresi gerekli.' });
+      }
+
+      const aiClient = require('../services/aiClient');
+      if (!aiClient.isConfigured()) {
+        return res.status(500).json({ ok: false, message: 'Yapay Zeka anahtarı yapılandırılmamış.' });
+      }
+
+      const systemPrompt =
+        'Sen Düziçi ve Osmaniye bölgesi için haber yazan profesyonel bir gazetecisin. ' +
+        'Sana verilen ham notlardan yola çıkarak akıcı, imlası düzgün, yerel gazetecilik diline uygun bir haber taslağı hazırlamalısın. ' +
+        'Gereksiz dolgu cümlelerden kaçın. Doğrudan olaya odaklan. ' +
+        'Yanıtını sadece belirtilen JSON formatında vermelisin.';
+
+      const userPrompt =
+        `Haber Notları:\n${prompt}\n\n` +
+        `GÖREV TALİMATLARI:\n` +
+        `1. title: Haber için ilgi çekici, clickbait olmayan, imlası düzgün yeni bir başlık yaz (max 100 karakter).\n` +
+        `2. summary: Haberden yola çıkarak 2 veya 3 cümlelik, merak uyandıran ve bilgilendirici samimi bir özet yaz (max 250 karakter).\n` +
+        `3. fullText: Haberin tamamını okunaklı paragraflar halinde yaz. Markdown veya HTML kullanma.\n\n` +
+        `JSON FORMATI:\n` +
+        `{\n` +
+        `  "title": "...",\n` +
+        `  "summary": "...",\n` +
+        `  "fullText": "..."\n` +
+        `}`;
+
+      const { data, model } = await aiClient.generateJson({ systemPrompt, userPrompt });
+      return res.json({
+        ok: true,
+        model,
+        draft: {
+          title: data.title || '',
+          summary: data.summary || '',
+          fullText: data.fullText || '',
+        }
+      });
+    } catch (error) {
+      console.error('❌ Draft generation failed:', error.message);
+      return res.status(500).json({ ok: false, message: 'Taslak haber üretilemedi.', detail: error.message });
+    }
+  }
+
+  async publishNewsDraft(req, res) {
+    try {
+      const { title, summary, fullText, category, imageUrl, images, sendPush } = req.body;
+      if (!title || !fullText) {
+        return res.status(400).json({ ok: false, message: 'Başlık ve Haber Metni alanları zorunludur.' });
+      }
+
+      const crypto = require('crypto');
+      const supabase = require('../utils/supabaseClient');
+      const fcmService = require('../services/fcmService');
+
+      const urlHash = crypto.createHash('md5').update(`custom-news-${title}-${Date.now()}`).digest('hex');
+      const newsId = `news-custom-${urlHash}`;
+
+      const newArticle = {
+        id: newsId,
+        title: String(title).slice(0, 120),
+        summary: String(summary || '').trim(),
+        full_text: String(fullText).trim(),
+        image_url: imageUrl || (images && images[0]) || null,
+        created_at: new Date().toISOString(),
+        source_url: `https://forvibe.app/duzici-news/${newsId}`,
+        source_name: 'Yayıncı Paneli',
+        category: category || 'Düziçi',
+        is_ai_generated: true,
+        is_ai_optimized: false,
+        images: Array.isArray(images) ? images : (imageUrl ? [imageUrl] : []),
+        fetched_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from('news_items')
+        .insert(newArticle)
+        .select('*')
+        .single();
+
+      if (error) throw error;
+
+      if (sendPush === true && fcmService.isFcmConfigured()) {
+        const isDuzici = String(category || '').toLowerCase().includes('düziçi') ||
+                         String(category || '').toLowerCase().includes('duzici');
+        const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
+        const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
+
+        await fcmService.sendToTopic(topic, {
+          title: pushTitle,
+          body: newArticle.title,
+          data: {
+            route: String(newArticle.id),
+          },
+        }).catch(e => console.error('[push] FCM push failed:', e.message));
+      }
+
+      return res.json({ ok: true, message: 'Haber başarıyla yayınlandı.', item: data });
+    } catch (error) {
+      console.error('❌ Custom news publish failed:', error.message);
+      return res.status(500).json({ ok: false, message: 'Haber yayınlanamadı.', detail: error.message });
+    }
+  }
+
+  async triggerAiReporter(req, res) {
+    try {
+      const aiReporterService = require('../services/aiReporterService');
+      const result = await aiReporterService.generateDailyReport({ force: true });
+      if (!result) {
+        return res.status(500).json({ ok: false, message: 'Günlük şehir raporu üretilemedi.' });
+      }
+      return res.json({ ok: true, message: 'Günlük şehir raporu üretildi ve yayınlandı.', item: result });
+    } catch (error) {
+      console.error('❌ AI Reporter trigger failed:', error.message);
+      return res.status(500).json({ ok: false, message: 'Yapay Zeka Muhabiri çalıştırılamadı.', detail: error.message });
+    }
+  }
+
+  async getAiNewsSettings(req, res) {
+    try {
+      const fileService = require('../services/fileService');
+      const data = await fileService.readCityContent();
+      const settings = data?.aiNewsSettings || {
+        beautifyScraped: false,
+        reporterEnabled: false
+      };
+      return res.json({ ok: true, settings });
+    } catch (error) {
+      return res.status(500).json({ ok: false, message: 'Ayarlar okunamadı.', detail: error.message });
+    }
+  }
+
+  async saveAiNewsSettings(req, res) {
+    try {
+      const { beautifyScraped, reporterEnabled } = req.body;
+      const fileService = require('../services/fileService');
+      const data = await fileService.readCityContent();
+
+      data.aiNewsSettings = {
+        beautifyScraped: beautifyScraped === true,
+        reporterEnabled: reporterEnabled === true
+      };
+
+      await fileService.createBackupBeforeWrite();
+      await fileService.writeCityContent(data);
+
+      return res.json({ ok: true, message: 'Yapay Zeka haber ayarları kaydedildi.', settings: data.aiNewsSettings });
+    } catch (error) {
+      return res.status(500).json({ ok: false, message: 'Ayarlar kaydedilemedi.', detail: error.message });
+    }
+  }
 }
 
 module.exports = new ApiController();

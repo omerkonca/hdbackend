@@ -13,6 +13,7 @@ const obituaryService = require('./services/obituaryService');
 const weatherService = require('./services/weatherService');
 const dailyBriefingService = require('./services/dailyBriefingService');
 const outageService = require('./services/outageService');
+const aiReporterService = require('./services/aiReporterService');
 const { ensureCitizenReportsTable } = require('./utils/runMigrations');
 const emailService = require('./services/emailService');
 
@@ -123,6 +124,12 @@ const server = app.listen(config.PORT, () => {
     });
   };
 
+  const runAiReporterJob = () => {
+    aiReporterService.generateIfDue().catch((err) => {
+      console.warn('[ai-reporter] job failed:', err.message);
+    });
+  };
+
   const intervals = config.RUNTIME.LIGHT_BACKGROUND_JOBS
     ? config.INTERVALS
     : {
@@ -140,6 +147,7 @@ const server = app.listen(config.PORT, () => {
     console.log('[server] hafif arka plan modu — periyodik tarama yok, cache API isteğinde yenilenir');
     // Gün sonu özeti için saatte bir kontrol yeterli (günde tek AI çağrısı, 19:00 TR)
     setInterval(runDailyBriefingJob, 60 * 60 * 1000);
+    setInterval(runAiReporterJob, 60 * 60 * 1000);
   } else {
     setInterval(() => {
       pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});
@@ -170,5 +178,6 @@ const server = app.listen(config.PORT, () => {
     }, intervals.outagesMs);
 
     setInterval(runDailyBriefingJob, intervals.dailyBriefingMs);
+    setInterval(runAiReporterJob, 15 * 60 * 1000); // Check every 15 minutes, same as daily briefing check interval
   }
 });

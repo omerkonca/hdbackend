@@ -67,6 +67,12 @@ const config = {
     CHECK_INTERVAL_MS: 15 * 60 * 1000,
   },
 
+  AI_NEWS: {
+    BEAUTIFY_SCRAPED: process.env.AI_BEAUTIFY_SCRAPED_NEWS === 'true',
+    REPORTER_ENABLED: process.env.AI_REPORTER_ENABLED === 'true',
+    REPORTER_HOUR_TR: Number(process.env.AI_REPORTER_HOUR_TR || 20), // Runs at 20:00 TR
+  },
+
   // Render ücretsiz planda instance saati = sunucunun ayakta kalma süresi (kullanıcı sayısından bağımsız).
   // Sık arka plan taraması sunucuyu uyutmaz → kota hızla biter.
   RUNTIME: {

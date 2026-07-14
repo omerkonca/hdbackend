@@ -45,11 +45,15 @@ CREATE TABLE IF NOT EXISTS news_items (
   full_text TEXT,
   category TEXT DEFAULT 'Osmaniye',
   images TEXT[] DEFAULT '{}',
-  fetched_at TIMESTAMPTZ DEFAULT NOW()
+  fetched_at TIMESTAMPTZ DEFAULT NOW(),
+  is_ai_generated BOOLEAN DEFAULT FALSE,
+  is_ai_optimized BOOLEAN DEFAULT FALSE
 );
 
 ALTER TABLE news_items ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'Osmaniye';
 ALTER TABLE news_items ADD COLUMN IF NOT EXISTS images TEXT[] DEFAULT '{}';
+ALTER TABLE news_items ADD COLUMN IF NOT EXISTS is_ai_generated BOOLEAN DEFAULT FALSE;
+ALTER TABLE news_items ADD COLUMN IF NOT EXISTS is_ai_optimized BOOLEAN DEFAULT FALSE;
 
 -- 3. Eczaneler (Pharmacies) Tablosu
 CREATE TABLE IF NOT EXISTS pharmacies (
