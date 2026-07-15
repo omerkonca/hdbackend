@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const apiController = require('../controllers/apiController');
 const emailService = require('../services/emailService');
-const { requireAdminToken, authAttempts } = require('../middlewares/auth');
+const { requireAdminToken } = require('../middlewares/auth');
 
 // Public endpoints
 router.get('/city-content', apiController.getCityContent);
@@ -24,7 +24,6 @@ router.use('/places', require('./placesRoutes'));
 router.use('/announcements', require('./announcements'));
 
 // Admin endpoints
-router.get('/admin/auth-debug-logs', (req, res) => res.json(authAttempts));
 router.get('/admin/check', requireAdminToken, (req, res) => res.json({ ok: true, message: 'Token gecerli.' }));
 router.get('/admin/email-status', requireAdminToken, (req, res) => {
   res.json({ ok: true, ...emailService.getEmailStatus() });

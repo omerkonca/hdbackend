@@ -1,8 +1,33 @@
+const crypto = require('crypto');
 const path = require('path');
+
+function resolveAdminToken() {
+  const token = (process.env.ADMIN_TOKEN || '').trim();
+  if (token.length >= 24) {
+    return token;
+  }
+
+  const isProd = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+  if (isProd && token) {
+    console.warn('[config] ADMIN_TOKEN zayıf (en az 24 karakter önerilir).');
+  }
+  if (token) {
+    return token;
+  }
+
+  if (isProd) {
+    console.error('[config] ADMIN_TOKEN tanımlı değil — admin girişi çalışmaz.');
+    return '';
+  }
+
+  const devToken = `dev_${crypto.randomBytes(16).toString('hex')}`;
+  console.warn('[config] Geliştirme modu: geçici ADMIN_TOKEN üretildi (yeniden başlatınca değişir).');
+  return devToken;
+}
 
 const config = {
   PORT: Number(process.env.PORT || 5050),
-  ADMIN_TOKEN: process.env.ADMIN_TOKEN || 'hd_admin_secure_token_fallback_2026_#948275_!',
+  ADMIN_TOKEN: resolveAdminToken(),
   SUPABASE_URL: process.env.SUPABASE_URL || 'https://duehxbdlpwvbpqfjyjai.supabase.co',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || 'sb_publishable_k-EcjTqZe_4kmwWLIEJX3Q_3cHt_szO',
   

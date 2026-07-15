@@ -1,13 +1,8 @@
 const express = require('express');
-const config = require('../config');
 const publisherAnnouncementService = require('../services/publisherAnnouncementService');
+const { requireAdminToken } = require('../middlewares/auth');
 
 const router = express.Router();
-
-function isAdmin(req) {
-  const token = req.headers['x-admin-token'];
-  return Boolean(config.ADMIN_TOKEN && token && token === config.ADMIN_TOKEN);
-}
 
 /** Aktif yayıncı duyuruları (uygulama) */
 router.get('/', async (req, res) => {
@@ -21,10 +16,7 @@ router.get('/', async (req, res) => {
 });
 
 /** Admin: tüm duyurular */
-router.get('/admin/all', async (req, res) => {
-  if (!isAdmin(req)) {
-    return res.status(401).json({ ok: false, message: 'Yetkisiz' });
-  }
+router.get('/admin/all', requireAdminToken, async (req, res) => {
   try {
     const items = await publisherAnnouncementService.listAdmin();
     return res.json({ ok: true, items });
@@ -47,10 +39,7 @@ router.get('/:id', async (req, res) => {
 });
 
 /** Admin: yeni duyuru oluştur */
-router.post('/', async (req, res) => {
-  if (!isAdmin(req)) {
-    return res.status(401).json({ ok: false, message: 'Yetkisiz' });
-  }
+router.post('/', requireAdminToken, async (req, res) => {
   try {
     const { title, summary, body, imageUrl, isPinned, sendPush } = req.body ?? {};
     const item = await publisherAnnouncementService.create({
@@ -73,10 +62,7 @@ router.post('/', async (req, res) => {
 });
 
 /** Admin: güncelle */
-router.put('/:id', async (req, res) => {
-  if (!isAdmin(req)) {
-    return res.status(401).json({ ok: false, message: 'Yetkisiz' });
-  }
+router.put('/:id', requireAdminToken, async (req, res) => {
   try {
     const item = await publisherAnnouncementService.update(req.params.id, req.body ?? {});
     return res.json({ ok: true, item });
@@ -86,10 +72,7 @@ router.put('/:id', async (req, res) => {
 });
 
 /** Admin: yayından kaldır */
-router.delete('/:id', async (req, res) => {
-  if (!isAdmin(req)) {
-    return res.status(401).json({ ok: false, message: 'Yetkisiz' });
-  }
+router.delete('/:id', requireAdminToken, async (req, res) => {
   try {
     const item = await publisherAnnouncementService.deactivate(req.params.id);
     return res.json({ ok: true, item });
@@ -99,10 +82,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 /** Admin: mevcut duyuru için push gönder */
-router.post('/:id/push', async (req, res) => {
-  if (!isAdmin(req)) {
-    return res.status(401).json({ ok: false, message: 'Yetkisiz' });
-  }
+router.post('/:id/push', requireAdminToken, async (req, res) => {
   try {
     const item = await publisherAnnouncementService.getById(req.params.id, { admin: true });
     if (!item) {

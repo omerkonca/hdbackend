@@ -64,7 +64,8 @@ app.use((err, req, res, next) => {
 // Start Server
 const server = app.listen(config.PORT, () => {
   console.log(`\n🚀 [city-content-api] running on http://localhost:${config.PORT}`);
-  console.log(`🔑 [city-content-api] admin token: ${config.ADMIN_TOKEN}`);
+  const tokenOk = config.ADMIN_TOKEN && config.ADMIN_TOKEN.length >= 24;
+  console.log(`🔑 [city-content-api] admin token: ${tokenOk ? 'yapılandırıldı' : 'eksik/zayıf'}`);
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);
 
   ensureCitizenReportsTable().catch(() => {});

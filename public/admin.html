@@ -2,7 +2,9 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Hepsi Düziçi | Kolay Yönetim Paneli</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -292,7 +294,18 @@
       
       main {
         margin-left: 0;
-        padding: 80px 16px 24px 16px;
+        padding: 72px 12px calc(20px + env(safe-area-inset-bottom, 0px)) 12px;
+      }
+      
+      .card {
+        padding: 16px;
+      }
+
+      #toast {
+        left: 12px;
+        right: 12px;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        text-align: center;
       }
       
       .page-header {
@@ -301,14 +314,24 @@
         gap: 16px;
       }
       .page-header .row {
-        flex-direction: row;
+        flex-direction: column;
         width: 100%;
         display: flex;
         gap: 8px;
       }
       .page-header .row .btn {
-        flex: 1;
+        width: 100%;
         justify-content: center;
+        min-height: 46px;
+      }
+
+      input, select, textarea {
+        font-size: 16px;
+        min-height: 46px;
+      }
+      .btn {
+        min-height: 46px;
+        touch-action: manipulation;
       }
       
       /* Grid forms collapse */
@@ -409,6 +432,171 @@
       background: rgba(255,255,255,0.1);
       border-radius: 2px;
     }
+
+    /* Uygulama içi WebView — her genişlikte tam mobil düzen */
+    html.embed-app {
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --mobile-pad: 12px;
+    }
+    html.embed-app body {
+      overflow-x: hidden;
+      -webkit-text-size-adjust: 100%;
+    }
+    html.embed-app body.authenticated .menu-toggle {
+      display: flex !important;
+      top: calc(10px + var(--safe-top));
+      left: 12px;
+      padding: 10px 14px;
+      min-height: 44px;
+      border-radius: 12px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html.embed-app aside {
+      width: min(88vw, 300px);
+      transform: translateX(-105%);
+      padding-top: calc(16px + var(--safe-top));
+      padding-bottom: calc(16px + var(--safe-bottom));
+      height: 100dvh;
+    }
+    html.embed-app aside.open {
+      transform: translateX(0);
+    }
+    html.embed-app main {
+      margin-left: 0 !important;
+      max-width: none !important;
+      width: 100%;
+      padding: calc(58px + var(--safe-top)) var(--mobile-pad) calc(20px + var(--safe-bottom)) var(--mobile-pad) !important;
+    }
+    html.embed-app #loginView .card {
+      max-width: none !important;
+      margin: 16px 0 !important;
+      padding: 20px 16px !important;
+    }
+    html.embed-app #loginView {
+      padding: 0 4px;
+    }
+    html.embed-app .page-title h1 {
+      font-size: 22px;
+      line-height: 1.15;
+    }
+    html.embed-app .page-title p {
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    html.embed-app .page-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+    }
+    html.embed-app .page-header .row {
+      width: 100%;
+      flex-direction: column;
+      gap: 8px;
+    }
+    html.embed-app .page-header .row .btn {
+      width: 100%;
+      justify-content: center;
+      min-height: 46px;
+    }
+    html.embed-app .card {
+      padding: 16px;
+      margin-bottom: 14px;
+      border-radius: 14px;
+    }
+    html.embed-app .section-title {
+      font-size: 16px;
+      margin-bottom: 14px;
+    }
+    html.embed-app label {
+      font-size: 12px;
+    }
+    html.embed-app input,
+    html.embed-app select,
+    html.embed-app textarea {
+      font-size: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      min-height: 46px;
+    }
+    html.embed-app textarea {
+      min-height: 110px;
+    }
+    html.embed-app .btn {
+      min-height: 46px;
+      font-size: 14px;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html.embed-app .row,
+    html.embed-app .flex-row-responsive {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    html.embed-app .row > input,
+    html.embed-app .row > select,
+    html.embed-app .row > button,
+    html.embed-app .flex-row-responsive > input,
+    html.embed-app .flex-row-responsive > button {
+      width: 100%;
+    }
+    html.embed-app .list-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      padding: 14px;
+    }
+    html.embed-app .list-item-icon {
+      margin-right: 0;
+      align-self: flex-start;
+    }
+    html.embed-app .list-item button,
+    html.embed-app .list-item .btn {
+      width: 100%;
+      justify-content: center;
+    }
+    html.embed-app div[style*="grid-template-columns"],
+    html.embed-app div[style*="display:grid"] {
+      grid-template-columns: 1fr !important;
+    }
+    html.embed-app div[style*="grid-template-columns"] > *,
+    html.embed-app div[style*="display:grid"] > * {
+      grid-column: span 1 !important;
+    }
+    html.embed-app #toast {
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + var(--safe-bottom));
+      text-align: center;
+    }
+    html.embed-app #jsonEditor,
+    html.embed-app pre,
+    html.embed-app table {
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    html.embed-app img {
+      max-width: 100%;
+      height: auto;
+    }
+    html.embed-app .nav-item {
+      min-height: 44px;
+      font-size: 13px;
+      padding: 11px 14px;
+    }
+    html.embed-app .menu-group-title {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+    html.embed-app #sidebarOverlay {
+      top: 0;
+      height: 100dvh;
+    }
   </style>
 </head>
 <body>
@@ -492,7 +680,8 @@
           <label>Admin Şifresi</label>
           <input type="password" id="passInput" placeholder="Şifrenizi giriniz..." autofocus>
         </div>
-        <button class="btn btn-primary" style="width:100%; justify-content:center" onclick="handleLogin()">🔒 Kilidi Aç</button>
+        <button id="loginSubmitBtn" class="btn btn-primary" style="width:100%; justify-content:center" onclick="handleLogin()">🔒 Kilidi Aç</button>
+        <p id="loginError" style="display:none; margin-top:14px; text-align:center; font-size:13px; font-weight:600; color:#c62828;"></p>
         <div style="margin-top: 24px; text-align: center; font-size: 13px; display: flex; justify-content: center; gap: 16px;">
           <a href="/iletisim.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">📞 Bize Ulaşın</a>
           <span style="color: var(--text-muted);">|</span>
@@ -1189,6 +1378,16 @@
   <div id="toast">İşlem Başarılı!</div>
 
   <script>
+    (function initEmbedApp() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('embed') === 'app') {
+        localStorage.setItem('hd_admin_embed', 'app');
+      }
+      if (params.get('embed') === 'app' || localStorage.getItem('hd_admin_embed') === 'app') {
+        document.documentElement.classList.add('embed-app');
+      }
+    })();
+
     let rawData = null;
     let currentToken = '';
     let currentExploreCategoryIndex = -1;
@@ -1728,13 +1927,30 @@
       }
     }
 
+    function setLoginLocked(locked, message) {
+      const input = document.getElementById('passInput');
+      const btn = document.getElementById('loginSubmitBtn');
+      const err = document.getElementById('loginError');
+      input.disabled = locked;
+      btn.disabled = locked;
+      if (message) {
+        err.style.display = 'block';
+        err.textContent = message;
+      } else {
+        err.style.display = 'none';
+        err.textContent = '';
+      }
+    }
+
     // Login logic
     async function handleLogin() {
       const pass = document.getElementById('passInput').value;
       if (!pass) return;
       currentToken = pass;
+      setLoginLocked(false, '');
       try {
         const res = await fetch('/api/admin/check', { headers: { 'x-admin-token': pass } });
+        const errData = await res.json().catch(() => ({}));
         if (res.ok) {
           localStorage.setItem('hd_admin_token', pass);
           document.body.classList.add('authenticated');
@@ -1743,11 +1959,22 @@
           document.getElementById('sideNav').style.display = 'flex';
           document.getElementById('lockStatus').innerHTML = '🔓 Sistem Açık';
           document.getElementById('logoutBtn').style.display = 'flex';
+          setLoginLocked(false, '');
           showToast('Hoşgeldiniz!');
           loadData();
+        } else if (res.status === 429) {
+          const msg = errData.message || 'Çok fazla hatalı giriş. Lütfen bekleyin.';
+          setLoginLocked(true, msg);
+          showToast(msg, true);
         } else {
-          const errData = await res.json().catch(() => ({}));
-          const msg = res.status === 401 ? 'Hatalı Şifre! (401)' : `Sunucu Hatası! (${res.status})`;
+          const remaining = errData.remainingAttempts;
+          const extra = typeof remaining === 'number'
+            ? ` Kalan deneme: ${remaining}.`
+            : '';
+          const msg = res.status === 401
+            ? `Hatalı şifre!${extra}`
+            : (errData.message || `Sunucu hatası (${res.status})`);
+          setLoginLocked(false, msg);
           console.error('[Admin Login]', res.status, errData);
           showToast(msg, true);
         }
@@ -1767,6 +1994,7 @@
       document.getElementById('logoutBtn').style.display = 'none';
       document.getElementById('lockStatus').innerHTML = '🔒 Sistem Kilitli';
       document.getElementById('passInput').value = '';
+      setLoginLocked(false, '');
       showToast('Oturum kapatıldı.');
     }
 
@@ -5545,6 +5773,10 @@
             loadData();
           } else {
             localStorage.removeItem('hd_admin_token');
+            if (res.status === 429) {
+              const errData = await res.json().catch(() => ({}));
+              setLoginLocked(true, errData.message || 'Giriş geçici olarak kilitlendi.');
+            }
           }
         } catch (e) {
           console.warn('Auto-login error:', e);
