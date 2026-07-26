@@ -47,10 +47,24 @@ function slugify(text) {
 }
 
 function normalizeForCompare(input) {
+  // Türkçe ı/İ NFD ile düşmez; ASCII eşlemeyi açıkça yap.
+  // Aksi halde "Yarbaşı" → "yarbaşı" kalır, /yarbasi/ eşleşmez ve
+  // Düziçi haberleri yanlışlıkla news_osmaniye topic'ine push edilir.
   return String(input || '')
+    .replace(/İ/g, 'i')
+    .replace(/I/g, 'i')
+    .replace(/ı/g, 'i')
+    .toLowerCase()
+    .replace(/ü/g, 'u')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/ğ/g, 'g')
+    .replace(/ş/g, 's')
+    .replace(/â/g, 'a')
+    .replace(/î/g, 'i')
+    .replace(/û/g, 'u')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
+    .replace(/[\u0300-\u036f]/g, '');
 }
 
 function getTagValue(block, tagName) {
@@ -270,10 +284,7 @@ const NEWS_TITLE_STOP_WORDS = new Set([
 ]);
 
 function extractNewsTitleTokens(title) {
-  const words = String(title || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
+  const words = normalizeForCompare(title)
     .replace(/\s*-\s*(sabir|hasret|akdeniz|google)\s+gazetesi.*$/i, '')
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)

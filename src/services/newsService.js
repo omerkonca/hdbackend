@@ -654,8 +654,8 @@ class NewsService {
                   continue;
                 }
 
-                const isDuzici = item.category.toLowerCase().includes('düziçi') ||
-                    item.category.toLowerCase().includes('duzici') ||
+                const isDuzici =
+                    normalizeForCompare(item.category || '').includes('duzici') ||
                     this.isDuziciRelated(item.title, item.summary);
 
                 const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';

@@ -3,10 +3,19 @@
  */
 
 function normalize(text) {
+  // helpers.normalizeForCompare ile aynı Türkçe ASCII katlama
   return String(text || '')
+    .replace(/İ/g, 'i')
+    .replace(/I/g, 'i')
+    .replace(/ı/g, 'i')
+    .toLowerCase()
+    .replace(/ü/g, 'u')
+    .replace(/ö/g, 'o')
+    .replace(/ç/g, 'c')
+    .replace(/ğ/g, 'g')
+    .replace(/ş/g, 's')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLocaleLowerCase('tr-TR');
+    .replace(/[\u0300-\u036f]/g, '');
 }
 
 const CORRIDOR_KEYWORDS = [
