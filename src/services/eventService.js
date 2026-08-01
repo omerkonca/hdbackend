@@ -236,7 +236,7 @@ class EventService {
     try {
       console.log('[EventService] Refreshing events from sources...');
       const newsEvents = [];
-      const bubiletEvents = [];
+      let bubiletEvents = [];
 
       for (const city of this.CITIES) {
         try {
@@ -249,6 +249,31 @@ class EventService {
           bubiletEvents.push(...bItems);
         } catch (cityErr) {
           console.warn(`[EventService] Skipping city ${city} due to error:`, cityErr.message);
+        }
+      }
+
+      // Save scraped Bubilet events to DB cache if we successfully found any
+      if (bubiletEvents.length > 0) {
+        try {
+          const content = await fileService.readCityContent();
+          content.scrapedEvents = bubiletEvents;
+          await fileService.writeCityContent(content);
+          console.log('[EventService] Successfully saved scraped Bubilet events to Supabase.');
+        } catch (dbErr) {
+          console.warn('[EventService] Failed to write scraped events to database:', dbErr.message);
+        }
+      } else {
+        // If scrape returned 0 events (e.g. blocked by Cloudflare), fall back to DB cache
+        try {
+          const content = await fileService.readCityContent();
+          if (content && Array.isArray(content.scrapedEvents) && content.scrapedEvents.length > 0) {
+            const nowTime = new Date();
+            const cachedFuture = content.scrapedEvents.filter(e => new Date(e.date) >= nowTime);
+            bubiletEvents.push(...cachedFuture);
+            console.log(`[EventService] Loaded ${cachedFuture.length} cached Bubilet events from database.`);
+          }
+        } catch (dbErr) {
+          console.error('[EventService] Failed to read cached events from database:', dbErr.message);
         }
       }
 
@@ -295,50 +320,50 @@ class EventService {
   getManualEvents() {
     const events = [];
     
-    // MAYIS 2026
-    const mayEvents = [
-      { city: 'Osmaniye', title: 'Düziçi Yöresel Ürünler Pazarı', cat: 'Festival', date: '2026-05-01T09:00:00Z', loc: 'Belediye Meydanı' },
-      { city: 'Osmaniye', title: 'Osmaniye Doğa Yürüyüşü', cat: 'Spor', date: '2026-05-01T08:00:00Z', loc: 'Zorkun Yaylası' },
-      { city: 'Adana', title: 'Madrigal Konseri', cat: 'Konser', date: '2026-05-01T21:00:00Z', loc: '01 Burda PGM' },
-      { city: 'Adana', title: 'Gökhan Türkmen Konseri', cat: 'Konser', date: '2026-05-08T21:00:00Z', loc: '01 Burda PGM' },
-      { city: 'Gaziantep', title: 'Duman Konseri', cat: 'Konser', date: '2026-05-13T21:00:00Z', loc: 'GAÜN Mavera KSM' },
-      { city: 'Adana', title: 'Duman Konseri', cat: 'Konser', date: '2026-05-14T21:00:00Z', loc: 'Çukurova Üniv. Açıkhava' },
-      { city: 'Hatay', title: 'Madrigal Konseri', cat: 'Konser', date: '2026-05-03T21:00:00Z', loc: 'Hatay Kalyon Live' },
-      { city: 'Kahramanmaraş', title: 'Maraş Kültür Buluşması', cat: 'Kültür & Sanat', date: '2026-05-02T10:00:00Z', loc: 'Valilik Meydanı' },
-      { city: 'Gaziantep', title: 'Antep Gastronomi Günü', cat: 'Festival', date: '2026-05-04T11:00:00Z', loc: 'Festival Park' },
-      { city: 'Kahramanmaraş', title: 'Maraş Dondurma Festivali', cat: 'Festival', date: '2026-05-12T10:00:00Z', loc: 'Müftülük Meydanı' },
-      { city: 'Osmaniye', title: 'Hastalık Hastası - Tiyatro', cat: 'Tiyatro', date: '2026-05-15T20:00:00Z', loc: 'Cebelibereket KM' },
-      { city: 'Adana', title: 'Duman Konseri', cat: 'Konser', date: '2026-05-18T21:00:00Z', loc: 'Çukurova Açıkhava' },
-      { city: 'Gaziantep', title: 'Zeynep Bastık', cat: 'Konser', date: '2026-05-22T21:00:00Z', loc: 'Festival Park' },
-      { city: 'Adana', title: 'Adana Lezzet Festivali', cat: 'Festival', date: '2026-05-25T11:00:00Z', loc: 'Merkez Park' },
-      { city: 'Osmaniye', title: 'Korkut Ata Bahar Şenliği', cat: 'Festival', date: '2026-05-28T14:00:00Z', loc: 'OKÜ Kampüsü' },
-      { city: 'Kahramanmaraş', title: 'Edeler Buluşması', cat: 'Kültür & Sanat', date: '2026-05-30T18:00:00Z', loc: 'KAFUM' },
+    // AĞUSTOS 2026
+    const augustEvents = [
+      { city: 'Osmaniye', title: 'Düziçi Yöresel Ürünler Pazarı', cat: 'Festival', date: '2026-08-01T09:00:00Z', loc: 'Belediye Meydanı' },
+      { city: 'Osmaniye', title: 'Osmaniye Doğa Yürüyüşü', cat: 'Spor', date: '2026-08-01T08:00:00Z', loc: 'Zorkun Yaylası' },
+      { city: 'Adana', title: 'Madrigal Konseri', cat: 'Konser', date: '2026-08-01T21:00:00Z', loc: '01 Burda PGM' },
+      { city: 'Adana', title: 'Gökhan Türkmen Konseri', cat: 'Konser', date: '2026-08-08T21:00:00Z', loc: '01 Burda PGM' },
+      { city: 'Gaziantep', title: 'Duman Konseri', cat: 'Konser', date: '2026-08-13T21:00:00Z', loc: 'GAÜN Mavera KSM' },
+      { city: 'Adana', title: 'Duman Konseri', cat: 'Konser', date: '2026-08-14T21:00:00Z', loc: 'Çukurova Üniv. Açıkhava' },
+      { city: 'Hatay', title: 'Madrigal Konseri', cat: 'Konser', date: '2026-08-03T21:00:00Z', loc: 'Hatay Kalyon Live' },
+      { city: 'Kahramanmaraş', title: 'Maraş Kültür Buluşması', cat: 'Kültür & Sanat', date: '2026-08-02T10:00:00Z', loc: 'Valilik Meydanı' },
+      { city: 'Gaziantep', title: 'Antep Gastronomi Günü', cat: 'Festival', date: '2026-08-04T11:00:00Z', loc: 'Festival Park' },
+      { city: 'Kahramanmaraş', title: 'Maraş Dondurma Festivali', cat: 'Festival', date: '2026-08-12T10:00:00Z', loc: 'Müftülük Meydanı' },
+      { city: 'Osmaniye', title: 'Hastalık Hastası - Tiyatro', cat: 'Tiyatro', date: '2026-08-15T20:00:00Z', loc: 'Cebelibereket KM' },
+      { city: 'Adana', title: 'Duman Konseri', cat: 'Konser', date: '2026-08-18T21:00:00Z', loc: 'Çukurova Açıkhava' },
+      { city: 'Gaziantep', title: 'Zeynep Bastık', cat: 'Konser', date: '2026-08-22T21:00:00Z', loc: 'Festival Park' },
+      { city: 'Adana', title: 'Adana Lezzet Festivali', cat: 'Festival', date: '2026-08-25T11:00:00Z', loc: 'Merkez Park' },
+      { city: 'Osmaniye', title: 'Korkut Ata Bahar Şenliği', cat: 'Festival', date: '2026-08-28T14:00:00Z', loc: 'OKÜ Kampüsü' },
+      { city: 'Kahramanmaraş', title: 'Edeler Buluşması', cat: 'Kültür & Sanat', date: '2026-08-30T18:00:00Z', loc: 'KAFUM' },
     ];
 
-    // HAZİRAN 2026
-    const juneEvents = [
-      { city: 'Adana', title: 'Sertab Erener', cat: 'Konser', date: '2026-06-03T21:00:00Z', loc: '01 Burda PGM' },
-      { city: 'Gaziantep', title: 'Cem Adrian', cat: 'Konser', date: '2026-06-05T21:00:00Z', loc: 'GAÜN Mavera' },
-      { city: 'Hatay', title: 'İskenderun Deniz Festivali', cat: 'Festival', date: '2026-06-10T10:00:00Z', loc: 'Sahil Şeridi' },
-      { city: 'Osmaniye', title: 'Yaz Sinemaları: Eşkıya', cat: 'Kültür & Sanat', date: '2026-06-12T20:30:00Z', loc: 'Masal Park' },
-      { city: 'Adana', title: 'Adamlar Konseri', cat: 'Konser', date: '2026-06-15T21:00:00Z', loc: 'Hayal Kahvesi' },
-      { city: 'Gaziantep', title: 'Sunay Akın Anlatısı', cat: 'Kültür & Sanat', date: '2026-06-18T20:00:00Z', loc: 'Şahinbey KM' },
-      { city: 'Kahramanmaraş', title: 'Göksun Yayla Şenlikleri', cat: 'Festival', date: '2026-06-20T11:00:00Z', loc: 'Göksun Meydanı' },
-      { city: 'Hatay', title: 'Karsu Konseri', cat: 'Konser', date: '2026-06-25T21:00:00Z', loc: 'Expo Antakya' },
-      { city: 'Osmaniye', title: 'Voleybol Turnuvası Finali', cat: 'Spor', date: '2026-06-28T19:00:00Z', loc: 'Tosyalı Spor Kompleksi' },
+    // EYLÜL 2026
+    const septemberEvents = [
+      { city: 'Adana', title: 'Sertab Erener', cat: 'Konser', date: '2026-09-03T21:00:00Z', loc: '01 Burda PGM' },
+      { city: 'Gaziantep', title: 'Cem Adrian', cat: 'Konser', date: '2026-09-05T21:00:00Z', loc: 'GAÜN Mavera' },
+      { city: 'Hatay', title: 'İskenderun Deniz Festivali', cat: 'Festival', date: '2026-09-10T10:00:00Z', loc: 'Sahil Şeridi' },
+      { city: 'Osmaniye', title: 'Yaz Sinemaları: Eşkıya', cat: 'Kültür & Sanat', date: '2026-09-12T20:30:00Z', loc: 'Masal Park' },
+      { city: 'Adana', title: 'Adamlar Konseri', cat: 'Konser', date: '2026-09-15T21:00:00Z', loc: 'Hayal Kahvesi' },
+      { city: 'Gaziantep', title: 'Sunay Akın Anlatısı', cat: 'Kültür & Sanat', date: '2026-09-18T20:00:00Z', loc: 'Şahinbey KM' },
+      { city: 'Kahramanmaraş', title: 'Göksun Yayla Şenlikleri', cat: 'Festival', date: '2026-09-20T11:00:00Z', loc: 'Göksun Meydanı' },
+      { city: 'Hatay', title: 'Karsu Konseri', cat: 'Konser', date: '2026-09-25T21:00:00Z', loc: 'Expo Antakya' },
+      { city: 'Osmaniye', title: 'Voleybol Turnuvası Finali', cat: 'Spor', date: '2026-09-28T19:00:00Z', loc: 'Tosyalı Spor Kompleksi' },
     ];
 
-    // TEMMUZ 2026
-    const julyEvents = [
-      { city: 'Adana', title: 'Yüzyüzeyken Konuşuruz', cat: 'Konser', date: '2026-07-02T21:00:00Z', loc: 'Çukurova Açıkhava' },
-      { city: 'Gaziantep', title: 'GastroAntep Çocuk Atölyesi', cat: 'Kültür & Sanat', date: '2026-07-05T14:00:00Z', loc: 'Mutfak Sanatları Merkezi' },
-      { city: 'Osmaniye', title: 'Zorkun Yaylası Şenlikleri', cat: 'Festival', date: '2026-07-10T10:00:00Z', loc: 'Zorkun Yaylası' },
-      { city: 'Hatay', title: 'Mabel Matiz', cat: 'Konser', date: '2026-07-15T21:00:00Z', loc: 'İskenderun Açıkhava' },
-      { city: 'Kahramanmaraş', title: 'Afşin Eshab-ı Kehf Etkinlikleri', cat: 'Festival', date: '2026-07-20T10:00:00Z', loc: 'Afşin' },
-      { city: 'Adana', title: 'Yaz Konserleri: Fatma Turgut', cat: 'Konser', date: '2026-07-25T21:00:00Z', loc: 'Merkez Park' },
+    // EKİM 2026
+    const octoberEvents = [
+      { city: 'Adana', title: 'Yüzyüzeyken Konuşuruz', cat: 'Konser', date: '2026-10-02T21:00:00Z', loc: 'Çukurova Açıkhava' },
+      { city: 'Gaziantep', title: 'GastroAntep Çocuk Atölyesi', cat: 'Kültür & Sanat', date: '2026-10-05T14:00:00Z', loc: 'Mutfak Sanatları Merkezi' },
+      { city: 'Osmaniye', title: 'Zorkun Yaylası Şenlikleri', cat: 'Festival', date: '2026-10-10T10:00:00Z', loc: 'Zorkun Yaylası' },
+      { city: 'Hatay', title: 'Mabel Matiz', cat: 'Konser', date: '2026-10-15T21:00:00Z', loc: 'İskenderun Açıkhava' },
+      { city: 'Kahramanmaraş', title: 'Afşin Eshab-ı Kehf Etkinlikleri', cat: 'Festival', date: '2026-10-20T10:00:00Z', loc: 'Afşin' },
+      { city: 'Adana', title: 'Yaz Konserleri: Fatma Turgut', cat: 'Konser', date: '2026-10-25T21:00:00Z', loc: 'Merkez Park' },
     ];
 
-    const all = [...mayEvents, ...juneEvents, ...julyEvents];
+    const all = [...augustEvents, ...septemberEvents, ...octoberEvents];
     
     return all.map((e, i) => ({
       id: `manual-seed-${e.city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${i}`,
