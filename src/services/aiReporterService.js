@@ -118,16 +118,24 @@ class AiReporterService {
       if (weather?.current) {
         const cond = String(weather.current.condition?.text || '');
         const temp = Number(weather.current.temp);
-        snapshot.weatherText =
-          `Bugün: ${temp}°C (hissedilen ${weather.current.feelsLike}°C), ${cond}. Nem %${weather.current.humidity}.\n` +
-          `Tahmin:\n${(weather.forecast || [])
-            .slice(0, 3)
-            .map((f) => `- ${f.date}: ${f.maxTemp}/${f.minTemp}°C — ${f.condition?.text || ''}`)
-            .join('\n')}`;
-        const n = normalizeTr(cond);
-        if (/yagmur|saganak|firtina|yagis/.test(n)) snapshot.weatherHints.push('rain');
-        if (Number.isFinite(temp) && temp >= 32) snapshot.weatherHints.push('hot');
-        if (Number.isFinite(temp) && temp <= 8) snapshot.weatherHints.push('cold');
+        const forecast = weather.forecast || [];
+        // Akşam raporu: yarın öncelikli
+        const tomorrow = forecast[1] || forecast[0];
+        const dayAfter = forecast[2];
+        const tonightLine = `Şu an (akşam): ${temp}°C (hissedilen ${weather.current.feelsLike}°C), ${cond}. Nem %${weather.current.humidity}.`;
+        const tomorrowLine = tomorrow
+          ? `YARIN (${tomorrow.date}): En yüksek ${tomorrow.maxTemp}°C / en düşük ${tomorrow.minTemp}°C — ${tomorrow.condition?.text || ''}`
+          : 'Yarın tahmini yok.';
+        const dayAfterLine = dayAfter
+          ? `Öbür gün (${dayAfter.date}): En yüksek ${dayAfter.maxTemp}°C / en düşük ${dayAfter.minTemp}°C — ${dayAfter.condition?.text || ''}`
+          : '';
+        snapshot.weatherText = [tonightLine, tomorrowLine, dayAfterLine].filter(Boolean).join('\n');
+
+        const hintSource = normalizeTr(`${tomorrow?.condition?.text || ''} ${cond}`);
+        const hintTemp = Number(tomorrow?.maxTemp ?? temp);
+        if (/yagmur|saganak|firtina|yagis/.test(hintSource)) snapshot.weatherHints.push('rain');
+        if (Number.isFinite(hintTemp) && hintTemp >= 32) snapshot.weatherHints.push('hot');
+        if (Number.isFinite(hintTemp) && hintTemp <= 8) snapshot.weatherHints.push('cold');
         if (snapshot.weatherHints.length) snapshot.signals.push(...snapshot.weatherHints);
       }
     } catch (err) {
@@ -345,7 +353,7 @@ class AiReporterService {
       `Konum: Düziçi, Osmaniye\n` +
       `Mod: ${quietDay ? 'sakin-gun' : 'tam-rapor'}\n` +
       `${modeHint}\n\n` +
-      `=== HAVA DURUMU ===\n${snapshot.weatherText || 'Veri yok'}\n\n` +
+      `=== HAVA DURUMU (AKŞAM BÜLTENİ — YARINA ODAKLI) ===\n${snapshot.weatherText || 'Veri yok'}\n\n` +
       `=== ELEKTRİK / SU KESİNTİLERİ ===\n${snapshot.outagesText || 'Veri yok'}\n\n` +
       `=== YOL KAPAMA / ÇALIŞMALAR ===\n${snapshot.closuresText || 'Veri yok'}\n\n` +
       `=== NÖBETÇİ ECZANE ===\n${snapshot.pharmacyText || 'Veri yok'}\n\n` +
@@ -362,7 +370,7 @@ class AiReporterService {
       `3. fullText: Bölümlü haber metni. Paragraflar arasında boş satır bırak. Markdown/HTML yok.\n` +
       `   Şu sırayı takip et (veri yoksa o bölümü 1 cümleyle geç):\n` +
       `   - Açılış (günün özeti)\n` +
-      `   - Hava durumu\n` +
+      `   - Hava durumu: "bugün" deme; yarınki tahmini anlat + kısa pratik tavsiye\n` +
       `   - Altyapı ve kesintiler\n` +
       `   - Yol durumu\n` +
       `   - Nöbetçi eczane / pratik bilgiler\n` +

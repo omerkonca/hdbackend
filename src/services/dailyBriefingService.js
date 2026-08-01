@@ -170,7 +170,7 @@ GÖREV TALİMATLARI:
 1. Haber özetlerini doğrudan ve akıcı bir anlatımla yaz. Cümleler birbirine mantıklı bir şekilde bağlansın.
 2. KRİTİK KURAL: Asla "Bugün Düziçi'nde hareketli bir gün yaşandı" veya "Bu hafta Düziçi'nde çeşitli etkinlikler gerçekleştirildi" gibi yapay zeka jenerik/dolgu giriş cümleleri kullanma! Doğrudan günün en önemli, somut olayına değinerek başla (Örn: "Karne şenliğinde itfaiyenin su sürpriziyle serinleyen Düziçili çocuklar eğlenceli anlar yaşadı.").
 3. today_title: Günün en önemli olayını yansıtan, merak uyandırıcı, profesyonel bir gazete manşeti başlığı (en fazla 70 karakter). Başlıkta jenerik kelimelerden kaçın.
-4. today_summary: Bugünün gelişmelerini özetleyen samimi, net ve bilgi dolu 2-4 cümle. today_summary içinde günün hava durumuna kısaca değinerek halka giyim, dışarı çıkma veya günün gidişatı hakkında samimi ve pratik bir editör tavsiyesi (örneğin hava sıcaklığına göre kıyafet seçimi, yağmura karşı şemsiye vb.) ver.
+4. today_summary: Bugünün gelişmelerini özetleyen samimi, net ve bilgi dolu 2-4 cümle. today_summary içinde hava durumunu "bugün" diye değil "yarın" diye anlat (bu özet akşam yayınlanır). Yarınki sıcaklık/yağışa göre kısa pratik tavsiye ver (giyim, şemsiye, bol sıvı vb.).
 5. week_summary: Haftalık gelişmeleri toparlayan, olaylar arası bağlantı kuran 3-5 cümle.
 6. highlights: Öne çıkan en önemli 3 farklı somut gelişmeyi özetleyen kısa cümleler dizisi (her biri en fazla 85 karakter). Bullet listesinde jenerik ifadeler kullanma, net bilgi ver.
 7. Değerlerin hiçbirinde markdown biçimlendirmesi (kalın yazı, eğik yazı vb.) veya HTML kullanma.
@@ -211,7 +211,20 @@ JSON FORMATI:
       const weatherService = require('./weatherService');
       const weather = await weatherService.getWeather();
       if (weather && weather.current) {
-        weatherInfoText = `BUGÜNÜN HAVA DURUMU:\nSıcaklık: ${weather.current.temp}°C (Hissedilen: ${weather.current.feelsLike}°C)\nDurum: ${weather.current.condition.text}\nNem: %${weather.current.humidity}\n\nÜÇ GÜNLÜK HAVA TAHMİNİ:\n${(weather.forecast || []).map(f => `- ${f.date}: En yüksek ${f.maxTemp}°C, En düşük ${f.minTemp}°C, ${f.condition.text}`).join('\n')}`;
+        const forecast = weather.forecast || [];
+        // Akşam bülteni: "bugün" yerine yarın + sonraki günler
+        const tomorrow = forecast[1] || forecast[0];
+        const dayAfter = forecast[2];
+        const tonightHint =
+          `Şu an (akşam referansı): ${weather.current.temp}°C, hissedilen ${weather.current.feelsLike}°C, ${weather.current.condition?.text || ''}.`;
+        const tomorrowLine = tomorrow
+          ? `YARIN (${tomorrow.date}): En yüksek ${tomorrow.maxTemp}°C / en düşük ${tomorrow.minTemp}°C — ${tomorrow.condition?.text || ''}`
+          : 'Yarın için tahmin yok.';
+        const dayAfterLine = dayAfter
+          ? `Öbür gün (${dayAfter.date}): En yüksek ${dayAfter.maxTemp}°C / en düşük ${dayAfter.minTemp}°C — ${dayAfter.condition?.text || ''}`
+          : '';
+        weatherInfoText =
+          `HAVA (AKŞAM BÜLTENİ — YARINA ODAKLI):\n${tonightHint}\n${tomorrowLine}\n${dayAfterLine}`.trim();
       }
     } catch (err) {
       console.warn('[daily-briefing] Weather info fetch failed for prompt:', err.message);
