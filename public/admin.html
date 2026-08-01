@@ -5604,12 +5604,19 @@
           showToast('Haber taslağı üretildi!');
           if (progress) progress.textContent = 'Taslak hazır — görsel ekleyip yayınlayabilirsiniz.';
         } else {
-          showToast('Haber taslağı üretilemedi: ' + data.message, true);
-          if (progress) progress.style.display = 'none';
+          const detail = data.detail ? ` (${data.detail})` : '';
+          showToast('Haber taslağı üretilemedi: ' + (data.message || 'Bilinmeyen hata') + detail, true);
+          if (progress) {
+            progress.style.display = 'block';
+            progress.textContent = 'Hata: ' + (data.detail || data.message || 'Bilinmeyen hata');
+          }
         }
       } catch (err) {
         showToast('Haber taslağı üretilemedi: ' + err.message, true);
-        if (progress) progress.style.display = 'none';
+        if (progress) {
+          progress.style.display = 'block';
+          progress.textContent = 'Hata: ' + err.message;
+        }
       } finally {
         btn.disabled = false;
         btn.innerHTML = oldText;

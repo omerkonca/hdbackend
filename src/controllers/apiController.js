@@ -578,7 +578,12 @@ class ApiController {
       });
     } catch (error) {
       console.error('❌ Draft generation failed:', error.message);
-      return res.status(500).json({ ok: false, message: 'Taslak haber üretilemedi.', detail: error.message });
+      const detail = String(error.message || 'Bilinmeyen hata');
+      return res.status(500).json({
+        ok: false,
+        message: `Taslak haber üretilemedi: ${detail.slice(0, 180)}`,
+        detail,
+      });
     }
   }
 

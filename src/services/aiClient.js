@@ -27,11 +27,13 @@ function geminiModelCandidates() {
   if (process.env.GEMINI_MODEL) {
     return [process.env.GEMINI_MODEL];
   }
+  // Güncel Gemini Flash modelleri (eski 1.5 / 2.0 / 2.5 shutdown olabilir)
   return [
-    'gemini-2.5-flash',
+    'gemini-3.6-flash',
     'gemini-3.5-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash',
     'gemini-2.5-flash-lite',
-    'gemini-1.5-flash',
   ];
 }
 
@@ -53,13 +55,22 @@ async function generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Gemini ${model} ${res.status}: ${errText.slice(0, 240)}`);
+    throw new Error(`Gemini ${model} ${res.status}: ${errText.slice(0, 280)}`);
   }
 
   const data = await res.json();
+  const finishReason = data?.candidates?.[0]?.finishReason;
+  const blockReason = data?.promptFeedback?.blockReason;
+  if (blockReason) {
+    throw new Error(`Gemini ${model} güvenlik filtresi: ${blockReason}`);
+  }
+
   const text = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '';
   if (!text.trim()) {
-    throw new Error(`Gemini ${model} boş yanıt döndü`);
+    throw new Error(
+      `Gemini ${model} boş yanıt döndü` +
+        (finishReason ? ` (finishReason=${finishReason})` : ''),
+    );
   }
   return { text, model: `gemini:${model}` };
 }
@@ -104,7 +115,7 @@ async function generateWithOpenAI({ systemPrompt, userPrompt }) {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`OpenAI API ${res.status}: ${errText.slice(0, 240)}`);
+    throw new Error(`OpenAI API ${res.status}: ${errText.slice(0, 280)}`);
   }
 
   const data = await res.json();
@@ -127,6 +138,7 @@ async function generateJson({ systemPrompt, userPrompt }) {
       return { data: parsed, model: result.model };
     } catch (err) {
       lastError = err;
+      console.warn(`[ai] provider failed: ${err.message}`);
     }
   }
 
