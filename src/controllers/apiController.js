@@ -784,10 +784,38 @@ class ApiController {
           };
         }
       } catch (_) {}
+
+      let latestReporter = settings.lastReporterDraft || null;
+      if (!latestReporter?.fullText) {
+        try {
+          const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+          const db = requireSupabaseAdmin();
+          const { data: rows } = await db
+            .from('news_items')
+            .select('id, title, summary, full_text, image_url, created_at, is_ai_generated')
+            .like('id', 'news-ai-reporter-%')
+            .order('created_at', { ascending: false })
+            .limit(1);
+          const row = rows?.[0];
+          if (row) {
+            latestReporter = {
+              title: row.title,
+              summary: row.summary,
+              fullText: row.full_text,
+              imageUrl: row.image_url,
+              date: String(row.created_at || '').slice(0, 10),
+              published: true,
+              newsId: row.id,
+            };
+          }
+        } catch (_) {}
+      }
+
       return res.json({
         ok: true,
         settings: { ...defaults, ...settings },
         briefing,
+        latestReporter,
       });
     } catch (error) {
       return res.status(500).json({ ok: false, message: 'Ayarlar okunamadı.', detail: error.message });

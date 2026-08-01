@@ -551,7 +551,18 @@ class AiReporterService {
       lastReporterModel: model,
       lastReporterSkipped: false,
       lastReporterDraftOnly: false,
-      lastReporterDraft: null,
+      lastReporterDraft: {
+        title,
+        summary,
+        fullText,
+        imageUrl,
+        theme,
+        model,
+        score,
+        date: targetDate,
+        published: true,
+        newsId: newArticle.id,
+      },
     });
 
     return saved;

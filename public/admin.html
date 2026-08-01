@@ -1351,9 +1351,13 @@
           <div id="aiReporterLastDetail" style="padding:12px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; font-size:13px; margin-bottom:12px; color:var(--text-muted)">
             Son durum yükleniyor...
           </div>
+          <div id="aiReporterPreview" style="padding:14px; background:#f8fafc; border-radius:12px; border:1px solid var(--border); margin-bottom:12px; min-height:72px; color:var(--text-muted)">
+            Son üretilen şehir raporu burada görünecek...
+          </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap">
             <button class="btn btn-secondary" id="aiReporterBtn" onclick="triggerAiReporterManual(false)">🚀 Üret &amp; Yayınla + Bildirim</button>
             <button class="btn btn-primary" id="aiReporterDraftBtn" onclick="triggerAiReporterManual(true)">📝 Sadece Taslak Üret</button>
+            <button class="btn btn-secondary" id="aiReporterLoadDraftBtn" onclick="loadReporterDraftIntoEditor()" style="display:none">✏️ Taslağı Editöre Al</button>
           </div>
         </div>
       </div>
@@ -5379,7 +5383,7 @@
         if (approvalEl) approvalEl.checked = s.reporterRequireApproval === true;
         const limitEl = document.getElementById('aiBeautifyDailyLimit');
         if (limitEl) limitEl.value = Number(s.beautifyDailyLimit ?? 25);
-        renderAiStatus(s, data.briefing);
+        renderAiStatus(s, data.briefing, data.latestReporter);
       } catch (err) {
         showToast('Yapay Zeka ayarları yüklenemedi: ' + err.message, true);
       }
@@ -5394,7 +5398,7 @@
       }
     }
 
-    function renderAiStatus(s, briefing) {
+    function renderAiStatus(s, briefing, latestReporter) {
       const today = new Date().toISOString().slice(0, 10);
       const count = s.beautifyCountDate === today ? (s.beautifyCountToday || 0) : 0;
       const limit = Number(s.beautifyDailyLimit ?? 25);
@@ -5425,6 +5429,34 @@
         if (s.lastReporterError) bits.push(`Hata: ${escapeHtml(s.lastReporterError)}`);
         detailEl.innerHTML = bits.join('<br>') || 'Henüz şehir raporu çalıştırılmadı.';
       }
+
+      window._latestReporterDraft = latestReporter || s.lastReporterDraft || null;
+      const previewEl = document.getElementById('aiReporterPreview');
+      const loadBtn = document.getElementById('aiReporterLoadDraftBtn');
+      const draft = window._latestReporterDraft;
+      if (previewEl) {
+        if (draft && (draft.title || draft.fullText || draft.summary)) {
+          const badge = draft.published
+            ? '<span style="font-size:11px;background:#E8F5E9;color:#2E7D32;padding:3px 8px;border-radius:999px;font-weight:800">Yayınlandı</span>'
+            : '<span style="font-size:11px;background:#FFF3E0;color:#E65100;padding:3px 8px;border-radius:999px;font-weight:800">Taslak</span>';
+          const img = draft.imageUrl
+            ? `<img src="${escapeHtml(draft.imageUrl)}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:10px 0">`
+            : '';
+          const body = escapeHtml(draft.fullText || draft.summary || '').replace(/\n/g, '<br>');
+          previewEl.innerHTML =
+            `<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap">` +
+            `<strong style="color:var(--text)">${escapeHtml(draft.title || 'Şehir raporu')}</strong>${badge}</div>` +
+            img +
+            (draft.summary ? `<div style="margin:6px 0 10px;font-weight:600;color:var(--text)">${escapeHtml(draft.summary)}</div>` : '') +
+            `<div style="font-size:13px;line-height:1.55;color:var(--text-muted);max-height:280px;overflow:auto">${body}</div>` +
+            `<div style="margin-top:8px;font-size:12px;color:var(--text-muted)">Tema: ${escapeHtml(draft.theme || '—')} · ${escapeHtml(draft.date || '')} · ${escapeHtml(draft.model || '')}</div>`;
+          if (loadBtn) loadBtn.style.display = draft.published ? 'none' : 'inline-flex';
+        } else {
+          previewEl.textContent = 'Henüz üretilmiş şehir raporu yok. “Sadece Taslak Üret” veya “Üret & Yayınla” ile oluşturun.';
+          if (loadBtn) loadBtn.style.display = 'none';
+        }
+      }
+
       const draftEl = document.getElementById('aiStatusDraft');
       if (draftEl) {
         draftEl.innerHTML =
@@ -5432,22 +5464,47 @@
           `<span style="font-size:12px;color:var(--text-muted);font-weight:600">${escapeHtml(s.lastDraftTitle || '')} · ${formatAiTime(s.lastDraftPublishAt)}</span>`;
       }
       const briefingStatusEl = document.getElementById('aiStatusBriefing');
-      const previewEl = document.getElementById('aiBriefingPreview');
+      const briefingPreviewEl = document.getElementById('aiBriefingPreview');
       if (briefing) {
         if (briefingStatusEl) {
           briefingStatusEl.innerHTML =
             `${escapeHtml(briefing.todayTitle || 'Özet var')}<br>` +
             `<span style="font-size:12px;color:var(--text-muted);font-weight:600">${formatAiTime(briefing.generatedAt)}</span>`;
         }
-        if (previewEl) {
-          previewEl.innerHTML =
+        if (briefingPreviewEl) {
+          briefingPreviewEl.innerHTML =
             `<strong>${escapeHtml(briefing.todayTitle || '')}</strong><br>` +
             `<span style="color:var(--text-muted)">${escapeHtml(briefing.todaySummary || '')}</span>`;
         }
       } else {
         if (briefingStatusEl) briefingStatusEl.textContent = 'Henüz üretilmedi';
-        if (previewEl) previewEl.textContent = 'Akşam saatlerinde otomatik üretilir veya şimdi yenileyin.';
+        if (briefingPreviewEl) briefingPreviewEl.textContent = 'Akşam saatlerinde otomatik üretilir veya şimdi yenileyin.';
       }
+    }
+
+    function loadReporterDraftIntoEditor() {
+      const d = window._latestReporterDraft;
+      if (!d) {
+        showToast('Yüklenecek taslak yok', true);
+        return;
+      }
+      generatedDraft = {
+        title: d.title || '',
+        summary: d.summary || '',
+        fullText: d.fullText || '',
+      };
+      document.getElementById('aiNewsDraftTitle').value = d.title || '';
+      document.getElementById('aiNewsDraftSummary').value = d.summary || '';
+      document.getElementById('aiNewsDraftFullText').value = d.fullText || '';
+      document.getElementById('aiNewsDraftImageUrl').value = d.imageUrl || '';
+      document.getElementById('aiNewsDraftVideoUrl').value = '';
+      setAiCoverPreview(d.imageUrl || null);
+      document.getElementById('aiNewsDraftCategory').value = 'Düziçi';
+      document.getElementById('aiNewsDraftSendPush').checked = true;
+      document.getElementById('aiPublishResult').textContent = 'Şehir muhabiri taslağı editöre alındı';
+      document.getElementById('aiNewsDraftCard').style.display = 'block';
+      document.getElementById('aiNewsDraftCard').scrollIntoView({ behavior: 'smooth' });
+      showToast('Taslak editöre alındı');
     }
 
     async function saveAiNewsSettings() {
