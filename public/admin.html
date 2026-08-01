@@ -1233,8 +1233,19 @@
               Yapay Zeka Şehir Muhabirini Etkinleştir (AI Reporter)
             </label>
             <span style="color:var(--text-muted); font-size:12px; margin-left:28px; margin-top:-8px">
-              Her akşam saat 20:00'de otomatik olarak günün hava durumunu, kesintilerini, yol çalışmalarını, vefatlarını ve yerel haberlerini analiz ederek kapsamlı bir "Şehir Raporu" haberi yazar ve yayınlar.
+              Her akşam 20:00'de hava, kesinti, yol, nöbetçi eczane, etkinlik, akaryakıt, vefat ve yerel haberleri analiz ederek "Şehir Raporu" üretir. Başlık ve kapak görseli günün temasına göre seçilir.
             </span>
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; margin-left:28px">
+              <input type="checkbox" id="aiReporterRequireApproval" style="width:18px; height:18px; accent-color:var(--primary)">
+              Otomatikte önce taslak üret (onay olmadan yayınlama)
+            </label>
+            <span style="color:var(--text-muted); font-size:12px; margin-left:56px; margin-top:-8px">
+              Açıkken 20:00'de sadece taslak kaydedilir; manuel "Yayınla" ile çıkar. Kapalıysa doğrudan yayınlar + bildirim gider.
+            </span>
+            <div id="aiReporterCronHint" style="margin:8px 0 0 28px; padding:10px 12px; background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; font-size:12px; color:#9a3412; line-height:1.45">
+              <strong>Zamanlama notu:</strong> Render light modda job saatte bir kontrol eder. Daha kesin 20:00 için harici cron ile
+              <code>POST /api/admin/news/trigger-reporter</code> + admin token kullanın.
+            </div>
             <button type="button" class="btn btn-secondary" onclick="saveAiNewsSettings()" style="align-self:flex-start; margin-top:8px">💾 Ayarları Kaydet</button>
           </div>
         </div>
@@ -1334,10 +1345,16 @@
 
         <div class="card">
           <div class="section-title">📡 Şehir Muhabiri (AI Reporter) Kontrolü</div>
-          <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
-            Yapay Zeka Şehir Muhabirini manuel olarak tetikleyip anlık şehir haber bültenini hemen yayınlayabilirsiniz.
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:12px">
+            Manuel tetikleyebilirsiniz. Taslak modu metni yayınlamadan hazırlar; isterseniz düzenleyip AI haber taslağı kartından yayınlarsınız.
           </p>
-          <button class="btn btn-secondary" id="aiReporterBtn" onclick="triggerAiReporterManual()">🚀 Şehir Raporu Haberi Üret & Bildirim Gönder</button>
+          <div id="aiReporterLastDetail" style="padding:12px; background:#f8fafc; border:1px solid var(--border); border-radius:10px; font-size:13px; margin-bottom:12px; color:var(--text-muted)">
+            Son durum yükleniyor...
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <button class="btn btn-secondary" id="aiReporterBtn" onclick="triggerAiReporterManual(false)">🚀 Üret &amp; Yayınla + Bildirim</button>
+            <button class="btn btn-primary" id="aiReporterDraftBtn" onclick="triggerAiReporterManual(true)">📝 Sadece Taslak Üret</button>
+          </div>
         </div>
       </div>
 
@@ -5358,6 +5375,8 @@
         const s = data.settings || {};
         document.getElementById('aiBeautifyScraped').checked = s.beautifyScraped === true;
         document.getElementById('aiReporterEnabled').checked = s.reporterEnabled === true;
+        const approvalEl = document.getElementById('aiReporterRequireApproval');
+        if (approvalEl) approvalEl.checked = s.reporterRequireApproval === true;
         const limitEl = document.getElementById('aiBeautifyDailyLimit');
         if (limitEl) limitEl.value = Number(s.beautifyDailyLimit ?? 25);
         renderAiStatus(s, data.briefing);
@@ -5389,9 +5408,22 @@
       if (reporterEl) {
         const ok = s.lastReporterOk;
         const badge = ok === true ? '✅' : ok === false ? '❌' : '—';
+        const mode = s.lastReporterDraftOnly ? 'taslak' : (s.lastReporterSkipped ? 'atlandı' : 'yayın');
         reporterEl.innerHTML =
-          `${s.reporterEnabled ? 'Açık' : 'Kapalı'} ${badge}<br>` +
+          `${s.reporterEnabled ? 'Açık' : 'Kapalı'} ${badge} · ${mode}<br>` +
           `<span style="font-size:12px;color:var(--text-muted);font-weight:600">${escapeHtml(s.lastReporterTitle || '')} · ${formatAiTime(s.lastReporterAt)}</span>`;
+      }
+      const detailEl = document.getElementById('aiReporterLastDetail');
+      if (detailEl) {
+        const bits = [];
+        bits.push(`Son: ${formatAiTime(s.lastReporterAt)}`);
+        if (s.lastReporterTitle) bits.push(`Başlık: ${escapeHtml(s.lastReporterTitle)}`);
+        if (s.lastReporterTheme) bits.push(`Tema: ${escapeHtml(s.lastReporterTheme)}`);
+        if (s.lastReporterScore != null) bits.push(`Veri skoru: ${s.lastReporterScore}`);
+        if (s.lastReporterModel) bits.push(`Model: ${escapeHtml(s.lastReporterModel)}`);
+        if (s.reporterRequireApproval) bits.push('Otomatik: onaylı taslak modu');
+        if (s.lastReporterError) bits.push(`Hata: ${escapeHtml(s.lastReporterError)}`);
+        detailEl.innerHTML = bits.join('<br>') || 'Henüz şehir raporu çalıştırılmadı.';
       }
       const draftEl = document.getElementById('aiStatusDraft');
       if (draftEl) {
@@ -5422,6 +5454,7 @@
       try {
         const beautifyScraped = document.getElementById('aiBeautifyScraped').checked;
         const reporterEnabled = document.getElementById('aiReporterEnabled').checked;
+        const reporterRequireApproval = document.getElementById('aiReporterRequireApproval')?.checked === true;
         const beautifyDailyLimit = Number(document.getElementById('aiBeautifyDailyLimit')?.value || 25);
         const res = await fetch('/api/admin/news/ai-settings', {
           method: 'POST',
@@ -5429,7 +5462,7 @@
             'Content-Type': 'application/json',
             'x-admin-token': currentToken
           },
-          body: JSON.stringify({ beautifyScraped, reporterEnabled, beautifyDailyLimit })
+          body: JSON.stringify({ beautifyScraped, reporterEnabled, reporterRequireApproval, beautifyDailyLimit })
         });
         const data = await res.json();
         if (data.ok) {
@@ -5717,36 +5750,69 @@
       if (progress) progress.style.display = 'none';
     }
 
-    async function triggerAiReporterManual() {
-      if (!confirm('Günlük Şehir Raporu üretilip haber listesinde yayınlanacak ve tüm Düziçi kullanıcılarına bildirim gönderilecek. Devam etmek istiyor musunuz?')) {
-        return;
-      }
+    async function triggerAiReporterManual(draftOnly = false) {
+      const msg = draftOnly
+        ? 'Şehir raporu taslak olarak üretilecek (yayınlanmayacak). Devam?'
+        : 'Şehir raporu yayınlanacak ve Düziçi kullanıcılarına bildirim gidecek. Devam?';
+      if (!confirm(msg)) return;
 
-      showToast('Yapay Zeka Şehir Raporu üretiliyor, veriler toplanıyor...');
-      const btn = document.getElementById('aiReporterBtn') || document.querySelector('button[onclick="triggerAiReporterManual()"]');
-      const oldText = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '⌛ Şehir Raporu Üretiliyor...';
+      showToast(draftOnly ? 'Taslak üretiliyor...' : 'Şehir raporu üretiliyor...');
+      const btn = document.getElementById(draftOnly ? 'aiReporterDraftBtn' : 'aiReporterBtn');
+      const other = document.getElementById(draftOnly ? 'aiReporterBtn' : 'aiReporterDraftBtn');
+      const oldText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⌛ Üretiliyor...';
+      }
+      if (other) other.disabled = true;
 
       try {
         const res = await fetch('/api/admin/news/trigger-reporter', {
           method: 'POST',
           headers: {
+            'Content-Type': 'application/json',
             'x-admin-token': currentToken
-          }
+          },
+          body: JSON.stringify({ draftOnly: !!draftOnly })
         });
         const data = await res.json();
-        if (data.ok) {
-          showToast('Başarılı: Şehir Raporu haberi üretildi ve bildirim gönderildi.');
-          loadAiNewsSettings();
-        } else {
-          showToast('Hata: ' + data.message, true);
+        if (!data.ok) {
+          showToast('Hata: ' + (data.detail || data.message), true);
+          return;
         }
+
+        if (data.draft && data.draftPayload) {
+          const d = data.draftPayload;
+          generatedDraft = {
+            title: d.title || '',
+            summary: d.summary || '',
+            fullText: d.fullText || '',
+          };
+          document.getElementById('aiNewsDraftTitle').value = d.title || '';
+          document.getElementById('aiNewsDraftSummary').value = d.summary || '';
+          document.getElementById('aiNewsDraftFullText').value = d.fullText || '';
+          document.getElementById('aiNewsDraftImageUrl').value = d.imageUrl || '';
+          document.getElementById('aiNewsDraftVideoUrl').value = '';
+          setAiCoverPreview(d.imageUrl || null);
+          document.getElementById('aiNewsDraftCategory').value = 'Düziçi';
+          document.getElementById('aiNewsDraftSendPush').checked = true;
+          document.getElementById('aiPublishResult').textContent =
+            `Şehir raporu taslağı · tema: ${d.theme || '—'} · model: ${d.model || '—'}`;
+          document.getElementById('aiNewsDraftCard').style.display = 'block';
+          document.getElementById('aiNewsDraftCard').scrollIntoView({ behavior: 'smooth' });
+          showToast('Taslak hazır — düzenleyip yayınlayabilirsiniz.');
+        } else {
+          showToast('Başarılı: Şehir raporu yayınlandı.');
+        }
+        loadAiNewsSettings();
       } catch (err) {
-        showToast('Rapor üretilirken hata oluştu: ' + err.message, true);
+        showToast('Rapor üretilirken hata: ' + err.message, true);
       } finally {
-        btn.disabled = false;
-        btn.innerHTML = oldText;
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = oldText;
+        }
+        if (other) other.disabled = false;
       }
     }
 

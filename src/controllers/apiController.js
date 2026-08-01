@@ -700,36 +700,45 @@ class ApiController {
   async triggerAiReporter(req, res) {
     try {
       const aiReporterService = require('../services/aiReporterService');
-      const fileService = require('../services/fileService');
-      const result = await aiReporterService.generateDailyReport({ force: true });
+      const draftOnly = req.body?.draftOnly === true || req.query?.draftOnly === '1';
+      const result = await aiReporterService.generateDailyReport({
+        force: true,
+        publish: !draftOnly,
+      });
+
       if (!result) {
-        try {
-          const city = await fileService.readCityContent();
-          city.aiNewsSettings = {
-            ...(city.aiNewsSettings || {}),
-            lastReporterAt: new Date().toISOString(),
-            lastReporterOk: false,
-            lastReporterError: 'Rapor üretilemedi',
-          };
-          await fileService.writeCityContent(city);
-        } catch (_) {}
         return res.status(500).json({ ok: false, message: 'Günlük şehir raporu üretilemedi.' });
       }
-      try {
-        const city = await fileService.readCityContent();
-        city.aiNewsSettings = {
-          ...(city.aiNewsSettings || {}),
-          lastReporterAt: new Date().toISOString(),
-          lastReporterOk: true,
-          lastReporterTitle: result.title || null,
-          lastReporterError: null,
-        };
-        await fileService.writeCityContent(city);
-      } catch (_) {}
-      return res.json({ ok: true, message: 'Günlük şehir raporu üretildi ve yayınlandı.', item: result });
+
+      if (result.draft) {
+        return res.json({
+          ok: true,
+          draft: true,
+          message: 'Şehir raporu taslak olarak hazırlandı (henüz yayınlanmadı).',
+          draftPayload: {
+            title: result.title,
+            summary: result.summary,
+            fullText: result.fullText,
+            imageUrl: result.imageUrl,
+            theme: result.theme,
+            model: result.model,
+            score: result.score,
+          },
+        });
+      }
+
+      return res.json({
+        ok: true,
+        message: 'Günlük şehir raporu üretildi ve yayınlandı.',
+        item: result,
+      });
     } catch (error) {
       console.error('❌ AI Reporter trigger failed:', error.message);
-      return res.status(500).json({ ok: false, message: 'Yapay Zeka Muhabiri çalıştırılamadı.', detail: error.message });
+      return res.status(500).json({
+        ok: false,
+        message: 'Yapay Zeka Muhabiri çalıştırılamadı.',
+        detail: error.message,
+      });
     }
   }
 
@@ -742,6 +751,7 @@ class ApiController {
       const defaults = {
         beautifyScraped: false,
         reporterEnabled: false,
+        reporterRequireApproval: false,
         beautifyDailyLimit: 25,
         beautifyCountToday: 0,
         beautifyCountDate: null,
@@ -751,6 +761,12 @@ class ApiController {
         lastReporterOk: null,
         lastReporterTitle: null,
         lastReporterError: null,
+        lastReporterScore: null,
+        lastReporterTheme: null,
+        lastReporterModel: null,
+        lastReporterSkipped: null,
+        lastReporterDraftOnly: null,
+        lastReporterDraft: null,
         lastDraftPublishAt: null,
         lastDraftPublishOk: null,
         lastDraftTitle: null,
@@ -780,7 +796,7 @@ class ApiController {
 
   async saveAiNewsSettings(req, res) {
     try {
-      const { beautifyScraped, reporterEnabled, beautifyDailyLimit } = req.body;
+      const { beautifyScraped, reporterEnabled, reporterRequireApproval, beautifyDailyLimit } = req.body;
       const fileService = require('../services/fileService');
       const data = await fileService.readCityContent();
 
@@ -790,6 +806,7 @@ class ApiController {
         ...prev,
         beautifyScraped: beautifyScraped === true,
         reporterEnabled: reporterEnabled === true,
+        reporterRequireApproval: reporterRequireApproval === true,
         beautifyDailyLimit: Number.isFinite(limit) ? Math.max(0, Math.min(200, Math.round(limit))) : (prev.beautifyDailyLimit ?? 25),
       };
 

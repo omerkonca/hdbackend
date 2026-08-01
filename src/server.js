@@ -148,7 +148,10 @@ const server = app.listen(config.PORT, () => {
     console.log('[server] hafif arka plan modu — periyodik tarama yok, cache API isteğinde yenilenir');
     // Gün sonu özeti için saatte bir kontrol yeterli (günde tek AI çağrısı, 19:00 TR)
     setInterval(runDailyBriefingJob, 60 * 60 * 1000);
-    setInterval(runAiReporterJob, 60 * 60 * 1000);
+    // Şehir muhabiri: 20 dk'da bir kontrol (20:00 penceresini kaçırmamak için)
+    setInterval(runAiReporterJob, 20 * 60 * 1000);
+    // Sunucu uyanır uyanmaz bir kez dene
+    setTimeout(runAiReporterJob, 45 * 1000);
   } else {
     setInterval(() => {
       pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});
