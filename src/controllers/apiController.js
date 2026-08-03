@@ -976,21 +976,30 @@ Uydurma metin yazma, sadece sahici dini kaynaklardan alıntı yap.
 Üretilecek Türkçe meal ("text") KISA VE ÖZ OLMALIDIR (EN FAZLA 15-20 KELİME / MAXIMUM 110 KARAKTER). 
 Kilit ekranı (Lock Screen) widget'ına ve mobil ekranlara taşmadan TAM SIĞMALIDIR! Uzun ayetlerin en vurucu ve öz kısmını seç.
 
+ÇOK ÖNEMLİ - ARAPÇA METİN KURALI:
+SEN Arapça harekeli metni ASLA ezberden/hafızandan üretme veya tahmin etme. Dil modelleri Kur'an ve hadislerin
+Arapça harflerini yanlış hatırlayabilir/uydurabilir; bu DİNİ AÇIDAN ÇOK CİDDİ bir hatadır.
+Bu yüzden "arabic_text" alanını HER ZAMAN BOŞ STRING ("") olarak bırak. Arapça metni yönetici, güvenilir bir
+kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek elle girecektir.
+
 ÇIKTI SADECE AŞAĞIDAKİ JSON FORMATINDA OLMALIDIR:
 {
   "text": "Kısa, öz ve kilit ekranına sığacak Türkçe meal (max 110 karakter)",
   "surah": "Sure Adı ve Ayet Numarası (Örn: İnşirâh Suresi • 5. Âyet veya Hadis-i Şerif • Buhârî, İlim 11)",
   "type": "ayet" veya "hadis",
   "category": "umut" veya "huzur" veya "sabir" veya "dua" veya "ahlak",
-  "arabic_text": "Ayetin/Hadisin tam harekeli Arapça hat metni (Örn: فَإِنَّ مَعَ الْعُسْرِ يُسْرًا)",
+  "arabic_text": "",
   "explanation": "Kısa manevi özet",
   "nuzul_sebebi": "Nüzul sebebi veya Hadisin söylenme bağlamı",
   "detailed_tefsir": "Detaylı Elmalılı Hamdi Yazır veya Hadis şerhi özeti"
 }`;
 
-      const userPrompt = `Konu/Duygu: "${topic || category || 'umut'}", Tür: "${type || 'ayet'}", Kategori: "${category || 'umut'}". Lütfen kilit ekranına tam sığacak (max 110 karakter) sahici, harekeli Arapça yazısı olan bir ayet/hadis üret.`;
+      const userPrompt = `Konu/Duygu: "${topic || category || 'umut'}", Tür: "${type || 'ayet'}", Kategori: "${category || 'umut'}". Lütfen kilit ekranına tam sığacak (max 110 karakter) sahici bir ayet/hadis meali üret. "arabic_text" alanını boş bırak, ben elle gireceğim.`;
 
       const result = await aiClient.generateJson({ systemPrompt, userPrompt });
+      if (result.data && typeof result.data === 'object') {
+        result.data.arabic_text = '';
+      }
       return res.json({ ok: true, item: result.data, model: result.model });
     } catch (error) {
       console.error('AI Verse Generation error:', error);
