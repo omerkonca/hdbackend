@@ -37,7 +37,8 @@ app.get(['/iletisim', '/iletisim.html', '/contact'], (req, res) => {
 app.get(['/kullanim-kosullari', '/kullanim-kosullari.html', '/terms'], (req, res) => {
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'kullanim-kosullari.html'));
 });
-app.get('/admin', (req, res) => {
+app.get(['/admin', '/admin.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'admin.html'));
 });
 
