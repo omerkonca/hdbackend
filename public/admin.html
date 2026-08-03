@@ -2091,7 +2091,8 @@
           document.getElementById('logoutBtn').style.display = 'flex';
           setLoginLocked(false, '');
           showToast('Hoşgeldiniz!');
-          loadData();
+          await loadData();
+          restoreLastView();
         } else if (res.status === 429) {
           const msg = errData.message || 'Çok fazla hatalı giriş. Lütfen bekleyin.';
           setLoginLocked(true, msg);
@@ -2144,6 +2145,13 @@
       
       const targetView = document.getElementById(view + 'View');
       if (targetView) targetView.classList.add('active');
+      
+      try {
+        localStorage.setItem('hd_admin_last_view', view);
+        if (window.location.hash !== '#' + view) {
+          history.replaceState(null, '', '#' + view);
+        }
+      } catch (_) {}
       
       const clickedEl = (typeof event !== 'undefined' && event) ? event.target.closest('.nav-item') : null;
       if (clickedEl) {
@@ -6110,6 +6118,14 @@
 
     document.getElementById('passInput').onkeydown = e => { if (e.key === 'Enter') handleLogin(); };
 
+    function restoreLastView() {
+      const hashView = window.location.hash ? window.location.hash.replace('#', '') : null;
+      const savedView = hashView || localStorage.getItem('hd_admin_last_view') || 'dashboard';
+      if (savedView) {
+        switchView(savedView);
+      }
+    }
+
     // Auto-login on load
     window.addEventListener('DOMContentLoaded', async () => {
       const savedToken = localStorage.getItem('hd_admin_token');
@@ -6126,7 +6142,8 @@
             document.getElementById('lockStatus').innerHTML = '🔓 Sistem Açık';
             document.getElementById('logoutBtn').style.display = 'flex';
             showToast('Otomatik giriş yapıldı.');
-            loadData();
+            await loadData();
+            restoreLastView();
           } else {
             localStorage.removeItem('hd_admin_token');
             if (res.status === 429) {
