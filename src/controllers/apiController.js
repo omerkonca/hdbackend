@@ -914,9 +914,13 @@ class ApiController {
 İstenen konu, duygu durumu veya kategoriye göre SAHİH ve GERÇEK bir Ayet-i Kerime veya Hadis-i Şerif oluşturacaksın.
 Uydurma metin yazma, sadece sahici dini kaynaklardan alıntı yap.
 
+ÖNEMLİ KRİTİK KISITLAMA: 
+Üretilecek Türkçe meal ("text") KISA VE ÖZ OLMALIDIR (EN FAZLA 15-20 KELİME / MAXIMUM 110 KARAKTER). 
+Kilit ekranı (Lock Screen) widget'ına ve mobil ekranlara taşmadan TAM SIĞMALIDIR! Uzun ayetlerin en vurucu ve öz kısmını seç.
+
 ÇIKTI SADECE AŞAĞIDAKİ JSON FORMATINDA OLMALIDIR:
 {
-  "text": "Türkçe meal (eksiksiz ve net)",
+  "text": "Kısa, öz ve kilit ekranına sığacak Türkçe meal (max 110 karakter)",
   "surah": "Sure Adı ve Ayet Numarası (Örn: İnşirâh Suresi • 5. Âyet veya Hadis-i Şerif • Buhârî, İlim 11)",
   "type": "ayet" veya "hadis",
   "category": "umut" veya "huzur" veya "sabir" veya "dua" veya "ahlak",
@@ -926,7 +930,7 @@ Uydurma metin yazma, sadece sahici dini kaynaklardan alıntı yap.
   "detailed_tefsir": "Detaylı Elmalılı Hamdi Yazır veya Hadis şerhi özeti"
 }`;
 
-      const userPrompt = `Konu/Duygu: "${topic || category || 'umut'}", Tür: "${type || 'ayet'}", Kategori: "${category || 'umut'}". Lütfen sahici, harekeli Arapça yazısı olan bir ayet/hadis üret.`;
+      const userPrompt = `Konu/Duygu: "${topic || category || 'umut'}", Tür: "${type || 'ayet'}", Kategori: "${category || 'umut'}". Lütfen kilit ekranına tam sığacak (max 110 karakter) sahici, harekeli Arapça yazısı olan bir ayet/hadis üret.`;
 
       const result = await aiClient.generateJson({ systemPrompt, userPrompt });
       return res.json({ ok: true, item: result.data, model: result.model });

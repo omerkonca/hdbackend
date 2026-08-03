@@ -6169,13 +6169,29 @@
         document.getElementById('aiVerseNuzul').value = item.nuzul_sebebi || item.explanation || '';
         document.getElementById('aiVerseTefsir').value = item.detailed_tefsir || '';
 
+        updateAiCharCounter();
         document.getElementById('aiResultContainer').style.display = 'block';
-        showToast('Ayet/Hadis başarıyla üretildi! Kontrol edebilirsiniz.');
+        showToast('Ayet/Hadis başarıyla üretildi! Kilit ekranına sığacak formatta hazırdır.');
       } catch (err) {
         showToast('Hata: ' + err.message, true);
       } finally {
         btn.disabled = false;
         btn.textContent = oldText;
+      }
+    }
+
+    function updateAiCharCounter() {
+      const el = document.getElementById('aiVerseText');
+      const counter = document.getElementById('aiCharCounter');
+      if (!el || !counter) return;
+      const len = el.value.trim().length;
+      counter.textContent = `${len}/110 kar`;
+      if (len > 120) {
+        counter.style.color = '#ef4444';
+      } else if (len > 110) {
+        counter.style.color = '#f59e0b';
+      } else {
+        counter.style.color = '#10b981';
       }
     }
 
@@ -6289,8 +6305,11 @@
         </div>
 
         <div style="margin-bottom:12px;">
-          <label style="color:#94a3b8; font-size:11px; font-weight:700;">Türkçe Meal</label>
-          <textarea id="aiVerseText" rows="3" style="background:#0f172a; color:white; border:1px solid #334155; width:100%; padding:10px; border-radius:8px; margin-top:4px; font-family:inherit;"></textarea>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="color:#94a3b8; font-size:11px; font-weight:700;">Türkçe Meal (Kilit Ekranı İçin Sığacak Kısa Metin)</label>
+            <span id="aiCharCounter" style="font-size:11px; font-weight:700; color:#10b981;">0/110 kar</span>
+          </div>
+          <textarea id="aiVerseText" rows="3" style="background:#0f172a; color:white; border:1px solid #334155; width:100%; padding:10px; border-radius:8px; margin-top:4px; font-family:inherit;" oninput="updateAiCharCounter()"></textarea>
         </div>
 
         <div style="margin-bottom:12px;">
