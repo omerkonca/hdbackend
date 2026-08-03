@@ -846,6 +846,73 @@ class ApiController {
       return res.status(500).json({ ok: false, message: 'Ayarlar kaydedilemedi.', detail: error.message });
     }
   }
+
+  async getVerses(req, res) {
+    try {
+      const supabase = require('../utils/supabaseClient');
+      const { data, error } = await supabase
+        .from('motivational_verses')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (error) throw error;
+      return res.json({ ok: true, items: data || [] });
+    } catch (error) {
+      return res.status(500).json({ ok: false, message: 'Ayetler okunamadı.', detail: error.message });
+    }
+  }
+
+  async saveVerse(req, res) {
+    try {
+      const { id, text, surah } = req.body;
+      if (!text || !surah) {
+        return res.status(400).json({ ok: false, message: 'Metin ve Kaynak alanları zorunludur.' });
+      }
+
+      const supabase = require('../utils/supabaseClient');
+      let result;
+      if (id) {
+        const { data, error } = await supabase
+          .from('motivational_verses')
+          .update({ text, surah })
+          .eq('id', id)
+          .select();
+        if (error) throw error;
+        result = data[0];
+      } else {
+        const { data, error } = await supabase
+          .from('motivational_verses')
+          .insert({ text, surah })
+          .select();
+        if (error) throw error;
+        result = data[0];
+      }
+
+      return res.json({ ok: true, message: 'Başarıyla kaydedildi.', item: result });
+    } catch (error) {
+      return res.status(500).json({ ok: false, message: 'Ayet kaydedilemedi.', detail: error.message });
+    }
+  }
+
+  async deleteVerse(req, res) {
+    try {
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ ok: false, message: 'ID gereklidir.' });
+      }
+
+      const supabase = require('../utils/supabaseClient');
+      const { error } = await supabase
+        .from('motivational_verses')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return res.json({ ok: true, message: 'Ayet silindi.' });
+    } catch (error) {
+      return res.status(500).json({ ok: false, message: 'Ayet silinemedi.', detail: error.message });
+    }
+  }
 }
 
 module.exports = new ApiController();

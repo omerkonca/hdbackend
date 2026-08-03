@@ -64,4 +64,9 @@ router.post('/admin/news/trigger-reporter', requireAdminToken, apiController.tri
 router.get('/admin/news/ai-settings', requireAdminToken, apiController.getAiNewsSettings);
 router.post('/admin/news/ai-settings', requireAdminToken, apiController.saveAiNewsSettings);
 
+// Verses Administration
+router.get('/admin/verses', requireAdminToken, apiController.getVerses);
+router.post('/admin/verses', requireAdminToken, apiController.saveVerse);
+router.delete('/admin/verses/:id', requireAdminToken, apiController.deleteVerse);
+
 module.exports = router;

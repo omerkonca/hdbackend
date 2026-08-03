@@ -657,6 +657,12 @@
         <div class="nav-item" onclick="switchView('events')">📅 Etkinlikler</div>
       </div>
 
+      <!-- Widget Grubu -->
+      <div class="menu-group-title" onclick="toggleMenuGroup('groupWidgets')">📱 Widget Yönetimi <span class="arrow">▼</span></div>
+      <div class="menu-group-items" id="groupWidgets">
+        <div class="nav-item" onclick="switchView('verses')">📖 Günün Ayetleri</div>
+      </div>
+
       <!-- Sistem Grubu -->
       <div class="menu-group-title" onclick="toggleMenuGroup('groupSystem')">⚙️ Sistem <span class="arrow">▼</span></div>
       <div class="menu-group-items" id="groupSystem">
@@ -1030,6 +1036,34 @@
             </div>
             <button class="btn btn-primary" style="width:100%; justify-content:center; margin-top:10px" onclick="addSponsor()">Sponsoru Listeye Ekle</button>
           </div>
+        </div>
+      </div>
+
+      <!-- Günün Ayetleri -->
+      <div id="versesView" class="view-section">
+        <div class="card">
+          <div class="section-title">📖 Günün Ayeti & Hadisi Düzenle</div>
+          <p style="color:var(--text-muted); font-size:13px">Widget üzerinde her 12 saatte bir cihaz bazlı rastgele görüntülenecek ayet ve hadisleri buradan yönetin.</p>
+          
+          <input type="hidden" id="verseEditId">
+          <div class="form-group">
+            <label>Metin (Ayet Meali veya Hadis-i Şerif)</label>
+            <textarea id="verseText" rows="3" placeholder="Örn: Şüphesiz güçlükle beraber bir kolaylık vardır."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Kaynak (Sure Adı / Hadis Kaynağı)</label>
+            <input id="verseSurah" placeholder="Örn: İnşirâh, 5 veya Hadis-i Şerif (Buhârî)">
+          </div>
+          
+          <div class="row" style="gap:10px">
+            <button type="button" class="btn btn-primary" id="saveVerseBtn" onclick="saveVerse()">💾 Kaydet</button>
+            <button type="button" class="btn btn-secondary" id="cancelVerseEditBtn" style="display:none" onclick="cancelVerseEdit()">✕ Vazgeç</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">📋 Aktif Ayet & Hadis Listesi</div>
+          <div id="versesAdminList" style="font-size:14px; color:var(--text-muted)">Yükleniyor...</div>
         </div>
       </div>
 
@@ -2071,7 +2105,8 @@
         jobListings: ['İş İlanları', 'Esnafların personel alım ilanlarını yönetin.'],
         lostFound: ['Kayıp & Bulunan', 'Düziçi genelinde kayıp ve bulunan eşya ilanlarını yönetin.'],
         events: ['Kültür & Sanat Etkinlikleri', 'Düziçi ve çevre illerdeki sosyal etkinlikleri yönetin.'],
-        localProducts: ['Yöresel Ürün Pazarı İlanları', 'Vatandaşların evlerinde ürettikleri ürün ilanlarını yönetin.']
+        localProducts: ['Yöresel Ürün Pazarı İlanları', 'Vatandaşların evlerinde ürettikleri ürün ilanlarını yönetin.'],
+        verses: ['Günün Ayetleri', 'Widget üzerinde görüntülenecek motive edici ayet ve hadisler.']
       };
       
       document.getElementById('viewTitle').textContent = titles[view] ? titles[view][0] : 'Yönetim Paneli';
@@ -2088,6 +2123,9 @@
       }
       if (view === 'announcements') {
         loadAnnouncementsAdminList();
+      }
+      if (view === 'verses') {
+        loadVersesAdminList();
       }
       if (view === 'json') {
         document.getElementById('jsonEditor').value = JSON.stringify(rawData, null, 2);
@@ -5873,6 +5911,119 @@
       }
     }
 
+
+    let versesList = [];
+
+    async function loadVersesAdminList() {
+      const listEl = document.getElementById('versesAdminList');
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="color:var(--text-muted)">Yükleniyor...</p>';
+      try {
+        const res = await fetch('/api/admin/verses', {
+          headers: { 'x-admin-token': currentToken }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Veriler yüklenemedi');
+        
+        versesList = data.items || [];
+        if (versesList.length === 0) {
+          listEl.innerHTML = '<p style="color:var(--text-muted)">Henüz eklenmiş ayet/hadis yok.</p>';
+          return;
+        }
+
+        listEl.innerHTML = versesList.map(item => `
+          <div class="list-item complex">
+            <div class="list-item-icon">📖</div>
+            <div class="list-item-content">
+              <div class="list-item-title">“${escapeHtml(item.text)}”</div>
+              <div class="list-item-subtitle" style="color:var(--primary); font-weight:700; margin-top:4px">${escapeHtml(item.surah)}</div>
+            </div>
+            <div style="display:flex; gap:8px">
+              <button class="btn btn-secondary" onclick="editVerse(${item.id})">✏️ Düzenle</button>
+              <button class="btn btn-danger" onclick="deleteVerse(${item.id})">✕ Sil</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        listEl.innerHTML = `<p style="color:var(--danger)">Hata: ${e.message}</p>`;
+      }
+    }
+
+    function editVerse(id) {
+      const item = versesList.find(v => v.id === id);
+      if (!item) return;
+
+      document.getElementById('verseEditId').value = item.id;
+      document.getElementById('verseText').value = item.text;
+      document.getElementById('verseSurah').value = item.surah;
+      
+      document.getElementById('cancelVerseEditBtn').style.display = 'inline-flex';
+      document.getElementById('saveVerseBtn').textContent = '💾 Güncelle';
+      document.getElementById('verseText').focus();
+    }
+
+    function cancelVerseEdit() {
+      document.getElementById('verseEditId').value = '';
+      document.getElementById('verseText').value = '';
+      document.getElementById('verseSurah').value = '';
+      
+      document.getElementById('cancelVerseEditBtn').style.display = 'none';
+      document.getElementById('saveVerseBtn').textContent = '💾 Kaydet';
+    }
+
+    async function saveVerse() {
+      const id = document.getElementById('verseEditId').value;
+      const text = document.getElementById('verseText').value.trim();
+      const surah = document.getElementById('verseSurah').value.trim();
+
+      if (!text || !surah) {
+        showToast('Metin ve Kaynak alanları zorunludur.', true);
+        return;
+      }
+
+      const btn = document.getElementById('saveVerseBtn');
+      btn.disabled = true;
+      btn.textContent = 'Kaydediliyor...';
+
+      try {
+        const res = await fetch('/api/admin/verses', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken
+          },
+          body: JSON.stringify({ id: id ? Number(id) : null, text, surah })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Kaydedilemedi');
+
+        showToast('Ayet/Hadis başarıyla kaydedildi.');
+        cancelVerseEdit();
+        loadVersesAdminList();
+      } catch (e) {
+        showToast(e.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = id ? '💾 Güncelle' : '💾 Kaydet';
+      }
+    }
+
+    async function deleteVerse(id) {
+      if (!confirm('Bu ayet/hadis kalıcı olarak silinsin mi?')) return;
+      try {
+        const res = await fetch('/api/admin/verses/' + id, {
+          method: 'DELETE',
+          headers: { 'x-admin-token': currentToken }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Silinemedi');
+
+        showToast('Ayet/Hadis silindi.');
+        loadVersesAdminList();
+      } catch (e) {
+        showToast(e.message, true);
+      }
+    }
 
     function showToast(msg, isError = false) {
       const t = document.getElementById('toast');
