@@ -864,17 +864,28 @@ class ApiController {
 
   async saveVerse(req, res) {
     try {
-      const { id, text, surah } = req.body;
+      const { id, text, surah, type, category, arabic_text, explanation, nuzul_sebebi, detailed_tefsir } = req.body;
       if (!text || !surah) {
         return res.status(400).json({ ok: false, message: 'Metin ve Kaynak alanları zorunludur.' });
       }
 
       const supabase = require('../utils/supabaseClient');
+      const payload = {
+        text,
+        surah,
+        ...(type && { type }),
+        ...(category && { category }),
+        ...(arabic_text && { arabic_text }),
+        ...(explanation && { explanation }),
+        ...(nuzul_sebebi && { nuzul_sebebi }),
+        ...(detailed_tefsir && { detailed_tefsir }),
+      };
+
       let result;
       if (id) {
         const { data, error } = await supabase
           .from('motivational_verses')
-          .update({ text, surah })
+          .update(payload)
           .eq('id', id)
           .select();
         if (error) throw error;
@@ -882,7 +893,7 @@ class ApiController {
       } else {
         const { data, error } = await supabase
           .from('motivational_verses')
-          .insert({ text, surah })
+          .insert(payload)
           .select();
         if (error) throw error;
         result = data[0];
@@ -891,6 +902,37 @@ class ApiController {
       return res.json({ ok: true, message: 'Başarıyla kaydedildi.', item: result });
     } catch (error) {
       return res.status(500).json({ ok: false, message: 'Ayet kaydedilemedi.', detail: error.message });
+    }
+  }
+
+  async generateAiVerse(req, res) {
+    try {
+      const { topic, category, type } = req.body;
+      const aiClient = require('../services/aiClient');
+
+      const systemPrompt = `Sen İslam alimi ve Kur'an-ı Kerim / Hadis uzmanı bir yapay zekasın. 
+İstenen konu, duygu durumu veya kategoriye göre SAHİH ve GERÇEK bir Ayet-i Kerime veya Hadis-i Şerif oluşturacaksın.
+Uydurma metin yazma, sadece sahici dini kaynaklardan alıntı yap.
+
+ÇIKTI SADECE AŞAĞIDAKİ JSON FORMATINDA OLMALIDIR:
+{
+  "text": "Türkçe meal (eksiksiz ve net)",
+  "surah": "Sure Adı ve Ayet Numarası (Örn: İnşirâh Suresi • 5. Âyet veya Hadis-i Şerif • Buhârî, İlim 11)",
+  "type": "ayet" veya "hadis",
+  "category": "umut" veya "huzur" veya "sabir" veya "dua" veya "ahlak",
+  "arabic_text": "Ayetin/Hadisin tam harekeli Arapça hat metni (Örn: فَإِنَّ مَعَ الْعُسْرِ يُسْرًا)",
+  "explanation": "Kısa manevi özet",
+  "nuzul_sebebi": "Nüzul sebebi veya Hadisin söylenme bağlamı",
+  "detailed_tefsir": "Detaylı Elmalılı Hamdi Yazır veya Hadis şerhi özeti"
+}`;
+
+      const userPrompt = `Konu/Duygu: "${topic || category || 'umut'}", Tür: "${type || 'ayet'}", Kategori: "${category || 'umut'}". Lütfen sahici, harekeli Arapça yazısı olan bir ayet/hadis üret.`;
+
+      const result = await aiClient.generateJson({ systemPrompt, userPrompt });
+      return res.json({ ok: true, item: result.data, model: result.model });
+    } catch (error) {
+      console.error('AI Verse Generation error:', error);
+      return res.status(500).json({ ok: false, message: 'Yapay zeka ile ayet üretilemedi.', detail: error.message });
     }
   }
 

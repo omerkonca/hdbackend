@@ -1419,6 +1419,81 @@
         </div>
       </div>
 
+      <!-- Verses & Hadith Management -->
+      <div id="versesView" class="view-section">
+        <div class="card" style="background: linear-gradient(135deg, #0f172a, #004d40); color: white; border: none; border-radius: 16px; padding: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <div>
+              <h2 style="margin: 0; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; color: #f8fafc;">
+                <span style="font-size:26px">✨</span> Yapay Zekayla Ayet & Hadis Üret
+              </h2>
+              <p style="margin: 6px 0 0; font-size: 13px; color: #a7f3d0; opacity: 0.9;">
+                Konu ve kategoriye özel sahici Ayet-i Kerime veya Hadis-i Şerif üretin, kontrol edip sisteme ekleyin.
+              </p>
+            </div>
+            <button class="btn" style="background: #e8c02e; color: #000; font-weight: 800; padding: 12px 22px; border-radius: 12px; font-size: 14px; cursor: pointer; border: none; box-shadow: 0 4px 14px rgba(232, 192, 46, 0.4);" onclick="openAiVerseModal()">
+              🤖 AI İle Ayet/Hadis Üret
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">✍️ Manuel Ayet / Hadis Ekle veya Düzenle</div>
+          <input type="hidden" id="verseEditId">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div class="form-group">
+              <label>Tür</label>
+              <select id="verseTypeSelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);">
+                <option value="ayet">Âyet-i Kerîme</option>
+                <option value="hadis">Hadîs-i Şerîf</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Kategori</label>
+              <select id="verseCategorySelect" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);">
+                <option value="umut">Umut & Müjde 🌟</option>
+                <option value="huzur">Huzur & İç Ferahlığı 🕊️</option>
+                <option value="sabir">Sabır & Metanet 🏔️</option>
+                <option value="dua">Dua & Yakarış 🤲</option>
+                <option value="ahlak">Ahlak & İhlas 💎</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Arapça Hat Metni</label>
+            <input id="verseArabic" placeholder="Örn: فَإِنَّ مَعَ الْعُسْرِ يُسْرًا" style="direction:rtl; font-size:16px;">
+          </div>
+          <div class="form-group">
+            <label>Türkçe Meal / Metin</label>
+            <input id="verseText" placeholder="Ayet meali veya hadis-i şerif metni...">
+          </div>
+          <div class="form-group">
+            <label>Sure / Kaynak</label>
+            <input id="verseSurah" placeholder="Örn: İnşirâh Suresi • 5. Âyet veya Hadis-i Şerif • Buhârî, İlim 11">
+          </div>
+          <div class="form-group">
+            <label>Nüzul Sebebi / Bağlam (Özet)</label>
+            <input id="verseNuzul" placeholder="Nüzul sebebi veya söylenme bağlamı...">
+          </div>
+          <div class="form-group">
+            <label>Detaylı Tefsir / Şerh</label>
+            <textarea id="verseTefsir" rows="2" placeholder="Tefsir özeti..." style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border);"></textarea>
+          </div>
+          <div class="row">
+            <button class="btn btn-primary" id="saveVerseBtn" onclick="saveVerse()">💾 Kaydet</button>
+            <button class="btn btn-secondary" id="cancelVerseEditBtn" style="display:none" onclick="cancelVerseEdit()">✕ Vazgeç</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div class="section-title" style="margin:0">📖 Sisteme Kayıtlı Ayet & Hadisler</div>
+            <button class="btn btn-secondary" onclick="loadVersesAdminList()">🔄 Listeyi Yenile</button>
+          </div>
+          <div id="versesAdminList" style="display:flex; flex-direction:column; gap:10px">Yükleniyor...</div>
+        </div>
+      </div>
+
       <!-- Advanced JSON -->
       <div id="jsonView" class="view-section">
         <div class="card">
@@ -6065,6 +6140,95 @@
       }
     });
 
+    function openAiVerseModal() {
+      document.getElementById('aiVerseModal').style.display = 'flex';
+      document.getElementById('aiResultContainer').style.display = 'none';
+    }
+
+    function closeAiVerseModal() {
+      document.getElementById('aiVerseModal').style.display = 'none';
+    }
+
+    async function generateAiVerseContent() {
+      const type = document.getElementById('aiTypeSelect').value;
+      const category = document.getElementById('aiCategorySelect').value;
+      const topic = document.getElementById('aiTopicInput').value.trim();
+
+      const btn = document.getElementById('aiGenerateBtn');
+      const oldText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '⏳ Yapay Zeka Dini Kaynakları Tarıyor...';
+
+      try {
+        const res = await fetch('/api/admin/verses/generate-ai', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken
+          },
+          body: JSON.stringify({ type, category, topic })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Üretim başarısız.');
+
+        const item = data.item;
+        document.getElementById('aiVerseArabic').value = item.arabic_text || '';
+        document.getElementById('aiVerseText').value = item.text || '';
+        document.getElementById('aiVerseSurah').value = item.surah || '';
+        document.getElementById('aiVerseNuzul').value = item.nuzul_sebebi || item.explanation || '';
+        document.getElementById('aiVerseTefsir').value = item.detailed_tefsir || '';
+
+        document.getElementById('aiResultContainer').style.display = 'block';
+        showToast('Ayet/Hadis başarıyla üretildi! Kontrol edebilirsiniz.');
+      } catch (err) {
+        showToast('Hata: ' + err.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = oldText;
+      }
+    }
+
+    async function saveGeneratedVerse() {
+      const text = document.getElementById('aiVerseText').value.trim();
+      const surah = document.getElementById('aiVerseSurah').value.trim();
+      const arabic_text = document.getElementById('aiVerseArabic').value.trim();
+      const nuzul_sebebi = document.getElementById('aiVerseNuzul').value.trim();
+      const detailed_tefsir = document.getElementById('aiVerseTefsir').value.trim();
+      const type = document.getElementById('aiTypeSelect').value;
+      const category = document.getElementById('aiCategorySelect').value;
+
+      if (!text || !surah) {
+        showToast('Metin ve Sure/Kaynak alanları zorunludur.', true);
+        return;
+      }
+
+      const btn = document.getElementById('aiSaveBtn');
+      btn.disabled = true;
+      btn.textContent = 'Kaydediliyor...';
+
+      try {
+        const res = await fetch('/api/admin/verses', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken
+          },
+          body: JSON.stringify({ text, surah, type, category, arabic_text, nuzul_sebebi, detailed_tefsir })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Kaydedilemedi');
+
+        showToast('✨ Ayet/Hadis başarıyla sisteme kaydedildi!');
+        closeAiVerseModal();
+        loadVersesAdminList();
+      } catch (e) {
+        showToast(e.message, true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✅ Kontrol Ettim, Sisteme & Supabase\'e Kaydet';
+      }
+    }
+
     function toggleSidebar() {
       const aside = document.querySelector('aside');
       const overlay = document.getElementById('sidebarOverlay');
@@ -6083,5 +6247,81 @@
       overlay.style.display = 'none';
     }
   </script>
+
+  <!-- AI Verse Generator Modal -->
+  <div id="aiVerseModal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.75); z-index:1000; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
+    <div class="card" style="width: 92%; max-width: 650px; max-height: 88vh; overflow-y: auto; background: #0f172a; color: white; border: 1px solid #1e293b; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); border-radius:20px; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1e293b; padding-bottom:14px; margin-bottom:18px;">
+        <h3 style="margin:0; font-size:18px; font-weight:800; color:#e8c02e; display:flex; align-items:center; gap:8px;">
+          <span>🤖</span> Yapay Zekayla Ayet / Hadis Üretici
+        </h3>
+        <button onclick="closeAiVerseModal()" style="background:none; border:none; color:#94a3b8; font-size:22px; cursor:pointer; padding:4px 8px;">✕</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:14px;">
+        <div>
+          <label style="color:#cbd5e1; font-size:12px; font-weight:600; margin-bottom:6px; display:block">İçerik Türü</label>
+          <select id="aiTypeSelect" style="width:100%; background:#1e293b; color:white; border:1px solid #334155; padding:10px; border-radius:10px;">
+            <option value="ayet">Âyet-i Kerîme</option>
+            <option value="hadis">Hadîs-i Şerîf</option>
+          </select>
+        </div>
+        <div>
+          <label style="color:#cbd5e1; font-size:12px; font-weight:600; margin-bottom:6px; display:block">Kategori / Tema</label>
+          <select id="aiCategorySelect" style="width:100%; background:#1e293b; color:white; border:1px solid #334155; padding:10px; border-radius:10px;">
+            <option value="umut">Umut & Müjde 🌟</option>
+            <option value="huzur">Huzur & İç Ferahlığı 🕊️</option>
+            <option value="sabir">Sabır & Metanet 🏔️</option>
+            <option value="dua">Dua & Yakarış 🤲</option>
+            <option value="ahlak">Ahlak & İhlas 💎</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <label style="color:#cbd5e1; font-size:12px; font-weight:600; margin-bottom:6px; display:block">Aranacak Özel Konu / Arama Kelimesi (Opsiyonel)</label>
+        <input id="aiTopicInput" placeholder="Örn: Çalışmak ve gayret, Anne Baba Hakkı, Cömertlik..." style="width:100%; background:#1e293b; color:white; border:1px solid #334155; padding:10px; border-radius:10px;">
+      </div>
+
+      <button id="aiGenerateBtn" class="btn" style="width:100%; background:linear-gradient(135deg, #10b981, #059669); color:white; font-weight:800; padding:12px; justify-content:center; border:none; border-radius:12px; font-size:14px; cursor:pointer;" onclick="generateAiVerseContent()">
+        🤖 Yapay Zekayla Sahih Metin Üret
+      </button>
+
+      <div id="aiResultContainer" style="display:none; margin-top:20px; background:#1e293b; padding:18px; border-radius:14px; border:1px solid #334155;">
+        <div style="font-size:12px; color:#10b981; font-weight:800; margin-bottom:14px; text-transform:uppercase; letter-spacing:0.8px;">
+          ✓ Üretilen Sahih Metin (İnceleyip Düzenleyebilirsiniz):
+        </div>
+        
+        <div style="margin-bottom:12px;">
+          <label style="color:#94a3b8; font-size:11px; font-weight:700;">Arapça Hat Metni</label>
+          <input id="aiVerseArabic" style="direction:rtl; font-size:18px; background:#0f172a; color:#e8c02e; border:1px solid #334155; width:100%; padding:10px; border-radius:8px; margin-top:4px;">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="color:#94a3b8; font-size:11px; font-weight:700;">Türkçe Meal</label>
+          <textarea id="aiVerseText" rows="3" style="background:#0f172a; color:white; border:1px solid #334155; width:100%; padding:10px; border-radius:8px; margin-top:4px; font-family:inherit;"></textarea>
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="color:#94a3b8; font-size:11px; font-weight:700;">Sure / Kaynak</label>
+          <input id="aiVerseSurah" style="background:#0f172a; color:white; border:1px solid #334155; width:100%; padding:8px; border-radius:8px; margin-top:4px;">
+        </div>
+
+        <div style="margin-bottom:12px;">
+          <label style="color:#94a3b8; font-size:11px; font-weight:700;">Nüzul Sebebi / Bağlam</label>
+          <input id="aiVerseNuzul" style="background:#0f172a; color:white; border:1px solid #334155; width:100%; padding:8px; border-radius:8px; margin-top:4px;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="color:#94a3b8; font-size:11px; font-weight:700;">Detaylı Tefsir Özeti</label>
+          <textarea id="aiVerseTefsir" rows="2" style="background:#0f172a; color:white; border:1px solid #334155; width:100%; padding:8px; border-radius:8px; margin-top:4px; font-family:inherit;"></textarea>
+        </div>
+
+        <button id="aiSaveBtn" class="btn" style="width:100%; justify-content:center; padding:12px; background:#e8c02e; color:#000; font-weight:800; border:none; border-radius:12px; font-size:14px; cursor:pointer;" onclick="saveGeneratedVerse()">
+          ✅ Kontrol Ettim, Sisteme & Supabase'e Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -67,6 +67,7 @@ router.post('/admin/news/ai-settings', requireAdminToken, apiController.saveAiNe
 // Verses Administration
 router.get('/admin/verses', requireAdminToken, apiController.getVerses);
 router.post('/admin/verses', requireAdminToken, apiController.saveVerse);
+router.post('/admin/verses/generate-ai', requireAdminToken, apiController.generateAiVerse);
 router.delete('/admin/verses/:id', requireAdminToken, apiController.deleteVerse);
 
 module.exports = router;
