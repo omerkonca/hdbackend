@@ -1039,33 +1039,7 @@
         </div>
       </div>
 
-      <!-- Günün Ayetleri -->
-      <div id="versesView" class="view-section">
-        <div class="card">
-          <div class="section-title">📖 Günün Ayeti & Hadisi Düzenle</div>
-          <p style="color:var(--text-muted); font-size:13px">Widget üzerinde her 12 saatte bir cihaz bazlı rastgele görüntülenecek ayet ve hadisleri buradan yönetin.</p>
-          
-          <input type="hidden" id="verseEditId">
-          <div class="form-group">
-            <label>Metin (Ayet Meali veya Hadis-i Şerif)</label>
-            <textarea id="verseText" rows="3" placeholder="Örn: Şüphesiz güçlükle beraber bir kolaylık vardır."></textarea>
-          </div>
-          <div class="form-group">
-            <label>Kaynak (Sure Adı / Hadis Kaynağı)</label>
-            <input id="verseSurah" placeholder="Örn: İnşirâh, 5 veya Hadis-i Şerif (Buhârî)">
-          </div>
-          
-          <div class="row" style="gap:10px">
-            <button type="button" class="btn btn-primary" id="saveVerseBtn" onclick="saveVerse()">💾 Kaydet</button>
-            <button type="button" class="btn btn-secondary" id="cancelVerseEditBtn" style="display:none" onclick="cancelVerseEdit()">✕ Vazgeç</button>
-          </div>
-        </div>
 
-        <div class="card">
-          <div class="section-title">📋 Aktif Ayet & Hadis Listesi</div>
-          <div id="versesAdminList" style="font-size:14px; color:var(--text-muted)">Yükleniyor...</div>
-        </div>
-      </div>
 
       <!-- Backups -->
       <div id="backupsView" class="view-section">
