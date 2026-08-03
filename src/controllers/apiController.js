@@ -849,14 +849,32 @@ class ApiController {
 
   async getVerses(req, res) {
     try {
-      const supabase = require('../utils/supabaseClient');
+      const fs = require('fs');
+      const path = require('path');
+      const { getSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const supabase = getSupabaseAdmin() || require('../utils/supabaseClient');
+      
       const { data, error } = await supabase
         .from('motivational_verses')
         .select('*')
         .order('id', { ascending: true });
 
-      if (error) throw error;
-      return res.json({ ok: true, items: data || [] });
+      let items = data || [];
+
+      // Merge local custom saved verses if any
+      const customPath = path.join(__dirname, '../../data/custom_verses.json');
+      if (fs.existsSync(customPath)) {
+        try {
+          const customData = JSON.parse(fs.readFileSync(customPath, 'utf8'));
+          customData.forEach(c => {
+            if (!items.some(i => i.id === c.id || (i.text === c.text && i.surah === c.surah))) {
+              items.push(c);
+            }
+          });
+        } catch (_) {}
+      }
+
+      return res.json({ ok: true, items });
     } catch (error) {
       return res.status(500).json({ ok: false, message: 'Ayetler okunamadı.', detail: error.message });
     }
@@ -864,17 +882,20 @@ class ApiController {
 
   async saveVerse(req, res) {
     try {
+      const fs = require('fs');
+      const path = require('path');
       const { id, text, surah, type, category, arabic_text, explanation, nuzul_sebebi, detailed_tefsir } = req.body;
       if (!text || !surah) {
         return res.status(400).json({ ok: false, message: 'Metin ve Kaynak alanları zorunludur.' });
       }
 
-      const supabase = require('../utils/supabaseClient');
+      const { getSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const supabase = getSupabaseAdmin() || require('../utils/supabaseClient');
       const payload = {
         text,
         surah,
-        ...(type && { type }),
-        ...(category && { category }),
+        type: type || 'ayet',
+        category: category || 'umut',
         ...(arabic_text && { arabic_text }),
         ...(explanation && { explanation }),
         ...(nuzul_sebebi && { nuzul_sebebi }),
@@ -882,26 +903,63 @@ class ApiController {
       };
 
       let result;
-      if (id) {
-        const { data, error } = await supabase
-          .from('motivational_verses')
-          .update(payload)
-          .eq('id', id)
-          .select();
-        if (error) throw error;
-        result = data[0];
-      } else {
-        const { data, error } = await supabase
-          .from('motivational_verses')
-          .insert(payload)
-          .select();
-        if (error) throw error;
-        result = data[0];
+      let dbError = null;
+
+      try {
+        if (id) {
+          const { data, error } = await supabase
+            .from('motivational_verses')
+            .update(payload)
+            .eq('id', id)
+            .select();
+          if (error) throw error;
+          result = data && data[0];
+        } else {
+          const { data, error } = await supabase
+            .from('motivational_verses')
+            .insert(payload)
+            .select();
+          if (error) throw error;
+          result = data && data[0];
+        }
+      } catch (err) {
+        console.warn('Supabase DB save error (fallback to local JSON):', err.message);
+        dbError = err;
       }
 
-      return res.json({ ok: true, message: 'Başarıyla kaydedildi.', item: result });
+      // Local JSON persistence fallback
+      const dataDir = path.join(__dirname, '../../data');
+      if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+      const customPath = path.join(dataDir, 'custom_verses.json');
+      let customList = [];
+      if (fs.existsSync(customPath)) {
+        try { customList = JSON.parse(fs.readFileSync(customPath, 'utf8')); } catch (_) {}
+      }
+
+      const itemToSave = result || {
+        id: id || Date.now(),
+        ...payload,
+        created_at: new Date().toISOString()
+      };
+
+      if (id) {
+        const idx = customList.findIndex(c => c.id === id);
+        if (idx !== -1) customList[idx] = itemToSave;
+        else customList.push(itemToSave);
+      } else {
+        customList.push(itemToSave);
+      }
+      fs.writeFileSync(customPath, JSON.stringify(customList, null, 2), 'utf8');
+
+      return res.json({ 
+        ok: true, 
+        message: 'Ayet/Hadis başarıyla kaydedildi.', 
+        item: itemToSave,
+        ...(dbError && { dbNotice: dbError.message })
+      });
     } catch (error) {
-      return res.status(500).json({ ok: false, message: 'Ayet kaydedilemedi.', detail: error.message });
+      console.error('saveVerse error:', error);
+      return res.status(500).json({ ok: false, message: 'Ayet kaydedilemedi: ' + error.message, detail: error.message });
     }
   }
 
