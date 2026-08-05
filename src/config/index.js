@@ -31,6 +31,7 @@ const config = {
   SUPABASE_URL: process.env.SUPABASE_URL || 'https://duehxbdlpwvbpqfjyjai.supabase.co',
   SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY || 'sb_publishable_k-EcjTqZe_4kmwWLIEJX3Q_3cHt_szO',
   
+  // Cloudinary yalnızca USE_CLOUDINARY=true iken kullanılır; aksi halde Supabase Storage.
   CLOUDINARY: {
     CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
     API_KEY: process.env.CLOUDINARY_API_KEY,

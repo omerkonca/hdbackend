@@ -1,8 +1,6 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const config = require('../config');
 const { requireAdminToken } = require('../middlewares/auth');
 const citizenReportService = require('../services/citizenReportService');
@@ -10,35 +8,41 @@ const emailService = require('../services/emailService');
 
 const router = express.Router();
 
-let useSupabaseStorage = false;
+/**
+ * Varsayılan: Supabase Storage.
+ * Cloudinary yalnızca USE_CLOUDINARY=true iken.
+ */
+const forceCloudinary = String(process.env.USE_CLOUDINARY || '').toLowerCase() === 'true';
+const hasCloudinary =
+  forceCloudinary &&
+  config.CLOUDINARY.CLOUD_NAME &&
+  config.CLOUDINARY.API_KEY &&
+  config.CLOUDINARY.API_SECRET;
 
-function buildStorage() {
-  if (
-    config.CLOUDINARY.CLOUD_NAME &&
-    config.CLOUDINARY.API_KEY &&
-    config.CLOUDINARY.API_SECRET
-  ) {
-    cloudinary.config({
-      cloud_name: config.CLOUDINARY.CLOUD_NAME,
-      api_key: config.CLOUDINARY.API_KEY,
-      api_secret: config.CLOUDINARY.API_SECRET,
-    });
-    return new CloudinaryStorage({
-      cloudinary,
-      params: {
-        folder: 'hepsiduzici-citizen-reports',
-        resource_type: 'image',
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'heic'],
-      },
-    });
-  }
+let useSupabaseStorage = true;
+let storage = multer.memoryStorage();
 
-  useSupabaseStorage = true;
-  return multer.memoryStorage();
+if (hasCloudinary) {
+  const cloudinary = require('cloudinary').v2;
+  const { CloudinaryStorage } = require('multer-storage-cloudinary');
+  cloudinary.config({
+    cloud_name: config.CLOUDINARY.CLOUD_NAME,
+    api_key: config.CLOUDINARY.API_KEY,
+    api_secret: config.CLOUDINARY.API_SECRET,
+  });
+  storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+      folder: 'hepsiduzici-citizen-reports',
+      resource_type: 'image',
+      allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'heic'],
+    },
+  });
+  useSupabaseStorage = false;
 }
 
 const upload = multer({
-  storage: buildStorage(),
+  storage,
   limits: { fileSize: 12 * 1024 * 1024, files: 3 },
 });
 
@@ -46,6 +50,15 @@ function fileToUrl(file) {
   if (!file) return null;
   if (file.path && file.path.startsWith('http')) return file.path;
   return `/uploads/citizen-reports/${file.filename}`;
+}
+
+function mimeToExt(mime, originalName) {
+  const fromName = path.extname(originalName || '').toLowerCase();
+  if (fromName) return fromName;
+  if (!mime) return '.jpg';
+  if (mime.includes('png')) return '.png';
+  if (mime.includes('webp')) return '.webp';
+  return '.jpg';
 }
 
 router.post('/', (req, res, next) => {
@@ -73,24 +86,24 @@ router.post('/', (req, res, next) => {
       const supabase = requireSupabaseAdmin();
       for (const file of req.files) {
         const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        const filename = `report-${unique}${path.extname(file.originalname)}`;
-        
-        const { data, error } = await supabase.storage
+        const filename = `report-${unique}${mimeToExt(file.mimetype, file.originalname)}`;
+
+        const { error } = await supabase.storage
           .from('city-assets')
           .upload(filename, file.buffer, {
             contentType: file.mimetype,
-            upsert: true
+            upsert: true,
           });
-          
+
         if (error) {
           console.error('[citizen-reports] Supabase upload failed:', error.message);
           continue;
         }
-        
+
         const { data: urlData } = supabase.storage
           .from('city-assets')
           .getPublicUrl(filename);
-          
+
         imageUrls.push(urlData.publicUrl);
       }
     } else {
