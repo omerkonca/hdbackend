@@ -14,19 +14,19 @@ const crypto = require('crypto');
 
 const TZ = 'Europe/Istanbul';
 
-/** Temaya göre kapak görselleri — Düziçi ve Türkiye kent doğasına uygun görseller */
+/** Temaya göre kapak görselleri — çalışan Unsplash ID'leri (w=q parametreli) */
 const COVER_IMAGES = {
-  rain: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?auto=format&fit=crop&w=1200&q=80',
-  hot: 'https://images.unsplash.com/photo-1504370805625-d32c2bb2b6c4?auto=format&fit=crop&w=1200&q=80',
-  cold: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?auto=format&fit=crop&w=1200&q=80',
-  outage: 'https://images.unsplash.com/photo-1473341303790-dffdcee077e8?auto=format&fit=crop&w=1200&q=80',
-  road: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80',
-  event: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1200&q=80',
-  pharmacy: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=80',
-  memorial: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=1200&q=80',
-  calm: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
-  city: 'https://images.unsplash.com/photo-1527838832700-54595d24619d?auto=format&fit=crop&w=1200&q=80',
-  news: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1200&q=80',
+  rain: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=1200&q=80',
+  hot: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
+  cold: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=1200&q=80',
+  outage: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80',
+  road: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80',
+  event: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80',
+  pharmacy: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&q=80',
+  memorial: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=1200&q=80',
+  calm: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
+  city: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
+  news: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80',
 };
 
 function turkeyDateParts(date = new Date()) {
