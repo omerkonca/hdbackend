@@ -37,6 +37,8 @@ class RoadClosureStore {
           subtitle: item.subtitle,
           source: item.source,
           kind: item.kind,
+          lat: item.lat,
+          lng: item.lng,
         })
       ) {
         continue;
@@ -73,16 +75,23 @@ class RoadClosureStore {
 
     for (const [fp, prev] of Object.entries(nextItems)) {
       if (liveByFp.has(fp)) continue;
-      if (prev.autoManaged === false) continue;
 
+      // Manuel baseline da dahil: canlıda yoksa birkaç sync sonra kapat
+      // (eski "hep aynı duyuru" sorununu çözer).
       const missed = (prev.missedScans || 0) + 1;
-      if (missed >= missedThreshold) {
+      const threshold =
+        prev.autoManaged === false ? Math.max(missedThreshold, 3) : missedThreshold;
+
+      if (missed >= threshold) {
         nextItems[fp] = {
           ...prev,
           status: 'Tamamlandı',
           missedScans: missed,
           closedAt: now,
-          closeReason: 'Duyuru artık yayında değil',
+          closeReason:
+            prev.autoManaged === false
+              ? 'Manuel kayıt artık canlı kaynakta yok'
+              : 'Duyuru artık yayında değil',
         };
       } else {
         nextItems[fp] = { ...prev, missedScans: missed };

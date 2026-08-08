@@ -24,8 +24,8 @@ console.log('✅ Supabase initialized: URL =', config.SUPABASE_URL);
 
 // Middlewares
 app.use(cors());
-app.use(express.json({ limit: '500mb' }));
-app.use(express.urlencoded({ limit: '500mb', extended: true }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 // Yasal / admin sayfaları (static'ten önce — Play Store URL'leri korunur)
 app.get(['/gizlilik-politikasi', '/gizlilik-politikasi.html', '/privacy-policy'], (req, res) => {
@@ -153,6 +153,13 @@ const server = app.listen(config.PORT, () => {
     setInterval(runAiReporterJob, 20 * 60 * 1000);
     // Sunucu uyanır uyanmaz bir kez dene
     setTimeout(runAiReporterJob, 45 * 1000);
+    // Kapalı yollar: bayat KGM/belediye kayıtları için seyrek sync (kota dostu)
+    setInterval(() => {
+      roadClosureService.sync({ force: true }).catch(() => {});
+    }, 45 * 60 * 1000);
+    setTimeout(() => {
+      roadClosureService.sync({ force: true }).catch(() => {});
+    }, 90 * 1000);
   } else {
     setInterval(() => {
       pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});

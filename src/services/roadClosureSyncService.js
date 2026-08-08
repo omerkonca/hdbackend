@@ -54,6 +54,8 @@ class RoadClosureSyncService {
         subtitle: item.subtitle,
         source: item.source,
         kind: item.kind,
+        lat: item.lat,
+        lng: item.lng,
       }),
     );
   }
@@ -65,6 +67,8 @@ class RoadClosureSyncService {
         subtitle: item.subtitle,
         source: item.source,
         kind: item.kind,
+        lat: item.lat,
+        lng: item.lng,
       }),
     );
   }

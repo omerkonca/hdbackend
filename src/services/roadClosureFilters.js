@@ -1,5 +1,5 @@
 /**
- * Kapalı yol kaydı için sıkı filtre — genel trafik haberlerini eler.
+ * Kapalı yol kaydı için sıkı filtre — uzak şehir / genel trafik haberlerini eler.
  */
 
 function normalizeForMatch(text) {
@@ -10,7 +10,7 @@ function normalizeForMatch(text) {
 }
 
 const OTHER_CITY_PATTERN =
-  /\b(adana|sakarya|istanbul|ankara|izmir|bursa|antalya|kahramanmaraş|gaziantep|kocaeli)\b/i;
+  /\b(adana|sakarya|istanbul|ankara|izmir|bursa|antalya|kahramanmaraş|gaziantep|kocaeli|mersin|hatay)\b/i;
 
 const CLOSURE_STRONG_PATTERN =
   /yol kapalı|yol kapali|cadde kapalı|cadde kapali|şerit kapalı|kapanış|kapanis|kapatıld|kapatildi|trafik komisyon|güzergah|guzergah|yol çalış|asfalt (çalış|yenile)|yenileniyor|heyelan|kavşak düzen|geçici trafik düzen/i;
@@ -34,33 +34,56 @@ function isNoiseNews(text) {
 }
 
 /** Belediye duyurusu veya resmî yol kapanması mı? */
-function isValidRoadClosureRecord({ title, subtitle = '', source = '', kind = '' }) {
+function isValidRoadClosureRecord({
+  title,
+  subtitle = '',
+  source = '',
+  kind = '',
+  lat,
+  lng,
+} = {}) {
   const text = normalizeForMatch(`${title} ${subtitle} ${source}`);
+  const {
+    isFarAreaExcluded,
+    isRelevantToDuziciCorridor,
+    isLocalRoadClosure,
+  } = require('./duziciAreaFilter');
 
   if (kind === 'news') return false;
+  if (isFarAreaExcluded(`${title} ${subtitle}`)) return false;
   if (isNoiseNews(text)) return false;
 
   if (kind === 'kgm') {
-    const { isRelevantToDuziciCorridor } = require('./duziciAreaFilter');
-    return isRelevantToDuziciCorridor(text);
+    return isLocalRoadClosure({ title, subtitle, lat, lng });
   }
 
   if (kind === 'municipality') {
-    const { isRelevantToDuziciCorridor } = require('./duziciAreaFilter');
-    if (isNoiseNews(text)) return false;
     const roadish =
       hasClosureIntent(text) ||
       /asfalt|yenilen|yol yatırım|yol yatirim|trafik düzen|trafik duzen/i.test(text);
     if (!roadish) return false;
-    if (/osmaniye belediyesi/i.test(text) || /osmaniye-bld\.gov\.tr/i.test(text)) {
-      return true;
+
+    // Osmaniye / Düziçi belediye kaynakları: yine yerel koridor şart
+    const fromLocalBel =
+      /osmaniye belediyesi/i.test(text) ||
+      /osmaniye-bld\.gov\.tr/i.test(text) ||
+      /duzici\.bel\.tr/i.test(text) ||
+      /düziçi belediyesi/i.test(text);
+
+    if (fromLocalBel) {
+      return (
+        isRelevantToDuziciCorridor(`${title} ${subtitle}`) ||
+        /duzici|düziçi|osmaniye|irfanl|uzunban|rte|erdogan|kemal satir/i.test(
+          `${title} ${subtitle}`,
+        )
+      );
     }
-    return isRelevantToDuziciCorridor(text) || /duzici\.bel\.tr/i.test(text);
+
+    return isLocalRoadClosure({ title, subtitle, lat, lng });
   }
 
   if (!hasClosureIntent(text)) return false;
-
-  return isDuziciArea(text);
+  return isLocalRoadClosure({ title, subtitle, lat, lng });
 }
 
 module.exports = {
