@@ -108,18 +108,68 @@ class RoadClosureStore {
   applyLifecycle(state) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const nowIso = new Date().toISOString();
+    const MUNICIPALITY_MAX_AGE_MS = 21 * 24 * 60 * 60 * 1000;
+    const ASPHALT_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;
     const items = {};
     for (const [fp, item] of Object.entries(state.items)) {
       let status = item.status || '';
       const lower = status.toLowerCase();
+      const titleBlob = `${item.title || ''} ${item.subtitle || ''}`.toLocaleLowerCase('tr-TR');
+      let closedAt = item.closedAt;
+      let closeReason = item.closeReason;
+
+      const forceClose = (reason) => {
+        if (lower.includes('devam') || lower.includes('aktif') || !status) {
+          status = 'Tamamlandı';
+          closedAt = closedAt || nowIso;
+          closeReason = reason;
+        }
+      };
+
+      // Bozuk liste fingerprint'leri
+      if (/^belediye_(duyurular|haberler)$/i.test(fp)) {
+        forceClose('Liste sayfası fingerprint — otomatik kapatıldı');
+      }
+
+      // Uzunbanı asfaltlama (bitmiş duyuru, sitede haber olarak kalıyor)
+      if (titleBlob.includes('uzunban') && titleBlob.includes('asfalt')) {
+        forceClose('Uzunbanı asfaltlama duyurusu süresi doldu');
+      }
+
       if (item.endAt && !/trafik komisyon/i.test(item.title || '')) {
         const end = new Date(item.endAt);
         end.setHours(0, 0, 0, 0);
         if (end < today && (lower.includes('devam') || lower.includes('aktif'))) {
           status = 'Tamamlandı';
+          closedAt = closedAt || nowIso;
+          closeReason = closeReason || 'Bitiş tarihi geçti';
         }
       }
-      items[fp] = { ...item, status };
+
+      // Belediye duyuruları: endAt yoksa max yaş
+      if (
+        item.kind === 'municipality' &&
+        item.autoManaged !== false &&
+        !item.endAt &&
+        (status.toLowerCase().includes('devam') || status.toLowerCase().includes('aktif'))
+      ) {
+        const first = item.firstSeenAt ? new Date(item.firstSeenAt).getTime() : 0;
+        if (first > 0) {
+          const age = Date.now() - first;
+          const asphalt = /asfalt|yol\s*yap[ıi]m|yol\s*çal[ıi][sş]ma/i.test(titleBlob);
+          const limit = asphalt ? ASPHALT_MAX_AGE_MS : MUNICIPALITY_MAX_AGE_MS;
+          if (age > limit) {
+            forceClose(
+              asphalt
+                ? 'Asfaltlama duyurusu max yaş aşımı'
+                : 'Belediye duyurusu max yaş aşımı',
+            );
+          }
+        }
+      }
+
+      items[fp] = { ...item, status, closedAt, closeReason };
     }
     return { ...state, items };
   }

@@ -22,15 +22,37 @@ class RoadClosureSyncService {
 
     const byKey = new Map();
     const mergeKey = (item) => {
-      const t = `${item.title}`.toLocaleLowerCase('tr-TR');
+      const t = `${item.title} ${item.subtitle || ''}`.toLocaleLowerCase('tr-TR');
       if (t.includes('trafik komisyon')) return 'trafik-komisyon';
       if (t.includes('yenileniyor') && (t.includes('erdogan') || t.includes('erdoğan'))) {
         return 'rte-bulvari';
       }
+      if (t.includes('uzunban') && t.includes('asfalt')) {
+        return 'belediye-uzunbani-asfalt';
+      }
       if (item.kind === 'kgm' && item.kgmMeta?.kkNo) {
         return `kgm-${item.kgmMeta.kkNo}`;
       }
+      // Liste sayfası fingerprint'lerini title'a indir
+      const fp = `${item.fingerprint || item.id || ''}`;
+      if (/^belediye_(duyurular|haberler)$/i.test(fp)) {
+        return `belediye_${(item.title || '')
+          .toLocaleLowerCase('tr-TR')
+          .replace(/[^a-z0-9çğıöşü]+/gi, '-')
+          .replace(/^-|-$/g, '')
+          .slice(0, 48)}`;
+      }
       return item.fingerprint || item.id;
+    };
+
+    const score = (item) => {
+      let s = 0;
+      const url = item.announcementUrl || '';
+      if (url && /\/(duyurular|haberler)\/[^/]+/i.test(url)) s += 3;
+      if (item.kind === 'kgm') s += 2;
+      if (item.autoManaged === false) s += 5;
+      if ((item.subtitle || '').length > 40) s += 1;
+      return s;
     };
 
     const sources = [...baseline, ...kgm, ...duziciBel, ...osmaniyeBel];
@@ -41,9 +63,8 @@ class RoadClosureSyncService {
         byKey.set(key, item);
         continue;
       }
-      // KGM ve baseline manuel kayıtlar öncelikli kalsın
       if (existing.autoManaged === false) continue;
-      if (item.kind === 'kgm' || item.autoManaged === false) {
+      if (item.autoManaged === false || item.kind === 'kgm' || score(item) > score(existing)) {
         byKey.set(key, item);
       }
     }

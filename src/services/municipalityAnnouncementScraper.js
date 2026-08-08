@@ -19,6 +19,7 @@ const LOCATION_HINTS = [
   { keys: ['asaf namlı', 'asaf namli', 'istiklal'], lat: 37.241, lng: 36.455, label: 'Asaf Namlı Cad.' },
   { keys: ['karasu', 'sabun çayı'], lat: 37.235, lng: 36.448, label: 'Karasu / Sabun Çayı' },
   { keys: ['kuşçu', 'kusçu', 'haruniye'], lat: 37.381, lng: 36.492, label: 'Kuşçu / Haruniye' },
+  { keys: ['uzunbanı', 'uzunbani'], lat: 37.25, lng: 36.46, label: 'Uzunbanı' },
 ];
 
 const FETCH_OPTIONS = {
@@ -96,8 +97,22 @@ function toAbsoluteUrl(href) {
   return `${BASE}/${href}`;
 }
 
+function isListPageUrl(url) {
+  if (!url) return true;
+  const clean = url.split('?')[0].replace(/\/$/, '');
+  return (
+    clean === DUYURULAR_URL ||
+    clean === HABERLER_URL ||
+    /\/(duyurular|haberler)$/i.test(clean)
+  );
+}
+
 function fingerprintFor(item) {
-  if (item.url) return `belediye_${slugify(item.url.replace(BASE, ''))}`;
+  const url = item.url || '';
+  // Liste sayfası URL'si jenerik fingerprint üretir (belediye_duyurular) — title kullan.
+  if (url && !isListPageUrl(url) && isAnnouncementPath(url)) {
+    return `belediye_${slugify(url.replace(BASE, ''))}`;
+  }
   return `belediye_${slugify(item.title)}`;
 }
 
@@ -149,7 +164,7 @@ function extractListItems(html) {
     items.push({ title, url: null });
   }
 
-  // Duyuru listesi madde metinleri
+  // Duyuru listesi madde metinleri — liste URL'si verme (fingerprint çakışmasın)
   const liRegex = /<li[^>]*>([\s\S]*?)<\/li>/gi;
   while ((match = liRegex.exec(html)) !== null) {
     const text = stripHtml(match[1]);
@@ -159,7 +174,7 @@ function extractListItems(html) {
     const key = `li:${title}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    items.push({ title, url: DUYURULAR_URL, summary: text });
+    items.push({ title, url: null, summary: text });
   }
 
   return items;
@@ -257,7 +272,7 @@ function announcementToRoadClosure(item, summary) {
     startAt: null,
     endAt,
     source: 'BELEDİYE DUYURUSU',
-    announcementUrl: item.url || DUYURULAR_URL,
+    announcementUrl: isListPageUrl(item.url) ? null : (item.url || null),
     kind: 'municipality',
     autoManaged: true,
   };

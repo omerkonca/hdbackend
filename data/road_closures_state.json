@@ -255,7 +255,7 @@
       "fingerprint": "belediye_duyurular",
       "title": "Uzunbanı Mahallelerinde Asfaltlama Çalışmaları Baş... Düziçi Belediye...",
       "subtitle": "Uzunbanı Mahallelerinde Asfaltlama Çalışmaları Baş... Düziçi Belediyesi tarafından ilçe genelinde sürdürülen ulaşım yatırımları kapsamınd...",
-      "status": "Devam Ediyor",
+      "status": "Tamamlandı",
       "reason": "Belediye / trafik duyurusu",
       "roadCode": "Düziçi Merkez",
       "address": "Düziçi Merkez, Düziçi, Osmaniye",
@@ -271,7 +271,9 @@
       "autoManaged": true,
       "firstSeenAt": "2026-07-14T12:20:54.294Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 0
+      "missedScans": 0,
+      "closedAt": "2026-08-08T20:58:23.193Z",
+      "closeReason": "Uzunbanı asfaltlama / liste fingerprint — kapatıldı"
     }
   }
 }
