@@ -587,6 +587,55 @@
         margin-left: 0;
         padding: 72px 12px calc(20px + env(safe-area-inset-bottom, 0px)) 12px;
       }
+
+      /* Mobile Dashboard Responsiveness */
+      .system-health-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 12px;
+      }
+      .system-health-bar > div[style*="margin-left:auto"] {
+        margin-left: 0 !important;
+        width: 100%;
+      }
+      .filter-btn-group {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+      }
+      .filter-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 4px;
+        font-size: 11px;
+      }
+      .stat-install-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .stats-pro-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px !important;
+      }
+      .stats-cms-row {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+      }
+      .charts-grid-container {
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+      }
+      .chart-card {
+        padding: 14px;
+      }
+      .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+      .activity-item > div:last-child {
+        align-self: flex-end;
+      }
       
       .card {
         padding: 16px;
