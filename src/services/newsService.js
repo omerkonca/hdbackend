@@ -219,7 +219,7 @@ class NewsService {
   }
 
   farAreaNoiseRe() {
-    return /\b(istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri)\b/;
+    return /\b(istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri|zonguldak|samsun|trabzon|eski[sş]ehir|denizli|mu[gğ]la|ayd[iı]n|manisa|balıkesir|tekirda[gğ]|sakarya|kocaeli)\b/;
   }
 
   isDuziciRelated(title, summary) {
@@ -262,11 +262,8 @@ class NewsService {
     if (scope === 'duzici') {
       return list.filter((x) => {
         if (this.isNationalNoise(x.title, x.summary)) return false;
-        if (this.isDuziciRelated(x.title, x.summary)) return true;
-        // Osmaniye merkez haberi Düziçi feed'inden sızmasın
-        if (this.isOsmaniyeRelated(x.title, x.summary)) return false;
-        const text = normalizeForCompare(`${x.title || ''} ${x.summary || ''}`);
-        return !this.farAreaNoiseRe().test(text);
+        // Genişletilmiş yerel keyword (köy/mahalle dahil) — uzak şehir sızmasın
+        return this.isDuziciRelated(x.title, x.summary);
       });
     }
     if (filterDuzici) {
