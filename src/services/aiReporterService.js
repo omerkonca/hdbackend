@@ -14,20 +14,73 @@ const crypto = require('crypto');
 
 const TZ = 'Europe/Istanbul';
 
-/** Temaya göre kapak görselleri — çalışan Unsplash ID'leri (w=q parametreli) */
+/** Temaya göre kapak havuzları — anlamlı + çeşitli Unsplash URL'leri */
 const COVER_IMAGES = {
-  rain: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=1200&q=80',
-  hot: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80',
-  cold: 'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=1200&q=80',
-  outage: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80',
-  road: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80',
-  event: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80',
-  pharmacy: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&q=80',
-  memorial: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=1200&q=80',
-  calm: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
-  city: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80',
-  news: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80',
+  rain: [
+    'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=1200&q=80',
+    'https://images.unsplash.com/photo-1428592953211-077101b2021b?w=1200&q=80',
+    'https://images.unsplash.com/photo-1501691223387-dd050040307b?w=1200&q=80',
+  ],
+  hot: [
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80',
+    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80',
+    'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=1200&q=80',
+    'https://images.unsplash.com/photo-1419833173245-82df1c7fd43d?w=1200&q=80',
+  ],
+  cold: [
+    'https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?w=1200&q=80',
+    'https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1200&q=80',
+    'https://images.unsplash.com/photo-1457269449834-928af64c684d?w=1200&q=80',
+  ],
+  outage: [
+    'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80',
+    'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80',
+  ],
+  road: [
+    'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80',
+    'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=1200&q=80',
+    'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=1200&q=80',
+  ],
+  event: [
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80',
+    'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1200&q=80',
+    'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1200&q=80',
+  ],
+  pharmacy: [
+    'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=1200&q=80',
+    'https://images.unsplash.com/photo-1576602976047-174e57a47881?w=1200&q=80',
+    'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=1200&q=80',
+  ],
+  memorial: [
+    'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?w=1200&q=80',
+    'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1200&q=80',
+  ],
+  calm: [
+    'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80',
+    'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&q=80',
+    'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&q=80',
+  ],
+  city: [
+    'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80',
+    'https://images.unsplash.com/photo-1477959858617-67f85b6b1aa9?w=1200&q=80',
+    'https://images.unsplash.com/photo-1514565131-fce0801e5785?w=1200&q=80',
+  ],
+  news: [
+    'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=1200&q=80',
+    'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&q=80',
+    'https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1200&q=80',
+  ],
 };
+
+function hashSeed(text) {
+  const s = String(text || '');
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  }
+  return h;
+}
 
 function turkeyDateParts(date = new Date()) {
   const fmt = new Intl.DateTimeFormat('en-CA', {
@@ -332,8 +385,14 @@ class AiReporterService {
     return 'city';
   }
 
-  pickCoverImage(theme) {
-    return COVER_IMAGES[theme] || COVER_IMAGES.city;
+  pickCoverImage(theme, seed = '') {
+    const pool = COVER_IMAGES[theme] || COVER_IMAGES.city;
+    if (!Array.isArray(pool) || pool.length === 0) {
+      return COVER_IMAGES.city[0];
+    }
+    if (pool.length === 1) return pool[0];
+    const idx = hashSeed(`${theme}|${seed}`) % pool.length;
+    return pool[idx];
   }
 
   buildPrompts({ targetDate, dateLabel, snapshot, quietDay }) {
@@ -462,7 +521,7 @@ class AiReporterService {
     const theme =
       String(data.themeHint || '').trim().toLowerCase() ||
       this.pickDominantTheme(snapshot, title, summary);
-    const imageUrl = this.pickCoverImage(theme);
+    const imageUrl = this.pickCoverImage(theme, `${title}|${targetDate}`);
 
     const newArticle = {
       id: force ? `news-ai-reporter-${todayHash}-${Date.now().toString(36)}` : todayId,
