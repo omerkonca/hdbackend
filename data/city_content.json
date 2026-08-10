@@ -76,11 +76,19 @@
         "subtitle": "Düziçi & Osmaniye"
       },
       {
+        "id": "duyurular",
+        "icon": "campaign_rounded",
+        "color": "#7B1FA2",
+        "title": "Duyurular",
+        "target": "screen:publisher_announcements",
+        "subtitle": "Resmî yayıncı duyuruları"
+      },
+      {
         "id": "gezi",
         "icon": "explore_rounded",
         "color": "#00695C",
         "title": "Gezi Rehberi",
-        "target": "explore_nature",
+        "target": "screen:explore_nature",
         "subtitle": "Doğa · tarih · lezzet"
       },
       {
@@ -104,103 +112,18 @@
       {
         "tiles": [
           {
-            "icon": "article_rounded",
-            "color": "#448AFF",
-            "title": "Tüm Haberler",
-            "target": "screen:news",
-            "subtitle": "Detaylı haber akışı"
-          },
-          {
-            "icon": "local_pharmacy_rounded",
-            "color": "#009688",
-            "title": "Nöbetçi Eczane",
-            "target": "screen:pharmacy",
-            "subtitle": "Tüm eczane listesi"
-          },
-          {
-            "icon": "mosque_rounded",
-            "color": "#43A047",
-            "title": "Namaz Vakitleri",
-            "target": "screen:prayer",
-            "subtitle": "Günün tüm vakitleri"
-          },
-          {
-            "icon": "wb_sunny_rounded",
-            "color": "#039BE5",
-            "title": "Hava Durumu",
-            "target": "screen:weather",
-            "subtitle": "Anlık hava ve 5 günlük tahmin"
-          }
-        ],
-        "title": "Hızlı Erişim"
-      },
-      {
-        "tiles": [
-          {
-            "icon": "monetization_on_rounded",
-            "color": "#FB8C00",
-            "title": "Piyasa Verileri",
-            "target": "",
-            "subtitle": "Döviz, altın ve yerel fiyatlar"
-          },
-          {
-            "icon": "map_rounded",
-            "color": "#3F51B5",
-            "title": "Ulaşım ve Yol",
-            "target": "",
-            "subtitle": "Durak, rota ve yol bilgileri"
-          }
-        ],
-        "title": "Araçlar"
-      },
-      {
-        "tiles": [
-          {
-            "icon": "camera_alt_rounded",
-            "color": "#E1306C",
-            "title": "Instagram",
-            "target": "url:https://instagram.com/hepsiduzici",
-            "subtitle": "@hepsiduzici"
-          },
-          {
-            "icon": "public_rounded",
-            "color": "#1877F2",
-            "title": "Facebook",
-            "target": "url:https://facebook.com/hepsiduzici",
-            "subtitle": "@hepsiduzici"
-          },
-          {
-            "icon": "favorite_rounded",
-            "color": "#000000",
-            "title": "TikTok",
-            "target": "url:https://www.tiktok.com/@hepsiduzici",
-            "subtitle": "@hepsiduzici"
-          },
-          {
-            "icon": "article_rounded",
-            "color": "#111111",
-            "title": "X",
-            "target": "url:https://x.com/hepsiduzici",
-            "subtitle": "@hepsiduzici"
-          },
-          {
-            "icon": "menu_book_rounded",
-            "color": "#101010",
-            "title": "Threads",
-            "target": "url:https://www.threads.net/@hepsiduzici",
-            "subtitle": "@hepsiduzici"
-          }
-        ],
-        "title": "Sosyal Medya"
-      },
-      {
-        "tiles": [
-          {
             "icon": "campaign_rounded",
             "color": "#E65100",
             "title": "İhbar ve Öneri",
             "target": "screen:citizen_report",
             "subtitle": "Sorun, tavsiye paylaş — fotoğraf ekle"
+          },
+          {
+            "icon": "track_changes_rounded",
+            "color": "#EF6C00",
+            "title": "İhbar Takibi",
+            "target": "screen:citizen_report_tracking",
+            "subtitle": "Alındı / inceleniyor / çözüldü durumu"
           },
           {
             "icon": "newspaper_rounded",
@@ -228,7 +151,7 @@
         "name": "Sabir Gazetesi Düziçi",
         "scope": "duzici",
         "isActive": true,
-        "filterDuzici": true
+        "filterDuzici": false
       },
       {
         "url": "https://www.sabirgazetesi.com/rss",
@@ -241,7 +164,7 @@
         "name": "Hasret Gazetesi Düziçi",
         "scope": "duzici",
         "isActive": true,
-        "filterDuzici": true
+        "filterDuzici": false
       },
       {
         "url": "https://www.hasretgazetesi.com.tr/rss",
@@ -254,7 +177,7 @@
         "name": "Akdeniz Gazetesi Düziçi",
         "scope": "duzici",
         "isActive": true,
-        "filterDuzici": true
+        "filterDuzici": false
       },
       {
         "url": "https://www.akdenizgazetesi.com/rss",
@@ -263,14 +186,14 @@
         "isActive": true
       },
       {
-        "url": "https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
+        "url": "https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A7d&hl=tr&gl=TR&ceid=TR:tr",
         "name": "Google News Düziçi",
         "scope": "duzici",
         "isActive": true,
         "filterDuzici": true
       },
       {
-        "url": "https://news.google.com/rss/search?q=Osmaniye%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
+        "url": "https://news.google.com/rss/search?q=Osmaniye%20when%3A7d&hl=tr&gl=TR&ceid=TR:tr",
         "name": "Google News Osmaniye",
         "scope": "osmaniye",
         "isActive": true
@@ -3699,22 +3622,26 @@
       {
         "phone": "0328 876 00 01",
         "title": "Beyaz Masa",
-        "subtitle": "Talep ve sikayet yonetimi"
+        "subtitle": "Talep ve sikayet yonetimi",
+        "appointmentUrl": "https://www.duzici.bel.tr/"
       },
       {
         "phone": "0328 876 00 12",
         "title": "Fen Isleri Mudurlugu",
-        "subtitle": "Yol, kaldirim ve altyapi"
+        "subtitle": "Yol, kaldirim ve altyapi",
+        "appointmentUrl": "https://www.duzici.bel.tr/"
       },
       {
         "phone": "0328 876 00 18",
         "title": "Temizlik Isleri",
-        "subtitle": "Atik ve cevre hizmetleri"
+        "subtitle": "Atik ve cevre hizmetleri",
+        "appointmentUrl": "https://www.duzici.bel.tr/"
       },
       {
         "phone": "0328 876 00 24",
         "title": "Zabita Mudurlugu",
-        "subtitle": "Kent duzeni ve denetim"
+        "subtitle": "Kent duzeni ve denetim",
+        "appointmentUrl": "https://www.duzici.bel.tr/"
       }
     ]
   },

@@ -206,7 +206,20 @@ class NewsService {
   }
 
   duziciKeywordRe() {
-    return /duzici|yarbasi|ellek|atalan|duldul/;
+    // İlçe + mahalle/köy/yaygın yerel yer adları
+    return /duzici|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah/;
+  }
+
+  osmaniyeKeywordRe() {
+    return /osmaniye|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|yarbasi|ellek|atalan|haruniye|ceyhan|erzin/;
+  }
+
+  nationalNoiseRe() {
+    return /nas[iı]l yap[iı]l[iı]r|i[sş]te tam [oö]l[cç][uü]|tarifi|kabak tatl[iı]|i?neg[oö]l k[oö]fte|manda kaymak|egzama neden|dijital kart nereden|kademeli emeklilik|emekli (maa[sş]|zam|promosyon)|fenerbah[cç]e|galatasaray|be[sş]ikta[sş]|trabzonspor|super lig|s[uü]per lig|transfer iddia|o[gğ]uz ayd[iı]n|okullara g[uü]venlik g[oö]revlisi|2026 kademeli/;
+  }
+
+  farAreaNoiseRe() {
+    return /\b(istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri)\b/;
   }
 
   isDuziciRelated(title, summary) {
@@ -214,13 +227,61 @@ class NewsService {
     return this.duziciKeywordRe().test(text);
   }
 
+  isOsmaniyeRelated(title, summary) {
+    const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
+    return this.osmaniyeKeywordRe().test(text);
+  }
+
+  isNationalNoise(title, summary) {
+    const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
+    if (this.nationalNoiseRe().test(text)) return true;
+    // Uzak şehir + yerel sinyal yoksa çöp
+    if (this.farAreaNoiseRe().test(text) && !this.isOsmaniyeRelated(title, summary)) {
+      return true;
+    }
+    return false;
+  }
+
   inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
-    if (scope === 'osmaniye') return 'Osmaniye';
+    // Önce içerik sinyali — scope yanlış feed dönse bile düzelt
+    if (this.isDuziciRelated(title, summary)) return 'Düziçi';
     if (scope === 'duzici') return 'Düziçi';
+    if (scope === 'osmaniye') return 'Osmaniye';
     const source = normalizeForCompare(sourceName || '');
     if (/duzici/.test(source)) return 'Düziçi';
-    if (this.isDuziciRelated(title, summary)) return 'Düziçi';
+    if (this.isOsmaniyeRelated(title, summary)) return 'Osmaniye';
     return 'Osmaniye';
+  }
+
+  /**
+   * Scope'a göre yerel/ilçe haberlerini tut, ulusal gürültüyü at.
+   * Dedicated Düziçi feed'lerde keyword şartını yumuşatır (köy haberleri kaçmasın).
+   */
+  applyScopeRelevanceFilter(items, { scope = 'auto', filterDuzici = false } = {}) {
+    const list = Array.isArray(items) ? items : [];
+    if (scope === 'duzici') {
+      // Dedicated Düziçi feed: keyword şartını yumuşat (köy/mahalle haberleri kalsın)
+      return list.filter((x) => {
+        if (this.isNationalNoise(x.title, x.summary)) return false;
+        if (this.isDuziciRelated(x.title, x.summary)) return true;
+        const text = normalizeForCompare(`${x.title || ''} ${x.summary || ''}`);
+        return !this.farAreaNoiseRe().test(text);
+      });
+    }
+    if (filterDuzici) {
+      return list.filter(
+        (x) =>
+          !this.isNationalNoise(x.title, x.summary) &&
+          this.isDuziciRelated(x.title, x.summary),
+      );
+    }
+    if (scope === 'osmaniye') {
+      return list.filter((x) => {
+        if (this.isNationalNoise(x.title, x.summary)) return false;
+        return this.isOsmaniyeRelated(x.title, x.summary);
+      });
+    }
+    return list.filter((x) => !this.isNationalNoise(x.title, x.summary));
   }
 
   async resolveArticleUrl(articleUrl) {
@@ -305,9 +366,7 @@ class NewsService {
         };
       })
       .filter((x) => x.title && x.sourceUrl);
-    if (filterDuzici || scope === 'duzici') {
-      parsed = parsed.filter((x) => this.isDuziciRelated(x.title, x.summary));
-    }
+    parsed = this.applyScopeRelevanceFilter(parsed, { scope, filterDuzici });
     return parsed.slice(0, max);
   }
 
@@ -391,7 +450,9 @@ class NewsService {
       ...raw,
       category: raw.category || this.inferNewsCategory(raw.title, raw.summary, raw.sourceName),
     }));
-    const merged = this.dedupeNewsList(enriched);
+    // Son güvenlik ağı: sync'e ulusal çöp girmesin
+    const cleaned = enriched.filter((item) => !this.isNationalNoise(item.title, item.summary));
+    const merged = this.dedupeNewsList(cleaned);
     const maxAgeMs = 90 * 24 * 60 * 60 * 1000;
     const cutoff = Date.now() - maxAgeMs;
     const fresh = merged.filter((item) => {
@@ -403,7 +464,31 @@ class NewsService {
       const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return tb - ta;
     });
-    return fresh.slice(0, max);
+
+    // Düziçi ve Osmaniye dengeli gelsin (biri diğerini boğmasın)
+    const isDuziciCat = (item) =>
+      normalizeForCompare(item.category || '').includes('duzici') ||
+      this.isDuziciRelated(item.title, item.summary);
+    const duzici = fresh.filter(isDuziciCat);
+    const osmaniye = fresh.filter((item) => !isDuziciCat(item));
+    const targetD = Math.min(duzici.length, Math.max(12, Math.ceil(max * 0.4)));
+    const targetO = Math.min(osmaniye.length, Math.max(max - targetD, Math.floor(max * 0.5)));
+    const picked = [...duzici.slice(0, targetD), ...osmaniye.slice(0, targetO)];
+    picked.sort((a, b) => {
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return tb - ta;
+    });
+    if (picked.length >= max) return picked.slice(0, max);
+    // Kalan slotları diğer gruptan doldur
+    const ids = new Set(picked.map((i) => i.id));
+    for (const item of fresh) {
+      if (picked.length >= max) break;
+      if (ids.has(item.id)) continue;
+      picked.push(item);
+      ids.add(item.id);
+    }
+    return picked.slice(0, max);
   }
 
   async enrichItemsFromCache(items) {
