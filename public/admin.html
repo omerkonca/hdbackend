@@ -173,6 +173,99 @@
       font-weight: 600;
       margin-top: auto;
     }
+    .stat-install-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    @media (min-width: 900px) {
+      .stat-install-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .stat-install-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-install-card::after {
+      content: '';
+      position: absolute;
+      right: -20px;
+      top: -20px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+    .stat-install-card.ios::after { background: #007AFF; }
+    .stat-install-card.android::after { background: #3DDC84; }
+    .stat-install-card.total::after { background: #c98b18; }
+    .stat-install-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .stat-install-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .stat-install-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+    }
+    .stat-install-badge.up {
+      background: rgba(16,185,129,0.12);
+      color: #047857;
+    }
+    .stat-install-all {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .stat-install-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .stat-install-meta div {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-install-meta span {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .stat-install-meta strong {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .stats-note {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin: -8px 0 18px;
+      font-weight: 600;
+    }
+
     .stats-cms-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -792,6 +885,45 @@
       <!-- Sections -->
       <!-- Dashboard -->
       <div id="dashboardView" class="view-section active">
+        <div class="section-title" style="margin-bottom:8px">📥 Kurulumlar (iOS / Android)</div>
+        <p class="stats-note">Push kaydı olan cihazlar · App Store / Play resmi indirme değil · bugün = İstanbul günü</p>
+        <div class="stat-install-grid">
+          <div class="stat-install-card ios">
+            <div class="stat-install-head">
+              <div class="stat-install-title">🍎 iOS</div>
+              <div id="liveIosTodayBadge" class="stat-install-badge">bugün —</div>
+            </div>
+            <div id="liveIosAll" class="stat-install-all">—</div>
+            <div class="stat-install-meta">
+              <div><span>Tüm zamanlar</span><strong id="liveIosAllMeta">—</strong></div>
+              <div><span>Bugün yeni</span><strong id="liveIosToday">—</strong></div>
+            </div>
+          </div>
+          <div class="stat-install-card android">
+            <div class="stat-install-head">
+              <div class="stat-install-title">🤖 Android</div>
+              <div id="liveAndroidTodayBadge" class="stat-install-badge">bugün —</div>
+            </div>
+            <div id="liveAndroidAll" class="stat-install-all">—</div>
+            <div class="stat-install-meta">
+              <div><span>Tüm zamanlar</span><strong id="liveAndroidAllMeta">—</strong></div>
+              <div><span>Bugün yeni</span><strong id="liveAndroidToday">—</strong></div>
+            </div>
+          </div>
+          <div class="stat-install-card total">
+            <div class="stat-install-head">
+              <div class="stat-install-title">📦 Toplam</div>
+              <div id="liveTotalTodayBadge" class="stat-install-badge">bugün —</div>
+            </div>
+            <div id="liveTotalAll" class="stat-install-all">—</div>
+            <div class="stat-install-meta">
+              <div><span>Tüm zamanlar</span><strong id="liveTotalAllMeta">—</strong></div>
+              <div><span>Bugün yeni</span><strong id="liveTotalToday">—</strong></div>
+              <div><span>Aktif 7 gün</span><strong id="liveActive7dMeta">—</strong></div>
+            </div>
+          </div>
+        </div>
+
         <div class="stats-pro-grid">
           <div class="stat-pro-card">
             <div class="stat-pro-top">
@@ -2376,6 +2508,12 @@
         const el = document.getElementById(id);
         if (el) el.textContent = value;
       };
+      const setBadge = (id, today) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = `bugün +${today}`;
+        el.classList.toggle('up', Number(today) > 0);
+      };
       try {
         const res = await fetch('/api/admin/dashboard-stats', {
           headers: { 'x-admin-token': currentToken },
@@ -2385,11 +2523,32 @@
           setText('liveStatDevicesSub', data.message || 'İstatistik alınamadı');
           return;
         }
+
+        const ios = data.installs?.ios || {};
+        const android = data.installs?.android || {};
+        const total = data.installs?.total || {};
+
+        setText('liveIosAll', ios.allTime ?? 0);
+        setText('liveIosAllMeta', ios.allTime ?? 0);
+        setText('liveIosToday', ios.today ?? 0);
+        setBadge('liveIosTodayBadge', ios.today ?? 0);
+
+        setText('liveAndroidAll', android.allTime ?? 0);
+        setText('liveAndroidAllMeta', android.allTime ?? 0);
+        setText('liveAndroidToday', android.today ?? 0);
+        setBadge('liveAndroidTodayBadge', android.today ?? 0);
+
+        setText('liveTotalAll', total.allTime ?? data.registeredDevices ?? 0);
+        setText('liveTotalAllMeta', total.allTime ?? data.registeredDevices ?? 0);
+        setText('liveTotalToday', total.today ?? 0);
+        setBadge('liveTotalTodayBadge', total.today ?? 0);
+        setText('liveActive7dMeta', data.activeDevices7d ?? 0);
+
         setText('liveStatDevices', data.registeredDevices ?? 0);
         setText(
           'liveStatDevicesSub',
           data.fcmConfigured
-            ? 'push token · FCM hazır'
+            ? `iOS ${ios.allTime ?? 0} · Android ${android.allTime ?? 0}`
             : 'push token · FCM eksik',
         );
         setText('liveStatActive7d', data.activeDevices7d ?? 0);

@@ -1035,21 +1035,37 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       const citizenReportService = require('../services/citizenReportService');
       const db = requireSupabaseAdmin();
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const dayStart = istanbulDayStartIso();
+
+      const countTokens = (filters = {}) => {
+        let q = db
+          .from('device_tokens')
+          .select('token', { count: 'exact', head: true })
+          .eq('marketing_opt_in', true);
+        if (filters.platform) q = q.eq('platform', filters.platform);
+        if (filters.createdSince) q = q.gte('created_at', filters.createdSince);
+        if (filters.updatedSince) q = q.gte('updated_at', filters.updatedSince);
+        return q;
+      };
 
       const [
         tokensRes,
         active7dRes,
+        iosAllRes,
+        androidAllRes,
+        iosTodayRes,
+        androidTodayRes,
         reports,
         newsItems,
         roadItems,
         pharmacies,
       ] = await Promise.all([
-        db.from('device_tokens').select('token', { count: 'exact', head: true }).eq('marketing_opt_in', true),
-        db
-          .from('device_tokens')
-          .select('token', { count: 'exact', head: true })
-          .eq('marketing_opt_in', true)
-          .gte('updated_at', weekAgo),
+        countTokens(),
+        countTokens({ updatedSince: weekAgo }),
+        countTokens({ platform: 'ios' }),
+        countTokens({ platform: 'android' }),
+        countTokens({ platform: 'ios', createdSince: dayStart }),
+        countTokens({ platform: 'android', createdSince: dayStart }),
         citizenReportService.list({ limit: 100 }).catch(() => []),
         newsService.getNews({ max: 150 }).catch(() => []),
         roadClosureService.getRoadClosures({}).catch(() => []),
@@ -1063,11 +1079,26 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         String(i.status || '').includes('Devam'),
       );
 
+      const iosAll = iosAllRes.count ?? 0;
+      const androidAll = androidAllRes.count ?? 0;
+      const iosToday = iosTodayRes.count ?? 0;
+      const androidToday = androidTodayRes.count ?? 0;
+
       return res.json({
         ok: true,
         fcmConfigured: isFcmConfigured(),
         registeredDevices: tokensRes.count ?? 0,
         activeDevices7d: active7dRes.count ?? 0,
+        installs: {
+          note: 'Push kaydı olan kurulumlar (mağaza indirme API değil)',
+          dayStart,
+          ios: { allTime: iosAll, today: iosToday },
+          android: { allTime: androidAll, today: androidToday },
+          total: {
+            allTime: iosAll + androidAll,
+            today: iosToday + androidToday,
+          },
+        },
         openReports: openReports.length,
         newsCount: Array.isArray(newsItems) ? newsItems.length : 0,
         activeRoadClosures: activeRoads.length,
@@ -1083,6 +1114,18 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       });
     }
   }
+}
+
+/** İstanbul gün başı (UTC+3) ISO string */
+function istanbulDayStartIso(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Istanbul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date);
+  const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+  return `${map.year}-${map.month}-${map.day}T00:00:00+03:00`;
 }
 
 module.exports = new ApiController();
