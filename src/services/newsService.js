@@ -215,7 +215,7 @@ class NewsService {
   }
 
   nationalNoiseRe() {
-    return /nas[iı]l yap[iı]l[iı]r|i[sş]te tam [oö]l[cç][uü]|tarifi|kabak tatl[iı]|i?neg[oö]l k[oö]fte|manda kaymak|egzama neden|dijital kart nereden|kademeli emeklilik|emekli (maa[sş]|zam|promosyon)|fenerbah[cç]e|galatasaray|be[sş]ikta[sş]|trabzonspor|super lig|s[uü]per lig|transfer iddia|o[gğ]uz ayd[iı]n|okullara g[uü]venlik g[oö]revlisi|2026 kademeli/;
+    return /nas[iı]l yap[iı]l[iı]r|i[sş]te tam [oö]l[cç][uü]|tarifi|kabak tatl[iı]|i?neg[oö]l k[oö]fte|manda kaymak|egzama neden|dijital kart nereden|kademeli emeklilik|emekli (maa[sş]|zam|promosyon)|fenerbah[cç]e|galatasaray|be[sş]ikta[sş]|trabzonspor|super lig|s[uü]per lig|transfer iddia|o[gğ]uz ayd[iı]n|okullara g[uü]venlik g[oö]revlisi|2026 kademeli|yks tercih|milyon aday|tercihleri sona/;
   }
 
   farAreaNoiseRe() {
@@ -243,13 +243,13 @@ class NewsService {
   }
 
   inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
-    // Önce içerik sinyali — scope yanlış feed dönse bile düzelt
+    // İçerik sinyali önce
     if (this.isDuziciRelated(title, summary)) return 'Düziçi';
+    if (this.isOsmaniyeRelated(title, summary)) return 'Osmaniye';
     if (scope === 'duzici') return 'Düziçi';
     if (scope === 'osmaniye') return 'Osmaniye';
     const source = normalizeForCompare(sourceName || '');
     if (/duzici/.test(source)) return 'Düziçi';
-    if (this.isOsmaniyeRelated(title, summary)) return 'Osmaniye';
     return 'Osmaniye';
   }
 
@@ -260,10 +260,11 @@ class NewsService {
   applyScopeRelevanceFilter(items, { scope = 'auto', filterDuzici = false } = {}) {
     const list = Array.isArray(items) ? items : [];
     if (scope === 'duzici') {
-      // Dedicated Düziçi feed: keyword şartını yumuşat (köy/mahalle haberleri kalsın)
       return list.filter((x) => {
         if (this.isNationalNoise(x.title, x.summary)) return false;
         if (this.isDuziciRelated(x.title, x.summary)) return true;
+        // Osmaniye merkez haberi Düziçi feed'inden sızmasın
+        if (this.isOsmaniyeRelated(x.title, x.summary)) return false;
         const text = normalizeForCompare(`${x.title || ''} ${x.summary || ''}`);
         return !this.farAreaNoiseRe().test(text);
       });
