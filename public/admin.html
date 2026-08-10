@@ -144,6 +144,52 @@
       margin-bottom: 20px;
     }
 
+    /* Mobile Bottom Navigation Bar */
+    .mobile-bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(60px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      background: #0f172a;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      z-index: 999;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.2);
+    }
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 10px;
+      font-weight: 700;
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      padding: 6px 10px;
+      gap: 3px;
+      cursor: pointer;
+      flex: 1;
+      transition: all 0.2s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mobile-nav-item .nav-icon {
+      font-size: 19px;
+      transition: transform 0.2s ease;
+    }
+    .mobile-nav-item.active {
+      color: var(--primary);
+    }
+    .mobile-nav-item.active .nav-icon {
+      transform: translateY(-2px);
+    }
+
     * { box-sizing: border-box; }
     body {
       margin: 0;
@@ -583,9 +629,11 @@
         transform: translateX(0);
       }
       
+      body.authenticated .mobile-bottom-nav { display: flex !important; }
+      
       main {
         margin-left: 0;
-        padding: 72px 12px calc(20px + env(safe-area-inset-bottom, 0px)) 12px;
+        padding: 72px 12px calc(80px + env(safe-area-inset-bottom, 0px)) 12px;
       }
 
       /* Mobile Dashboard Responsiveness */
@@ -1038,6 +1086,31 @@
 
     <!-- Authenticated Content -->
     <div id="mainContent" style="display:none">
+      
+      <!-- Mobile Bottom Navigation Bar -->
+      <div id="mobileBottomNav" class="mobile-bottom-nav">
+        <button class="mobile-nav-item active" onclick="switchViewMobile('dashboard')">
+          <span class="nav-icon">📊</span>
+          <span>Özet</span>
+        </button>
+        <button class="mobile-nav-item" onclick="switchViewMobile('citizenReports')">
+          <span class="nav-icon">🚨</span>
+          <span>İhbarlar</span>
+        </button>
+        <button class="mobile-nav-item" onclick="switchViewMobile('announcements')">
+          <span class="nav-icon">📣</span>
+          <span>Duyuru</span>
+        </button>
+        <button class="mobile-nav-item" onclick="switchViewMobile('aiNews')">
+          <span class="nav-icon">📰</span>
+          <span>Haberler</span>
+        </button>
+        <button class="mobile-nav-item" onclick="toggleSidebar()">
+          <span class="nav-icon">☰</span>
+          <span>Menü</span>
+        </button>
+      </div>
+
       <div class="page-header">
         <div class="page-title">
           <h1 id="viewTitle">Dashboard</h1>
@@ -2647,12 +2720,24 @@
       title.classList.toggle('collapsed');
     }
 
+    function switchViewMobile(view) {
+      switchView(view);
+    }
+
     // View Management
     function switchView(view) {
       if (typeof closeSidebar === 'function') closeSidebar();
       document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       
+      // Update Mobile Bottom Nav Bar active state
+      document.querySelectorAll('.mobile-nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('onclick')?.includes(`'${view}'`)) {
+          item.classList.add('active');
+        }
+      });
+
       const targetView = document.getElementById(view + 'View');
       if (targetView) targetView.classList.add('active');
       
