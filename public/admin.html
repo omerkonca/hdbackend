@@ -1035,7 +1035,7 @@
         <p class="stats-note">Push kaydı olan cihazlar · App Store / Play resmi indirme değil · bugün = İstanbul günü</p>
         
         <div class="stat-install-grid">
-          <div class="stat-install-card ios">
+          <div class="stat-install-card ios" onclick="switchView('push')" style="cursor:pointer;" title="iOS Cihaz ve Bildirim Paneline Git">
             <div class="stat-install-head">
               <div class="stat-install-title">🍎 iOS</div>
               <div id="liveIosTodayBadge" class="stat-install-badge">bugün —</div>
@@ -1046,7 +1046,7 @@
               <div><span>Bugün yeni</span><strong id="liveIosToday">—</strong></div>
             </div>
           </div>
-          <div class="stat-install-card android">
+          <div class="stat-install-card android" onclick="switchView('push')" style="cursor:pointer;" title="Android Cihaz ve Bildirim Paneline Git">
             <div class="stat-install-head">
               <div class="stat-install-title">🤖 Android</div>
               <div id="liveAndroidTodayBadge" class="stat-install-badge">bugün —</div>
@@ -1057,7 +1057,7 @@
               <div><span>Bugün yeni</span><strong id="liveAndroidToday">—</strong></div>
             </div>
           </div>
-          <div class="stat-install-card total">
+          <div class="stat-install-card total" onclick="switchView('push')" style="cursor:pointer;" title="Toplam Cihaz ve Bildirim Paneline Git">
             <div class="stat-install-head">
               <div class="stat-install-title">📦 Toplam</div>
               <div id="liveTotalTodayBadge" class="stat-install-badge">bugün —</div>
@@ -1101,7 +1101,7 @@
         </div>
 
         <div class="stats-pro-grid">
-          <div class="stat-pro-card">
+          <div class="stat-pro-card" onclick="switchView('push')" style="cursor:pointer;" title="Toplu Bildirim & Cihaz Paneline Git">
             <div class="stat-pro-top">
               <div class="stat-pro-icon" style="background:rgba(124,58,237,0.12)">📱</div>
               <div class="stat-pro-label">Kayıtlı Cihaz</div>
@@ -1109,7 +1109,7 @@
             <div id="liveStatDevices" class="stat-pro-value">—</div>
             <div id="liveStatDevicesSub" class="stat-pro-sub">push token · yükleniyor</div>
           </div>
-          <div class="stat-pro-card">
+          <div class="stat-pro-card" onclick="switchView('push')" style="cursor:pointer;" title="Aktif Cihazlar & Bildirim Paneline Git">
             <div class="stat-pro-top">
               <div class="stat-pro-icon" style="background:rgba(16,185,129,0.12)">🟢</div>
               <div class="stat-pro-label">Aktif (7 Gün)</div>
@@ -1117,7 +1117,7 @@
             <div id="liveStatActive7d" class="stat-pro-value">—</div>
             <div class="stat-pro-sub">son 7 günde güncellenen</div>
           </div>
-          <div class="stat-pro-card">
+          <div class="stat-pro-card" onclick="switchView('citizenReports')" style="cursor:pointer;" title="Vatandaş İhbar Yönetimini Aç">
             <div class="stat-pro-top">
               <div class="stat-pro-icon" style="background:rgba(59,130,246,0.12)">🛟</div>
               <div class="stat-pro-label">Açık İhbar</div>
@@ -1125,7 +1125,7 @@
             <div id="liveStatReports" class="stat-pro-value">—</div>
             <div class="stat-pro-sub">yanıt bekleyen</div>
           </div>
-          <div class="stat-pro-card">
+          <div class="stat-pro-card" onclick="switchView('services')" style="cursor:pointer;" title="Hizmetler ve Yol Durumu Yönetimini Aç">
             <div class="stat-pro-top">
               <div class="stat-pro-icon" style="background:rgba(234,88,12,0.12)">🚧</div>
               <div class="stat-pro-label">Aktif Yol</div>
@@ -1136,11 +1136,11 @@
         </div>
 
         <div class="stats-cms-row">
-          <div class="stat-cms-card"><div class="lbl">Toplam Hizmet</div><div id="statServices" class="val">0</div></div>
-          <div class="stat-cms-card"><div class="lbl">Acil Numara</div><div id="statEmergency" class="val">0</div></div>
-          <div class="stat-cms-card"><div class="lbl">Keşfet Yeri</div><div id="statExplore" class="val">0</div></div>
-          <div class="stat-cms-card"><div class="lbl">Güncel Haber</div><div id="liveStatNews" class="val">—</div></div>
-          <div class="stat-cms-card"><div class="lbl">Nöbetçi Eczane</div><div id="liveStatPharmacy" class="val">—</div></div>
+          <div class="stat-cms-card" onclick="switchView('services')" style="cursor:pointer;" title="Hizmetler Yönetimini Aç"><div class="lbl">Toplam Hizmet</div><div id="statServices" class="val">0</div></div>
+          <div class="stat-cms-card" onclick="switchView('emergency')" style="cursor:pointer;" title="Acil Numaralar Yönetimini Aç"><div class="lbl">Acil Numara</div><div id="statEmergency" class="val">0</div></div>
+          <div class="stat-cms-card" onclick="switchView('explore')" style="cursor:pointer;" title="Keşfet Mekan Yönetimini Aç"><div class="lbl">Keşfet Yeri</div><div id="statExplore" class="val">0</div></div>
+          <div class="stat-cms-card" onclick="switchView('aiNews')" style="cursor:pointer;" title="Yapay Zeka & Haber Yönetimini Aç"><div class="lbl">Güncel Haber</div><div id="liveStatNews" class="val">—</div></div>
+          <div class="stat-cms-card" onclick="refreshSystem('pharmacies')" style="cursor:pointer;" title="Nöbetçi Eczaneleri Tara / Yenile"><div class="lbl">Nöbetçi Eczane</div><div id="liveStatPharmacy" class="val">—</div></div>
         </div>
 
         <!-- Live Activity Feed Card -->
