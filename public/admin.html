@@ -2726,10 +2726,12 @@
     }
 
     function exitAdminToApp() {
-      if (window.history.length > 1) {
+      if (window.FlutterBridge && typeof window.FlutterBridge.postMessage === 'function') {
+        window.FlutterBridge.postMessage('closeAdmin');
+      } else if (window.history.length > 1) {
         window.history.back();
       } else {
-        window.location.href = 'about:blank';
+        switchView('dashboard');
       }
     }
 
