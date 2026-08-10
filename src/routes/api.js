@@ -25,6 +25,9 @@ router.use('/announcements', require('./announcements'));
 
 // Admin endpoints
 router.get('/admin/check', requireAdminToken, (req, res) => res.json({ ok: true, message: 'Token gecerli.' }));
+router.get('/admin/dashboard-stats', requireAdminToken, (req, res) =>
+  apiController.getDashboardStats(req, res),
+);
 router.get('/admin/email-status', requireAdminToken, (req, res) => {
   res.json({ ok: true, ...emailService.getEmailStatus() });
 });

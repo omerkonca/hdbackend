@@ -1026,6 +1026,63 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       return res.status(500).json({ ok: false, message: 'Ayet silinemedi.', detail: error.message });
     }
   }
+
+  /** Admin dashboard canlı özet (cihaz / ihbar / haber / yol). */
+  async getDashboardStats(req, res) {
+    try {
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const { isFcmConfigured } = require('../services/fcmService');
+      const citizenReportService = require('../services/citizenReportService');
+      const db = requireSupabaseAdmin();
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      const [
+        tokensRes,
+        active7dRes,
+        reports,
+        newsItems,
+        roadItems,
+        pharmacies,
+      ] = await Promise.all([
+        db.from('device_tokens').select('token', { count: 'exact', head: true }).eq('marketing_opt_in', true),
+        db
+          .from('device_tokens')
+          .select('token', { count: 'exact', head: true })
+          .eq('marketing_opt_in', true)
+          .gte('updated_at', weekAgo),
+        citizenReportService.list({ limit: 100 }).catch(() => []),
+        newsService.getNews({ max: 150 }).catch(() => []),
+        roadClosureService.getRoadClosures({}).catch(() => []),
+        pharmacyService.getDutyPharmacies({}).catch(() => []),
+      ]);
+
+      const openReports = (reports || []).filter((r) =>
+        ['new', 'reviewing'].includes(String(r.status || '')),
+      );
+      const activeRoads = (roadItems || []).filter((i) =>
+        String(i.status || '').includes('Devam'),
+      );
+
+      return res.json({
+        ok: true,
+        fcmConfigured: isFcmConfigured(),
+        registeredDevices: tokensRes.count ?? 0,
+        activeDevices7d: active7dRes.count ?? 0,
+        openReports: openReports.length,
+        newsCount: Array.isArray(newsItems) ? newsItems.length : 0,
+        activeRoadClosures: activeRoads.length,
+        dutyPharmacies: Array.isArray(pharmacies) ? pharmacies.length : 0,
+        fetchedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('[dashboard-stats]', error.message);
+      return res.status(500).json({
+        ok: false,
+        message: 'Dashboard istatistikleri alınamadı.',
+        detail: error.message,
+      });
+    }
+  }
 }
 
 module.exports = new ApiController();
