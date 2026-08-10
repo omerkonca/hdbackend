@@ -45,7 +45,7 @@ class CitizenReportService {
   }
 
   async list({ limit = 50, status } = {}) {
-    const capped = Math.min(limit, 100);
+    const capped = Math.min(limit, 200);
     const db = requireSupabaseAdmin();
 
     let query = db
@@ -54,7 +54,11 @@ class CitizenReportService {
       .order('created_at', { ascending: false })
       .limit(capped);
 
-    if (status && VALID_STATUSES.has(status)) {
+    if (status === 'open') {
+      query = query.in('status', ['new', 'reviewing']);
+    } else if (status === 'closed') {
+      query = query.in('status', ['resolved', 'dismissed']);
+    } else if (status && VALID_STATUSES.has(status)) {
       query = query.eq('status', status);
     }
 

@@ -995,6 +995,7 @@
           <p id="viewSubtitle">Genel uygulama durumu ve özet bilgiler.</p>
         </div>
         <div class="row">
+          <button class="btn btn-secondary" onclick="exportDataModal()">📤 Excel / CSV İndir</button>
           <button class="btn btn-secondary" onclick="loadData()">🔄 Veriyi Yenile</button>
           <button class="btn btn-primary" onclick="saveData()">💾 Tümünü Kaydet</button>
         </div>
@@ -1159,9 +1160,10 @@
         <!-- Quick Action Buttons Bar -->
         <div class="card">
           <div class="section-title">🚀 Hızlı Güncellemeler & Eylemler</div>
-          <p style="color:var(--text-muted); font-size:13px; margin-top:2px;">En sık kullanılan araçları buradan tek tıkla güncelleyebilirsiniz.</p>
+          <p style="color:var(--text-muted); font-size:13px; margin-top:2px;">En sık kullanılan araçları ve Excel dışa aktarma seçeneklerini tek tıkla çalıştırabilirsiniz.</p>
           <div class="row">
             <button class="btn btn-primary" onclick="switchView('announcements')">📣 Acil Duyuru Yayınla (Push)</button>
+            <button class="btn btn-secondary" onclick="exportDataModal()">📤 Excel / CSV İndir</button>
             <button class="btn btn-secondary" onclick="refreshSystem('pharmacies')">💊 Eczaneleri Tara</button>
             <button class="btn btn-secondary" onclick="refreshSystem('news')">📰 Haberleri Tara</button>
             <button class="btn btn-secondary" onclick="loadLiveDashboardStats()">🔄 Verileri Yenile</button>
@@ -1281,7 +1283,9 @@
           </p>
           <div class="row" style="margin-bottom:16px; flex-wrap:wrap; gap:8px">
             <select id="citizenReportFilter" onchange="loadCitizenReports()" style="min-width:180px">
-              <option value="all">Tümü</option>
+              <option value="open" selected>Açık ihbarlar</option>
+              <option value="closed">Kapatılanlar</option>
+              <option value="all">Tümü (ayrı bölümler)</option>
               <option value="new">Alındı</option>
               <option value="reviewing">İnceleniyor</option>
               <option value="resolved">Çözüldü</option>
@@ -2381,10 +2385,57 @@
       dismissed: 'Kapatıldı',
     };
 
+    function isOpenCitizenReport(status) {
+      return status === 'new' || status === 'reviewing';
+    }
+
+    function renderCitizenReportCard(item) {
+      const id = escapeHtml(item.id);
+      const category = escapeHtml(item.category || '—');
+      const message = escapeHtml(item.message || '');
+      const contact = escapeHtml(
+        [item.contact_name, item.contact_email].filter(Boolean).join(' · ') || 'İletişim yok',
+      );
+      const created = item.created_at
+        ? escapeHtml(new Date(item.created_at).toLocaleString('tr-TR'))
+        : '—';
+      const current = item.status || 'new';
+      const resolution = escapeHtml(item.resolution_message || '');
+      const photos = (item.image_urls || [])
+        .map((url) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-right:6px"></a>`)
+        .join('');
+      const options = Object.entries(CITIZEN_REPORT_STATUS_LABELS)
+        .map(([value, label]) => `<option value="${value}" ${value === current ? 'selected' : ''}>${label}</option>`)
+        .join('');
+      const closedStyle = isOpenCitizenReport(current)
+        ? ''
+        : 'opacity:0.78; background:#f8fafc;';
+      return `
+        <div class="card" style="margin-bottom:12px; padding:16px; border:1px solid var(--border); ${closedStyle}">
+          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px">
+            <div>
+              <strong>${category}</strong>
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px">${created} · <code style="font-size:11px">${id}</code></div>
+            </div>
+            <div class="row" style="gap:8px; align-items:center">
+              <select id="cr-status-${id}" style="min-width:140px">${options}</select>
+              <button type="button" class="btn btn-primary" onclick="updateCitizenReportStatus('${id}')">Kaydet</button>
+            </div>
+          </div>
+          <p style="margin:8px 0; white-space:pre-wrap; font-size:14px">${message}</p>
+          <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px">${contact}</div>
+          ${photos ? `<div style="display:flex; flex-wrap:wrap; margin-bottom:8px">${photos}</div>` : ''}
+          <div class="form-group" style="margin:0">
+            <label>Vatandaşa yanıt / çözüm mesajı</label>
+            <textarea id="cr-msg-${id}" rows="3" placeholder="Örn: Ekiplerimiz müdahale etti, sorun giderildi." style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px">${resolution}</textarea>
+          </div>
+        </div>`;
+    }
+
     async function loadCitizenReports() {
       const listEl = document.getElementById('citizenReportsList');
       const statusEl = document.getElementById('citizenReportsStatus');
-      const filter = document.getElementById('citizenReportFilter')?.value || 'all';
+      const filter = document.getElementById('citizenReportFilter')?.value || 'open';
       if (!listEl) return;
       listEl.innerHTML = '<p style="color:var(--text-muted)">Yükleniyor...</p>';
       if (statusEl) statusEl.textContent = '';
@@ -2398,50 +2449,40 @@
           throw new Error(data.message || 'İhbarlar yüklenemedi');
         }
         const items = data.items || [];
-        if (statusEl) statusEl.textContent = `${items.length} ihbar listeleniyor`;
         if (!items.length) {
+          if (statusEl) statusEl.textContent = '0 ihbar listeleniyor';
           listEl.innerHTML = '<p style="color:var(--text-muted)">Bu filtrede ihbar yok.</p>';
           return;
         }
-        listEl.innerHTML = items.map((item) => {
-          const id = escapeHtml(item.id);
-          const category = escapeHtml(item.category || '—');
-          const message = escapeHtml(item.message || '');
-          const contact = escapeHtml(
-            [item.contact_name, item.contact_email].filter(Boolean).join(' · ') || 'İletişim yok',
-          );
-          const created = item.created_at
-            ? escapeHtml(new Date(item.created_at).toLocaleString('tr-TR'))
-            : '—';
-          const current = item.status || 'new';
-          const resolution = escapeHtml(item.resolution_message || '');
-          const photos = (item.image_urls || [])
-            .map((url) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="${escapeHtml(url)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-right:6px"></a>`)
-            .join('');
-          const options = Object.entries(CITIZEN_REPORT_STATUS_LABELS)
-            .map(([value, label]) => `<option value="${value}" ${value === current ? 'selected' : ''}>${label}</option>`)
-            .join('');
-          return `
-            <div class="card" style="margin-bottom:12px; padding:16px; border:1px solid var(--border)">
-              <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px">
-                <div>
-                  <strong>${category}</strong>
-                  <div style="font-size:12px; color:var(--text-muted); margin-top:4px">${created} · <code style="font-size:11px">${id}</code></div>
-                </div>
-                <div class="row" style="gap:8px; align-items:center">
-                  <select id="cr-status-${id}" style="min-width:140px">${options}</select>
-                  <button type="button" class="btn btn-primary" onclick="updateCitizenReportStatus('${id}')">Kaydet</button>
-                </div>
-              </div>
-              <p style="margin:8px 0; white-space:pre-wrap; font-size:14px">${message}</p>
-              <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px">${contact}</div>
-              ${photos ? `<div style="display:flex; flex-wrap:wrap; margin-bottom:8px">${photos}</div>` : ''}
-              <div class="form-group" style="margin:0">
-                <label>Vatandaşa yanıt / çözüm mesajı</label>
-                <textarea id="cr-msg-${id}" rows="3" placeholder="Örn: Ekiplerimiz müdahale etti, sorun giderildi." style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px">${resolution}</textarea>
-              </div>
+
+        if (filter === 'all') {
+          const openItems = items.filter((i) => isOpenCitizenReport(i.status || 'new'));
+          const closedItems = items.filter((i) => !isOpenCitizenReport(i.status || 'new'));
+          if (statusEl) {
+            statusEl.textContent = `${openItems.length} açık · ${closedItems.length} kapatılan · ${items.length} toplam`;
+          }
+          listEl.innerHTML = `
+            <div style="margin-bottom:18px">
+              <div style="font-weight:800; margin-bottom:10px">🟢 Açık ihbarlar (${openItems.length})</div>
+              ${openItems.length ? openItems.map(renderCitizenReportCard).join('') : '<p style="color:var(--text-muted)">Açık ihbar yok.</p>'}
+            </div>
+            <div style="padding-top:8px; border-top:1px solid var(--border)">
+              <div style="font-weight:800; margin:14px 0 10px">📁 Kapatılanlar (${closedItems.length})</div>
+              ${closedItems.length ? closedItems.map(renderCitizenReportCard).join('') : '<p style="color:var(--text-muted)">Kapatılan ihbar yok.</p>'}
             </div>`;
-        }).join('');
+          return;
+        }
+
+        const openCount = items.filter((i) => isOpenCitizenReport(i.status || 'new')).length;
+        if (statusEl) {
+          if (filter === 'open') statusEl.textContent = `${items.length} açık ihbar`;
+          else if (filter === 'closed') statusEl.textContent = `${items.length} kapatılan ihbar`;
+          else statusEl.textContent = `${items.length} ihbar listeleniyor`;
+        }
+        listEl.innerHTML = items.map(renderCitizenReportCard).join('');
+        if (filter === 'open' && openCount !== items.length) {
+          // no-op safety
+        }
       } catch (e) {
         listEl.innerHTML = `<p style="color:var(--danger)">${escapeHtml(e.message || 'Hata')}</p>`;
         if (statusEl) statusEl.textContent = '';
@@ -2471,6 +2512,7 @@
         }
         showToast(`Durum: ${CITIZEN_REPORT_STATUS_LABELS[status] || status}`);
         loadCitizenReports();
+        loadLiveDashboardStats();
       } catch (e) {
         showToast(e.message || 'Durum güncellenemedi', true);
       }
@@ -2680,6 +2722,109 @@
         document.getElementById('lostFoundListContainer').style.display = 'block';
         document.getElementById('lostFoundEditorContainer').style.display = 'none';
         renderLostFound();
+      }
+    }
+
+    // Export Center (Excel / CSV Dışa Aktarma)
+    function exportToCsv(filename, headers, rows) {
+      if (!headers || !rows || !rows.length) {
+        showToast('İndirilecek veri bulunamadı.', true);
+        return;
+      }
+      
+      const processRow = (row) => {
+        return row.map(val => {
+          let str = val === null || val === undefined ? '' : String(val);
+          str = str.replace(/"/g, '""');
+          if (str.search(/("|,|\n)/g) >= 0) {
+            str = `"${str}"`;
+          }
+          return str;
+        }).join(';');
+      };
+
+      // UTF-8 BOM for Microsoft Excel Turkish Character Compatibility
+      const bom = '\uFEFF';
+      let csvContent = bom + headers.join(';') + '\n';
+      
+      rows.forEach(r => {
+        csvContent += processRow(r) + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`📥 ${filename} bilgisayarınıza indirildi!`);
+    }
+
+    async function exportDataModal() {
+      const option = prompt(
+        "Hangi veriyi Excel / CSV olarak indirmek istersiniz?\n\n" +
+        "1 - Vatandaş İhbarları (Tüm Listeyi İndir)\n" +
+        "2 - Şehir Hizmetleri ve Keşfet Yerleri\n" +
+        "3 - Acil Numaralar Listesi\n" +
+        "4 - Cihaz & İndirme İstatistik Raporu\n\n" +
+        "Seçiminizi yapın (1-4):",
+        "1"
+      );
+
+      if (!option) return;
+
+      if (option === '1') {
+        try {
+          const res = await fetch('/api/admin/citizen-reports', {
+            headers: { 'x-admin-token': currentToken }
+          });
+          const data = await res.json();
+          const reports = data.reports || [];
+          const headers = ['İhbar ID', 'Mahalle / Kategori', 'Açıklama', 'Durum', 'Konum (Enlem/Boylam)', 'Kayıt Tarihi'];
+          const rows = reports.map(r => [
+            r.id,
+            r.category || 'Genel',
+            r.description || '',
+            r.status || 'new',
+            r.coordinates ? `${r.coordinates.latitude}, ${r.coordinates.longitude}` : '',
+            r.created_at || r.createdAt || ''
+          ]);
+          exportToCsv(`duzici_vatandas_ihbarlari_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+        } catch(e) {
+          showToast('İhbarlar indirilirken hata oluştu.', true);
+        }
+      } else if (option === '2') {
+        const places = rawData.explorePlaces || [];
+        const headers = ['Mekan Adı', 'Kategori', 'Adres', 'Telefon', 'Açıklama'];
+        const rows = places.map(p => [
+          p.title || p.name || '',
+          p.category || '',
+          p.address || '',
+          p.phone || '',
+          p.description || ''
+        ]);
+        exportToCsv(`duzici_kesfet_yerleri_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+      } else if (option === '3') {
+        const numbers = rawData.emergencyNumbers || [];
+        const headers = ['Kurum / Hizmet Adı', 'Telefon Numarası', 'Kategori'];
+        const rows = numbers.map(n => [
+          n.name || n.title || '',
+          n.number || n.phone || '',
+          n.category || 'Acil'
+        ]);
+        exportToCsv(`duzici_acil_numaralar_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+      } else if (option === '4') {
+        const headers = ['Metrik', 'Değer', 'Açıklama'];
+        const rows = [
+          ['Kayıtlı Cihaz (Toplam)', document.getElementById('liveTotalAll')?.textContent || '0', 'FCM Push Token Kayıtlı'],
+          ['iOS Kurulum', document.getElementById('liveIosAll')?.textContent || '0', 'Tüm Zamanlar'],
+          ['Android Kurulum', document.getElementById('liveAndroidAll')?.textContent || '0', 'Tüm Zamanlar'],
+          ['Aktif Cihazlar (7 Gün)', document.getElementById('liveActive7dMeta')?.textContent || '0', 'Son 7 Gün']
+        ];
+        exportToCsv(`duzici_cihaz_raporu_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
       }
     }
 

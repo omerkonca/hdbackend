@@ -1055,6 +1055,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         androidAllRes,
         iosTodayRes,
         androidTodayRes,
+        openReportsRes,
         reports,
         newsItems,
         roadItems,
@@ -1066,15 +1067,17 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         countTokens({ platform: 'android' }),
         countTokens({ platform: 'ios', createdSince: dayStart }),
         countTokens({ platform: 'android', createdSince: dayStart }),
-        citizenReportService.list({ limit: 100 }).catch(() => []),
+        db
+          .from('citizen_reports')
+          .select('id', { count: 'exact', head: true })
+          .in('status', ['new', 'reviewing']),
+        citizenReportService.list({ limit: 20, status: 'open' }).catch(() => []),
         newsService.getNews({ max: 150 }).catch(() => []),
         roadClosureService.getRoadClosures({}).catch(() => []),
         pharmacyService.getDutyPharmacies({}).catch(() => []),
       ]);
 
-      const openReports = (reports || []).filter((r) =>
-        ['new', 'reviewing'].includes(String(r.status || '')),
-      );
+      const openReportsCount = openReportsRes.count ?? 0;
       const activeRoads = (roadItems || []).filter((i) =>
         String(i.status || '').includes('Devam'),
       );
@@ -1157,11 +1160,11 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         systemHealth,
         contentDistribution: {
           news: Array.isArray(newsItems) ? newsItems.length : 0,
-          openReports: openReports.length,
+          openReports: openReportsCount,
           activeRoads: activeRoads.length,
           pharmacies: Array.isArray(pharmacies) ? pharmacies.length : 0,
         },
-        openReports: openReports.length,
+        openReports: openReportsCount,
         newsCount: Array.isArray(newsItems) ? newsItems.length : 0,
         activeRoadClosures: activeRoads.length,
         dutyPharmacies: Array.isArray(pharmacies) ? pharmacies.length : 0,
