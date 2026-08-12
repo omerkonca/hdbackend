@@ -50,6 +50,8 @@ app.use('/api', apiRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/push', require('./routes/push'));
 app.use('/api/announcements', require('./routes/announcements'));
+app.use('/api/earthquakes', require('./routes/earthquakeRoutes'));
+app.use('/api/radiation', require('./routes/radiationRoutes'));
 app.use('/api/app-version', require('./routes/appVersionRoutes'));
 
 // Health check
@@ -71,6 +73,13 @@ const server = app.listen(config.PORT, () => {
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);
 
   ensureCitizenReportsTable().catch(() => {});
+
+  try {
+    const { startEarthquakeCron } = require('./services/earthquakeCronService');
+    startEarthquakeCron();
+  } catch (eqErr) {
+    console.warn('[earthquakeCron] Cron başlatılamadı:', eqErr.message);
+  }
 
   const emailStatus = emailService.getEmailStatus();
   if (emailStatus.gmailWebhookConfigured) {
