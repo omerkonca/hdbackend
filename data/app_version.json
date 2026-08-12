@@ -1,0 +1,18 @@
+{
+  "android": {
+    "latest": "1.2.8",
+    "minSoft": "1.2.0",
+    "minForce": "1.1.0",
+    "storeUrl": "https://play.google.com/store/apps/details?id=net.hepsiduzici.hepsi_duzici"
+  },
+  "ios": {
+    "latest": "1.2.8",
+    "minSoft": "1.2.0",
+    "minForce": "1.1.0",
+    "storeUrl": "https://apps.apple.com/app/id6775205369"
+  },
+  "title": "Güncelleme gerekli",
+  "message": "Uygulamayı güvenle kullanmaya devam etmek için lütfen güncelleyin.",
+  "forceTitle": "Zorunlu güncelleme",
+  "forceMessage": "Bu sürüm artık desteklenmiyor. Devam etmek için güncellemeniz gerekir."
+}

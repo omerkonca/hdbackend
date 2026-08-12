@@ -50,6 +50,7 @@ app.use('/api', apiRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/push', require('./routes/push'));
 app.use('/api/announcements', require('./routes/announcements'));
+app.use('/api/app-version', require('./routes/appVersionRoutes'));
 
 // Health check
 app.get('/health', (req, res) => {

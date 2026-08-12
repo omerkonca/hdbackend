@@ -40,6 +40,7 @@ const config = {
 
   PATHS: {
     CITY_CONTENT: path.resolve(__dirname, '../../data/city_content.json'),
+    APP_VERSION: path.resolve(__dirname, '../../data/app_version.json'),
     PUBLIC_DIR: path.resolve(__dirname, '../../public'),
     BACKUPS_DIR: path.resolve(__dirname, '../../backups'),
   },

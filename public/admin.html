@@ -1291,6 +1291,37 @@
             <button class="btn btn-secondary" onclick="loadLiveDashboardStats()">🔄 Verileri Yenile</button>
           </div>
         </div>
+
+        <div class="card" id="appVersionCard">
+          <div class="section-title">🔐 Zorunlu / Soft Güncelleme</div>
+          <p style="color:var(--text-muted); font-size:13px; margin-top:0;">
+            <strong>minForce</strong> altında uygulama kilitlenir · <strong>minSoft</strong> altında öneri çıkar ·
+            Semver: <code>1.2.8</code> (build numarası yok)
+          </p>
+          <div class="row" style="gap:16px; align-items:flex-start; flex-wrap:wrap;">
+            <div style="flex:1; min-width:240px;">
+              <div class="form-group"><label>Android latest</label><input id="avAndroidLatest" placeholder="1.2.8"></div>
+              <div class="form-group"><label>Android minSoft</label><input id="avAndroidMinSoft" placeholder="1.2.0"></div>
+              <div class="form-group"><label>Android minForce</label><input id="avAndroidMinForce" placeholder="1.1.0"></div>
+              <div class="form-group"><label>Android Store URL</label><input id="avAndroidStore" placeholder="https://play.google.com/..."></div>
+            </div>
+            <div style="flex:1; min-width:240px;">
+              <div class="form-group"><label>iOS latest</label><input id="avIosLatest" placeholder="1.2.8"></div>
+              <div class="form-group"><label>iOS minSoft</label><input id="avIosMinSoft" placeholder="1.2.0"></div>
+              <div class="form-group"><label>iOS minForce</label><input id="avIosMinForce" placeholder="1.1.0"></div>
+              <div class="form-group"><label>iOS Store URL</label><input id="avIosStore" placeholder="https://apps.apple.com/..."></div>
+            </div>
+          </div>
+          <div class="form-group"><label>Soft başlık</label><input id="avTitle" placeholder="Güncelleme gerekli"></div>
+          <div class="form-group"><label>Soft mesaj</label><textarea id="avMessage" rows="2" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px"></textarea></div>
+          <div class="form-group"><label>Force başlık</label><input id="avForceTitle" placeholder="Zorunlu güncelleme"></div>
+          <div class="form-group"><label>Force mesaj</label><textarea id="avForceMessage" rows="2" style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px"></textarea></div>
+          <div id="avSaveResult" style="min-height:18px; margin-bottom:10px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
+          <div class="row">
+            <button type="button" class="btn btn-secondary" onclick="loadAppVersionPolicy()">🔄 Yükle</button>
+            <button type="button" class="btn btn-primary" onclick="saveAppVersionPolicy()">💾 Sürüm Politikasını Kaydet</button>
+          </div>
+        </div>
       </div>
 
 
@@ -2979,6 +3010,7 @@
       initStoryGroups();
       renderAll();
       loadLiveDashboardStats();
+      loadAppVersionPolicy();
     }
 
     let windowInstallChart = null;
@@ -3157,6 +3189,86 @@
         renderActivityFeed(data.recentActivities);
       } catch (e) {
         setText('liveStatDevicesSub', 'Bağlantı hatası');
+      }
+    }
+
+    async function loadAppVersionPolicy() {
+      const resultEl = document.getElementById('avSaveResult');
+      if (!currentToken) return;
+      try {
+        const res = await fetch('/api/app-version/admin', {
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          if (resultEl) resultEl.textContent = data.message || 'Sürüm politikası yüklenemedi';
+          return;
+        }
+        const a = data.android || {};
+        const i = data.ios || {};
+        const setVal = (id, v) => {
+          const el = document.getElementById(id);
+          if (el) el.value = v == null ? '' : String(v);
+        };
+        setVal('avAndroidLatest', a.latest);
+        setVal('avAndroidMinSoft', a.minSoft);
+        setVal('avAndroidMinForce', a.minForce);
+        setVal('avAndroidStore', a.storeUrl);
+        setVal('avIosLatest', i.latest);
+        setVal('avIosMinSoft', i.minSoft);
+        setVal('avIosMinForce', i.minForce);
+        setVal('avIosStore', i.storeUrl);
+        setVal('avTitle', data.title);
+        setVal('avMessage', data.message);
+        setVal('avForceTitle', data.forceTitle);
+        setVal('avForceMessage', data.forceMessage);
+        if (resultEl) resultEl.textContent = 'Politika yüklendi';
+      } catch (e) {
+        if (resultEl) resultEl.textContent = 'Bağlantı hatası';
+      }
+    }
+
+    async function saveAppVersionPolicy() {
+      const resultEl = document.getElementById('avSaveResult');
+      if (!currentToken) return;
+      const val = (id) => (document.getElementById(id)?.value || '').trim();
+      const body = {
+        android: {
+          latest: val('avAndroidLatest'),
+          minSoft: val('avAndroidMinSoft'),
+          minForce: val('avAndroidMinForce'),
+          storeUrl: val('avAndroidStore'),
+        },
+        ios: {
+          latest: val('avIosLatest'),
+          minSoft: val('avIosMinSoft'),
+          minForce: val('avIosMinForce'),
+          storeUrl: val('avIosStore'),
+        },
+        title: val('avTitle'),
+        message: val('avMessage'),
+        forceTitle: val('avForceTitle'),
+        forceMessage: val('avForceMessage'),
+      };
+      try {
+        const res = await fetch('/api/app-version', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken,
+          },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          if (resultEl) resultEl.textContent = data.message || 'Kaydedilemedi';
+          return showToast(data.message || 'Sürüm politikası kaydedilemedi', true);
+        }
+        if (resultEl) resultEl.textContent = 'Kaydedildi ✓';
+        showToast('Sürüm politikası kaydedildi');
+      } catch (e) {
+        if (resultEl) resultEl.textContent = 'Bağlantı hatası';
+        showToast('Bağlantı hatası', true);
       }
     }
 
