@@ -1,4 +1,4 @@
-const axios = require('axios');
+const fetch = require('node-fetch');
 
 const DUZICI_LAT = 37.2405;
 const DUZICI_LNG = 36.4552;
@@ -53,17 +53,24 @@ const NETWORK_STATIONS = [
 
 async function fetchSafecast() {
   const since = new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString();
-  const { data } = await axios.get('https://api.safecast.org/measurements.json', {
-    params: {
-      latitude: DUZICI_LAT,
-      longitude: DUZICI_LNG,
-      distance: 450000,
-      captured_after: since,
-      limit: 80,
-    },
-    timeout: 12000,
-    headers: { 'User-Agent': 'HepsiDuzici/1.0' },
+  const params = new URLSearchParams({
+    latitude: String(DUZICI_LAT),
+    longitude: String(DUZICI_LNG),
+    distance: '450000',
+    captured_after: since,
+    limit: '80',
   });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  const res = await fetch(
+    `https://api.safecast.org/measurements.json?${params.toString()}`,
+    {
+      signal: controller.signal,
+      headers: { 'User-Agent': 'HepsiDuzici/1.0' },
+    },
+  );
+  clearTimeout(timer);
+  const data = await res.json();
   if (!Array.isArray(data)) return [];
   return data
     .map((row) => {

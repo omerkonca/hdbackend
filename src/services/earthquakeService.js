@@ -1,4 +1,4 @@
-const axios = require('axios');
+const fetch = require('node-fetch');
 
 // Düziçi Merkez Koordinatları
 const DUZICI_LAT = 37.2405;
@@ -51,12 +51,19 @@ async function fetchEarthquakes(forceRefresh = false) {
 
   // 1. Birincil Kaynak: Kandilli Live API
   try {
-    const res = await axios.get('https://api.orhanaydogdu.com.tr/deprem/kandilli/live?limit=100', {
-      timeout: 8000,
-      headers: { 'User-Agent': 'HepsiDuziciApp/1.0' }
-    });
-    if (res.data && res.data.status === true && Array.isArray(res.data.result)) {
-      rawList = res.data.result.map((item) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(
+      'https://api.orhanaydogdu.com.tr/deprem/kandilli/live?limit=100',
+      {
+        signal: controller.signal,
+        headers: { 'User-Agent': 'HepsiDuziciApp/1.0' },
+      },
+    );
+    clearTimeout(timer);
+    const data = await res.json();
+    if (data && data.status === true && Array.isArray(data.result)) {
+      rawList = data.result.map((item) => {
         const lat = parseFloat(item.geojson?.coordinates[1] ?? item.lat);
         const lng = parseFloat(item.geojson?.coordinates[0] ?? item.lng);
         const mag = parseFloat(item.mag);
@@ -89,12 +96,19 @@ async function fetchEarthquakes(forceRefresh = false) {
   // 2. Yedek Kaynak: AFAD API (Kandilli başarısız olursa)
   if (rawList.length === 0) {
     try {
-      const res = await axios.get('https://api.orhanaydogdu.com.tr/deprem/afad/live?limit=100', {
-        timeout: 8000,
-        headers: { 'User-Agent': 'HepsiDuziciApp/1.0' }
-      });
-      if (res.data && res.data.status === true && Array.isArray(res.data.result)) {
-        rawList = res.data.result.map((item) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(
+        'https://api.orhanaydogdu.com.tr/deprem/afad/live?limit=100',
+        {
+          signal: controller.signal,
+          headers: { 'User-Agent': 'HepsiDuziciApp/1.0' },
+        },
+      );
+      clearTimeout(timer);
+      const data = await res.json();
+      if (data && data.status === true && Array.isArray(data.result)) {
+        rawList = data.result.map((item) => {
           const lat = parseFloat(item.geojson?.coordinates[1] ?? item.lat);
           const lng = parseFloat(item.geojson?.coordinates[0] ?? item.lng);
           const mag = parseFloat(item.mag);
