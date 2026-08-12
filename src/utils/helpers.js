@@ -336,15 +336,16 @@ function areNewsTitlesDuplicate(titleA, titleB, { withinHours = 96, createdAtA, 
   if (keyA && keyB) {
     const shorter = keyA.length <= keyB.length ? keyA : keyB;
     const longer = keyA.length <= keyB.length ? keyB : keyA;
-    if (shorter.length >= 24 && longer.includes(shorter)) return true;
+    if (shorter.length >= 18 && longer.includes(shorter)) return true;
   }
 
   const tokensA = extractNewsTitleTokens(titleA);
   const tokensB = extractNewsTitleTokens(titleB);
   const shared = tokensA.filter((token) => tokensB.includes(token));
-  if (shared.length >= 3) return true;
+  // 2 ortak anlamlı kelime çoğu Sabır/Hasret kopyasını yakalar
+  if (shared.length >= 2) return true;
 
-  return newsTitleSimilarity(titleA, titleB) >= 0.55;
+  return newsTitleSimilarity(titleA, titleB) >= 0.42;
 }
 
 function truncateNewsExcerpt(text, maxChars = NEWS_EXCERPT_MAX_CHARS) {

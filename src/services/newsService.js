@@ -158,6 +158,28 @@ class NewsService {
     const ownCandidate = this.isOwnPublisherItem(candidate);
     if (ownExisting && !ownCandidate) return existing;
     if (ownCandidate && !ownExisting) return candidate;
+
+    // Dış kaynak kopyalarında: ilk yayınlanan kalsın (Sabır 09:00 > Hasret 09:30)
+    const ta = new Date(existing?.createdAt || existing?.created_at || 0).getTime();
+    const tb = new Date(candidate?.createdAt || candidate?.created_at || 0).getTime();
+    if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) {
+      const earlier = ta <= tb ? existing : candidate;
+      const later = ta <= tb ? candidate : existing;
+      // Daha iyi görsel/özet varsa erken kayda taşı
+      if (
+        !earlier.imageUrl &&
+        later.imageUrl &&
+        this.itemQualityScore(later) > this.itemQualityScore(earlier) + 15
+      ) {
+        return {
+          ...earlier,
+          imageUrl: later.imageUrl || earlier.imageUrl,
+          summary: earlier.summary || later.summary,
+        };
+      }
+      return earlier;
+    }
+
     return this.itemQualityScore(candidate) > this.itemQualityScore(existing)
       ? candidate
       : existing;
@@ -253,12 +275,20 @@ class NewsService {
     return 'Osmaniye';
   }
 
+  isAkdenizNews(item) {
+    if (!item) return false;
+    const url = String(item.sourceUrl || item.url || item.source_url || item.link || '').toLowerCase();
+    const source = String(item.sourceName || item.source_name || item.source || '').toLowerCase();
+    return url.includes('akdenizgazetesi') || source.includes('akdeniz');
+  }
+
   /**
-   * Scope'a göre yerel/ilçe haberlerini tut, ulusal gürültüyü at.
+   * Scope'a göre yerel/ilçe haberlerini tut, ulusal gürültüyü ve Akdeniz haberlerini at.
    * Dedicated Düziçi feed'lerde keyword şartını yumuşatır (köy haberleri kaçmasın).
    */
   applyScopeRelevanceFilter(items, { scope = 'auto', filterDuzici = false } = {}) {
-    const list = Array.isArray(items) ? items : [];
+    const rawList = Array.isArray(items) ? items : [];
+    const list = rawList.filter((x) => !this.isAkdenizNews(x));
     if (scope === 'duzici') {
       return list.filter((x) => {
         if (this.isNationalNoise(x.title, x.summary)) return false;
@@ -719,8 +749,19 @@ class NewsService {
           return true;
         });
 
-        if (newItems.length > 0) {
-          console.log(`[news] ${newItems.length} yeni haber tespit edildi. Push bildirimleri kontrol ediliyor...`);
+        // Aynı sync turunda Sabır+Hasret gibi kopyaları tekilleştir (ilk kalan)
+        const uniqueNewItems = [];
+        for (const item of [...newItems].sort((a, b) => {
+          const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return ta - tb;
+        })) {
+          if (uniqueNewItems.some((kept) => this.areDuplicateNews(kept, item))) continue;
+          uniqueNewItems.push(item);
+        }
+
+        if (uniqueNewItems.length > 0) {
+          console.log(`[news] ${uniqueNewItems.length} yeni haber tespit edildi. Push bildirimleri kontrol ediliyor...`);
 
           try {
             const fcmService = require('./fcmService');
@@ -728,12 +769,29 @@ class NewsService {
               console.warn('[news] FCM yapılandırılmamış (FIREBASE_SERVICE_ACCOUNT_JSON). Push atlanıyor.');
             } else {
               let pushCount = 0;
+              const pushedKeysThisRun = new Set();
 
-              for (const item of newItems.slice(0, 5)) {
+              for (const item of uniqueNewItems.slice(0, 5)) {
                 if (!this.isEligibleForPush(item)) {
                   continue;
                 }
-                if (await newsPushLog.wasPushed(item.id)) {
+                const titleKey = this.normalizeNewsTitleKey(item.title);
+                if (await newsPushLog.wasPushed(item.id, titleKey)) {
+                  console.log(`[news] push atlandı (daha önce gönderildi / aynı konu): "${item.title}"`);
+                  continue;
+                }
+                if (titleKey && pushedKeysThisRun.has(titleKey)) {
+                  continue;
+                }
+                if (
+                  [...pushedKeysThisRun].length > 0 &&
+                  uniqueNewItems.some(
+                    (other) =>
+                      other !== item &&
+                      pushedKeysThisRun.has(this.normalizeNewsTitleKey(other.title)) &&
+                      this.areDuplicateNews(other, item),
+                  )
+                ) {
                   continue;
                 }
 
@@ -754,7 +812,8 @@ class NewsService {
                 });
 
                 if (result.success) {
-                  await newsPushLog.markPushed(item.id);
+                  await newsPushLog.markPushed(item.id, titleKey);
+                  if (titleKey) pushedKeysThisRun.add(titleKey);
                   pushCount += 1;
                 } else {
                   console.error(`[news] FCM başarısız (${item.id}):`, result.error);
@@ -769,6 +828,40 @@ class NewsService {
             console.error('[news] Push bildirimleri gönderilemedi:', pushErr.message);
           }
         }
+
+        // DB'ye yazarken: mevcut kayıtlara konu-kopyası olan YENİ satırları atla (Hasret vs Sabır)
+        const skipInsertIds = new Set(
+          syncItems
+            .filter((item) => {
+              if (existingIds.has(item.id)) return false;
+              const titleKey = this.normalizeNewsTitleKey(item.title);
+              if (titleKey && existingTitleKeys.has(titleKey)) return true;
+              return existingRows.some((row) => this.areDuplicateNews(row, item));
+            })
+            .map((item) => item.id),
+        );
+        if (skipInsertIds.size > 0) {
+          console.log(`[news] ${skipInsertIds.size} kopya haber DB'ye yazılmadı (benzer başlık).`);
+        }
+        const filteredSync = this.dedupeNewsList(
+          syncItems.filter((item) => !skipInsertIds.has(item.id)),
+        );
+        rows.length = 0;
+        rows.push(
+          ...filteredSync.map((item) => ({
+            id: item.id,
+            title: item.title,
+            summary: item.summary,
+            image_url: item.imageUrl,
+            created_at: item.createdAt,
+            source_url: item.sourceUrl,
+            source_name: item.sourceName,
+            category: item.category,
+            fetched_at: new Date().toISOString(),
+            is_ai_generated: item.isAiGenerated || false,
+            is_ai_optimized: item.isAiOptimized || false,
+          })),
+        );
       }
 
       if (rows.length > 0) {
