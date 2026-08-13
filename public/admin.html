@@ -1155,30 +1155,43 @@
         </div>
 
         <div class="section-title" style="margin-bottom:8px; margin-top:16px; display:flex; align-items:center; gap:8px;">
-          <span>🍲</span> Çorba & Destek Gelirleri (Çorba Ismarla)
+          <span>💰</span> Finansal Gelirler & Destek Özeti
         </div>
-        <p class="stats-note">Uygulama içi gönüllü çay/çorba ikramları ve bağış istatistikleri</p>
+        <p class="stats-note">Çorba Ismarla bağışları, Pro / Plus sürüm abonelikleri ve öne çıkan ilan gelirleri</p>
         
-        <div class="stat-install-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom:24px;">
+        <div class="stat-install-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:24px;">
           <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(230,81,0,0.08), rgba(245,124,0,0.04)); border:1px solid rgba(230,81,0,0.25);">
             <div class="stat-install-head">
-              <div class="stat-install-title" style="color:#e65100; font-weight:800;">💰 Toplam Gelir</div>
-              <div class="stat-install-badge" style="background:rgba(230,81,0,0.15); color:#e65100;">tüm zamanlar</div>
+              <div class="stat-install-title" style="color:#e65100; font-weight:800;">🍲 Çorba Destekleri</div>
+              <div class="stat-install-badge" style="background:rgba(230,81,0,0.15); color:#e65100;">gönüllü</div>
             </div>
             <div id="liveSoupTotalAmount" class="stat-install-all" style="color:#e65100;">₺0.00</div>
             <div class="stat-install-meta">
               <div><span>Toplam İkram</span><strong id="liveSoupTotalCount" style="color:#e65100;">0 adet</strong></div>
+              <div><span>Bu Ay</span><strong id="liveSoupMonthAmount" style="color:#e65100;">₺0.00</strong></div>
+            </div>
+          </div>
+
+          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(139,92,246,0.04)); border:1px solid rgba(124,58,237,0.25);">
+            <div class="stat-install-head">
+              <div class="stat-install-title" style="color:#7c3aed; font-weight:800;">⭐ Pro / Plus Gelirleri</div>
+              <div class="stat-install-badge" style="background:rgba(124,58,237,0.15); color:#7c3aed;">abonelik</div>
+            </div>
+            <div id="liveProTotalAmount" class="stat-install-all" style="color:#7c3aed;">₺0.00</div>
+            <div class="stat-install-meta">
+              <div><span>Aktif Üyelik</span><strong id="liveProActiveCount" style="color:#7c3aed;">0 kullanıcı</strong></div>
+              <div><span>Bu Ay</span><strong id="liveProMonthAmount" style="color:#7c3aed;">₺0.00</strong></div>
             </div>
           </div>
 
           <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.04)); border:1px solid rgba(16,185,129,0.25);">
             <div class="stat-install-head">
-              <div class="stat-install-title" style="color:#10b981; font-weight:800;">📅 Bu Ayki Gelir</div>
-              <div class="stat-install-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">bu ay</div>
+              <div class="stat-install-title" style="color:#10b981; font-weight:800;">💎 Genel Toplam Gelir</div>
+              <div class="stat-install-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">toplam</div>
             </div>
-            <div id="liveSoupMonthAmount" class="stat-install-all" style="color:#10b981;">₺0.00</div>
+            <div id="liveGrandTotalAmount" class="stat-install-all" style="color:#10b981;">₺0.00</div>
             <div class="stat-install-meta">
-              <div><span>Aylık Toplam</span><strong id="liveSoupMonthMeta" style="color:#10b981;">₺0.00</strong></div>
+              <div><span>Bu Ayki Toplam</span><strong id="liveGrandMonthAmount" style="color:#10b981;">₺0.00</strong></div>
             </div>
           </div>
 
@@ -3257,6 +3270,15 @@
           setText('liveSoupLastSupporter', 'Henüz destek yok');
           setText('liveSoupLastMessage', '—');
         }
+
+        // Render Pro / Plus Stats & Grand Total
+        const pro = data.proStats || {};
+        setText('liveProTotalAmount', fmtMoney(pro.totalAmount));
+        setText('liveProActiveCount', `${pro.activeCount || 0} kullanıcı`);
+        setText('liveProMonthAmount', fmtMoney(pro.monthAmount));
+
+        setText('liveGrandTotalAmount', fmtMoney(data.grandTotalAmount));
+        setText('liveGrandMonthAmount', fmtMoney(data.grandMonthAmount));
 
         // Render Executive Analytics Charts & Activity Feed
         initDashboardCharts(data.trend7d, data.contentDistribution);

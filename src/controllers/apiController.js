@@ -1083,6 +1083,13 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
             return { data: [] };
           }
         })(),
+        (async () => {
+          try {
+            return await db.from('pro_subscriptions').select('*').order('created_at', { ascending: false });
+          } catch (_) {
+            return { data: [] };
+          }
+        })(),
       ]);
 
       const openReportsCount = openReportsRes.count ?? 0;
@@ -1117,6 +1124,35 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
           recent: list.slice(0, 15),
         };
       }
+
+      // Calculate Pro / Plus & Paid Listings Stats
+      let proStats = { totalAmount: 0, totalCount: 0, monthAmount: 0, activeCount: 0, recent: [] };
+      if (proSubscriptionsRes && Array.isArray(proSubscriptionsRes.data)) {
+        const pList = proSubscriptionsRes.data;
+        const nowObj = new Date();
+        const monthStartIso = new Date(nowObj.getFullYear(), nowObj.getMonth(), 1).toISOString();
+        let pTotal = 0;
+        let pMonth = 0;
+        let activeC = 0;
+        pList.forEach((p) => {
+          const amt = Number(p.amount) || 0;
+          pTotal += amt;
+          if (p.created_at && p.created_at >= monthStartIso) {
+            pMonth += amt;
+          }
+          if (p.is_active !== false) activeC++;
+        });
+        proStats = {
+          totalAmount: pTotal,
+          totalCount: pList.length,
+          monthAmount: pMonth,
+          activeCount: activeC,
+          recent: pList.slice(0, 10),
+        };
+      }
+
+      const grandTotalAmount = supportersStats.totalAmount + proStats.totalAmount;
+      const grandMonthAmount = supportersStats.monthAmount + proStats.monthAmount;
 
       // Generate 7-day trend dataset for Chart.js
       const trend7d = [];
@@ -1190,6 +1226,9 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         recentActivities,
         systemHealth,
         supportersStats,
+        proStats,
+        grandTotalAmount,
+        grandMonthAmount,
         contentDistribution: {
           news: Array.isArray(newsItems) ? newsItems.length : 0,
           openReports: openReportsCount,
