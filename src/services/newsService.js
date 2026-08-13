@@ -282,6 +282,16 @@ class NewsService {
     return url.includes('akdenizgazetesi') || source.includes('akdeniz');
   }
 
+  /** Sabır/Hasret /rss/duzici gibi ilçe feed'leri — başlıkta "Düziçi" şartı yok. */
+  isDedicatedDuziciSource(sourceName = '', sourceUrl = '') {
+    const source = normalizeForCompare(String(sourceName || ''));
+    const url = normalizeForCompare(String(sourceUrl || ''));
+    if (/\/rss\/duzici|sabirgazetesi\.com\/duzici|hasretgazetesi.*\/duzici/.test(url)) {
+      return true;
+    }
+    return /duzici/.test(source) && !/google/.test(source);
+  }
+
   /**
    * Scope'a göre yerel/ilçe haberlerini tut, ulusal gürültüyü ve Akdeniz haberlerini at.
    * Dedicated Düziçi feed'lerde keyword şartını yumuşatır (köy haberleri kaçmasın).
@@ -289,10 +299,13 @@ class NewsService {
   applyScopeRelevanceFilter(items, { scope = 'auto', filterDuzici = false } = {}) {
     const rawList = Array.isArray(items) ? items : [];
     const list = rawList.filter((x) => !this.isAkdenizNews(x));
+    if (scope === 'duzici' && !filterDuzici) {
+      // /rss/duzici zaten ilçe odaklı — "AK Parti ziyareti" gibi başlıklar kaçmasın
+      return list.filter((x) => !this.isNationalNoise(x.title, x.summary));
+    }
     if (scope === 'duzici') {
       return list.filter((x) => {
         if (this.isNationalNoise(x.title, x.summary)) return false;
-        // Genişletilmiş yerel keyword (köy/mahalle dahil) — uzak şehir sızmasın
         return this.isDuziciRelated(x.title, x.summary);
       });
     }
@@ -382,6 +395,7 @@ class NewsService {
         
         const urlHash = crypto.createHash('md5').update(link || '').digest('hex');
         const resolvedSourceName = source || sourceName;
+        const dedicatedDuziciFeed = scope === 'duzici' && !filterDuzici;
         return {
           id: `news-${urlHash}`,
           title,
@@ -390,7 +404,9 @@ class NewsService {
           createdAt: pubDateIso,
           sourceUrl: link || null,
           sourceName: resolvedSourceName,
-          category: this.inferNewsCategory(title, summary || title, resolvedSourceName, { scope }),
+          category: dedicatedDuziciFeed
+            ? 'Düziçi'
+            : this.inferNewsCategory(title, summary || title, resolvedSourceName, { scope }),
         };
       })
       .filter((x) => x.title && x.sourceUrl);
@@ -439,7 +455,7 @@ class NewsService {
     return config.NEWS.SOURCES;
   }
 
-  async scrapeNews({ max = 30 } = {}) {
+  async scrapeNews({ max = 100 } = {}) {
     const allItems = [];
     const sources = await this.resolveSources();
     const batchSize = 3;
@@ -448,8 +464,10 @@ class NewsService {
       const results = await Promise.allSettled(
         batch.map(async (src) => {
           const xml = await this.fetchRss(src.url);
+          const perSourceMax =
+            src.scope === 'duzici' && src.filterDuzici !== true ? 50 : 35;
           return this.parseNewsRss(xml, {
-            max: 25,
+            max: perSourceMax,
             sourceName: src.name,
             filterDuzici: src.filterDuzici === true,
             scope: src.scope || 'auto',
@@ -496,11 +514,20 @@ class NewsService {
     // Düziçi ve Osmaniye dengeli gelsin (biri diğerini boğmasın)
     const isDuziciCat = (item) =>
       normalizeForCompare(item.category || '').includes('duzici') ||
+      this.isDedicatedDuziciSource(item.sourceName, item.sourceUrl) ||
       this.isDuziciRelated(item.title, item.summary);
     const duzici = fresh.filter(isDuziciCat);
     const osmaniye = fresh.filter((item) => !isDuziciCat(item));
-    const targetD = Math.min(duzici.length, Math.max(12, Math.ceil(max * 0.4)));
-    const targetO = Math.min(osmaniye.length, Math.max(max - targetD, Math.floor(max * 0.5)));
+    duzici.sort((a, b) => {
+      const da = this.isDedicatedDuziciSource(a.sourceName, a.sourceUrl) ? 1 : 0;
+      const db = this.isDedicatedDuziciSource(b.sourceName, b.sourceUrl) ? 1 : 0;
+      if (db !== da) return db - da;
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return tb - ta;
+    });
+    const targetD = Math.min(duzici.length, Math.max(20, Math.ceil(max * 0.55)));
+    const targetO = Math.min(osmaniye.length, Math.max(max - targetD, Math.floor(max * 0.4)));
     const picked = [...duzici.slice(0, targetD), ...osmaniye.slice(0, targetO)];
     picked.sort((a, b) => {
       const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
@@ -636,12 +663,12 @@ class NewsService {
 
     this._currentRefreshPromise = (async () => {
       const now = Date.now();
-      let items = await this.scrapeNews({ max: Math.max(max, 80) });
+      let items = await this.scrapeNews({ max: Math.max(max, 120) });
       items = await this.enrichItemsFromCache(items);
       try {
         const publisherItems = await this.getPublisherNewsFromDb(40);
         if (publisherItems.length > 0) {
-          items = this.mergeAndDedupeNews([...publisherItems, ...items], Math.max(max, 100));
+          items = this.mergeAndDedupeNews([...publisherItems, ...items], Math.max(max, 120));
         }
       } catch (pubErr) {
         console.warn('[news] Publisher news merge skipped:', pubErr.message);
@@ -797,6 +824,7 @@ class NewsService {
 
                 const isDuzici =
                     normalizeForCompare(item.category || '').includes('duzici') ||
+                    this.isDedicatedDuziciSource(item.sourceName, item.sourceUrl) ||
                     this.isDuziciRelated(item.title, item.summary);
 
                 const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
