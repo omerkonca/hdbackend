@@ -1076,7 +1076,13 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         newsService.getNews({ max: 150 }).catch(() => []),
         roadClosureService.getRoadClosures({}).catch(() => []),
         pharmacyService.getDutyPharmacies({}).catch(() => []),
-        db.from('supporters').select('*').order('created_at', { ascending: false }).catch(() => ({ data: [] })),
+        (async () => {
+          try {
+            return await db.from('supporters').select('*').order('created_at', { ascending: false });
+          } catch (_) {
+            return { data: [] };
+          }
+        })(),
       ]);
 
       const openReportsCount = openReportsRes.count ?? 0;
