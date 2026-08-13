@@ -1061,6 +1061,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         roadItems,
         pharmacies,
         supportersRes,
+        proSubscriptionsRes,
       ] = await Promise.all([
         countTokens(),
         countTokens({ updatedSince: weekAgo }),
