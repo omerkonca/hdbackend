@@ -1154,6 +1154,46 @@
           </div>
         </div>
 
+        <div class="section-title" style="margin-bottom:8px; margin-top:16px; display:flex; align-items:center; gap:8px;">
+          <span>🍲</span> Çorba & Destek Gelirleri (Çorba Ismarla)
+        </div>
+        <p class="stats-note">Uygulama içi gönüllü çay/çorba ikramları ve bağış istatistikleri</p>
+        
+        <div class="stat-install-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-bottom:24px;">
+          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(230,81,0,0.08), rgba(245,124,0,0.04)); border:1px solid rgba(230,81,0,0.25);">
+            <div class="stat-install-head">
+              <div class="stat-install-title" style="color:#e65100; font-weight:800;">💰 Toplam Gelir</div>
+              <div class="stat-install-badge" style="background:rgba(230,81,0,0.15); color:#e65100;">tüm zamanlar</div>
+            </div>
+            <div id="liveSoupTotalAmount" class="stat-install-all" style="color:#e65100;">₺0.00</div>
+            <div class="stat-install-meta">
+              <div><span>Toplam İkram</span><strong id="liveSoupTotalCount" style="color:#e65100;">0 adet</strong></div>
+            </div>
+          </div>
+
+          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.04)); border:1px solid rgba(16,185,129,0.25);">
+            <div class="stat-install-head">
+              <div class="stat-install-title" style="color:#10b981; font-weight:800;">📅 Bu Ayki Gelir</div>
+              <div class="stat-install-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">bu ay</div>
+            </div>
+            <div id="liveSoupMonthAmount" class="stat-install-all" style="color:#10b981;">₺0.00</div>
+            <div class="stat-install-meta">
+              <div><span>Aylık Toplam</span><strong id="liveSoupMonthMeta" style="color:#10b981;">₺0.00</strong></div>
+            </div>
+          </div>
+
+          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(212,175,55,0.08), rgba(255,215,0,0.04)); border:1px solid rgba(212,175,55,0.25);">
+            <div class="stat-install-head">
+              <div class="stat-install-title" style="color:#b48811; font-weight:800;">🏆 Son Destekçi</div>
+              <div class="stat-install-badge" style="background:rgba(212,175,55,0.15); color:#b48811;">canlı</div>
+            </div>
+            <div id="liveSoupLastSupporter" class="stat-install-all" style="font-size:18px; color:#b48811; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">—</div>
+            <div class="stat-install-meta">
+              <div><span>Son Mesaj</span><strong id="liveSoupLastMessage" style="color:#b48811;">—</strong></div>
+            </div>
+          </div>
+        </div>
+
         <div class="section-title" style="margin-bottom:8px">📥 Kurulumlar & Cihaz Kayıtları (iOS / Android)</div>
         <p class="stats-note">Push kaydı olan cihazlar · App Store / Play resmi indirme değil · bugün = İstanbul günü</p>
         
@@ -3198,6 +3238,25 @@
         );
         setText('liveStatNews', data.newsCount ?? 0);
         setText('liveStatPharmacy', data.dutyPharmacies ?? 0);
+
+        // Render Supporters Stats
+        const supporters = data.supportersStats || {};
+        const fmtMoney = (val) => '₺' + (Number(val) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        
+        setText('liveSoupTotalAmount', fmtMoney(supporters.totalAmount));
+        setText('liveSoupTotalCount', `${supporters.totalCount || 0} adet ikram`);
+        setText('liveSoupMonthAmount', fmtMoney(supporters.monthAmount));
+        setText('liveSoupMonthMeta', fmtMoney(supporters.monthAmount));
+        
+        if (supporters.recent && supporters.recent.length > 0) {
+          const last = supporters.recent[0];
+          const tierEmoji = { cay: '☕', corba: '🍲', durum: '🌯', hamis: '👑' }[last.tier] || '🍲';
+          setText('liveSoupLastSupporter', `${tierEmoji} ${last.display_name || 'Anonim'} (₺${last.amount})`);
+          setText('liveSoupLastMessage', last.message ? `"${last.message}"` : 'Mesaj yok');
+        } else {
+          setText('liveSoupLastSupporter', 'Henüz destek yok');
+          setText('liveSoupLastMessage', '—');
+        }
 
         // Render Executive Analytics Charts & Activity Feed
         initDashboardCharts(data.trend7d, data.contentDistribution);

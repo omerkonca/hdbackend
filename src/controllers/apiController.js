@@ -1060,6 +1060,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         newsItems,
         roadItems,
         pharmacies,
+        supportersRes,
       ] = await Promise.all([
         countTokens(),
         countTokens({ updatedSince: weekAgo }),
@@ -1075,6 +1076,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         newsService.getNews({ max: 150 }).catch(() => []),
         roadClosureService.getRoadClosures({}).catch(() => []),
         pharmacyService.getDutyPharmacies({}).catch(() => []),
+        db.from('supporters').select('*').order('created_at', { ascending: false }).catch(() => ({ data: [] })),
       ]);
 
       const openReportsCount = openReportsRes.count ?? 0;
@@ -1086,6 +1088,29 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       const androidAll = androidAllRes.count ?? 0;
       const iosToday = iosTodayRes.count ?? 0;
       const androidToday = androidTodayRes.count ?? 0;
+
+      // Calculate Supporters / Donation Stats
+      let supportersStats = { totalAmount: 0, totalCount: 0, monthAmount: 0, recent: [] };
+      if (supportersRes && Array.isArray(supportersRes.data)) {
+        const list = supportersRes.data;
+        const nowObj = new Date();
+        const monthStartIso = new Date(nowObj.getFullYear(), nowObj.getMonth(), 1).toISOString();
+        let totalSum = 0;
+        let monthSum = 0;
+        list.forEach((s) => {
+          const amt = Number(s.amount) || 0;
+          totalSum += amt;
+          if (s.created_at && s.created_at >= monthStartIso) {
+            monthSum += amt;
+          }
+        });
+        supportersStats = {
+          totalAmount: totalSum,
+          totalCount: list.length,
+          monthAmount: monthSum,
+          recent: list.slice(0, 15),
+        };
+      }
 
       // Generate 7-day trend dataset for Chart.js
       const trend7d = [];
@@ -1158,6 +1183,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         trend7d,
         recentActivities,
         systemHealth,
+        supportersStats,
         contentDistribution: {
           news: Array.isArray(newsItems) ? newsItems.length : 0,
           openReports: openReportsCount,
