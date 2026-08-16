@@ -1519,14 +1519,14 @@
         "title": "Spor Tesisleri",
         "places": [
           {
-            "lat": 37.2465,
-            "lng": 36.4545,
+            "lat": 37.25713,
+            "lng": 36.46128,
             "tag": "STADYUM",
             "name": "Düziçi Şehir Stadyumu",
             "image": "assets/images/sports_placeholder.jpg",
             "detail": "İrfanlı Mahallesi'nde bulunan, etrafında yürüyüş parkurları ve tenis kortları da barındıran Düziçi'nin en büyük spor kompleksidir.",
-            "address": "İrfanlı Mah., Dr. Yılmaz Sevinç Caddesi No: 78, Düziçi",
-            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=37.2486,36.4558",
+            "address": "İrfanlı, Dr. Yılmaz Sevinç Cd. No: 78, 80600 Düziçi/Osmaniye",
+            "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=D%C3%BCzi%C3%A7i+%C5%9Eehir+Stadyumu",
             "shortDescription": "Profesyonel futbol müsabakalarının yapıldığı ilçe stadı."
           },
           {
