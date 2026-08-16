@@ -244,14 +244,6 @@ class NewsService {
     return /\b(istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri|zonguldak|samsun|trabzon|eski[sş]ehir|denizli|mu[gğ]la|ayd[iı]n|manisa|balıkesir|tekirda[gğ]|sakarya|kocaeli)\b/;
   }
 
-  isDuziciDedicatedSource(sourceName = '', sourceUrl = '') {
-    const source = normalizeForCompare(sourceName || '');
-    const url = String(sourceUrl || '').toLowerCase();
-    if (/google/.test(source) || url.includes('news.google')) return false;
-    if (/hepsi/.test(source)) return true;
-    return /duzici/.test(source);
-  }
-
   isDuziciRelated(title, summary) {
     const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
     return this.duziciKeywordRe().test(text);
@@ -268,18 +260,9 @@ class NewsService {
     return false;
   }
 
-  /** Push / liste: içerik sinyali veya dedicated Düziçi kaynağı. */
-  isDuziciNewsItem(title, summary, sourceName = '', category = '') {
-    if (this.isDuziciRelated(title, summary)) return true;
-    if (normalizeForCompare(category || '').includes('duzici')) return true;
-    if (
-      this.isDuziciDedicatedSource(sourceName) &&
-      !this.isNationalNoise(title, summary) &&
-      !this.isNonDuziciRegionalFocus(title, summary)
-    ) {
-      return true;
-    }
-    return false;
+  /** Push / liste: yalnızca içerikte Düziçi yer adı / ilçe sinyali. */
+  isDuziciNewsItem(title, summary) {
+    return this.isDuziciRelated(title, summary);
   }
 
   isOsmaniyeRelated(title, summary) {
@@ -299,15 +282,10 @@ class NewsService {
 
   inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
     if (this.isDuziciRelated(title, summary)) return 'Düziçi';
-    if (scope === 'duzici') {
-      if (this.isNationalNoise(title, summary) || this.isNonDuziciRegionalFocus(title, summary)) {
-        return 'Osmaniye';
-      }
-      return 'Düziçi';
-    }
     if (this.isOsmaniyeRelated(title, summary)) return 'Osmaniye';
-    if (this.isDuziciDedicatedSource(sourceName)) return 'Düziçi';
     if (scope === 'osmaniye') return 'Osmaniye';
+    const source = normalizeForCompare(sourceName || '');
+    if (/hepsi/.test(source)) return 'Düziçi';
     return 'Osmaniye';
   }
 
@@ -538,8 +516,7 @@ class NewsService {
     });
 
     // Düziçi ve Osmaniye dengeli gelsin (biri diğerini boğmasın)
-    const isDuziciCat = (item) =>
-      this.isDuziciNewsItem(item.title, item.summary, item.sourceName, item.category);
+    const isDuziciCat = (item) => this.isDuziciNewsItem(item.title, item.summary);
     const duzici = fresh.filter(isDuziciCat);
     const osmaniye = fresh.filter((item) => !isDuziciCat(item));
     duzici.sort((a, b) => {
@@ -843,12 +820,7 @@ class NewsService {
                   continue;
                 }
 
-                const isDuzici = this.isDuziciNewsItem(
-                  item.title,
-                  item.summary,
-                  item.sourceName,
-                  item.category,
-                );
+                const isDuzici = this.isDuziciNewsItem(item.title, item.summary);
 
                 const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
                 const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
