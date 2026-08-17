@@ -1935,7 +1935,7 @@
           </div>
           <div class="form-group">
             <label>Emoji satırı</label>
-            <input id="swHeroEmojis" placeholder="🍲 ☕ 🌯 👑">
+            <input id="swHeroEmojis" placeholder="🥜 🫓 🥣 🍖">
           </div>
           <div class="form-group">
             <label>Buton yazısı</label>
@@ -3471,7 +3471,7 @@
 
         if (supporters.recent && supporters.recent.length > 0) {
           const last = supporters.recent[0];
-          const tierEmoji = { cay: '☕', corba: '🍲', durum: '🌯', hamis: '👑' }[last.tier] || '🍲';
+          const tierEmoji = soupTierEmoji(last.tier);
           setText('liveSoupLastSupporter', `${tierEmoji} ${last.display_name || 'Anonim'} (₺${last.amount})`);
           setText('liveSoupLastMessage', last.message ? `"${last.message}"` : 'Mesaj yok');
         } else {
@@ -3570,11 +3570,11 @@
     }
 
     function soupTierLabel(tier) {
-      return { cay: 'Çay', corba: 'Çorba', durum: 'Dürüm', hamis: 'Hamis' }[tier] || (tier || 'İkram');
+      return { cay: 'Yer Fıstığı', corba: 'Bazlama', durum: 'Yoğurtlu Kömbe', hamis: 'Etli Kömbe' }[tier] || (tier || 'İkram');
     }
 
     function soupTierEmoji(tier) {
-      return { cay: '☕', corba: '🍲', durum: '🌯', hamis: '👑' }[tier] || '🍲';
+      return { cay: '🥜', corba: '🫓', durum: '🥣', hamis: '🍖' }[tier] || '🫓';
     }
 
     function plusPlanLabel(plan, productId) {
@@ -4391,7 +4391,7 @@
         title: 'Düziçi Destekçileri 🏆',
         heroTitle: 'Düziçi\'nin Bağımsız Gönüllü Ekibi',
         heroBody: 'Hepsi Düziçi; hiçbir kurum, belediye veya kişiden bütçe almadan, tamamen kendi emeğimizle Düziçi\'ye kazandırıldı. Uygulamayı reklamsız ve hızlı tutmak için destek olan herkese teşekkürler!',
-        heroEmojis: '🍲 ☕ 🌯 👑',
+        heroEmojis: '🥜 🫓 🥣 🍖',
         ctaLabel: 'Sen de Çorba Ismarla',
         listTitle: 'Son Çorba Ismarlayanlar',
         emptyTitle: 'Henüz destekçi kaydı bulunmuyor.',
@@ -4432,15 +4432,13 @@
     }
 
     function supporterWallRowHtml(r, actionLabel, hidden) {
-      const tierName = { cay: 'Çay', corba: 'Çorba', durum: 'Dürüm', hamis: 'Hamis' };
-      const emoji = ({ cay:'☕', corba:'🍲', durum:'🌯', hamis:'👑' }[r.tier] || '🍲');
       const when = r.created_at ? new Date(r.created_at).toLocaleString('tr-TR') : '';
       return `
         <div class="rev-item" style="${hidden ? 'opacity:0.72' : ''}">
-          <div class="rev-avatar soup">${emoji}</div>
+          <div class="rev-avatar soup">${soupTierEmoji(r.tier)}</div>
           <div class="rev-item-main">
             <div class="rev-item-name">${escapeHtml(r.display_name || 'Anonim')}${r.is_sandbox === true ? ' <span class="rev-badge test">TEST</span>' : ''}</div>
-            <div class="rev-item-meta">${escapeHtml(tierName[r.tier] || r.tier || 'İkram')}${when ? ' · ' + escapeHtml(when) : ''}</div>
+            <div class="rev-item-meta">${escapeHtml(soupTierLabel(r.tier))}${when ? ' · ' + escapeHtml(when) : ''}</div>
           </div>
           <button class="btn btn-secondary" style="font-size:12px; padding:6px 10px; min-height:32px;" onclick="hideSupporterFromWall('${r.id}', ${hidden ? 'false' : 'true'})">${actionLabel}</button>
         </div>
