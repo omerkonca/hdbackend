@@ -28,6 +28,9 @@ router.get('/admin/check', requireAdminToken, (req, res) => res.json({ ok: true,
 router.get('/admin/dashboard-stats', requireAdminToken, (req, res) =>
   apiController.getDashboardStats(req, res),
 );
+router.get('/admin/revenue', requireAdminToken, (req, res) =>
+  apiController.getRevenueLedger(req, res),
+);
 router.get('/admin/email-status', requireAdminToken, (req, res) => {
   res.json({ ok: true, ...emailService.getEmailStatus() });
 });

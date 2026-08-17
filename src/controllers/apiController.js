@@ -1136,57 +1136,19 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       const iosToday = iosTodayRes.count ?? 0;
       const androidToday = androidTodayRes.count ?? 0;
 
-      // Calculate Supporters / Donation Stats
-      let supportersStats = { totalAmount: 0, totalCount: 0, monthAmount: 0, recent: [] };
-      if (supportersRes && !supportersRes.error && Array.isArray(supportersRes.data)) {
-        const list = supportersRes.data;
-        const nowObj = new Date();
-        const monthStartIso = new Date(nowObj.getFullYear(), nowObj.getMonth(), 1).toISOString();
-        let totalSum = 0;
-        let monthSum = 0;
-        list.forEach((s) => {
-          const amt = Number(s.amount) || 0;
-          totalSum += amt;
-          if (s.created_at && s.created_at >= monthStartIso) {
-            monthSum += amt;
-          }
-        });
-        supportersStats = {
-          totalAmount: totalSum,
-          totalCount: list.length,
-          monthAmount: monthSum,
-          recent: list.slice(0, 15),
-        };
-      }
-
-      // Calculate Pro / Plus & Paid Listings Stats
-      let proStats = { totalAmount: 0, totalCount: 0, monthAmount: 0, activeCount: 0, recent: [] };
-      if (proSubscriptionsRes && !proSubscriptionsRes.error && Array.isArray(proSubscriptionsRes.data)) {
-        const pList = proSubscriptionsRes.data;
-        const nowObj = new Date();
-        const monthStartIso = new Date(nowObj.getFullYear(), nowObj.getMonth(), 1).toISOString();
-        let pTotal = 0;
-        let pMonth = 0;
-        let activeC = 0;
-        pList.forEach((p) => {
-          const amt = Number(p.amount) || 0;
-          pTotal += amt;
-          if (p.created_at && p.created_at >= monthStartIso) {
-            pMonth += amt;
-          }
-          if (p.is_active !== false) activeC++;
-        });
-        proStats = {
-          totalAmount: pTotal,
-          totalCount: pList.length,
-          monthAmount: pMonth,
-          activeCount: activeC,
-          recent: pList.slice(0, 10),
-        };
-      }
+      // Calculate Supporters / Donation Stats — canlı tutarlar test/sandbox hariç
+      const supportersStats = summarizeRevenueList(
+        supportersRes && !supportersRes.error ? supportersRes.data : [],
+      );
+      const proStats = summarizeRevenueList(
+        proSubscriptionsRes && !proSubscriptionsRes.error ? proSubscriptionsRes.data : [],
+        { plus: true },
+      );
 
       const grandTotalAmount = supportersStats.totalAmount + proStats.totalAmount;
       const grandMonthAmount = supportersStats.monthAmount + proStats.monthAmount;
+      const grandSandboxAmount = (supportersStats.sandboxAmount || 0) + (proStats.sandboxAmount || 0);
+      const grandSandboxCount = (supportersStats.sandboxCount || 0) + (proStats.sandboxCount || 0);
 
       // Generate 7-day trend dataset for Chart.js
       const trend7d = [];
@@ -1295,6 +1257,8 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         proStats,
         grandTotalAmount,
         grandMonthAmount,
+        grandSandboxAmount,
+        grandSandboxCount,
         contentDistribution: {
           news: Array.isArray(newsItems) ? newsItems.length : 0,
           openReports: openReportsCount,
@@ -1316,6 +1280,78 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       });
     }
   }
+
+  /** Admin: çorba + Plus işlem defteri (test/gerçek ayrımı). */
+  async getRevenueLedger(req, res) {
+    try {
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const db = requireSupabaseAdmin();
+      const [supportersRes, plusRes] = await Promise.all([
+        db.from('supporters').select('*').order('created_at', { ascending: false }).limit(500),
+        db.from('pro_subscriptions').select('*').order('created_at', { ascending: false }).limit(500),
+      ]);
+
+      const soupRows = !supportersRes.error && Array.isArray(supportersRes.data) ? supportersRes.data : [];
+      const plusRows = !plusRes.error && Array.isArray(plusRes.data) ? plusRes.data : [];
+      const soupStats = summarizeRevenueList(soupRows);
+      const plusStats = summarizeRevenueList(plusRows, { plus: true });
+
+      return res.json({
+        ok: true,
+        soup: soupRows,
+        plus: plusRows,
+        soupStats,
+        plusStats,
+        grand: {
+          liveAmount: soupStats.totalAmount + plusStats.totalAmount,
+          liveCount: soupStats.totalCount + plusStats.totalCount,
+          monthAmount: soupStats.monthAmount + plusStats.monthAmount,
+          sandboxAmount: soupStats.sandboxAmount + plusStats.sandboxAmount,
+          sandboxCount: soupStats.sandboxCount + plusStats.sandboxCount,
+          plusActive: plusStats.activeCount,
+        },
+        fetchedAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error('[revenue-ledger]', error.message);
+      return res.status(500).json({
+        ok: false,
+        message: 'Gelir defteri alınamadı.',
+        detail: error.message,
+      });
+    }
+  }
+}
+
+function isSandboxRecord(row) {
+  if (!row || typeof row !== 'object') return false;
+  if (row.is_sandbox === true) return true;
+  const env = String(row.environment || '').toLowerCase();
+  if (env === 'sandbox' || env === 'mock' || env === 'xcode') return true;
+  return String(row.transaction_id || '').startsWith('sandbox_');
+}
+
+function summarizeRevenueList(list, { plus = false } = {}) {
+  const rows = Array.isArray(list) ? list : [];
+  const nowIso = new Date().toISOString();
+  const monthStartIso = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+  const live = [];
+  const sandbox = [];
+  rows.forEach((row) => (isSandboxRecord(row) ? sandbox : live).push(row));
+  const sum = (arr) => arr.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
+  const inMonth = (arr) => arr.filter((r) => r.created_at && r.created_at >= monthStartIso);
+  const activeCount = plus
+    ? live.filter((r) => r.is_active !== false && (!r.expires_at || r.expires_at >= nowIso)).length
+    : 0;
+  return {
+    totalAmount: sum(live),
+    totalCount: live.length,
+    monthAmount: sum(inMonth(live)),
+    activeCount,
+    sandboxAmount: sum(sandbox),
+    sandboxCount: sandbox.length,
+    recent: live.slice(0, 15),
+  };
 }
 
 /** İstanbul gün başı (UTC+3) ISO string */

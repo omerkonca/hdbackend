@@ -438,6 +438,37 @@
       margin: -8px 0 18px;
       font-weight: 600;
     }
+    .stat-install-card.clickable { cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+    .stat-install-card.clickable:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -8px rgba(15,23,42,.12); }
+    .stat-card-hint { font-size: 11px; font-weight: 700; color: #94a3b8; margin-top: 10px; }
+    .rev-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .rev-kpi { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+    .rev-kpi .lbl { font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .04em; }
+    .rev-kpi .val { font-size: 22px; font-weight: 800; margin-top: 4px; color: #0f172a; }
+    .rev-kpi .sub { font-size: 12px; font-weight: 600; color: #64748b; margin-top: 2px; }
+    .rev-kpi.test { border-color: #fde68a; background: #fffbeb; }
+    .rev-kpi.test .val { color: #b45309; }
+    .rev-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+    .rev-table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: 14px; background: #fff; }
+    .rev-table { width: 100%; border-collapse: collapse; min-width: 860px; }
+    .rev-table th { text-align: left; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: .04em; padding: 12px 14px; background: #f8fafc; border-bottom: 1px solid var(--border); }
+    .rev-table td { padding: 12px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; color: #0f172a; }
+    .rev-table tr { cursor: pointer; }
+    .rev-table tbody tr:hover { background: #f8fafc; }
+    .rev-badge { display: inline-flex; align-items: center; font-size: 10px; font-weight: 800; letter-spacing: .03em; padding: 3px 8px; border-radius: 999px; }
+    .rev-badge.live { background: #dcfce7; color: #166534; }
+    .rev-badge.test { background: #fef3c7; color: #92400e; }
+    .rev-badge.mock { background: #e2e8f0; color: #334155; }
+    .rev-badge.kind-plus { background: #ede9fe; color: #6d28d9; }
+    .rev-badge.kind-soup { background: #ffedd5; color: #c2410c; }
+    .rev-empty { text-align: center; padding: 36px 16px; color: #94a3b8; font-weight: 600; }
+    .rev-drawer-bg { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 120; }
+    .rev-drawer-bg.open { display: block; }
+    .rev-drawer { position: absolute; top: 0; right: 0; height: 100%; width: min(420px, 100%); background: #fff; box-shadow: -12px 0 40px rgba(0,0,0,.12); padding: 22px; overflow: auto; }
+    .rev-drawer h3 { margin: 0 0 6px; font-size: 18px; }
+    .rev-dl { display: grid; grid-template-columns: 110px 1fr; gap: 8px 12px; margin-top: 16px; font-size: 13px; }
+    .rev-dl dt { color: #64748b; font-weight: 700; }
+    .rev-dl dd { margin: 0; font-weight: 600; color: #0f172a; word-break: break-all; }
 
     .stats-cms-row {
       display: grid;
@@ -1006,6 +1037,7 @@
     <div class="logo">🏢 Hepsi Düziçi</div>
     <div class="nav-menu" id="sideNav" style="display:none">
       <div class="nav-item active" onclick="switchView('dashboard')">🏠 Dashboard</div>
+      <div class="nav-item" onclick="switchView('revenue')">💰 Gelirler & Aboneler</div>
 
       <div class="menu-group-title" onclick="toggleMenuGroup('groupAnnounce')">📢 Duyurular &amp; Bildirim <span class="arrow">▼</span></div>
       <div class="menu-group-items" id="groupAnnounce">
@@ -1166,53 +1198,58 @@
         <div class="section-title" style="margin-bottom:8px; margin-top:16px; display:flex; align-items:center; gap:8px;">
           <span>💰</span> Finansal Gelirler & Destek Özeti
         </div>
-        <p class="stats-note">Çorba Ismarla bağışları, Pro / Plus sürüm abonelikleri ve öne çıkan ilan gelirleri</p>
+        <p class="stats-note">Kartlara tıkla → kişi listesi. Büyük tutarlar yalnızca <b>gerçek</b> tahsilat; test/sandbox ayrı gösterilir.</p>
         
         <div class="stat-install-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:24px;">
-          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(230,81,0,0.08), rgba(245,124,0,0.04)); border:1px solid rgba(230,81,0,0.25);">
+          <div class="stat-install-card clickable" style="background: linear-gradient(135deg, rgba(230,81,0,0.08), rgba(245,124,0,0.04)); border:1px solid rgba(230,81,0,0.25);" onclick="openRevenue('soup')" title="Çorba ikram detayına git">
             <div class="stat-install-head">
               <div class="stat-install-title" style="color:#e65100; font-weight:800;">🍲 Çorba Destekleri</div>
-              <div class="stat-install-badge" style="background:rgba(230,81,0,0.15); color:#e65100;">gönüllü</div>
+              <div id="liveSoupEnvBadge" class="stat-install-badge" style="background:rgba(230,81,0,0.15); color:#e65100;">gerçek</div>
             </div>
             <div id="liveSoupTotalAmount" class="stat-install-all" style="color:#e65100;">₺0.00</div>
             <div class="stat-install-meta">
-              <div><span>Toplam İkram</span><strong id="liveSoupTotalCount" style="color:#e65100;">0 adet</strong></div>
-              <div><span>Bu Ay</span><strong id="liveSoupMonthAmount" style="color:#e65100;">₺0.00</strong></div>
+              <div><span>Gerçek ikram</span><strong id="liveSoupTotalCount" style="color:#e65100;">0 kişi</strong></div>
+              <div><span>Bu ay</span><strong id="liveSoupMonthAmount" style="color:#e65100;">₺0.00</strong></div>
             </div>
+            <div class="stat-card-hint">Detay listesi →</div>
           </div>
 
-          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(139,92,246,0.04)); border:1px solid rgba(124,58,237,0.25);">
+          <div class="stat-install-card clickable" style="background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(139,92,246,0.04)); border:1px solid rgba(124,58,237,0.25);" onclick="openRevenue('plus')" title="Plus abone detayına git">
             <div class="stat-install-head">
-              <div class="stat-install-title" style="color:#7c3aed; font-weight:800;">⭐ Pro / Plus Gelirleri</div>
-              <div class="stat-install-badge" style="background:rgba(124,58,237,0.15); color:#7c3aed;">abonelik</div>
+              <div class="stat-install-title" style="color:#7c3aed; font-weight:800;">⭐ Plus Abonelik</div>
+              <div id="liveProEnvBadge" class="stat-install-badge" style="background:rgba(124,58,237,0.15); color:#7c3aed;">gerçek</div>
             </div>
             <div id="liveProTotalAmount" class="stat-install-all" style="color:#7c3aed;">₺0.00</div>
             <div class="stat-install-meta">
-              <div><span>Aktif Üyelik</span><strong id="liveProActiveCount" style="color:#7c3aed;">0 kullanıcı</strong></div>
-              <div><span>Bu Ay</span><strong id="liveProMonthAmount" style="color:#7c3aed;">₺0.00</strong></div>
+              <div><span>Aktif üye</span><strong id="liveProActiveCount" style="color:#7c3aed;">0 kişi</strong></div>
+              <div><span>Bu ay</span><strong id="liveProMonthAmount" style="color:#7c3aed;">₺0.00</strong></div>
             </div>
+            <div class="stat-card-hint">Kimler abone →</div>
           </div>
 
-          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.04)); border:1px solid rgba(16,185,129,0.25);">
+          <div class="stat-install-card clickable" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.04)); border:1px solid rgba(16,185,129,0.25);" onclick="openRevenue('all')" title="Tüm gelir defterini aç">
             <div class="stat-install-head">
-              <div class="stat-install-title" style="color:#10b981; font-weight:800;">💎 Genel Toplam Gelir</div>
-              <div class="stat-install-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">toplam</div>
+              <div class="stat-install-title" style="color:#10b981; font-weight:800;">💎 Gerçek Ciro</div>
+              <div class="stat-install-badge" style="background:rgba(16,185,129,0.15); color:#10b981;">canlı</div>
             </div>
             <div id="liveGrandTotalAmount" class="stat-install-all" style="color:#10b981;">₺0.00</div>
             <div class="stat-install-meta">
-              <div><span>Bu Ayki Toplam</span><strong id="liveGrandMonthAmount" style="color:#10b981;">₺0.00</strong></div>
+              <div><span>Bu ay</span><strong id="liveGrandMonthAmount" style="color:#10b981;">₺0.00</strong></div>
+              <div><span>Test işlem</span><strong id="liveGrandSandboxMeta" style="color:#b45309;">0</strong></div>
             </div>
+            <div class="stat-card-hint">Tüm işlemler →</div>
           </div>
 
-          <div class="stat-install-card" style="background: linear-gradient(135deg, rgba(212,175,55,0.08), rgba(255,215,0,0.04)); border:1px solid rgba(212,175,55,0.25);">
+          <div class="stat-install-card clickable" style="background: linear-gradient(135deg, rgba(212,175,55,0.08), rgba(255,215,0,0.04)); border:1px solid rgba(212,175,55,0.25);" onclick="openRevenue('soup')" title="Son destekçi detayı">
             <div class="stat-install-head">
               <div class="stat-install-title" style="color:#b48811; font-weight:800;">🏆 Son Destekçi</div>
               <div class="stat-install-badge" style="background:rgba(212,175,55,0.15); color:#b48811;">canlı</div>
             </div>
             <div id="liveSoupLastSupporter" class="stat-install-all" style="font-size:18px; color:#b48811; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">—</div>
             <div class="stat-install-meta">
-              <div><span>Son Mesaj</span><strong id="liveSoupLastMessage" style="color:#b48811;">—</strong></div>
+              <div><span>Son mesaj</span><strong id="liveSoupLastMessage" style="color:#b48811;">—</strong></div>
             </div>
+            <div class="stat-card-hint">Listeyi aç →</div>
           </div>
         </div>
 
@@ -1401,6 +1438,74 @@
         </div>
       </div>
 
+
+      <!-- Revenue ledger -->
+      <div id="revenueView" class="view-section">
+        <div class="rev-kpi-grid">
+          <div class="rev-kpi">
+            <div class="lbl">Gerçek ciro</div>
+            <div class="val" id="revLiveAmount">₺0,00</div>
+            <div class="sub" id="revLiveCount">0 gerçek işlem</div>
+          </div>
+          <div class="rev-kpi">
+            <div class="lbl">Bu ay (gerçek)</div>
+            <div class="val" id="revMonthAmount">₺0,00</div>
+            <div class="sub">sandbox dahil değil</div>
+          </div>
+          <div class="rev-kpi">
+            <div class="lbl">Aktif Plus</div>
+            <div class="val" id="revPlusActive">0</div>
+            <div class="sub">gerçek abone</div>
+          </div>
+          <div class="rev-kpi test">
+            <div class="lbl">Test / Sandbox</div>
+            <div class="val" id="revSandboxAmount">₺0,00</div>
+            <div class="sub" id="revSandboxCount">0 test işlem · ciroya eklenmez</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title" style="margin-bottom:10px;">İşlem defteri</div>
+          <p class="stats-note" style="margin-top:0">Satıra tıkla: kim, ne kadar, mağaza, test mi gerçek mi. Büyük tutarlar yalnızca gerçek tahsilattır.</p>
+          <div class="rev-toolbar">
+            <div class="filter-btn-group">
+              <button class="filter-btn active" data-rev-kind="all" onclick="setRevenueKind('all', this)">Tümü</button>
+              <button class="filter-btn" data-rev-kind="plus" onclick="setRevenueKind('plus', this)">Plus</button>
+              <button class="filter-btn" data-rev-kind="soup" onclick="setRevenueKind('soup', this)">Çorba</button>
+            </div>
+            <div class="filter-btn-group">
+              <button class="filter-btn active" data-rev-env="all" onclick="setRevenueEnv('all', this)">Hepsi</button>
+              <button class="filter-btn" data-rev-env="live" onclick="setRevenueEnv('live', this)">Yalnızca gerçek</button>
+              <button class="filter-btn" data-rev-env="sandbox" onclick="setRevenueEnv('sandbox', this)">Yalnızca test</button>
+            </div>
+            <button class="btn btn-secondary" style="font-size:12px; padding:6px 12px; min-height:32px;" onclick="loadRevenueLedger()">🔄 Yenile</button>
+            <button class="btn btn-secondary" style="font-size:12px; padding:6px 12px; min-height:32px;" onclick="exportRevenueCsv()">📤 CSV</button>
+          </div>
+          <div class="rev-table-wrap">
+            <table class="rev-table">
+              <thead>
+                <tr>
+                  <th>Tarih</th>
+                  <th>Kim</th>
+                  <th>Tür</th>
+                  <th>Plan / İkram</th>
+                  <th>Tutar</th>
+                  <th>Mağaza</th>
+                  <th>Ortam</th>
+                  <th>Durum</th>
+                </tr>
+              </thead>
+              <tbody id="revTableBody">
+                <tr><td colspan="8" class="rev-empty">Yükleniyor…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="revDrawerBg" class="rev-drawer-bg" onclick="if(event.target===this) closeRevenueDrawer()">
+        <div class="rev-drawer" id="revDrawer"></div>
+      </div>
 
       <!-- Publisher Announcements -->
       <div id="announcementsView" class="view-section">
@@ -2881,6 +2986,7 @@
       
       const titles = {
         dashboard: ['Dashboard', 'Genel uygulama durumu ve özet bilgiler.'],
+        revenue: ['Gelirler & Aboneler', 'Gerçek tahsilat ile test/sandbox işlemleri ayrı. Satıra tıklayınca detay açılır.'],
         branding: ['Marka & Tema', 'Uygulama adı, logo ve renk paleti.'],
         quickActions: ['Hızlı Erişim', 'Ana ekrandaki yatay butonlar.'],
         headerMedia: ['Vitrin & Hikayeler', 'Ana ekranın üstündeki vitrin alanı ve Instagram tarzı hikaye baloncukları.'],
@@ -2910,6 +3016,9 @@
       
       if (view === 'push') {
         loadPushStatus();
+      }
+      if (view === 'revenue') {
+        loadRevenueLedger();
       }
       if (view === 'aiNews') {
         loadAiNewsSettings();
@@ -3266,10 +3375,16 @@
         const fmtMoney = (val) => '₺' + (Number(val) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         
         setText('liveSoupTotalAmount', fmtMoney(supporters.totalAmount));
-        setText('liveSoupTotalCount', `${supporters.totalCount || 0} adet ikram`);
+        setText('liveSoupTotalCount', `${supporters.totalCount || 0} kişi`);
         setText('liveSoupMonthAmount', fmtMoney(supporters.monthAmount));
         setText('liveSoupMonthMeta', fmtMoney(supporters.monthAmount));
-        
+        const soupBadge = document.getElementById('liveSoupEnvBadge');
+        if (soupBadge) {
+          soupBadge.textContent = supporters.sandboxCount
+            ? `${supporters.sandboxCount} test`
+            : 'gerçek';
+        }
+
         if (supporters.recent && supporters.recent.length > 0) {
           const last = supporters.recent[0];
           const tierEmoji = { cay: '☕', corba: '🍲', durum: '🌯', hamis: '👑' }[last.tier] || '🍲';
@@ -3283,11 +3398,16 @@
         // Render Pro / Plus Stats & Grand Total
         const pro = data.proStats || {};
         setText('liveProTotalAmount', fmtMoney(pro.totalAmount));
-        setText('liveProActiveCount', `${pro.activeCount || 0} kullanıcı`);
+        setText('liveProActiveCount', `${pro.activeCount || 0} kişi`);
         setText('liveProMonthAmount', fmtMoney(pro.monthAmount));
+        const proBadge = document.getElementById('liveProEnvBadge');
+        if (proBadge) {
+          proBadge.textContent = pro.sandboxCount ? `${pro.sandboxCount} test` : 'gerçek';
+        }
 
         setText('liveGrandTotalAmount', fmtMoney(data.grandTotalAmount));
         setText('liveGrandMonthAmount', fmtMoney(data.grandMonthAmount));
+        setText('liveGrandSandboxMeta', `${data.grandSandboxCount || 0} adet`);
 
         const applyHealth = (spanId, health) => {
           const el = document.getElementById(spanId);
@@ -3318,6 +3438,222 @@
       } catch (e) {
         setText('liveStatDevicesSub', 'Bağlantı hatası');
       }
+    }
+
+    let revenueKind = 'all';
+    let revenueEnv = 'all';
+    let revenueCache = { soup: [], plus: [] };
+
+    function isSandboxRow(row) {
+      if (!row) return false;
+      if (row.is_sandbox === true) return true;
+      const env = String(row.environment || '').toLowerCase();
+      if (env === 'sandbox' || env === 'mock' || env === 'xcode') return true;
+      return String(row.transaction_id || '').startsWith('sandbox_');
+    }
+
+    function openRevenue(kind) {
+      revenueKind = kind || 'all';
+      switchView('revenue');
+      document.querySelectorAll('[data-rev-kind]').forEach((btn) => {
+        btn.classList.toggle('active', btn.getAttribute('data-rev-kind') === revenueKind);
+      });
+    }
+
+    function setRevenueKind(kind, el) {
+      revenueKind = kind;
+      document.querySelectorAll('[data-rev-kind]').forEach((btn) => btn.classList.remove('active'));
+      if (el) el.classList.add('active');
+      renderRevenueTable();
+    }
+
+    function setRevenueEnv(env, el) {
+      revenueEnv = env;
+      document.querySelectorAll('[data-rev-env]').forEach((btn) => btn.classList.remove('active'));
+      if (el) el.classList.add('active');
+      renderRevenueTable();
+    }
+
+    function fmtRevMoney(val) {
+      return '₺' + (Number(val) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtRevDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return '—';
+      return d.toLocaleString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function soupTierLabel(tier) {
+      return { cay: '☕ Çay', corba: '🍲 Çorba', durum: '🌯 Dürüm', hamis: '👑 Hamis' }[tier] || (tier || 'İkram');
+    }
+
+    function plusPlanLabel(plan, productId) {
+      if (plan === 'yearly' || String(productId || '').includes('yearly')) return 'Yıllık Plus';
+      if (plan === 'monthly' || String(productId || '').includes('monthly')) return 'Aylık Plus';
+      return plan || productId || 'Plus';
+    }
+
+    function platformLabel(p) {
+      const v = String(p || '').toLowerCase();
+      if (v === 'ios') return '🍎 iOS';
+      if (v === 'android') return '🤖 Android';
+      return p || '—';
+    }
+
+    function envBadge(row) {
+      if (String(row.environment || '').toLowerCase() === 'mock' || String(row.transaction_id || '').startsWith('sandbox_')) {
+        return '<span class="rev-badge mock">MOCK</span>';
+      }
+      if (isSandboxRow(row)) return '<span class="rev-badge test">TEST</span>';
+      return '<span class="rev-badge live">GERÇEK</span>';
+    }
+
+    function envWord(row) {
+      if (String(row.environment || '').toLowerCase() === 'mock' || String(row.transaction_id || '').startsWith('sandbox_')) return 'mock';
+      if (isSandboxRow(row)) return 'sandbox';
+      return 'production';
+    }
+
+    function buildRevenueRows() {
+      const soup = (revenueCache.soup || []).map((r) => ({
+        ...r,
+        _kind: 'soup',
+        _who: r.display_name || 'Anonim Hemşehri',
+        _plan: soupTierLabel(r.tier),
+        _status: 'İkram',
+      }));
+      const plus = (revenueCache.plus || []).map((r) => ({
+        ...r,
+        _kind: 'plus',
+        _who: r.platform ? `${platformLabel(r.platform)} abone` : 'Plus abone',
+        _plan: plusPlanLabel(r.plan, r.product_id),
+        _status: r.is_active === false ? 'Pasif' : (r.expires_at && r.expires_at < new Date().toISOString() ? 'Süresi doldu' : 'Aktif'),
+      }));
+      let rows = [...plus, ...soup].sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+      if (revenueKind === 'plus') rows = rows.filter((r) => r._kind === 'plus');
+      if (revenueKind === 'soup') rows = rows.filter((r) => r._kind === 'soup');
+      if (revenueEnv === 'live') rows = rows.filter((r) => !isSandboxRow(r));
+      if (revenueEnv === 'sandbox') rows = rows.filter((r) => isSandboxRow(r));
+      return rows;
+    }
+
+    function renderRevenueTable() {
+      const body = document.getElementById('revTableBody');
+      if (!body) return;
+      const rows = buildRevenueRows();
+      if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="8" class="rev-empty">Bu filtrede işlem yok. Gerçek tahsilat mağaza satın almasından sonra görünür.</td></tr>';
+        return;
+      }
+      body.innerHTML = rows.map((r, idx) => `
+        <tr onclick="openRevenueDrawer(${idx})">
+          <td>${fmtRevDate(r.created_at)}</td>
+          <td><strong>${escapeHtml(r._who)}</strong></td>
+          <td><span class="rev-badge ${r._kind === 'plus' ? 'kind-plus' : 'kind-soup'}">${r._kind === 'plus' ? 'Plus' : 'Çorba'}</span></td>
+          <td>${escapeHtml(r._plan)}</td>
+          <td><strong>${fmtRevMoney(r.amount)}</strong></td>
+          <td>${platformLabel(r.platform)}</td>
+          <td>${envBadge(r)}</td>
+          <td>${escapeHtml(r._status)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function openRevenueDrawer(idx) {
+      const rows = buildRevenueRows();
+      const r = rows[idx];
+      if (!r) return;
+      const el = document.getElementById('revDrawer');
+      const bg = document.getElementById('revDrawerBg');
+      if (!el || !bg) return;
+      el.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+          <div>
+            <h3>${escapeHtml(r._who)}</h3>
+            <div>${envBadge(r)} <span class="rev-badge ${r._kind === 'plus' ? 'kind-plus' : 'kind-soup'}">${r._kind === 'plus' ? 'Plus abonelik' : 'Çorba ikramı'}</span></div>
+          </div>
+          <button class="btn btn-secondary" style="font-size:12px; padding:6px 10px; min-height:32px;" onclick="closeRevenueDrawer()">Kapat</button>
+        </div>
+        <dl class="rev-dl">
+          <dt>Tutar</dt><dd>${fmtRevMoney(r.amount)} ${escapeHtml(r.currency || 'TRY')}</dd>
+          <dt>Plan / ikram</dt><dd>${escapeHtml(r._plan)}</dd>
+          <dt>Ortam</dt><dd>${envWord(r) === 'production' ? 'GERÇEK tahsilat' : (envWord(r) === 'mock' ? 'Uygulama içi MOCK (debug)' : 'Mağaza TEST / sandbox')}</dd>
+          <dt>Durum</dt><dd>${escapeHtml(r._status)}</dd>
+          <dt>Mağaza</dt><dd>${platformLabel(r.platform)}</dd>
+          <dt>Tarih</dt><dd>${fmtRevDate(r.created_at)}</dd>
+          <dt>Bitiş</dt><dd>${r.expires_at ? fmtRevDate(r.expires_at) : '—'}</dd>
+          <dt>Ürün ID</dt><dd>${escapeHtml(r.product_id || r.store_product_id || '—')}</dd>
+          <dt>İşlem no</dt><dd>${escapeHtml(r.transaction_id || '—')}</dd>
+          <dt>Sürüm</dt><dd>${escapeHtml(r.app_version || '—')}</dd>
+          <dt>Mesaj</dt><dd>${escapeHtml(r.message || '—')}</dd>
+          <dt>Anonim</dt><dd>${r.is_anonymous ? 'Evet' : 'Hayır'}</dd>
+        </dl>
+      `;
+      bg.classList.add('open');
+    }
+
+    function closeRevenueDrawer() {
+      const bg = document.getElementById('revDrawerBg');
+      if (bg) bg.classList.remove('open');
+    }
+
+    async function loadRevenueLedger() {
+      if (!currentToken) return;
+      const body = document.getElementById('revTableBody');
+      if (body) body.innerHTML = '<tr><td colspan="8" class="rev-empty">Yükleniyor…</td></tr>';
+      try {
+        const res = await fetch('/api/admin/revenue', {
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          if (body) body.innerHTML = `<tr><td colspan="8" class="rev-empty">${escapeHtml(data.message || 'Defter alınamadı')}</td></tr>`;
+          return;
+        }
+        revenueCache = { soup: data.soup || [], plus: data.plus || [] };
+        const g = data.grand || {};
+        const setT = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+        setT('revLiveAmount', fmtRevMoney(g.liveAmount));
+        setT('revLiveCount', `${g.liveCount || 0} gerçek işlem`);
+        setT('revMonthAmount', fmtRevMoney(g.monthAmount));
+        setT('revPlusActive', String(g.plusActive || 0));
+        setT('revSandboxAmount', fmtRevMoney(g.sandboxAmount));
+        setT('revSandboxCount', `${g.sandboxCount || 0} test işlem · ciroya eklenmez`);
+        renderRevenueTable();
+      } catch (e) {
+        if (body) body.innerHTML = '<tr><td colspan="8" class="rev-empty">Bağlantı hatası</td></tr>';
+      }
+    }
+
+    function exportRevenueCsv() {
+      const rows = buildRevenueRows();
+      const header = ['tarih','kim','tur','plan','tutar','para_birimi','magaza','ortam','durum','islem_no','urun','surum','mesaj'];
+      const lines = [header.join(',')];
+      rows.forEach((r) => {
+        const cells = [
+          r.created_at || '',
+          r._who,
+          r._kind,
+          r._plan,
+          r.amount,
+          r.currency || 'TRY',
+          r.platform || '',
+          envWord(r),
+          r._status,
+          r.transaction_id || '',
+          r.product_id || r.store_product_id || '',
+          r.app_version || '',
+          (r.message || '').replace(/"/g, '""'),
+        ].map((c) => `"${String(c).replace(/"/g, '""')}"`);
+        lines.push(cells.join(','));
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'hepsiduzici-gelir-defteri.csv';
+      a.click();
     }
 
     let avOffVersion = '0.0.1';
