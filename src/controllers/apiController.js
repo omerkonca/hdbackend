@@ -1330,18 +1330,30 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       if (!id || !['soup', 'plus'].includes(kind)) {
         return res.status(400).json({ ok: false, message: 'Geçersiz kayıt.' });
       }
-      const isSandbox = req.body?.is_sandbox === true;
+      const isSandbox = req.body?.is_sandbox;
+      const isHidden = req.body?.is_hidden;
       const table = kind === 'plus' ? 'pro_subscriptions' : 'supporters';
+      const patch = {};
+      if (typeof isSandbox === 'boolean') {
+        patch.is_sandbox = isSandbox;
+        patch.environment = isSandbox ? 'sandbox' : 'production';
+      }
+      if (typeof isHidden === 'boolean') {
+        if (table !== 'supporters') {
+          return res.status(400).json({ ok: false, message: 'Gizleme yalnızca ikram kayıtlarında.' });
+        }
+        patch.is_hidden = isHidden;
+      }
+      if (Object.keys(patch).length === 0) {
+        return res.status(400).json({ ok: false, message: 'Güncellenecek alan yok.' });
+      }
       const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
       const db = requireSupabaseAdmin();
       const { data, error } = await db
         .from(table)
-        .update({
-          is_sandbox: isSandbox,
-          environment: isSandbox ? 'sandbox' : 'production',
-        })
+        .update(patch)
         .eq('id', id)
-        .select('id, is_sandbox, environment')
+        .select(kind === 'soup' ? 'id, is_sandbox, environment, is_hidden' : 'id, is_sandbox, environment')
         .maybeSingle();
       if (error) throw error;
       if (!data) {

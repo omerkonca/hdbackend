@@ -1085,7 +1085,7 @@
     <div class="logo">🏢 Hepsi Düziçi</div>
     <div class="nav-menu" id="sideNav" style="display:none">
       <div class="nav-item active" onclick="switchView('dashboard')">🏠 Dashboard</div>
-      <div class="nav-item" onclick="switchView('revenue')">💰 Gelirler & Aboneler</div>
+      <div class="nav-item" onclick="switchView('revenue')">💰 Takip</div>
 
       <div class="menu-group-title" onclick="toggleMenuGroup('groupAnnounce')">📢 Duyurular &amp; Bildirim <span class="arrow">▼</span></div>
       <div class="menu-group-items" id="groupAnnounce">
@@ -1101,6 +1101,7 @@
         <div class="nav-item" onclick="switchView('quickActions')">⚡ Hızlı Erişim Butonları</div>
         <div class="nav-item" onclick="switchView('headerMedia')">🖼️ Vitrin & Hikayeler</div>
         <div class="nav-item" onclick="switchView('sponsors')">🤝 Sponsor & Reklamlar</div>
+        <div class="nav-item" onclick="switchView('supportersWall')">🍲 Destekçi Duvarı</div>
       </div>
 
       <!-- Haberler Grubu -->
@@ -1909,6 +1910,59 @@
           </div>
           <button class="btn btn-primary" style="margin-top:12px" onclick="applyBranding()">✓ Forma Yansıt</button>
           <span style="margin-left:12px; color:var(--text-muted); font-size:12px">Sonra üstteki "Tümünü Kaydet" ile kaydedin.</span>
+        </div>
+      </div>
+
+      <!-- Supporters wall copy -->
+      <div id="supportersWallView" class="view-section">
+        <div class="card">
+          <div class="section-title">🍲 Destekçi Duvarı</div>
+          <p style="color:var(--text-muted); font-size:13px; margin-top:0">Uygulamadaki “Düziçi Destekçileri” ekranının metinleri. Test ikramlar duvarda görünmez. Kaydetmek için alttaki düğme veya üstteki Tümünü Kaydet.</p>
+          <label style="display:flex; align-items:center; gap:8px; margin:12px 0 18px; font-weight:700;">
+            <input type="checkbox" id="swEnabled" style="width:auto" checked> Ekran açık
+          </label>
+          <div class="form-group">
+            <label>Sayfa başlığı</label>
+            <input id="swTitle" placeholder="Düziçi Destekçileri 🏆">
+          </div>
+          <div class="form-group">
+            <label>Üst kart başlığı</label>
+            <input id="swHeroTitle" placeholder="Düziçi'nin Bağımsız Gönüllü Ekibi">
+          </div>
+          <div class="form-group">
+            <label>Üst kart yazısı</label>
+            <textarea id="swHeroBody" rows="4" placeholder="Kısa teşekkür metni"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Emoji satırı</label>
+            <input id="swHeroEmojis" placeholder="🍲 ☕ 🌯 👑">
+          </div>
+          <div class="form-group">
+            <label>Buton yazısı</label>
+            <input id="swCta" placeholder="Sen de Çorba Ismarla">
+          </div>
+          <div class="form-group">
+            <label>Liste başlığı</label>
+            <input id="swListTitle" placeholder="Son Çorba Ismarlayanlar">
+          </div>
+          <div class="form-group">
+            <label>Boş liste başlığı</label>
+            <input id="swEmptyTitle" placeholder="Henüz destekçi kaydı bulunmuyor.">
+          </div>
+          <div class="form-group">
+            <label>Boş liste alt yazısı</label>
+            <input id="swEmptySubtitle" placeholder="İlk çorbayı ısmarlayan sen ol!">
+          </div>
+          <div class="form-group">
+            <label>Duyuru şeridi (opsiyonel)</label>
+            <input id="swFeatured" placeholder="Örn: Bu ayki ikramlar ekibe çok iyi geldi, teşekkürler!">
+          </div>
+          <button class="btn btn-primary" onclick="applySupportersWall()">💾 Duvarı Kaydet</button>
+        </div>
+        <div class="card">
+          <div class="section-title">Duvar listesi</div>
+          <p style="color:var(--text-muted); font-size:13px; margin-top:0">Uygulamada görünen gerçek ikramlar. Test olanlar burada da durmaz. Gizle dersen duvardan iner, Takip’te kalır.</p>
+          <div id="swLiveList" class="rev-list"><div class="rev-empty">Yükleniyor…</div></div>
         </div>
       </div>
 
@@ -3013,6 +3067,7 @@
         dashboard: ['Dashboard', 'Genel uygulama durumu ve özet bilgiler.'],
         revenue: ['Takip', 'Kim ödedi, ne kadar, test mi gerçek mi.'],
         branding: ['Marka & Tema', 'Uygulama adı, logo ve renk paleti.'],
+        supportersWall: ['Destekçi Duvarı', 'Uygulamadaki çorba duvarı metinleri ve görünen isimler.'],
         quickActions: ['Hızlı Erişim', 'Ana ekrandaki yatay butonlar.'],
         headerMedia: ['Vitrin & Hikayeler', 'Ana ekranın üstündeki vitrin alanı ve Instagram tarzı hikaye baloncukları.'],
         moreMenu: ['Daha Fazla Menüsü', 'Daha Fazla sekmesinin tile listesi.'],
@@ -3044,6 +3099,10 @@
       }
       if (view === 'revenue') {
         loadRevenueLedger();
+      }
+      if (view === 'supportersWall') {
+        fillSupportersWallForm();
+        loadSupportersWallList();
       }
       if (view === 'aiNews') {
         loadAiNewsSettings();
@@ -3532,9 +3591,6 @@
     }
 
     function envBadge(row) {
-      if (String(row.environment || '').toLowerCase() === 'mock' || String(row.transaction_id || '').startsWith('sandbox_')) {
-        return '<span class="rev-badge mock">MOCK</span>';
-      }
       if (isSandboxRow(row)) return '<span class="rev-badge test">TEST</span>';
       return '<span class="rev-badge live">GERÇEK</span>';
     }
@@ -3929,6 +3985,7 @@
       // JSON editör aktif değilse hikaye gruplarını rawData'ya senkronize et
       if (!document.getElementById('jsonView').classList.contains('active')) {
         saveStoryGroupsToRawData();
+        applySupportersWall(false);
       }
       // Sync from JSON editor if active
       if (document.getElementById('jsonView').classList.contains('active')) {
@@ -4072,6 +4129,8 @@
       document.getElementById('brandPrimaryDark').value = normalizeHex(b.primaryDarkColor, '#8C5E0F');
       document.getElementById('brandAccentBlue').value = normalizeHex(b.accentBlueColor, '#1F6FEB');
       document.getElementById('brandSplashBg').value = normalizeHex(b.splashBackgroundColor, '#0C0C0C');
+
+      fillSupportersWallForm();
 
       // Quick actions
       const qaList = document.getElementById('quickActionsList');
@@ -4323,6 +4382,117 @@
       rawData.branding.splashBackgroundColor = document.getElementById('brandSplashBg').value.toUpperCase();
       showToast('Forma yansıtıldı, kaydediliyor...');
       saveData();
+    }
+
+    function fillSupportersWallForm() {
+      if (!document.getElementById('swTitle')) return;
+      const d = {
+        enabled: true,
+        title: 'Düziçi Destekçileri 🏆',
+        heroTitle: 'Düziçi\'nin Bağımsız Gönüllü Ekibi',
+        heroBody: 'Hepsi Düziçi; hiçbir kurum, belediye veya kişiden bütçe almadan, tamamen kendi emeğimizle Düziçi\'ye kazandırıldı. Uygulamayı reklamsız ve hızlı tutmak için destek olan herkese teşekkürler!',
+        heroEmojis: '🍲 ☕ 🌯 👑',
+        ctaLabel: 'Sen de Çorba Ismarla',
+        listTitle: 'Son Çorba Ismarlayanlar',
+        emptyTitle: 'Henüz destekçi kaydı bulunmuyor.',
+        emptySubtitle: 'İlk çorbayı ısmarlayan sen ol!',
+        featuredMessage: '',
+      };
+      const w = Object.assign({}, d, rawData.supportersWall || {});
+      document.getElementById('swEnabled').checked = w.enabled !== false;
+      document.getElementById('swTitle').value = w.title || d.title;
+      document.getElementById('swHeroTitle').value = w.heroTitle || d.heroTitle;
+      document.getElementById('swHeroBody').value = w.heroBody || d.heroBody;
+      document.getElementById('swHeroEmojis').value = w.heroEmojis || d.heroEmojis;
+      document.getElementById('swCta').value = w.ctaLabel || d.ctaLabel;
+      document.getElementById('swListTitle').value = w.listTitle || d.listTitle;
+      document.getElementById('swEmptyTitle').value = w.emptyTitle || d.emptyTitle;
+      document.getElementById('swEmptySubtitle').value = w.emptySubtitle || d.emptySubtitle;
+      document.getElementById('swFeatured').value = w.featuredMessage || '';
+    }
+
+    function applySupportersWall(andSave) {
+      if (!document.getElementById('swTitle')) return;
+      rawData.supportersWall = {
+        enabled: document.getElementById('swEnabled').checked,
+        title: document.getElementById('swTitle').value.trim(),
+        heroTitle: document.getElementById('swHeroTitle').value.trim(),
+        heroBody: document.getElementById('swHeroBody').value.trim(),
+        heroEmojis: document.getElementById('swHeroEmojis').value.trim(),
+        ctaLabel: document.getElementById('swCta').value.trim(),
+        listTitle: document.getElementById('swListTitle').value.trim(),
+        emptyTitle: document.getElementById('swEmptyTitle').value.trim(),
+        emptySubtitle: document.getElementById('swEmptySubtitle').value.trim(),
+        featuredMessage: document.getElementById('swFeatured').value.trim(),
+      };
+      if (andSave !== false) {
+        showToast('Destekçi duvarı kaydediliyor...');
+        saveData();
+      }
+    }
+
+    function supporterWallRowHtml(r, actionLabel, hidden) {
+      const tierName = { cay: 'Çay', corba: 'Çorba', durum: 'Dürüm', hamis: 'Hamis' };
+      const emoji = ({ cay:'☕', corba:'🍲', durum:'🌯', hamis:'👑' }[r.tier] || '🍲');
+      const when = r.created_at ? new Date(r.created_at).toLocaleString('tr-TR') : '';
+      return `
+        <div class="rev-item" style="${hidden ? 'opacity:0.72' : ''}">
+          <div class="rev-avatar soup">${emoji}</div>
+          <div class="rev-item-main">
+            <div class="rev-item-name">${escapeHtml(r.display_name || 'Anonim')}</div>
+            <div class="rev-item-meta">${escapeHtml(tierName[r.tier] || r.tier || 'İkram')}${when ? ' · ' + escapeHtml(when) : ''}</div>
+          </div>
+          <button class="btn btn-secondary" style="font-size:12px; padding:6px 10px; min-height:32px;" onclick="hideSupporterFromWall('${r.id}', ${hidden ? 'false' : 'true'})">${actionLabel}</button>
+        </div>
+      `;
+    }
+
+    async function loadSupportersWallList() {
+      const box = document.getElementById('swLiveList');
+      if (!box || !currentToken) return;
+      box.innerHTML = '<div class="rev-empty">Yükleniyor…</div>';
+      try {
+        const res = await fetch('/api/admin/revenue', { headers: { 'x-admin-token': currentToken } });
+        const data = await res.json().catch(() => ({}));
+        const soup = Array.isArray(data.soup) ? data.soup : [];
+        const live = soup.filter((r) => r.is_sandbox !== true);
+        const visible = live.filter((r) => r.is_hidden !== true);
+        const hidden = live.filter((r) => r.is_hidden === true);
+        const tests = soup.filter((r) => r.is_sandbox === true);
+        let html = `<div style="font-size:12px; color:var(--text-muted); margin-bottom:10px">${visible.length} kişi duvarda · ${hidden.length} gizli · ${tests.length} test</div>`;
+        if (!visible.length) {
+          html += '<div class="rev-empty">Duvarda görünen gerçek ikram yok. Test kayıtlar uygulamada çıkmaz.</div>';
+        } else {
+          html += visible.map((r) => supporterWallRowHtml(r, 'Gizle', false)).join('');
+        }
+        if (hidden.length) {
+          html += '<div class="section-title" style="margin:18px 0 8px; font-size:14px">Gizlenenler</div>';
+          html += hidden.map((r) => supporterWallRowHtml(r, 'Göster', true)).join('');
+        }
+        box.innerHTML = html;
+      } catch (e) {
+        box.innerHTML = '<div class="rev-empty">Liste alınamadı</div>';
+      }
+    }
+
+    async function hideSupporterFromWall(id, hidden) {
+      if (!currentToken || !id) return;
+      try {
+        const res = await fetch('/api/admin/revenue/soup/' + encodeURIComponent(id), {
+          method: 'PATCH',
+          headers: { 'x-admin-token': currentToken, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_hidden: hidden === true }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          showToast(data.message || 'Güncellenemedi', true);
+          return;
+        }
+        showToast(hidden === true ? 'Duvardan gizlendi' : 'Duvara alındı');
+        loadSupportersWallList();
+      } catch (e) {
+        showToast('Bağlantı hatası', true);
+      }
     }
 
     // Quick Actions
