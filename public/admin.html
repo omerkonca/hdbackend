@@ -1917,7 +1917,7 @@
       <div id="supportersWallView" class="view-section">
         <div class="card">
           <div class="section-title">🍲 Destekçi Duvarı</div>
-          <p style="color:var(--text-muted); font-size:13px; margin-top:0">Uygulamadaki “Düziçi Destekçileri” ekranının metinleri. Test ikramlar duvarda görünmez. Kaydetmek için alttaki düğme veya üstteki Tümünü Kaydet.</p>
+          <p style="color:var(--text-muted); font-size:13px; margin-top:0">Uygulamadaki “Düziçi Destekçileri” ekranının metinleri. Test ikramlar duvarda TEST etiketiyle görünür, ciroya eklenmez. Kaydetmek için alttaki düğme veya üstteki Tümünü Kaydet.</p>
           <label style="display:flex; align-items:center; gap:8px; margin:12px 0 18px; font-weight:700;">
             <input type="checkbox" id="swEnabled" style="width:auto" checked> Ekran açık
           </label>
@@ -1961,7 +1961,7 @@
         </div>
         <div class="card">
           <div class="section-title">Duvar listesi</div>
-          <p style="color:var(--text-muted); font-size:13px; margin-top:0">Uygulamada görünen gerçek ikramlar. Test olanlar burada da durmaz. Gizle dersen duvardan iner, Takip’te kalır.</p>
+          <p style="color:var(--text-muted); font-size:13px; margin-top:0">Uygulamada görünen ikramlar (testler TEST etiketiyle). Gizle dersen duvardan iner, Takip’te kalır. Test tutarlar ciroya eklenmez.</p>
           <div id="swLiveList" class="rev-list"><div class="rev-empty">Yükleniyor…</div></div>
         </div>
       </div>
@@ -4439,7 +4439,7 @@
         <div class="rev-item" style="${hidden ? 'opacity:0.72' : ''}">
           <div class="rev-avatar soup">${emoji}</div>
           <div class="rev-item-main">
-            <div class="rev-item-name">${escapeHtml(r.display_name || 'Anonim')}</div>
+            <div class="rev-item-name">${escapeHtml(r.display_name || 'Anonim')}${r.is_sandbox === true ? ' <span class="rev-badge test">TEST</span>' : ''}</div>
             <div class="rev-item-meta">${escapeHtml(tierName[r.tier] || r.tier || 'İkram')}${when ? ' · ' + escapeHtml(when) : ''}</div>
           </div>
           <button class="btn btn-secondary" style="font-size:12px; padding:6px 10px; min-height:32px;" onclick="hideSupporterFromWall('${r.id}', ${hidden ? 'false' : 'true'})">${actionLabel}</button>
@@ -4455,13 +4455,12 @@
         const res = await fetch('/api/admin/revenue', { headers: { 'x-admin-token': currentToken } });
         const data = await res.json().catch(() => ({}));
         const soup = Array.isArray(data.soup) ? data.soup : [];
-        const live = soup.filter((r) => r.is_sandbox !== true);
-        const visible = live.filter((r) => r.is_hidden !== true);
-        const hidden = live.filter((r) => r.is_hidden === true);
+        const visible = soup.filter((r) => r.is_hidden !== true);
+        const hidden = soup.filter((r) => r.is_hidden === true);
         const tests = soup.filter((r) => r.is_sandbox === true);
         let html = `<div style="font-size:12px; color:var(--text-muted); margin-bottom:10px">${visible.length} kişi duvarda · ${hidden.length} gizli · ${tests.length} test</div>`;
         if (!visible.length) {
-          html += '<div class="rev-empty">Duvarda görünen gerçek ikram yok. Test kayıtlar uygulamada çıkmaz.</div>';
+          html += '<div class="rev-empty">Duvarda görünen ikram yok.</div>';
         } else {
           html += visible.map((r) => supporterWallRowHtml(r, 'Gizle', false)).join('');
         }
