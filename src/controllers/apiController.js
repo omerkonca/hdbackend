@@ -1029,6 +1029,17 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
 
   /** Admin dashboard canlı özet (cihaz / ihbar / haber / yol). */
   async getDashboardStats(req, res) {
+    const handlerStarted = Date.now();
+    const timed = async (fn) => {
+      const t0 = Date.now();
+      try {
+        const data = await fn();
+        return { ok: true, data, ms: Date.now() - t0 };
+      } catch (err) {
+        return { ok: false, data: null, ms: Date.now() - t0, error: err.message };
+      }
+    };
+
     try {
       const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
       const { isFcmConfigured } = require('../services/fcmService');
@@ -1036,6 +1047,24 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       const db = requireSupabaseAdmin();
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       const dayStart = istanbulDayStartIso();
+
+      const supabasePingStarted = Date.now();
+      let supabaseOk = true;
+      let supabaseError;
+      try {
+        const ping = await db
+          .from('device_tokens')
+          .select('token', { count: 'exact', head: true })
+          .limit(1);
+        if (ping.error) {
+          supabaseOk = false;
+          supabaseError = ping.error.message;
+        }
+      } catch (err) {
+        supabaseOk = false;
+        supabaseError = err.message;
+      }
+      const supabaseMs = Date.now() - supabasePingStarted;
 
       const countTokens = (filters = {}) => {
         let q = db
@@ -1062,6 +1091,8 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         pharmacies,
         supportersRes,
         proSubscriptionsRes,
+        weatherTimed,
+        prayerTimed,
       ] = await Promise.all([
         countTokens(),
         countTokens({ updatedSince: weekAgo }),
@@ -1091,6 +1122,8 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
             return { data: [] };
           }
         })(),
+        timed(() => weatherService.getWeather({})),
+        timed(() => prayerService.getPrayerTimes()),
       ]);
 
       const openReportsCount = openReportsRes.count ?? 0;
@@ -1105,7 +1138,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
 
       // Calculate Supporters / Donation Stats
       let supportersStats = { totalAmount: 0, totalCount: 0, monthAmount: 0, recent: [] };
-      if (supportersRes && Array.isArray(supportersRes.data)) {
+      if (supportersRes && !supportersRes.error && Array.isArray(supportersRes.data)) {
         const list = supportersRes.data;
         const nowObj = new Date();
         const monthStartIso = new Date(nowObj.getFullYear(), nowObj.getMonth(), 1).toISOString();
@@ -1128,7 +1161,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
 
       // Calculate Pro / Plus & Paid Listings Stats
       let proStats = { totalAmount: 0, totalCount: 0, monthAmount: 0, activeCount: 0, recent: [] };
-      if (proSubscriptionsRes && Array.isArray(proSubscriptionsRes.data)) {
+      if (proSubscriptionsRes && !proSubscriptionsRes.error && Array.isArray(proSubscriptionsRes.data)) {
         const pList = proSubscriptionsRes.data;
         const nowObj = new Date();
         const monthStartIso = new Date(nowObj.getFullYear(), nowObj.getMonth(), 1).toISOString();
@@ -1200,12 +1233,44 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         });
       });
 
-      // System Health status object
+      const pharmacyList = Array.isArray(pharmacies) ? pharmacies : [];
+      const weatherData = weatherTimed?.data;
+      const prayerData = prayerTimed?.data;
+      const weatherReal = Boolean(
+        weatherTimed?.ok &&
+          weatherData?.current &&
+          !weatherData.error &&
+          weatherData.current?.condition?.text !== 'Veri Bekleniyor',
+      );
+      const prayerReal = Boolean(
+        prayerTimed?.ok && prayerData && (prayerData.timings || prayerData.date),
+      );
+      let weatherStatus = 'offline';
+      if (weatherReal && prayerReal) weatherStatus = 'online';
+      else if (weatherReal || prayerReal) weatherStatus = 'warning';
+
       const systemHealth = {
-        backend: { status: 'online', label: 'Render Node.js API', latencyMs: 115 },
-        supabase: { status: 'online', label: 'Supabase DB', latencyMs: 42 },
-        pharmacy: { status: pharmacies && pharmacies.length > 0 ? 'online' : 'warning', label: 'Eczane Scraper', count: (pharmacies || []).length },
-        weather: { status: 'online', label: 'Hava & Namaz API', latencyMs: 80 },
+        backend: {
+          status: 'online',
+          label: 'Render API',
+          latencyMs: Date.now() - handlerStarted,
+        },
+        supabase: {
+          status: supabaseOk ? 'online' : 'offline',
+          label: 'Supabase DB',
+          latencyMs: supabaseMs,
+          detail: supabaseError || undefined,
+        },
+        pharmacy: {
+          status: pharmacyList.length > 0 ? 'online' : 'warning',
+          label: 'Eczane Scraper',
+          count: pharmacyList.length,
+        },
+        weather: {
+          status: weatherStatus,
+          label: 'Hava & Namaz API',
+          latencyMs: (weatherTimed?.ms || 0) + (prayerTimed?.ms || 0),
+        },
       };
 
       return res.json({

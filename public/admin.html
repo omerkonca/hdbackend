@@ -37,6 +37,15 @@
       box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
       animation: pulse-dot-anim 1.8s infinite;
     }
+    .pulse-dot.warn {
+      background-color: #f59e0b;
+      box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+    .pulse-dot.down {
+      background-color: #ef4444;
+      animation: none;
+      box-shadow: none;
+    }
     @keyframes pulse-dot-anim {
       0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
       70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
@@ -1133,16 +1142,16 @@
             <span class="pulse-dot"></span> Canlı Sistem Durumu:
           </div>
           <div class="health-item">
-            <span class="pulse-dot"></span> Render API: <span id="healthBackend">Online (115ms)</span>
+            <span class="pulse-dot"></span> Render API: <span id="healthBackend">Ölçülüyor…</span>
           </div>
           <div class="health-item">
-            <span class="pulse-dot"></span> Supabase DB: <span id="healthSupabase">Connected</span>
+            <span class="pulse-dot"></span> Supabase DB: <span id="healthSupabase">Ölçülüyor…</span>
           </div>
           <div class="health-item">
-            <span class="pulse-dot"></span> Eczane Scraper: <span id="healthPharmacy">Aktif</span>
+            <span class="pulse-dot"></span> Eczane Scraper: <span id="healthPharmacy">Ölçülüyor…</span>
           </div>
           <div class="health-item">
-            <span class="pulse-dot"></span> Hava & Namaz API: <span id="healthWeather">Online</span>
+            <span class="pulse-dot"></span> Hava & Namaz API: <span id="healthWeather">Ölçülüyor…</span>
           </div>
           <div style="margin-left:auto;">
             <div class="filter-btn-group">
@@ -3279,6 +3288,29 @@
 
         setText('liveGrandTotalAmount', fmtMoney(data.grandTotalAmount));
         setText('liveGrandMonthAmount', fmtMoney(data.grandMonthAmount));
+
+        const applyHealth = (spanId, health) => {
+          const el = document.getElementById(spanId);
+          if (!el) return;
+          const status = health?.status || 'offline';
+          const labels = { online: 'Online', warning: 'Uyarı', offline: 'Kapalı', down: 'Kapalı' };
+          let extra = '';
+          if (typeof health?.latencyMs === 'number') extra = ` (${health.latencyMs}ms)`;
+          else if (typeof health?.count === 'number') extra = ` (${health.count} kayıt)`;
+          el.textContent = `${labels[status] || status}${extra}`;
+          const item = el.closest('.health-item');
+          const dot = item && item.querySelector('.pulse-dot');
+          if (dot) {
+            dot.classList.remove('warn', 'down');
+            if (status === 'warning') dot.classList.add('warn');
+            if (status === 'offline' || status === 'down') dot.classList.add('down');
+          }
+        };
+        const health = data.systemHealth || {};
+        applyHealth('healthBackend', health.backend);
+        applyHealth('healthSupabase', health.supabase);
+        applyHealth('healthPharmacy', health.pharmacy);
+        applyHealth('healthWeather', health.weather);
 
         // Render Executive Analytics Charts & Activity Feed
         initDashboardCharts(data.trend7d, data.contentDistribution);
