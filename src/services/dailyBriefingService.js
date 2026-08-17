@@ -142,12 +142,16 @@ class DailyBriefingService {
     const tr = turkeyDateParts();
     const todayKey = briefingDate || tr.date;
 
-    const todayNews = duzici.filter((item) => turkeyCalendarDayKey(item.createdAt) === todayKey);
+    const todayNews = duzici.filter((item) => {
+      if (!item.createdAt) return false;
+      return turkeyCalendarDayKey(item.createdAt) === todayKey;
+    });
 
     const weekNews = duzici.filter((item) => {
+      if (!item.createdAt) return false;
       const itemKey = turkeyCalendarDayKey(item.createdAt);
       const diff = calendarDaysBetween(itemKey, todayKey);
-      return diff >= 0 && diff <= 6;
+      return diff > 0 && diff <= 6;
     });
 
     return { todayNews, weekNews };
@@ -161,17 +165,17 @@ class DailyBriefingService {
 Konum: Düziçi / Osmaniye
 
 ${weatherInfoText ? `${weatherInfoText}\n\n` : ''}BUGÜNÜN HABERLERİ (${todayNews.length} kayıt):
-${todayLines || '(bugün Düziçi ile ilgili kayıtlı haber yok)'}
+${todayLines || '(bugün Düziçi ile ilgili yeni kayıtlı haber yok - sakin gün)'}
 
-BU HAFTANIN HABERLERİ (${weekNews.length} kayıt):
+BU HAFTANIN DİĞER HABERLERİ (${weekNews.length} kayıt):
 ${weekLines || '(bu hafta Düziçi ile ilgili kayıtlı haber yok)'}
 
 GÖREV TALİMATLARI:
 1. Haber özetlerini doğrudan ve akıcı bir anlatımla yaz. Cümleler birbirine mantıklı bir şekilde bağlansın.
-2. KRİTİK KURAL: Asla "Bugün Düziçi'nde hareketli bir gün yaşandı" veya "Bu hafta Düziçi'nde çeşitli etkinlikler gerçekleştirildi" gibi yapay zeka jenerik/dolgu giriş cümleleri kullanma! Doğrudan günün en önemli, somut olayına değinerek başla (Örn: "Karne şenliğinde itfaiyenin su sürpriziyle serinleyen Düziçili çocuklar eğlenceli anlar yaşadı.").
-3. today_title: Günün en önemli olayını yansıtan, merak uyandırıcı, profesyonel bir gazete manşeti başlığı (en fazla 70 karakter). Başlıkta jenerik kelimelerden kaçın.
+2. KRİTİK GÜNCELLİK KURALI: today_title ve today_summary için YALNIZCA "BUGÜNÜN HABERLERİ" listesindeki olayları baz al. Eğer "BUGÜNÜN HABERLERİ" listesinde haber yoksa veya yetersizse, ASLA geçmiş günlerin haberlerini (eski yol talepleri, geçmiş şikayetler veya eski etkinlikler) bugün yaşanmış gibi anlatma! Bu durumda ilçede sakin bir gün geçtiğini belirt, hava durumuna, yarınki hava tahminine ve nöbetçi eczanelere odaklan.
+3. today_title: Bugünün en önemli olayını yansıtan, merak uyandırıcı, profesyonel bir gazete manşeti başlığı (en fazla 70 karakter). Bugün özel bir haber yoksa yarının hava durumu veya ilçe gündemine uygun sıcak bir başlık yaz.
 4. today_summary: Bugünün gelişmelerini özetleyen samimi, net ve bilgi dolu 2-4 cümle. today_summary içinde hava durumunu "bugün" diye değil "yarın" diye anlat (bu özet akşam yayınlanır). Yarınki sıcaklık/yağışa göre kısa pratik tavsiye ver (giyim, şemsiye, bol sıvı vb.).
-5. week_summary: Haftalık gelişmeleri toparlayan, olaylar arası bağlantı kuran 3-5 cümle.
+5. week_summary: Haftalık gelişmeleri toparlayan, olaylar arası bağlantı kuran 3-5 cümle (burada haftanın genel olaylarından bahsedebilirsin ancak "bugün oldu" şeklinde sunma).
 6. highlights: Öne çıkan en önemli 3 farklı somut gelişmeyi özetleyen kısa cümleler dizisi (her biri en fazla 85 karakter). Bullet listesinde jenerik ifadeler kullanma, net bilgi ver.
 7. Değerlerin hiçbirinde markdown biçimlendirmesi (kalın yazı, eğik yazı vb.) veya HTML kullanma.
 

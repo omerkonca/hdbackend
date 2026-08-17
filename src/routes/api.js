@@ -79,4 +79,8 @@ router.post('/admin/verses', requireAdminToken, apiController.saveVerse);
 router.post('/admin/verses/generate-ai', requireAdminToken, apiController.generateAiVerse);
 router.delete('/admin/verses/:id', requireAdminToken, apiController.deleteVerse);
 
+// Outage & Road Closure AI Tools
+router.post('/admin/parse-outage-road', requireAdminToken, apiController.parseOutageRoadText);
+router.post('/admin/publish-outage-road', requireAdminToken, apiController.publishOutageRoad);
+
 module.exports = router;

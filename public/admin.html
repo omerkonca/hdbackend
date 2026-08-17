@@ -2128,6 +2128,27 @@
           <button type="button" class="btn btn-secondary" id="aiBriefingRefreshBtn" onclick="refreshAiBriefing()">🔄 Özeti Şimdi Yenile</button>
         </div>
 
+        <!-- Hızlı Kesinti / Yol Çalışması AI Ayrıştırıcı -->
+        <div class="card" style="margin-bottom:24px; border:1px solid #fed7aa; background:#fffbf5">
+          <div class="section-title" style="color:#c2410c; display:flex; align-items:center; gap:8px">
+            ⚡ Kesinti & 🚧 Yol Çalışması Hızlı Ekle (Yapay Zeka)
+          </div>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px">
+            Toroslar EDAŞ, Belediye veya muhtarlıklardan gelen duyuru metnini (WhatsApp, Facebook vb.) buraya yapıştırın. Yapay zeka tüm mahalle, saat ve sokakları anında ayıklar.
+          </p>
+          <div class="form-group">
+            <label style="font-weight:700">Ham Duyuru / Haber Metni</label>
+            <textarea id="aiOutageRawText" placeholder="Örn: Toroslar EDAŞ duyurusu: 19 Ağustos Çarşamba günü 09:00 - 17:00 saatleri arasında Kurtuluş Mahallesi ve Atatürk Caddesinde şebeke bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır..." style="width:100%; height:110px; padding:12px; border-radius:8px; border:1px solid var(--border); font-family:inherit; resize:vertical"></textarea>
+          </div>
+          <button type="button" class="btn btn-primary" id="aiParseOutageBtn" onclick="parseOutageRawText()" style="background:#ea580c; border-color:#c2410c; margin-top:6px">
+            ✨ Metni Yapay Zeka ile Çözümle
+          </button>
+          
+          <div id="aiOutageResultsWrap" style="display:none; margin-top:16px">
+            <div id="aiOutageResultsList" style="display:flex; flex-direction:column; gap:12px"></div>
+          </div>
+        </div>
+
         <div class="card" style="margin-bottom:24px">
           <div class="section-title">📝 Yapay Zeka ile Haber Yazdır</div>
           <p style="color:var(--text-muted); font-size:13px; margin-bottom:16px">
@@ -7504,6 +7525,152 @@
         if (btn) {
           btn.disabled = false;
           btn.textContent = '🔄 Özeti Şimdi Yenile';
+        }
+      }
+    }
+
+    async function parseOutageRawText() {
+      const text = document.getElementById('aiOutageRawText')?.value?.trim();
+      if (!text || text.length < 5) {
+        showToast('Lütfen geçerli bir duyuru metni yapıştırın.', true);
+        return;
+      }
+      const btn = document.getElementById('aiParseOutageBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⌛ Yapay Zeka Analiz Ediyor...';
+      }
+      try {
+        const res = await fetch('/api/admin/parse-outage-road', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken,
+          },
+          body: JSON.stringify({ text }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message || 'Analiz başarısız');
+        
+        renderParsedOutageResults(data.outages || [], data.roadClosures || []);
+        showToast('Metin başarıyla çözümlendi.');
+      } catch (err) {
+        showToast(err.message || 'Hata oluştu', true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '✨ Metni Yapay Zeka ile Çözümle';
+        }
+      }
+    }
+
+    function renderParsedOutageResults(outages, roadClosures) {
+      const wrap = document.getElementById('aiOutageResultsWrap');
+      const list = document.getElementById('aiOutageResultsList');
+      if (!wrap || !list) return;
+      list.innerHTML = '';
+
+      if (outages.length === 0 && roadClosures.length === 0) {
+        list.innerHTML = '<div style="padding:12px; background:#fff; border-radius:8px; border:1px solid #fed7aa; color:#9a3412; font-size:13px">Metinde herhangi bir kesinti veya yol çalışması tespit edilemedi.</div>';
+        wrap.style.display = 'block';
+        return;
+      }
+
+      window._currentParsedOutages = outages;
+      window._currentParsedRoads = roadClosures;
+
+      outages.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.style = 'padding:14px; background:#fff; border-radius:10px; border:1px solid #fed7aa; box-shadow:0 2px 4px rgba(0,0,0,0.03)';
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+            <span style="background:${item.type === 'SU' ? '#e0f2fe' : '#fef3c7'}; color:${item.type === 'SU' ? '#0369a1' : '#b45309'}; font-weight:800; font-size:11px; padding:3px 8px; border-radius:6px">
+              ${item.type === 'SU' ? '💧 SU KESİNTİSİ' : '⚡ ELEKTRİK KESİNTİSİ'}
+            </span>
+            <span style="font-size:11px; color:#64748b">${escapeHtml(item.source || 'Resmi')}</span>
+          </div>
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px">${escapeHtml(item.title)}</div>
+          <div style="font-size:12px; color:#475569; margin-bottom:6px">${escapeHtml(item.subtitle || '')}</div>
+          <div style="font-size:12px; color:#334155; margin-bottom:10px">
+            <strong>Bölge/Sokak:</strong> ${escapeHtml(item.area || 'Düziçi')} <br>
+            ${item.startAt ? `<strong>Tarih/Saat:</strong> ${new Date(item.startAt).toLocaleString('tr-TR')} ${item.endAt ? ` - ${new Date(item.endAt).toLocaleTimeString('tr-TR')}` : ''}` : ''}
+          </div>
+          <div style="display:flex; gap:8px; align-items:center">
+            <button type="button" class="btn btn-primary" onclick="publishExtractedItem('outage', ${idx}, this)" style="background:#16a34a; border-color:#15803d; font-size:12px; padding:6px 14px">
+              ✅ Uygulamada Yayınla
+            </button>
+            <label style="font-size:12px; color:#475569; display:flex; align-items:center; gap:4px">
+              <input type="checkbox" id="push_outage_${idx}" checked style="accent-color:#16a34a"> Anlık Bildirim Gönder (FCM)
+            </label>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      roadClosures.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.style = 'padding:14px; background:#fff; border-radius:10px; border:1px solid #cbd5e1; box-shadow:0 2px 4px rgba(0,0,0,0.03)';
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+            <span style="background:#fee2e2; color:#b91c1c; font-weight:800; font-size:11px; padding:3px 8px; border-radius:6px">
+              🚧 YOL ÇALIŞMASI / KAPALI
+            </span>
+            <span style="font-size:11px; color:#64748b">${escapeHtml(item.source || 'Belediye')}</span>
+          </div>
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px">${escapeHtml(item.title)}</div>
+          <div style="font-size:12px; color:#475569; margin-bottom:6px">${escapeHtml(item.subtitle || item.reason || '')}</div>
+          <div style="font-size:12px; color:#334155; margin-bottom:10px">
+            <strong>Adres:</strong> ${escapeHtml(item.address || 'Düziçi')} <br>
+            <strong>Durum:</strong> ${item.severity === 'full' ? 'Tam Kapalı' : 'Kısmi / Şerit Daralması'}
+          </div>
+          <div style="display:flex; gap:8px; align-items:center">
+            <button type="button" class="btn btn-primary" onclick="publishExtractedItem('road', ${idx}, this)" style="background:#2563eb; border-color:#1d4ed8; font-size:12px; padding:6px 14px">
+              ✅ Uygulamada Yayınla
+            </button>
+            <label style="font-size:12px; color:#475569; display:flex; align-items:center; gap:4px">
+              <input type="checkbox" id="push_road_${idx}" checked style="accent-color:#2563eb"> Anlık Bildirim Gönder (FCM)
+            </label>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+
+      wrap.style.display = 'block';
+    }
+
+    async function publishExtractedItem(type, index, btn) {
+      const item = type === 'outage' ? window._currentParsedOutages?.[index] : window._currentParsedRoads?.[index];
+      if (!item) return;
+
+      const pushCheckbox = document.getElementById(type === 'outage' ? `push_outage_${index}` : `push_road_${index}`);
+      const sendPush = pushCheckbox ? pushCheckbox.checked : true;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⌛ Yayınlanıyor...';
+      }
+      try {
+        const res = await fetch('/api/admin/publish-outage-road', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-token': currentToken,
+          },
+          body: JSON.stringify({ type, item, sendPush }),
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message || 'Yayınlanamadı');
+        
+        if (btn) {
+          btn.textContent = '✓ Yayında!';
+          btn.style.background = '#059669';
+        }
+        showToast(type === 'outage' ? 'Kesinti yayına alındı.' : 'Yol çalışması yayına alındı.');
+      } catch (err) {
+        showToast(err.message || 'Hata oluştu', true);
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Yeniden Dene';
         }
       }
     }

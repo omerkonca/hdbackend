@@ -86,12 +86,34 @@ class OutageService {
     }
 
     try {
-      const [belediye, toroslar] = await Promise.all([
+      const fileService = require('./fileService');
+      const newsService = require('./newsService');
+      const outageExtractorService = require('./outageExtractorService');
+
+      const [belediye, toroslar, cityData] = await Promise.all([
         municipalityAnnouncementScraper.fetchOutageAnnouncements({ max: 40 }),
         toroslarOutageScraper.fetchDuziciOutages(),
+        fileService.readCityContent().catch(() => ({})),
       ]);
 
-      const merged = mergeOutages([belediye, toroslar]);
+      const manualOutages = Array.isArray(cityData?.outages) ? cityData.outages : [];
+
+      // Son 36 saatteki yerel haberlerden kesinti tespiti
+      let newsExtracted = [];
+      try {
+        const recentNews = await newsService.getNews({ max: 15 });
+        for (const item of recentNews) {
+          const text = `${item.title} ${item.summary || ''}`;
+          if (/kesint|elektrik|su kes|şebeke bakım|trafo/i.test(text)) {
+            const ext = await outageExtractorService.extractFromText(text);
+            if (ext.outages?.length) {
+              newsExtracted.push(...ext.outages);
+            }
+          }
+        }
+      } catch (_) {}
+
+      const merged = mergeOutages([manualOutages, newsExtracted, belediye, toroslar]);
       const todayKey = turkeyDateKey();
       const active = merged.filter((item) => item.isActive !== false && item.status !== 'Tamamlandı');
       const activeIds = new Set(active.map((item) => item.id));
@@ -110,7 +132,7 @@ class OutageService {
         toroslar.length > 0 ? 'belediye+toroslar' : belediye.length > 0 ? 'belediye-duyuru' : 'empty';
 
       console.info(
-        `[outages] ${active.length} aktif, ${history.length} geçmiş (belediye: ${belediye.length}, toroslar: ${toroslar.length})`,
+        `[outages] ${active.length} aktif, ${history.length} geçmiş (manuel: ${manualOutages.length}, haber: ${newsExtracted.length}, belediye: ${belediye.length}, toroslar: ${toroslar.length})`,
       );
       return active;
     } catch (error) {

@@ -264,17 +264,28 @@ class AiReporterService {
       console.warn('[ai-reporter] Obituaries fetch failed:', err.message);
     }
 
-    // 5. Local news
+    // 5. Local news (Yalnızca son 36 saatin taze yerel haberleri)
     try {
       const news = await newsService.getNews({ max: 40 });
-          const localNews = (news || [])
+      const targetTime = targetDate ? new Date(`${targetDate}T23:59:59+03:00`).getTime() : Date.now();
+      const maxAgeMs = 36 * 60 * 60 * 1000;
+      const localNews = (news || [])
         .filter((n) => {
           const cat = normalizeTr(n.category || '');
           const id = String(n.id || '');
           if (id.startsWith('news-ai-reporter-')) return false;
+
+          // Güncellik filtresi: Eski haberleri bültene dahil etme
+          const pubTime = n.createdAt ? new Date(n.createdAt).getTime() : 0;
+          if (Number.isFinite(pubTime) && pubTime > 0) {
+            if (targetTime - pubTime > maxAgeMs || pubTime > targetTime + 2 * 60 * 60 * 1000) {
+              return false;
+            }
+          }
+
           return cat.includes('duzici') || newsService.isDuziciRelated(n.title, n.summary);
         })
-        .slice(0, 12);
+        .slice(0, 8);
       snapshot.newsCount = localNews.length;
       if (localNews.length > 0) {
         snapshot.newsText = localNews
@@ -282,7 +293,7 @@ class AiReporterService {
           .join('\n');
         snapshot.signals.push('news');
       } else {
-        snapshot.newsText = 'Öne çıkan yeni yerel haber kaydı sınırlı.';
+        snapshot.newsText = 'Öne çıkan yeni yerel haber kaydı sınırlı (ilçede sakin gün).';
       }
     } catch (err) {
       console.warn('[ai-reporter] News fetch failed:', err.message);
@@ -399,7 +410,8 @@ class AiReporterService {
     const systemPrompt =
       'Sen Düziçi (Osmaniye) için akşam bülteni yazan deneyimli bir yerel muhabirsin. ' +
       'Dil doğal, samimi ve bilgilendirici olsun; robotik veya aşırı resmi olma. ' +
-      'Abartı ve uydurma bilgi yok — yalnızca verilen verilere dayan. ' +
+      'Abartı ve uydurma bilgi yok — yalnızca verilen güncel verilere dayan. ' +
+      'Eski veya geçmişteki haber/talepleri bugün yaşanmış gibi anlatma. Yeni haber yoksa sakin gün vurgusu yap. ' +
       'Başlık, haberin asıl vurgusuyla entegre olsun (hava, kesinti, yol, etkinlik vb.). ' +
       'Yanıtını yalnızca geçerli JSON olarak ver.';
 

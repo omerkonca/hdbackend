@@ -1369,6 +1369,123 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       });
     }
   }
+
+  async parseOutageRoadText(req, res) {
+    try {
+      const { text } = req.body || {};
+      if (!text || typeof text !== 'string' || text.trim().length < 5) {
+        return res.status(400).json({ ok: false, message: 'Lütfen geçerli bir duyuru/haber metni girin.' });
+      }
+      const outageExtractorService = require('../services/outageExtractorService');
+      const result = await outageExtractorService.extractFromText(text);
+      return res.json({
+        ok: true,
+        message: 'Metin başarıyla analiz edildi.',
+        outages: result.outages || [],
+        roadClosures: result.roadClosures || [],
+      });
+    } catch (err) {
+      console.error('[admin-parse] error:', err.message);
+      return res.status(500).json({ ok: false, message: 'Ayrıştırma başarısız: ' + err.message });
+    }
+  }
+
+  async publishOutageRoad(req, res) {
+    try {
+      const { type, item, sendPush = false } = req.body || {};
+      if (!item || !item.title) {
+        return res.status(400).json({ ok: false, message: 'Geçersiz kayıt verisi.' });
+      }
+      const fileService = require('../services/fileService');
+      const fcmService = require('../services/fcmService');
+      const city = await fileService.readCityContent();
+
+      if (type === 'outage') {
+        const outages = Array.isArray(city.outages) ? city.outages : [];
+        const newItem = {
+          id: item.id || `manual_outage_${Date.now()}`,
+          title: item.title,
+          subtitle: item.subtitle || '',
+          type: item.type === 'SU' ? 'SU' : 'ELEKTRİK',
+          status: item.status || 'Planlandı',
+          source: item.source || 'Belediye / İdare',
+          area: item.area || 'Düziçi',
+          lat: item.lat || 37.244,
+          lng: item.lng || 36.451,
+          date: item.startAt || new Date().toISOString(),
+          publishedAt: new Date().toISOString(),
+          startAt: item.startAt || null,
+          endAt: item.endAt || null,
+          isActive: true,
+        };
+        const idx = outages.findIndex((o) => o.id === newItem.id);
+        if (idx >= 0) outages[idx] = newItem;
+        else outages.unshift(newItem);
+        city.outages = outages;
+        await fileService.writeCityContent(city);
+
+        const outageService = require('../services/outageService');
+        await outageService.getOutages({ forceRefresh: true }).catch(() => {});
+
+        if (sendPush && fcmService.isFcmConfigured()) {
+          const isWater = newItem.type === 'SU';
+          await fcmService.sendToTopic('outages_duzici', {
+            title: isWater ? 'Düziçi\'de Su Kesintisi Duyurusu ⚠️' : 'Düziçi\'de Elektrik Kesintisi ⚡',
+            body: `${newItem.area ? `${newItem.area}: ` : ''}${newItem.title}`,
+            data: { route: 'screen:outages', outageId: newItem.id },
+          }).catch((e) => console.warn('[push] failed:', e.message));
+        }
+
+        return res.json({ ok: true, message: 'Kesinti başarıyla kaydedildi ve yayına alındı.', item: newItem });
+      } else {
+        const roadClosureStore = require('../services/roadClosureStore');
+        const state = await roadClosureStore.load();
+        const items = Array.isArray(state.items) ? state.items : [];
+        const newItem = {
+          id: item.id || `manual_road_${Date.now()}`,
+          fingerprint: item.id || `manual_road_${Date.now()}`,
+          title: item.title,
+          subtitle: item.subtitle || '',
+          status: item.status || 'Devam Ediyor',
+          reason: item.reason || 'Yol Çalışması',
+          roadCode: item.roadCode || 'Düziçi',
+          address: item.address || 'Düziçi / Osmaniye',
+          lat: item.lat || 37.244,
+          lng: item.lng || 36.451,
+          alternativeRoute: item.alternativeRoute || 'Alternatif güzergâhlara dikkat ediniz.',
+          severity: item.severity === 'full' ? 'full' : 'partial',
+          startAt: item.startAt || new Date().toISOString(),
+          endAt: item.endAt || null,
+          source: item.source || 'Düziçi Belediyesi',
+          kind: 'manual',
+          autoManaged: false,
+        };
+
+        const idx = items.findIndex((r) => r.id === newItem.id || r.fingerprint === newItem.fingerprint);
+        if (idx >= 0) items[idx] = newItem;
+        else items.unshift(newItem);
+
+        state.items = items;
+        await roadClosureStore.save(state);
+
+        const roadClosureSyncService = require('../services/roadClosureSyncService');
+        await roadClosureSyncService.sync({ force: true }).catch(() => {});
+
+        if (sendPush && fcmService.isFcmConfigured()) {
+          await fcmService.sendToTopic('road_closures_duzici', {
+            title: 'Düziçi Yol Çalışması / Kapanma 🚧',
+            body: `${newItem.title}: ${newItem.subtitle || newItem.reason}`,
+            data: { route: 'screen:road_closures', closureId: newItem.id },
+          }).catch((e) => console.warn('[push] failed:', e.message));
+        }
+
+        return res.json({ ok: true, message: 'Yol çalışması kaydedildi ve yayına alındı.', item: newItem });
+      }
+    } catch (err) {
+      console.error('[admin-publish-outage-road] error:', err.message);
+      return res.status(500).json({ ok: false, message: 'Kayıt başarısız: ' + err.message });
+    }
+  }
 }
 
 function isSandboxRecord(row) {

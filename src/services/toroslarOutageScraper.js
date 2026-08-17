@@ -183,6 +183,36 @@ async function tryJinaFallback() {
   return parseJinaMarkdown(text);
 }
 
+async function tryTedasApi() {
+  const tedasAttempts = [
+    'https://kesintisorgulama.tedas.gov.tr/api/v1/outages?city=80',
+    'https://kesintisorgulama.tedas.gov.tr/api/outage/list?il=80',
+    'https://online.toroslaredas.com.tr/api/Outage/GetOutagesByCity?cityId=80',
+    'https://online.toroslaredas.com.tr/api/Outage/GetPlannedOutagesByDistrict?cityId=80&districtName=D%C3%9CZ%C4%B0%C3%87%C4%B0',
+  ];
+
+  for (const url of tedasAttempts) {
+    try {
+      const res = await fetchWithTimeout(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          Accept: 'application/json, text/plain, */*',
+        },
+      }, 15000);
+      if (!res.ok) continue;
+      const json = await res.json();
+      const rows = normalizeApiPayload(json).map(mapApiRow).filter(Boolean);
+      if (rows.length > 0) {
+        console.info(`[tedas-kesinti] ${rows.length} kayıt (${url})`);
+        return rows;
+      }
+    } catch (e) {
+      // Continue next attempt
+    }
+  }
+  return [];
+}
+
 class ToroslarOutageScraper {
   async fetchDuziciOutages() {
     try {
@@ -190,6 +220,13 @@ class ToroslarOutageScraper {
       if (apiRows.length > 0) return apiRows;
     } catch (err) {
       console.warn('[toroslar-kesinti] API başarısız:', err.message);
+    }
+
+    try {
+      const tedasRows = await tryTedasApi();
+      if (tedasRows.length > 0) return tedasRows;
+    } catch (err) {
+      console.warn('[toroslar-kesinti] TEDAŞ API başarısız:', err.message);
     }
 
     try {

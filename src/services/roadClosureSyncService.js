@@ -13,12 +13,29 @@ class RoadClosureSyncService {
   }
 
   async _collectLive() {
+    const newsService = require('./newsService');
+    const outageExtractorService = require('./outageExtractorService');
+
     const [duziciBel, osmaniyeBel, kgm, baseline] = await Promise.all([
       municipalityAnnouncementScraper.fetchRoadRelatedAnnouncements({ max: 25 }),
       osmaniyeMunicipalityScraper.fetchRoadRelatedAnnouncements({ max: 15 }),
       kgmRoadClosureScraper.fetchRelevantClosures(),
       loadBaseline(),
     ]);
+
+    let newsExtractedRoads = [];
+    try {
+      const recentNews = await newsService.getNews({ max: 15 });
+      for (const item of recentNews) {
+        const text = `${item.title} ${item.summary || ''}`;
+        if (/yol yap|asfalt|trafiğe kapat|şerit daral|menfez|kilit parke/i.test(text)) {
+          const ext = await outageExtractorService.extractFromText(text);
+          if (ext.roadClosures?.length) {
+            newsExtractedRoads.push(...ext.roadClosures);
+          }
+        }
+      }
+    } catch (_) {}
 
     const byKey = new Map();
     const mergeKey = (item) => {
@@ -55,7 +72,7 @@ class RoadClosureSyncService {
       return s;
     };
 
-    const sources = [...baseline, ...kgm, ...duziciBel, ...osmaniyeBel];
+    const sources = [...baseline, ...kgm, ...duziciBel, ...osmaniyeBel, ...newsExtractedRoads];
     for (const item of sources) {
       const key = mergeKey(item);
       const existing = byKey.get(key);
