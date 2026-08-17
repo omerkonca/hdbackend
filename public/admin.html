@@ -1090,6 +1090,7 @@
       <div class="menu-group-title" onclick="toggleMenuGroup('groupAnnounce')">📢 Duyurular &amp; Bildirim <span class="arrow">▼</span></div>
       <div class="menu-group-items" id="groupAnnounce">
         <div class="nav-item" onclick="switchView('announcements')">📣 Duyuru Yayınla (Canva + Push)</div>
+        <div class="nav-item" onclick="switchView('outageRoadAi')">⚡ Kesinti &amp; Yol Çalışması (AI)</div>
         <div class="nav-item" onclick="switchView('push')">📲 Sadece Bildirim Gönder</div>
         <div class="nav-item" onclick="switchView('citizenReports')">🚨 İhbar Yönetimi</div>
       </div>
@@ -1110,6 +1111,7 @@
         <div class="nav-item" onclick="switchView('newsSources')">📡 Haber Kaynakları</div>
         <div class="nav-item" onclick="switchView('announcements')">📣 Yayıncı Duyuruları</div>
         <div class="nav-item" onclick="switchView('aiNews')">🤖 Yapay Zeka Haberleri</div>
+        <div class="nav-item" onclick="switchView('outageRoadAi')">⚡ Kesinti &amp; Yol Çalışması (AI)</div>
         <div class="nav-item" onclick="refreshSystem('news')">🔄 Haberleri Yenile</div>
       </div>
 
@@ -2047,6 +2049,43 @@
         <div class="card" id="cityDealsEditorContainer" style="display:none">
           <div class="section-title" id="cityDealsEditorTitle">✏️ Kampanya Düzenle</div>
           <div id="cityDealsEditorForm" style="margin-top:16px"></div>
+        </div>
+      </div>
+
+      <!-- Outage & Road AI Panel -->
+      <div id="outageRoadAiView" class="view-section">
+        <div class="card" style="margin-bottom:24px; border:1px solid #fed7aa; background:#fffbf5">
+          <div class="section-title" style="color:#c2410c; display:flex; align-items:center; gap:8px">
+            ⚡ Kesinti &amp; 🚧 Yol Çalışması Hızlı Ekle (Yapay Zeka)
+          </div>
+          <p style="color:var(--text-muted); font-size:13px; margin-bottom:14px">
+            Toroslar EDAŞ, Belediye, ASKİ veya muhtarlıklardan gelen duyuru metnini (WhatsApp, Facebook vb.) buraya yapıştırın. Yapay zeka tüm mahalle, saat, sokak ve yol çalışmalarını anında ayıklar ve tek tıkla yayına almanızı sağlar.
+          </p>
+
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px">
+            <span style="font-size:12px; font-weight:700; color:#475569; align-self:center">Hızlı Şablonlar:</span>
+            <button type="button" class="btn btn-secondary" onclick="applyOutageTemplate('toroslar')" style="font-size:11px; padding:4px 10px; background:#fff">⚡ Toroslar Elektrik</button>
+            <button type="button" class="btn btn-secondary" onclick="applyOutageTemplate('road')" style="font-size:11px; padding:4px 10px; background:#fff">🚧 Yol / Asfalt Çalışması</button>
+            <button type="button" class="btn btn-secondary" onclick="applyOutageTemplate('water')" style="font-size:11px; padding:4px 10px; background:#fff">💧 Su Kesintisi</button>
+          </div>
+
+          <div class="form-group">
+            <label style="font-weight:700">Ham Duyuru / Haber / Mesaj Metni</label>
+            <textarea id="aiOutageRawText" placeholder="Örn: Toroslar EDAŞ duyurusu: 19 Ağustos Çarşamba günü 09:00 - 17:00 saatleri arasında Kurtuluş Mahallesi ve Atatürk Caddesinde şebeke bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır..." style="width:100%; height:130px; padding:12px; border-radius:8px; border:1px solid var(--border); font-family:inherit; resize:vertical"></textarea>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+            <button type="button" class="btn btn-primary" id="aiParseOutageBtn" onclick="parseOutageRawText()" style="background:#ea580c; border-color:#c2410c">
+              ✨ Metni Yapay Zeka ile Çözümle
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="refreshSystem('outages'); refreshSystem('roadClosures');">
+              🔄 Canlı Kaynakları Şimdi Tara (Toroslar + KGM)
+            </button>
+          </div>
+          
+          <div id="aiOutageResultsWrap" style="display:none; margin-top:20px">
+            <h4 style="font-size:14px; font-weight:800; color:#0f172a; margin-bottom:10px">📋 Çözümlenen Kayıtlar (Onaylayıp Yayınlayın):</h4>
+            <div id="aiOutageResultsList" style="display:flex; flex-direction:column; gap:12px"></div>
+          </div>
         </div>
       </div>
 
@@ -3108,6 +3147,7 @@
         explore: ['Keşfet', 'Şehir rehberi kategorilerini düzenleyin.'],
         sponsors: ['Sponsorlar', 'Uygulamadaki reklam ve sponsor alanları.'],
         announcements: ['Yayıncı Duyuruları', 'Canva görseli ve metin ile duyuru yayınlayın; isteğe bağlı push gönderin.'],
+        outageRoadAi: ['Kesinti & Yol Çalışması (Yapay Zeka)', 'WhatsApp, Facebook veya basın bülteni metinlerini saniyeler içinde ayrıştırıp uygulamada yayınlayın.'],
         push: ['Toplu Bildirim', 'Tüm kullanıcılara push bildirim gönderin.'],
         citizenReports: ['İhbar Yönetimi', 'Vatandaş ihbarlarını inceleyin ve durumlarını güncelleyin.'],
         backups: ['Yedekler', 'Veri güvenliği ve geri yükleme merkezi.'],
@@ -7526,6 +7566,18 @@
           btn.disabled = false;
           btn.textContent = '🔄 Özeti Şimdi Yenile';
         }
+      }
+    }
+
+    function applyOutageTemplate(type) {
+      const ta = document.getElementById('aiOutageRawText');
+      if (!ta) return;
+      if (type === 'toroslar') {
+        ta.value = 'Toroslar EDAŞ Düziçi İşletme Şefliği duyurusu:\n19 Ağustos Çarşamba günü 09:00 - 17:00 saatleri arasında Kurtuluş ve İrfanlı mahallelerinde şebeke bakım ve yenileme çalışması nedeniyle planlı elektrik kesintisi uygulanacaktır. Sayın halkımızın tedbirli olmaları rica olunur.';
+      } else if (type === 'road') {
+        ta.value = 'Düziçi Belediyesi Fen İşleri Müdürlüğü duyurusu:\nRefik Cesur Bulvarı üzerinde sıcak asfalt serim ve yol yenileme çalışmaları başlamıştır. Çalışma süresince trafik tek şeritten kontrollü olarak sağlanacaktır. Sürücülerimizin alternatif güzergahları kullanmaları önemle rica olunur.';
+      } else if (type === 'water') {
+        ta.value = 'Düziçi Belediyesi Su ve Kanalizasyon İşleri duyurusu:\nAna iletim hattında meydana gelen arıza nedeniyle bugün 13:00 - 18:00 saatleri arasında Çamiçi ve Üzümlü mahallelerinde su kesintisi yaşanacaktır.';
       }
     }
 
