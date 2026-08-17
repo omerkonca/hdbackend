@@ -32,7 +32,7 @@ class NewsService {
 
   getFetchTimeoutMs(url = '') {
     const u = String(url || '');
-    if (/akdenizgazetesi\.com|sabirgazetesi\.com|hasretgazetesi\.com/i.test(u)) {
+    if (/akdenizgazetesi\.com|sabirgazetesi\.com|hasretgazetesi\.com|basakgazetesi\.com/i.test(u)) {
       return this.SLOW_HOST_TIMEOUT_MS;
     }
     if (/news\.google\.com/i.test(u)) return this.ARTICLE_TIMEOUT_MS;
@@ -107,14 +107,14 @@ class NewsService {
     if (item.imageUrl) score += 20;
     const url = String(item.sourceUrl || '');
     if (url && !/news\.google\.com/i.test(url)) score += 30;
-    if (/akdenizgazetesi\.com|sabirgazetesi\.com|hasretgazetesi\.com/i.test(url)) score += 10;
+    if (/akdenizgazetesi\.com|sabirgazetesi\.com|hasretgazetesi\.com|basakgazetesi\.com/i.test(url)) score += 10;
     if (item.sourceName && !/google news/i.test(item.sourceName)) score += 5;
     return score;
   }
 
   normalizeNewsTitleKey(title = '') {
     return normalizeForCompare(String(title || ''))
-      .replace(/\s*-\s*(sabir|hasret|akdeniz|google)\s+gazetesi.*$/i, '')
+      .replace(/\s*-\s*(sabir|hasret|akdeniz|basak|başak|google)\s+gazetesi.*$/i, '')
       .replace(/[^a-z0-9]+/g, ' ')
       .trim()
       .slice(0, 120);

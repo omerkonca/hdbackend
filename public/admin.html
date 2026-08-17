@@ -1939,11 +1939,11 @@
           </div>
           <div class="form-group">
             <label>Buton yazısı</label>
-            <input id="swCta" placeholder="Sen de Çorba Ismarla">
+            <input id="swCta" placeholder="Sen de Kömbe Ismarla">
           </div>
           <div class="form-group">
             <label>Liste başlığı</label>
-            <input id="swListTitle" placeholder="Son Çorba Ismarlayanlar">
+            <input id="swListTitle" placeholder="Son Destekçiler">
           </div>
           <div class="form-group">
             <label>Boş liste başlığı</label>
@@ -1951,7 +1951,7 @@
           </div>
           <div class="form-group">
             <label>Boş liste alt yazısı</label>
-            <input id="swEmptySubtitle" placeholder="İlk çorbayı ısmarlayan sen ol!">
+            <input id="swEmptySubtitle" placeholder="İlk ikramda bulunan sen ol!">
           </div>
           <div class="form-group">
             <label>Duyuru şeridi (opsiyonel)</label>
@@ -2821,14 +2821,23 @@
       const options = Object.entries(CITIZEN_REPORT_STATUS_LABELS)
         .map(([value, label]) => `<option value="${value}" ${value === current ? 'selected' : ''}>${label}</option>`)
         .join('');
+      const isPlus = item.is_plus === true;
+      const isSupporter = item.is_supporter === true;
+      const userBadge = item.user_badge || (isPlus && isSupporter ? '👑 Plus & Destekçi' : (isPlus ? '👑 Plus Üye' : (isSupporter ? '🎖️ Destekçi' : '')));
+      const vipBadge = userBadge
+        ? `<span style="background:linear-gradient(135deg,#FEF3C7,#FDE68A); color:#92400E; font-weight:800; padding:3px 8px; border-radius:6px; font-size:11.5px; border:1px solid #F59E0B; margin-left:6px; box-shadow:0 1px 3px rgba(245,158,11,0.2)">⭐ ${escapeHtml(userBadge)}</span>`
+        : '';
+      const vipStyle = userBadge
+        ? 'border: 1.5px solid #F59E0B; background: linear-gradient(135deg, rgba(245,158,11,0.04), #ffffff); box-shadow: 0 4px 12px rgba(245,158,11,0.08);'
+        : 'border:1px solid var(--border);';
       const closedStyle = isOpenCitizenReport(current)
         ? ''
         : 'opacity:0.78; background:#f8fafc;';
       return `
-        <div class="card" style="margin-bottom:12px; padding:16px; border:1px solid var(--border); ${closedStyle}">
+        <div class="card" style="margin-bottom:12px; padding:16px; ${vipStyle} ${closedStyle}">
           <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px">
             <div>
-              <strong>${category}</strong>
+              <strong style="font-size:15px">${category}</strong>${vipBadge}
               <div style="font-size:12px; color:var(--text-muted); margin-top:4px">${created} · <code style="font-size:11px">${id}</code></div>
             </div>
             <div class="row" style="gap:8px; align-items:center">
@@ -4392,10 +4401,10 @@
         heroTitle: 'Düziçi\'nin Bağımsız Gönüllü Ekibi',
         heroBody: 'Hepsi Düziçi; hiçbir kurum, belediye veya kişiden bütçe almadan, tamamen kendi emeğimizle Düziçi\'ye kazandırıldı. Uygulamayı reklamsız ve hızlı tutmak için destek olan herkese teşekkürler!',
         heroEmojis: '🥜 🫓 🥣 🍖',
-        ctaLabel: 'Sen de Çorba Ismarla',
-        listTitle: 'Son Çorba Ismarlayanlar',
+        ctaLabel: 'Sen de Kömbe Ismarla',
+        listTitle: 'Son Destekçiler',
         emptyTitle: 'Henüz destekçi kaydı bulunmuyor.',
-        emptySubtitle: 'İlk çorbayı ısmarlayan sen ol!',
+        emptySubtitle: 'İlk ikramda bulunan sen ol!',
         featuredMessage: '',
       };
       const w = Object.assign({}, d, rawData.supportersWall || {});

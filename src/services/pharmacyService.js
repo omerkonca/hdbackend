@@ -1,6 +1,7 @@
 const config = require('../config');
 const { normalizeText, fetchPage, stripHtml, fetchWithTimeout } = require('../utils/helpers');
 const { normalizePharmacyDateLabels } = require('../utils/pharmacyDutyLabels');
+const fcmService = require('./fcmService');
 
 function istanbulDateKey(ms = Date.now()) {
   return new Intl.DateTimeFormat('en-CA', {
@@ -17,6 +18,7 @@ class PharmacyService {
       fetchedAt: 0,
       pharmacies: [],
     };
+    this._lastPushedDateKey = '';
   }
 
   parseDutyPharmacyHtml(html) {
@@ -340,6 +342,7 @@ class PharmacyService {
         pharmacies: normalized,
       };
       await this.syncToSupabase(normalized);
+      this.maybePushDutyPharmacy(normalized).catch(() => {});
       return this.enrichPharmacies(normalized);
     } catch (err) {
       console.warn('[pharmacy] scrape failed:', err.message);
@@ -351,6 +354,7 @@ class PharmacyService {
           fetchedAt: Date.now(),
           pharmacies: normalized,
         };
+        this.maybePushDutyPharmacy(normalized).catch(() => {});
         return this.enrichPharmacies(normalized);
       }
 
@@ -365,6 +369,36 @@ class PharmacyService {
       }
 
       throw err;
+    }
+  }
+
+  async maybePushDutyPharmacy(pharmacies) {
+    const todayKey = istanbulDateKey();
+    if (this._lastPushedDateKey === todayKey) return;
+
+    if (!fcmService.isFcmConfigured()) return;
+    if (!pharmacies || !pharmacies.length) return;
+
+    const todayPharmacy = pharmacies.find((p) => p.dateLabel === 'Bugün') || pharmacies[0];
+    if (!todayPharmacy) return;
+
+    this._lastPushedDateKey = todayKey;
+
+    const title = 'Bugün Nöbetçi Eczane 🏥';
+    const body = `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir.`;
+
+    try {
+      await fcmService.sendToTopic('pharmacy_plus', {
+        title,
+        body,
+        data: {
+          route: 'screen:pharmacy',
+          pharmacyName: todayPharmacy.name,
+        },
+      });
+      console.log(`[pharmacy] Plus üyelere nöbetçi eczane push bildirimi gönderildi: ${todayPharmacy.name}`);
+    } catch (err) {
+      console.warn('[pharmacy] push failed:', err.message);
     }
   }
 }

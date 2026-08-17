@@ -66,6 +66,10 @@ function buildTransporter() {
 
 function buildHtml(report) {
   const category = CATEGORY_LABELS[report.category] || report.category;
+  const isPlus = report.is_plus === true;
+  const isSupporter = report.is_supporter === true;
+  const userBadge = report.user_badge || (isPlus && isSupporter ? '👑 Plus & Destekçi' : (isPlus ? '👑 Plus Üye' : (isSupporter ? '🎖️ Destekçi' : null)));
+
   const photos = (report.image_urls || [])
     .map((url, i) => {
       const full = url.startsWith('http') ? url : `https://hdbackend-vo99.onrender.com${url}`;
@@ -73,9 +77,14 @@ function buildHtml(report) {
     })
     .join('');
 
+  const vipBadgeHtml = userBadge
+    ? `<div style="display:inline-block;background:#FEF3C7;border:1.5px solid #F59E0B;color:#92400E;font-weight:bold;padding:6px 12px;border-radius:8px;font-size:13px;margin-bottom:12px">⭐ ${userBadge} — ÖNCELİKLİ İHBAR</div>`
+    : '';
+
   return `
     <div style="font-family:Arial,sans-serif;max-width:640px">
       <h2 style="color:#0F2744">Yeni İhbar / Öneri</h2>
+      ${vipBadgeHtml}
       <p><strong>Tür:</strong> ${category}</p>
       <p><strong>Tarih:</strong> ${new Date(report.created_at).toLocaleString('tr-TR')}</p>
       <p><strong>Platform:</strong> ${report.platform || '-'} · v${report.app_version || '-'}</p>
@@ -92,13 +101,18 @@ function buildHtml(report) {
 
 function buildText(report) {
   const category = CATEGORY_LABELS[report.category] || report.category;
+  const isPlus = report.is_plus === true;
+  const isSupporter = report.is_supporter === true;
+  const userBadge = report.user_badge || (isPlus && isSupporter ? '👑 Plus & Destekçi' : (isPlus ? '👑 Plus Üye' : (isSupporter ? '🎖️ Destekçi' : '')));
+
   return [
+    userBadge ? `[⭐ ${userBadge} - ÖNCELİKLİ İHBAR]` : '',
     `Tür: ${category}`,
     `Mesaj: ${report.message}`,
     `İsim: ${report.contact_name || '-'}`,
     `E-posta: ${report.contact_email || '-'}`,
     `Fotoğraflar: ${(report.image_urls || []).join(', ') || '-'}`,
-  ].join('\n');
+  ].filter(Boolean).join('\n');
 }
 
 async function sendViaGmailWebhook({ to, subject, html, text, replyTo }) {

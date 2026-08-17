@@ -12,6 +12,9 @@ class CitizenReportService {
     imageUrls = [],
     platform,
     appVersion,
+    isPlus = false,
+    isSupporter = false,
+    userBadge = null,
   }) {
     if (!VALID_CATEGORIES.has(category)) {
       throw new Error('Geçersiz kategori.');
@@ -36,6 +39,9 @@ class CitizenReportService {
         platform: platform || null,
         app_version: appVersion || null,
         status: 'new',
+        is_plus: isPlus === true || isPlus === 'true',
+        is_supporter: isSupporter === true || isSupporter === 'true',
+        user_badge: userBadge?.trim() || null,
       })
       .select('*')
       .single();

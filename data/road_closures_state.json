@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSyncAt": "2026-07-14T12:20:54.294Z",
+  "lastSyncAt": "2026-08-13T13:44:09.498Z",
   "items": {
     "belediye_trafik_2025_27": {
       "id": "belediye_trafik_2025_27",
@@ -23,7 +23,7 @@
       "autoManaged": false,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 0
+      "missedScans": 1
     },
     "belediye_haberler_recep-tayyip-erdogan-bulvari-yenileniyor": {
       "id": "belediye_rte_bulvari",
@@ -46,7 +46,7 @@
       "autoManaged": false,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 0
+      "missedScans": 1
     },
     "belediye_il-trafik-komisyonun-25032025-ve-202527-sayili-karari": {
       "id": "belediye_il-trafik-komisyonun-25032025-ve-202527-sayili-karari",
@@ -69,8 +69,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 497,
-      "closedAt": "2026-07-14T12:20:54.294Z",
+      "missedScans": 498,
+      "closedAt": "2026-08-13T13:44:09.498Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberlerrecep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -94,8 +94,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 497,
-      "closedAt": "2026-07-14T12:20:54.294Z",
+      "missedScans": 498,
+      "closedAt": "2026-08-13T13:44:09.498Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_recep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -119,8 +119,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 497,
-      "closedAt": "2026-07-14T12:20:54.294Z",
+      "missedScans": 498,
+      "closedAt": "2026-08-13T13:44:09.498Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_uzunbani-mahallelerinde-asfaltlama-calismalari-bas": {
@@ -144,37 +144,9 @@
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:44:28.809Z",
       "lastSeenAt": "2026-06-24T20:44:28.809Z",
-      "missedScans": 2,
-      "closedAt": "2026-07-14T12:20:54.294Z",
+      "missedScans": 3,
+      "closedAt": "2026-08-13T13:44:09.498Z",
       "closeReason": "Duyuru artık yayında değil"
-    },
-    "kgm_33-51-otoyol-baglanti-yolu-ayrim-tepekoy-26-28": {
-      "id": "kgm_33-51-otoyol-baglanti-yolu-ayrim-tepekoy-26-28",
-      "fingerprint": "kgm_33-51-otoyol-baglanti-yolu-ayrim-tepekoy-26-28",
-      "title": "OTOYOL BAĞLANTI YOLU AYRIM - TEPEKÖY",
-      "subtitle": "MERSİN (52. Şube) · K.K.33-51 · km 26–28 · Heyelan",
-      "status": "Devam Ediyor",
-      "reason": "Heyelan",
-      "roadCode": "Mersin otoyol bağlantısı",
-      "address": "Mersin otoyol bağlantısı, Osmaniye / Adana koridoru",
-      "lat": 36.85,
-      "lng": 34.65,
-      "alternativeRoute": "33-51 kk.nolu mersin -tepeköy il yolunun 25+500 ile 27+800 km leri heyelan sebebiyle 28.03.2026 saat 16.20 itibari ile trafige kapatılmış olup alternatif olarak mahalle içerisi yollara yönlendirme yapılarak düşey işaretleme çalışmaları yapılmıştır.",
-      "severity": "partial",
-      "startAt": "2026-03-28",
-      "endAt": null,
-      "source": "KARAYOLLARI (KGM)",
-      "announcementUrl": "https://www.kgm.gov.tr/Sayfalar/KGM/SiteTr/YolDanisma/TrafigeKapaliYollar.aspx",
-      "kind": "kgm",
-      "autoManaged": true,
-      "kgmMeta": {
-        "branch": "MERSİN (52. Şube)",
-        "kkNo": "33-51",
-        "updatedAt": "13.07.2026 22:06:19"
-      },
-      "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 0
     },
     "kgm_31-78-osmaniye-organize-sanayi-bolgesi-botas-tesisleri-31-76-iya-0-4": {
       "id": "kgm_31-78-osmaniye-organize-sanayi-bolgesi-botas-tesisleri-31-76-iya-0-4",
@@ -198,10 +170,10 @@
       "kgmMeta": {
         "branch": "HATAY (53. Şube)",
         "kkNo": "31-78",
-        "updatedAt": "13.07.2026 22:06:19"
+        "updatedAt": "13.08.2026 13:47:39"
       },
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-07-14T12:20:54.294Z",
+      "lastSeenAt": "2026-08-13T13:44:09.498Z",
       "missedScans": 0
     },
     "osmaniye_bel_httpsosmaniye-bldgovtrkemal-satir-caddesi-modern-yol-gorunumune-kavusuyorhtml": {
@@ -209,12 +181,12 @@
       "fingerprint": "osmaniye_bel_httpsosmaniye-bldgovtrkemal-satir-caddesi-modern-yol-gorunumune-kavusuyorhtml",
       "title": "KEMAL SATIR CADDESİ MODERN YOL GÖRÜNÜMÜNE KAVUŞUYOR",
       "subtitle": "İKİNCİ ETAP BSK SICAK ASFALT ÖNCESİNDE CADDEDE ZEMİN KAZIMA ÇALIŞMALARI BAŞLATILDI Osmaniye Belediyesi tarafından başlatılan asfalt yol s...",
-      "status": "Devam Ediyor",
+      "status": "Tamamlandı",
       "reason": "Osmaniye Belediyesi yol / altyapı duyurusu",
-      "roadCode": "Düziçi / Osmaniye koridoru",
-      "address": "Düziçi / Osmaniye koridoru, Osmaniye",
-      "lat": 37.244,
-      "lng": 36.451,
+      "roadCode": "Kemal Satır Cad. / Osmaniye",
+      "address": "Kemal Satır Cad. / Osmaniye, Osmaniye",
+      "lat": 37.075,
+      "lng": 36.25,
       "alternativeRoute": "Duyurudaki güzergâh bilgisini kontrol edin.",
       "severity": "partial",
       "startAt": null,
@@ -224,31 +196,10 @@
       "kind": "municipality",
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 0
-    },
-    "osmaniye_bel_httpsosmaniye-bldgovtrmevlana-mahallesinin-cehresi-degisiyorhtml": {
-      "id": "osmaniye_bel_httpsosmaniye-bldgovtrmevlana-mahallesinin-cehresi-degisiyorhtml",
-      "fingerprint": "osmaniye_bel_httpsosmaniye-bldgovtrmevlana-mahallesinin-cehresi-degisiyorhtml",
-      "title": "MEVLANA MAHALLESİ’NİN ÇEHRESİ DEĞİŞİYOR",
-      "subtitle": "BSK SICAK ASFALTA KAVUŞTURULAN 3 SOKAK YENİLENEN YÜZÜYLE VATANDAŞLARIN HİZMETİNE AÇILDI BAŞKAN ÇENET’TEN MEVLANA MAHALLESİ’NE SIRALI MÜJD...",
-      "status": "Tamamlandı",
-      "reason": "Osmaniye Belediyesi yol / altyapı duyurusu",
-      "roadCode": "Düziçi / Osmaniye koridoru",
-      "address": "Düziçi / Osmaniye koridoru, Osmaniye",
-      "lat": 37.244,
-      "lng": 36.451,
-      "alternativeRoute": "Duyurudaki güzergâh bilgisini kontrol edin.",
-      "severity": "maintenance",
-      "startAt": null,
-      "endAt": null,
-      "source": "OSMANİYE BELEDİYESİ",
-      "announcementUrl": "https://osmaniye-bld.gov.tr/mevlana-mahallesinin-cehresi-degisiyor.html",
-      "kind": "municipality",
-      "autoManaged": true,
-      "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 0
+      "lastSeenAt": "2026-08-13T13:44:09.498Z",
+      "missedScans": 0,
+      "closedAt": "2026-08-13T13:44:09.499Z",
+      "closeReason": "Asfaltlama duyurusu max yaş aşımı"
     },
     "belediye_duyurular": {
       "id": "belediye_duyurular",
@@ -271,9 +222,34 @@
       "autoManaged": true,
       "firstSeenAt": "2026-07-14T12:20:54.294Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
+      "missedScans": 1,
+      "closedAt": "2026-08-13T13:44:09.498Z",
+      "closeReason": "Duyuru artık yayında değil"
+    },
+    "belediye_haberleruzunbani-mahallelerinde-asfaltlama-calismalari-basladi": {
+      "id": "belediye_haberleruzunbani-mahallelerinde-asfaltlama-calismalari-basladi",
+      "fingerprint": "belediye_haberleruzunbani-mahallelerinde-asfaltlama-calismalari-basladi",
+      "title": "Uzunbanı Mahallelerinde Asfaltlama Çalışmaları Baş...",
+      "subtitle": "BAŞKAN KURUMSAL Başkan Yardımcıları Meclis Üyeleri Meclis Kararları Müdürlükler Eski Başkanlar Muhtarlıklar Meclis Gündemi Encümenler Org...",
+      "status": "Tamamlandı",
+      "reason": "Belediye / trafik duyurusu",
+      "roadCode": "Uzunbanı",
+      "address": "Uzunbanı, Düziçi, Osmaniye",
+      "lat": 37.25,
+      "lng": 36.46,
+      "alternativeRoute": "Duyurudaki güzergâh ve saat bilgisini kontrol edin.",
+      "severity": "partial",
+      "startAt": null,
+      "endAt": null,
+      "source": "BELEDİYE DUYURUSU",
+      "announcementUrl": "https://www.duzici.bel.tr/haberler/uzunbani-mahallelerinde-asfaltlama-calismalari-basladi",
+      "kind": "municipality",
+      "autoManaged": true,
+      "firstSeenAt": "2026-08-13T13:44:09.498Z",
+      "lastSeenAt": "2026-08-13T13:44:09.498Z",
       "missedScans": 0,
-      "closedAt": "2026-08-08T20:58:23.193Z",
-      "closeReason": "Uzunbanı asfaltlama / liste fingerprint — kapatıldı"
+      "closedAt": "2026-08-13T13:44:09.499Z",
+      "closeReason": "Uzunbanı asfaltlama duyurusu süresi doldu"
     }
   }
 }

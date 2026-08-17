@@ -79,6 +79,9 @@ router.post('/', (req, res, next) => {
     const contactEmail = String(req.body?.contactEmail || '').trim();
     const platform = String(req.body?.platform || '').trim();
     const appVersion = String(req.body?.appVersion || '').trim();
+    const isPlus = req.body?.isPlus === true || req.body?.isPlus === 'true';
+    const isSupporter = req.body?.isSupporter === true || req.body?.isSupporter === 'true';
+    const userBadge = String(req.body?.userBadge || '').trim();
 
     const imageUrls = [];
     if (useSupabaseStorage && req.files && req.files.length > 0) {
@@ -118,6 +121,9 @@ router.post('/', (req, res, next) => {
       imageUrls,
       platform: platform || null,
       appVersion: appVersion || null,
+      isPlus,
+      isSupporter,
+      userBadge: userBadge || null,
     });
 
     const emailResult = await emailService.sendCitizenReportEmail(row);
