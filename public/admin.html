@@ -7579,14 +7579,17 @@
       } else if (type === 'water') {
         ta.value = 'Düziçi Belediyesi Su ve Kanalizasyon İşleri duyurusu:\nAna iletim hattında meydana gelen arıza nedeniyle bugün 13:00 - 18:00 saatleri arasında Çamiçi ve Üzümlü mahallelerinde su kesintisi yaşanacaktır.';
       }
+      // Otomatik çözümle
+      parseOutageRawText();
     }
 
     async function parseOutageRawText() {
       const text = document.getElementById('aiOutageRawText')?.value?.trim();
       if (!text || text.length < 5) {
-        showToast('Lütfen geçerli bir duyuru metni yapıştırın.', true);
+        showToast('Lütfen önce bir duyuru metni yapıştırın veya yukarıdaki şablon butonlarından birini seçin.', true);
         return;
       }
+      const token = currentToken || localStorage.getItem('hd_admin_token') || '';
       const btn = document.getElementById('aiParseOutageBtn');
       if (btn) {
         btn.disabled = true;
@@ -7597,7 +7600,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-admin-token': currentToken,
+            'x-admin-token': token,
           },
           body: JSON.stringify({ text }),
         });
@@ -7607,7 +7610,7 @@
         renderParsedOutageResults(data.outages || [], data.roadClosures || []);
         showToast('Metin başarıyla çözümlendi.');
       } catch (err) {
-        showToast(err.message || 'Hata oluştu', true);
+        showToast(err.message || 'Analiz sırasında hata oluştu', true);
       } finally {
         if (btn) {
           btn.disabled = false;
@@ -7697,6 +7700,7 @@
       const pushCheckbox = document.getElementById(type === 'outage' ? `push_outage_${index}` : `push_road_${index}`);
       const sendPush = pushCheckbox ? pushCheckbox.checked : true;
 
+      const token = currentToken || localStorage.getItem('hd_admin_token') || '';
       if (btn) {
         btn.disabled = true;
         btn.textContent = '⌛ Yayınlanıyor...';
@@ -7706,7 +7710,7 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-admin-token': currentToken,
+            'x-admin-token': token,
           },
           body: JSON.stringify({ type, item, sendPush }),
         });
