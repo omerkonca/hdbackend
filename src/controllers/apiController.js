@@ -1321,6 +1321,42 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       });
     }
   }
+
+  /** Admin: işlemi TEST veya GERÇEK olarak işaretle. */
+  async patchRevenueRecord(req, res) {
+    try {
+      const kind = String(req.params.kind || '').toLowerCase();
+      const id = String(req.params.id || '').trim();
+      if (!id || !['soup', 'plus'].includes(kind)) {
+        return res.status(400).json({ ok: false, message: 'Geçersiz kayıt.' });
+      }
+      const isSandbox = req.body?.is_sandbox === true;
+      const table = kind === 'plus' ? 'pro_subscriptions' : 'supporters';
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const db = requireSupabaseAdmin();
+      const { data, error } = await db
+        .from(table)
+        .update({
+          is_sandbox: isSandbox,
+          environment: isSandbox ? 'sandbox' : 'production',
+        })
+        .eq('id', id)
+        .select('id, is_sandbox, environment')
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) {
+        return res.status(404).json({ ok: false, message: 'Kayıt bulunamadı.' });
+      }
+      return res.json({ ok: true, record: data });
+    } catch (error) {
+      console.error('[revenue-patch]', error.message);
+      return res.status(500).json({
+        ok: false,
+        message: 'Kayıt güncellenemedi.',
+        detail: error.message,
+      });
+    }
+  }
 }
 
 function isSandboxRecord(row) {

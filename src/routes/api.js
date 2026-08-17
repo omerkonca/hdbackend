@@ -31,6 +31,9 @@ router.get('/admin/dashboard-stats', requireAdminToken, (req, res) =>
 router.get('/admin/revenue', requireAdminToken, (req, res) =>
   apiController.getRevenueLedger(req, res),
 );
+router.patch('/admin/revenue/:kind/:id', requireAdminToken, (req, res) =>
+  apiController.patchRevenueRecord(req, res),
+);
 router.get('/admin/email-status', requireAdminToken, (req, res) => {
   res.json({ ok: true, ...emailService.getEmailStatus() });
 });

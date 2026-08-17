@@ -3590,6 +3590,11 @@
           <dt>Mesaj</dt><dd>${escapeHtml(r.message || '—')}</dd>
           <dt>Anonim</dt><dd>${r.is_anonymous ? 'Evet' : 'Hayır'}</dd>
         </dl>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;">
+          ${isSandboxRow(r)
+            ? `<button class="btn btn-primary" style="font-size:12px; padding:8px 12px;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', false)">GERÇEK olarak işaretle</button>`
+            : `<button class="btn btn-secondary" style="font-size:12px; padding:8px 12px; background:#fffbeb; color:#92400e; border-color:#fde68a;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', true)">TEST olarak işaretle</button>`}
+        </div>
       `;
       bg.classList.add('open');
     }
@@ -3597,6 +3602,31 @@
     function closeRevenueDrawer() {
       const bg = document.getElementById('revDrawerBg');
       if (bg) bg.classList.remove('open');
+    }
+
+    async function setRevenueEnvironment(kind, id, isSandbox) {
+      if (!currentToken || !id) return;
+      try {
+        const res = await fetch(`/api/admin/revenue/${encodeURIComponent(kind)}/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: {
+            'x-admin-token': currentToken,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ is_sandbox: isSandbox }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          showToast(data.message || 'İşaret güncellenemedi');
+          return;
+        }
+        closeRevenueDrawer();
+        await loadRevenueLedger();
+        if (typeof loadLiveDashboardStats === 'function') loadLiveDashboardStats();
+        showToast(isSandbox ? 'TEST olarak işaretlendi · ciroya eklenmez' : 'GERÇEK olarak işaretlendi');
+      } catch (e) {
+        showToast('Bağlantı hatası');
+      }
     }
 
     async function loadRevenueLedger() {
