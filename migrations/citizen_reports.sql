@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS public.citizen_reports (
   platform text,
   app_version text,
   status text NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'reviewing', 'resolved', 'dismissed')),
+  is_plus boolean NOT NULL DEFAULT false,
+  is_supporter boolean NOT NULL DEFAULT false,
+  user_badge text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 

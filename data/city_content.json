@@ -23,7 +23,7 @@
         "type": "video",
         "title": "Düziçi Şelalesi",
         "bubbleId": "duzici_selalesi_ue56",
-        "isActive": true
+        "isActive": false
       },
       {
         "id": "story_1782033656304_ec711",
@@ -31,7 +31,7 @@
         "type": "video",
         "title": "Düziçi Şelalesi",
         "bubbleId": "duzici_selalesi_ue56",
-        "isActive": true
+        "isActive": false
       }
     ],
     "quickActions": [
