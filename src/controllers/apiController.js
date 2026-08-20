@@ -1333,16 +1333,29 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       const isSandbox = req.body?.is_sandbox;
       const isHidden = req.body?.is_hidden;
       const isActive = req.body?.is_active;
+      const customDays = Number(req.body?.days);
+      const customExpiry = req.body?.expires_at;
       const table = kind === 'plus' ? 'pro_subscriptions' : 'supporters';
-      const patch = {};
+      const patch = { updated_at: new Date().toISOString() };
       if (typeof isSandbox === 'boolean') {
         patch.is_sandbox = isSandbox;
         patch.environment = isSandbox ? 'sandbox' : 'production';
       }
-      if (typeof isActive === 'boolean' && table === 'pro_subscriptions') {
-        patch.is_active = isActive;
-        if (!isActive) {
-          patch.expires_at = new Date().toISOString();
+      if (table === 'pro_subscriptions') {
+        if (typeof isActive === 'boolean') {
+          patch.is_active = isActive;
+          if (!isActive) {
+            patch.expires_at = new Date().toISOString();
+          } else {
+            const daysToAdd = Number.isFinite(customDays) && customDays > 0 ? customDays : 30;
+            patch.expires_at = new Date(Date.now() + daysToAdd * 24 * 60 * 60 * 1000).toISOString();
+          }
+        } else if (Number.isFinite(customDays) && customDays > 0) {
+          patch.is_active = true;
+          patch.expires_at = new Date(Date.now() + customDays * 24 * 60 * 60 * 1000).toISOString();
+        } else if (customExpiry) {
+          patch.is_active = new Date(customExpiry) > new Date();
+          patch.expires_at = new Date(customExpiry).toISOString();
         }
       }
       if (typeof isHidden === 'boolean') {
@@ -1351,7 +1364,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         }
         patch.is_hidden = isHidden;
       }
-      if (Object.keys(patch).length === 0) {
+      if (Object.keys(patch).length <= 1 && !patch.is_active && !patch.is_sandbox && !patch.is_hidden) {
         return res.status(400).json({ ok: false, message: 'Güncellenecek alan yok.' });
       }
       const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
