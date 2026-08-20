@@ -3808,6 +3808,7 @@
           ${r.transaction_id ? `<dt>Sipariş / Txn ID</dt><dd><code style="font-size:11px; word-break:break-all;">${escapeHtml(r.transaction_id)}</code></dd>` : ''}
         </dl>
         <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; padding-top:16px; border-top:1px solid #e2e8f0;">
+          <a href="/api/admin/revenue/${r._kind}/${r.id}/receipt?token=${encodeURIComponent(currentToken)}" target="_blank" class="btn" style="font-size:12px; padding:8px 14px; background:#0f172a; color:#ffffff; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-weight:700; border-radius:10px;">📄 PDF Makbuz / Fatura Dökümü</a>
           ${r._kind === 'plus'
             ? (r._status === 'Aktif'
                 ? `<button class="btn" style="font-size:12px; padding:8px 14px; background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5;" onclick="toggleSubscriptionActiveStatus('${r.id}', false)">🛑 Üyeliği Pasif / Bitti Yap</button>`

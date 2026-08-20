@@ -78,7 +78,7 @@ function requireAdminToken(req, res, next) {
     return sendLockoutResponse(res, clientKey);
   }
 
-  const token = req.headers['x-admin-token'];
+  const token = req.headers['x-admin-token'] || req.query.token;
   const expected = config.ADMIN_TOKEN;
   const match = Boolean(expected && token && token === expected);
 

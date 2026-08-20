@@ -1377,7 +1377,226 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
     }
   }
 
-  async parseOutageRoadText(req, res) {
+  /** Admin / Müşteri: Profesyonel PDF/Yazdırılabilir Abonelik Makbuzu & Fatura Özeti */
+  async getRevenueReceipt(req, res) {
+    try {
+      const kind = String(req.params.kind || '').toLowerCase();
+      const id = String(req.params.id || '').trim();
+      if (!id || !['soup', 'plus'].includes(kind)) {
+        return res.status(400).send('Geçersiz kayıt.');
+      }
+      const table = kind === 'plus' ? 'pro_subscriptions' : 'supporters';
+      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+      const db = requireSupabaseAdmin();
+      const { data: record, error } = await db.from(table).select('*').eq('id', id).maybeSingle();
+      if (error || !record) {
+        return res.status(404).send('Kayıt bulunamadı.');
+      }
+
+      const isPlus = kind === 'plus';
+      const isSandbox = isSandboxRecord(record);
+      const amount = Number(record.amount || 0);
+      const vatRate = 0.20; // %20 KDV
+      const subTotal = amount / (1 + vatRate);
+      const vatAmount = amount - subTotal;
+
+      const fmtMoney = (val) => '₺' + (Number(val) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const fmtDate = (iso) => {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      };
+
+      const docNo = `HD-${isPlus ? 'PLUS' : 'IKR'}-${record.id.slice(0, 8).toUpperCase()}`;
+      const title = isPlus
+        ? (record.plan === 'yearly' ? 'Hepsi Düziçi Plus (1 Yıllık VIP Üyelik)' : 'Hepsi Düziçi Plus (Aylık VIP Üyelik)')
+        : `Düziçi Şehir Rehberi İkram Desteği (${record.tier || 'Bağış'})`;
+
+      const platformName = record.platform === 'ios' ? 'Apple App Store' : (record.platform === 'android' ? 'Google Play Store' : 'Mobil Uygulama');
+      const txnId = record.transaction_id || 'Otomatik Tahsilat';
+      const buyer = isPlus ? `${platformName} Abonesi` : (record.display_name || 'Düziçili Hemşehri');
+      const statusText = isSandbox ? 'TEST (Sandbox Denemesi)' : (record.is_active === false ? 'SÜRESİ BİTTİ (Pasif)' : 'ÖDENDİ / AKTİF');
+      const statusColor = isSandbox ? '#d97706' : (record.is_active === false ? '#dc2626' : '#16a34a');
+
+      const html = `<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abonelik Makbuzu - ${docNo}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+    body { background: #f8fafc; color: #0f172a; padding: 40px 20px; display: flex; justify-content: center; }
+    .receipt-container { max-width: 760px; width: 100%; background: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; padding: 40px; }
+    .no-print-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .btn { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; border: none; transition: 0.2s ease; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-primary { background: #c98b18; color: #ffffff; }
+    .btn-primary:hover { background: #a06e10; }
+    .btn-secondary { background: #f1f5f9; color: #334155; }
+    
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #f1f5f9; padding-bottom: 24px; margin-bottom: 24px; }
+    .logo-area h1 { font-size: 22px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+    .logo-area p { font-size: 13px; color: #64748b; margin-top: 4px; font-weight: 500; }
+    .doc-meta { text-align: right; }
+    .doc-meta h2 { font-size: 16px; font-weight: 800; color: #c98b18; text-transform: uppercase; letter-spacing: 0.5px; }
+    .doc-meta .doc-no { font-size: 13px; font-weight: 700; color: #475569; margin-top: 4px; }
+    .doc-meta .doc-date { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+    .info-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; }
+    .info-box h3 { font-size: 11px; text-transform: uppercase; font-weight: 800; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .info-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+    .info-row:last-child { margin-bottom: 0; }
+    .info-row .label { color: #64748b; font-weight: 500; }
+    .info-row .val { color: #0f172a; font-weight: 700; text-align: right; word-break: break-all; }
+
+    .items-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+    .items-table th { background: #f1f5f9; color: #475569; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px; text-align: left; }
+    .items-table td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .items-table .desc-main { font-weight: 700; color: #0f172a; }
+    .items-table .desc-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
+
+    .totals-area { display: flex; justify-content: flex-end; margin-bottom: 30px; }
+    .totals-box { width: 280px; }
+    .totals-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: #64748b; }
+    .totals-row.grand { font-size: 18px; font-weight: 800; color: #0f172a; border-top: 2px solid #e2e8f0; padding-top: 10px; margin-top: 10px; }
+
+    .status-badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; color: #fff; background: ${statusColor}; }
+
+    .disclaimer { background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 16px; font-size: 12px; color: #92400e; line-height: 1.5; margin-bottom: 24px; }
+    .footer { text-align: center; font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+
+    @media print {
+      body { background: #ffffff; padding: 0; }
+      .receipt-container { box-shadow: none; border: none; padding: 0; width: 100%; max-width: 100%; }
+      .no-print-toolbar { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="receipt-container">
+    <div class="no-print-toolbar">
+      <a href="javascript:window.close()" class="btn btn-secondary">✕ Kapat</a>
+      <button onclick="window.print()" class="btn btn-primary">🖨️ PDF Olarak Kaydet / Yazdır</button>
+    </div>
+
+    <div class="header">
+      <div class="logo-area">
+        <h1>🏢 HEPSİ DÜZİÇİ</h1>
+        <p>Düziçi Şehir Rehberi &amp; Mobil Bilgi Platformu</p>
+        <p style="font-size:11px; color:#94a3b8; margin-top:2px;">hepsiduzici.com · Osmaniye / Düziçi</p>
+      </div>
+      <div class="doc-meta">
+        <h2>ÖDEME &amp; HİZMET MAKBUZU</h2>
+        <div class="doc-no">${docNo}</div>
+        <div class="doc-date">Tanzim: ${fmtDate(record.created_at)}</div>
+        <div style="margin-top:8px;"><span class="status-badge">${statusText}</span></div>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <h3>Hizmet &amp; Ödeme Bilgileri</h3>
+        <div class="info-row">
+          <span class="label">Ödeme Kanalı:</span>
+          <span class="val">${platformName}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Sipariş / Txn ID:</span>
+          <span class="val" style="font-family:monospace; font-size:11px;">${txnId}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Ödeme Tarihi:</span>
+          <span class="val">${fmtDate(record.created_at)}</span>
+        </div>
+        ${record.expires_at ? `
+        <div class="info-row">
+          <span class="label">Abonelik Bitiş:</span>
+          <span class="val">${fmtDate(record.expires_at)}</span>
+        </div>` : ''}
+      </div>
+
+      <div class="info-box">
+        <h3>Abone / Müşteri Bilgisi</h3>
+        <div class="info-row">
+          <span class="label">Alıcı / Abone:</span>
+          <span class="val">${escapeHtml(buyer)}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Cihaz / Platform:</span>
+          <span class="val">${record.platform ? record.platform.toUpperCase() : 'Mobil'}</span>
+        </div>
+        ${record.app_version ? `
+        <div class="info-row">
+          <span class="label">Uygulama Sürümü:</span>
+          <span class="val">${escapeHtml(record.app_version)}</span>
+        </div>` : ''}
+        <div class="info-row">
+          <span class="label">Ortam:</span>
+          <span class="val">${isSandbox ? 'Test / Deneme' : 'Canlı Mağaza'}</span>
+        </div>
+      </div>
+    </div>
+
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Hizmet Açıklaması</th>
+          <th style="text-align:center; width:80px;">Adet</th>
+          <th style="text-align:right; width:120px;">Tutar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="desc-main">${escapeHtml(title)}</div>
+            <div class="desc-sub">Uygulama İçi Reklamsız Deneyim, Canlı Yayınlar, Öncelikli İhbarlar &amp; VIP Şehir Hizmetleri</div>
+          </td>
+          <td style="text-align:center; font-weight:700;">1</td>
+          <td style="text-align:right; font-weight:700;">${fmtMoney(amount)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="totals-area">
+      <div class="totals-box">
+        <div class="totals-row">
+          <span>KDV Hariç Matrah (%20):</span>
+          <span>${fmtMoney(subTotal)}</span>
+        </div>
+        <div class="totals-row">
+          <span>Hesaplanan KDV (%20):</span>
+          <span>${fmtMoney(vatAmount)}</span>
+        </div>
+        <div class="totals-row grand">
+          <span>Toplam Tutar:</span>
+          <span>${fmtMoney(amount)}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      <strong>📌 Yasal Bilgilendirme:</strong> İşbu döküm, Hepsi Düziçi mobil uygulaması bünyesinde yapılan ${isPlus ? 'Plus abonelik' : 'destek'} işlemine istinaden bilgi amaçlı tanzim edilmiştir. 
+      Ödeme tahsilatı ${platformName} (${record.platform === 'ios' ? 'Apple Distribution International' : 'Google Commerce Ltd.'}) güvencesiyle yapılmış olup, KDV dahil yasal mali e-faturanız ${platformName} tarafından kayıtlı e-posta adresinize resmi olarak iletilmiştir.
+    </div>
+
+    <div class="footer">
+      <div>Hepsi Düziçi Mobil Şehir Platformu · Düziçi / Osmaniye</div>
+      <div style="margin-top:4px;">Bu belge sistem tarafından otomatik üretilmiştir ve elektronik ortamda geçerlidir.</div>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      return res.send(html);
+    } catch (error) {
+      console.error('[revenue-receipt]', error.message);
+      return res.status(500).send('Makbuz oluşturulamadı: ' + error.message);
+    }
+  }
     try {
       const { text } = req.body || {};
       if (!text || typeof text !== 'string' || text.trim().length < 5) {

@@ -31,6 +31,9 @@ router.get('/admin/dashboard-stats', requireAdminToken, (req, res) =>
 router.get('/admin/revenue', requireAdminToken, (req, res) =>
   apiController.getRevenueLedger(req, res),
 );
+router.get('/admin/revenue/:kind/:id/receipt', requireAdminToken, (req, res) =>
+  apiController.getRevenueReceipt(req, res),
+);
 router.patch('/admin/revenue/:kind/:id', requireAdminToken, (req, res) =>
   apiController.patchRevenueRecord(req, res),
 );
