@@ -397,13 +397,7 @@ class AiReporterService {
   }
 
   pickCoverImage(theme, seed = '') {
-    const pool = COVER_IMAGES[theme] || COVER_IMAGES.city;
-    if (!Array.isArray(pool) || pool.length === 0) {
-      return COVER_IMAGES.city[0];
-    }
-    if (pool.length === 1) return pool[0];
-    const idx = hashSeed(`${theme}|${seed}`) % pool.length;
-    return pool[idx];
+    return 'assets/images/ai_reporter_cover.jpg';
   }
 
   buildPrompts({ targetDate, dateLabel, snapshot, quietDay }) {

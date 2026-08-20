@@ -227,6 +227,79 @@ class NewsService {
     });
   }
 
+  async aiDeduplicateNews(items) {
+    let aiClient;
+    try {
+      aiClient = require('./aiClient');
+    } catch (_) {
+      return items;
+    }
+
+    if (!aiClient?.isConfigured?.() || !Array.isArray(items) || items.length <= 1) {
+      return items;
+    }
+
+    try {
+      // Son 48 saat içindeki güncel haberleri aday al
+      const recentCutoff = Date.now() - 48 * 60 * 60 * 1000;
+      const candidates = items.filter((item) => {
+        if (!item?.createdAt) return true;
+        return new Date(item.createdAt).getTime() >= recentCutoff;
+      });
+
+      if (candidates.length <= 1) return items;
+
+      const inputList = candidates.map((item, idx) => ({
+        id: item.id || String(idx),
+        title: item.title,
+        summary: (item.summary || '').slice(0, 140),
+        source: item.sourceName,
+        date: item.createdAt,
+      }));
+
+      const systemPrompt = `Sen yerel haber editörü ve tekilleştirme uzmanısın.
+Sana verilen yerel haber listesinde AYNI gerçek olayı veya gelişmeyi anlatan haberleri bulup gruplandıracaksın.
+
+KURALLAR:
+1. SADECE VE SADECE tamamen aynı somut olayı (örneğin aynı kaza, aynı köprünün açılış açıklaması, aynı ziyaret, aynı yangın) anlatan haberleri birleştir.
+2. Farklı olaylar (örneğin iki farklı kişinin ziyareti, iki farklı kaza, farklı kurumların açıklamaları) ASLA birleştirilmemelidir.
+3. Çıktı olarak sadece ve sadece JSON formatında { "duplicateGroups": [ ["id1", "id2"], ... ] } döndür. Aynı olayı anlatan haber yoksa "duplicateGroups": [] döndür.`;
+
+      const userPrompt = `Aşağıdaki haberleri incele ve aynı olayı anlatanları grupla:\n${JSON.stringify(inputList, null, 2)}`;
+
+      const res = await aiClient.generateJson({ systemPrompt, userPrompt });
+      const groups = res?.data?.duplicateGroups;
+
+      if (!Array.isArray(groups) || groups.length === 0) {
+        return items;
+      }
+
+      console.log(`[news:ai-dedup] AI ${groups.length} adet kopya haber grubu tespit etti.`);
+
+      const itemMap = new Map(items.map((it) => [it.id, it]));
+      const idsToRemove = new Set();
+
+      for (const group of groups) {
+        if (!Array.isArray(group) || group.length <= 1) continue;
+        const groupItems = group.map((id) => itemMap.get(id)).filter(Boolean);
+        if (groupItems.length <= 1) continue;
+
+        const best = groupItems.reduce((prev, curr) => this.mergeItemPreferBetter(prev, curr));
+        for (const it of groupItems) {
+          if (it.id !== best.id) {
+            idsToRemove.add(it.id);
+            console.log(`[news:ai-dedup] "${it.title}" elendi -> "${best.title}" korundu.`);
+          }
+        }
+      }
+
+      return items.filter((item) => !idsToRemove.has(item.id));
+    } catch (err) {
+      console.warn('[news:ai-dedup] AI tekilleştirme atlandı:', err.message);
+      return items;
+    }
+  }
+
   duziciKeywordRe() {
     // İlçe + mahalle/köy/yaygın yerel yer adları
     return /duzici|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah/;
@@ -670,6 +743,13 @@ class NewsService {
         }
       } catch (pubErr) {
         console.warn('[news] Publisher news merge skipped:', pubErr.message);
+      }
+
+      // AI Anlamsal Tekilleştirme (Semantic Deduplication)
+      try {
+        items = await this.aiDeduplicateNews(items);
+      } catch (aiErr) {
+        console.warn('[news] AI tekilleştirme hatası:', aiErr.message);
       }
       this.cache = {
         fetchedAt: now,

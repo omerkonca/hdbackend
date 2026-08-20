@@ -281,11 +281,15 @@ const NEWS_TITLE_STOP_WORDS = new Set([
   'bir', 'bu', 'su', 'o', 'mi', 'mu', 'gibi', 'kadar', 'olan', 'olarak',
   'uzerine', 'son', 'yeni', 'haber', 'gazetesi', 'gazete', 'kaynak', 'video',
   'foto', 'fotograf', 'fotografi', 'gorsel', 'detay', 'devami', 'oku',
+  // Yerel yaygın terimler (yanlış duplicate eşleşmelerini önlemek için)
+  'duzici', 'osmaniye', 'baskan', 'baskani', 'baskanligi', 'baskanligindan',
+  'ilce', 'parti', 'partisi', 'belediye', 'belediyesi', 'mudur', 'muduru',
+  'ziyaret', 'ziyareti', 'ziyaretinde', 'toplanti', 'toplantisi', 'aciklama', 'aciklamasi',
 ]);
 
 function extractNewsTitleTokens(title) {
   const words = normalizeForCompare(title)
-    .replace(/\s*-\s*(sabir|hasret|akdeniz|google)\s+gazetesi.*$/i, '')
+    .replace(/\s*-\s*(sabir|hasret|akdeniz|basak|başak|google)\s+gazetesi.*$/i, '')
     .replace(/[^a-z0-9\s]/g, ' ')
     .split(/\s+/)
     .filter((w) => w.length >= 3 && !NEWS_TITLE_STOP_WORDS.has(w));
@@ -324,7 +328,7 @@ function areNewsTitlesDuplicate(titleA, titleB, { withinHours = 96, createdAtA, 
   }
 
   const normalizeKey = (title) => normalizeForCompare(String(title || ''))
-    .replace(/\s*-\s*(sabir|hasret|akdeniz|google)\s+gazetesi.*$/i, '')
+    .replace(/\s*-\s*(sabir|hasret|akdeniz|basak|başak|google)\s+gazetesi.*$/i, '')
     .replace(/[^a-z0-9]+/g, ' ')
     .trim()
     .slice(0, 120);
@@ -336,16 +340,20 @@ function areNewsTitlesDuplicate(titleA, titleB, { withinHours = 96, createdAtA, 
   if (keyA && keyB) {
     const shorter = keyA.length <= keyB.length ? keyA : keyB;
     const longer = keyA.length <= keyB.length ? keyB : keyA;
-    if (shorter.length >= 18 && longer.includes(shorter)) return true;
+    if (shorter.length >= 30 && longer.includes(shorter)) return true;
   }
 
   const tokensA = extractNewsTitleTokens(titleA);
   const tokensB = extractNewsTitleTokens(titleB);
-  const shared = tokensA.filter((token) => tokensB.includes(token));
-  // 2 ortak anlamlı kelime çoğu Sabır/Hasret kopyasını yakalar
-  if (shared.length >= 2) return true;
+  if (tokensA.length === 0 || tokensB.length === 0) return false;
 
-  return newsTitleSimilarity(titleA, titleB) >= 0.42;
+  const shared = tokensA.filter((token) => tokensB.includes(token));
+  // En az 3 ayırt edici içerik kelimesi ortaksa ve kelimelerin çoğu uyuşuyorsa
+  if (shared.length >= 3 && shared.length >= Math.min(tokensA.length, tokensB.length) * 0.75) {
+    return true;
+  }
+
+  return newsTitleSimilarity(titleA, titleB) >= 0.55;
 }
 
 function truncateNewsExcerpt(text, maxChars = NEWS_EXCERPT_MAX_CHARS) {

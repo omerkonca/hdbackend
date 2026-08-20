@@ -1085,7 +1085,7 @@
     <div class="logo">🏢 Hepsi Düziçi</div>
     <div class="nav-menu" id="sideNav" style="display:none">
       <div class="nav-item active" onclick="switchView('dashboard')">🏠 Dashboard</div>
-      <div class="nav-item" onclick="switchView('revenue')">💰 Takip</div>
+      <div class="nav-item" onclick="switchView('revenue')">💎 Gelir &amp; Abonelikler (Plus)</div>
 
       <div class="menu-group-title" onclick="toggleMenuGroup('groupAnnounce')">📢 Duyurular &amp; Bildirim <span class="arrow">▼</span></div>
       <div class="menu-group-items" id="groupAnnounce">
@@ -3134,7 +3134,7 @@
       
       const titles = {
         dashboard: ['Dashboard', 'Genel uygulama durumu ve özet bilgiler.'],
-        revenue: ['Takip', 'Kim ödedi, ne kadar, test mi gerçek mi.'],
+        revenue: ['💎 Gelir & Abonelikler (Plus / Destek)', 'Canlı PRO aboneler, test hesapları, biten üyelikler ve net cirolar.'],
         branding: ['Marka & Tema', 'Uygulama adı, logo ve renk paleti.'],
         supportersWall: ['Destekçi Duvarı', 'Uygulamadaki çorba duvarı metinleri ve görünen isimler.'],
         quickActions: ['Hızlı Erişim', 'Ana ekrandaki yatay butonlar.'],
@@ -3672,6 +3672,7 @@
     }
 
     function buildRevenueRows() {
+      const now = new Date();
       const soup = (revenueCache.soup || []).map((r) => ({
         ...r,
         _kind: 'soup',
@@ -3679,13 +3680,33 @@
         _plan: soupTierLabel(r.tier),
         _status: 'İkram',
       }));
-      const plus = (revenueCache.plus || []).map((r) => ({
-        ...r,
-        _kind: 'plus',
-        _who: r.platform ? `${platformLabel(r.platform)} abone` : 'Plus abone',
-        _plan: plusPlanLabel(r.plan, r.product_id),
-        _status: r.is_active === false ? 'Pasif' : (r.expires_at && r.expires_at < new Date().toISOString() ? 'Süresi doldu' : 'Aktif'),
-      }));
+      const plus = (revenueCache.plus || []).map((r) => {
+        let isExpired = false;
+        let diffDays = 0;
+        if (r.expires_at) {
+          const exp = new Date(r.expires_at);
+          if (!Number.isNaN(exp.getTime())) {
+            isExpired = exp < now;
+            diffDays = Math.round((exp.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          }
+        }
+        let statusLabel = 'Aktif';
+        if (r.is_active === false) {
+          statusLabel = 'Pasif / İptal';
+        } else if (isExpired) {
+          statusLabel = 'Süresi Doldu (Free)';
+        }
+
+        return {
+          ...r,
+          _kind: 'plus',
+          _who: r.platform ? `${platformLabel(r.platform)} Abone` : 'Plus Abone',
+          _plan: plusPlanLabel(r.plan, r.product_id),
+          _status: statusLabel,
+          _isExpired: isExpired,
+          _diffDays: diffDays,
+        };
+      });
       let rows = [...plus, ...soup].sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
       if (revenueKind === 'plus') rows = rows.filter((r) => r._kind === 'plus');
       if (revenueKind === 'soup') rows = rows.filter((r) => r._kind === 'soup');
@@ -3711,18 +3732,32 @@
       if (!list) return;
       const rows = buildRevenueRows();
       if (!rows.length) {
-        list.innerHTML = '<div class="rev-empty">Bu filtrede kayıt yok</div>';
+        list.innerHTML = '<div class="rev-empty">Bu filtrede kayıt bulunamadı.</div>';
         return;
       }
       list.innerHTML = rows.map((r, idx) => {
         const test = isSandboxRow(r);
-        const avatar = r._kind === 'plus' ? '★' : soupTierEmoji(r.tier);
+        const avatar = r._kind === 'plus' ? '👑' : soupTierEmoji(r.tier);
+        let statusBadge = '';
+        if (r._kind === 'plus') {
+          if (r._status === 'Aktif') {
+            const daysText = r._diffDays > 0 ? ` (${r._diffDays} gün kaldı)` : '';
+            statusBadge = `<span class="rev-badge live" style="margin-left:6px; font-weight:800;">🟢 AKTİF${daysText}</span>`;
+          } else if (r._status.includes('Süresi Doldu')) {
+            statusBadge = '<span class="rev-badge" style="margin-left:6px; background:#fee2e2; color:#b91c1c; font-weight:800;">🔴 SÜRESİ BİTTİ (FREE)</span>';
+          } else {
+            statusBadge = '<span class="rev-badge mock" style="margin-left:6px; font-weight:800;">⚪ PASİF</span>';
+          }
+        }
         const meta = [r._plan, fmtRevAgo(r.created_at)].filter(Boolean).join(' · ');
         return `
-          <div class="rev-item ${test ? 'test' : ''}" onclick="openRevenueDrawer(${idx})">
+          <div class="rev-item ${test ? 'test' : ''}" onclick="openRevenueDrawer(${idx})" style="cursor:pointer;">
             <div class="rev-avatar ${r._kind}">${avatar}</div>
             <div class="rev-item-main">
-              <div class="rev-item-name">${escapeHtml(r._who)}</div>
+              <div class="rev-item-name" style="display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                ${escapeHtml(r._who)}
+                ${statusBadge}
+              </div>
               <div class="rev-item-meta">${escapeHtml(meta)}</div>
             </div>
             <div class="rev-item-right">
@@ -3740,27 +3775,42 @@
       const el = document.getElementById('revDrawer');
       const bg = document.getElementById('revDrawerBg');
       if (!el || !bg) return;
+
+      let subStatusHtml = '';
+      if (r._kind === 'plus') {
+        if (r._status === 'Aktif') {
+          subStatusHtml = `<span style="color:#15803d; font-weight:800;">🟢 Aktif PRO Üye (${r._diffDays > 0 ? r._diffDays + ' gün kaldı' : 'Bugün'})</span>`;
+        } else if (r._status.includes('Süresi Doldu')) {
+          subStatusHtml = `<span style="color:#b91c1c; font-weight:800;">🔴 Süresi Doldu (Otomatik Free'ye Geçti)</span>`;
+        } else {
+          subStatusHtml = `<span style="color:#64748b; font-weight:800;">⚪ Pasif / İptal Edildi</span>`;
+        }
+      }
+
       el.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
           <div>
-            <h3>${escapeHtml(r._who)}</h3>
-            <div>${envBadge(r)} <span class="rev-badge ${r._kind === 'plus' ? 'kind-plus' : 'kind-soup'}">${r._kind === 'plus' ? 'Plus abonelik' : 'Çorba ikramı'}</span></div>
+            <h3 style="margin:0 0 6px;">${escapeHtml(r._who)}</h3>
+            <div>${envBadge(r)} <span class="rev-badge ${r._kind === 'plus' ? 'kind-plus' : 'kind-soup'}">${r._kind === 'plus' ? '👑 Plus Abonelik' : '🫓 Destek İkramı'}</span></div>
           </div>
           <button class="btn btn-secondary" style="font-size:12px; padding:6px 10px; min-height:32px;" onclick="closeRevenueDrawer()">Kapat</button>
         </div>
-        <dl class="rev-dl">
-          <dt>Tutar</dt><dd>${fmtRevMoney(r.amount)}</dd>
-          <dt>Ne</dt><dd>${escapeHtml(r._kind === 'plus' ? r._plan : r._plan + ' ikramı')}</dd>
-          <dt>Durum</dt><dd>${isSandboxRow(r) ? 'Test' : 'Gerçek'}${r._kind === 'plus' ? ' · ' + escapeHtml(r._status) : ''}</dd>
+        <dl class="rev-dl" style="margin-top:18px;">
+          <dt>Tutar</dt><dd><strong>${fmtRevMoney(r.amount)}</strong> (${r.currency || 'TRY'})</dd>
+          <dt>Paket / Tür</dt><dd>${escapeHtml(r._kind === 'plus' ? r._plan : r._plan + ' ikramı')}</dd>
+          <dt>Ortam</dt><dd>${isSandboxRow(r) ? '<span style="color:#b45309; font-weight:700;">🟡 Lisans Testçisi (Sandbox / Deneme)</span>' : '<span style="color:#15803d; font-weight:700;">🟢 Canlı Mağaza Satışı (Gerçek Gelir)</span>'}</dd>
+          ${r._kind === 'plus' ? `<dt>Üyelik Durumu</dt><dd>${subStatusHtml}</dd>` : ''}
           ${r.platform ? `<dt>Mağaza</dt><dd>${platformLabel(r.platform)}</dd>` : ''}
-          <dt>Tarih</dt><dd>${fmtRevDate(r.created_at)}</dd>
+          <dt>Satın Alma</dt><dd>${fmtRevDate(r.created_at)}</dd>
+          ${r.expires_at ? `<dt>Bitiş / Yenilenme</dt><dd>${fmtRevDate(r.expires_at)}</dd>` : ''}
+          ${r.app_version ? `<dt>Uygulama Sürümü</dt><dd>${escapeHtml(r.app_version)}</dd>` : ''}
           ${r.message ? `<dt>Mesaj</dt><dd>${escapeHtml(r.message)}</dd>` : ''}
-          ${r.transaction_id ? `<dt>İşlem</dt><dd>${escapeHtml(r.transaction_id)}</dd>` : ''}
+          ${r.transaction_id ? `<dt>Sipariş / Txn ID</dt><dd><code style="font-size:11px; word-break:break-all;">${escapeHtml(r.transaction_id)}</code></dd>` : ''}
         </dl>
-        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:18px;">
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; padding-top:16px; border-top:1px solid #e2e8f0;">
           ${isSandboxRow(r)
-            ? `<button class="btn btn-primary" style="font-size:12px; padding:8px 12px;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', false)">Gerçek yap</button>`
-            : `<button class="btn btn-secondary" style="font-size:12px; padding:8px 12px;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', true)">Test yap</button>`}
+            ? `<button class="btn btn-primary" style="font-size:12px; padding:8px 14px;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', false)">✓ Gerçek Satış Olarak İşaretle</button>`
+            : `<button class="btn btn-secondary" style="font-size:12px; padding:8px 14px;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', true)">Test / Deneme Olarak İşaretle</button>`}
         </div>
       `;
       bg.classList.add('open');
