@@ -1597,6 +1597,8 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       return res.status(500).send('Makbuz oluşturulamadı: ' + error.message);
     }
   }
+
+  async parseOutageRoadText(req, res) {
     try {
       const { text } = req.body || {};
       if (!text || typeof text !== 'string' || text.trim().length < 5) {
