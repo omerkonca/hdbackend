@@ -3808,6 +3808,11 @@
           ${r.transaction_id ? `<dt>Sipariş / Txn ID</dt><dd><code style="font-size:11px; word-break:break-all;">${escapeHtml(r.transaction_id)}</code></dd>` : ''}
         </dl>
         <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; padding-top:16px; border-top:1px solid #e2e8f0;">
+          ${r._kind === 'plus'
+            ? (r._status === 'Aktif'
+                ? `<button class="btn" style="font-size:12px; padding:8px 14px; background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5;" onclick="toggleSubscriptionActiveStatus('${r.id}', false)">🛑 Üyeliği Pasif / Bitti Yap</button>`
+                : `<button class="btn" style="font-size:12px; padding:8px 14px; background:#dcfce7; color:#15803d; border:1px solid #86efac;" onclick="toggleSubscriptionActiveStatus('${r.id}', true)">🟢 Üyeliği Aktif Yap</button>`)
+            : ''}
           ${isSandboxRow(r)
             ? `<button class="btn btn-primary" style="font-size:12px; padding:8px 14px;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', false)">✓ Gerçek Satış Olarak İşaretle</button>`
             : `<button class="btn btn-secondary" style="font-size:12px; padding:8px 14px;" onclick="setRevenueEnvironment('${r._kind}','${r.id}', true)">Test / Deneme Olarak İşaretle</button>`}
@@ -3819,6 +3824,31 @@
     function closeRevenueDrawer() {
       const bg = document.getElementById('revDrawerBg');
       if (bg) bg.classList.remove('open');
+    }
+
+    async function toggleSubscriptionActiveStatus(id, isActive) {
+      if (!currentToken || !id) return;
+      try {
+        const res = await fetch(`/api/admin/revenue/plus/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: {
+            'x-admin-token': currentToken,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ is_active: isActive }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          showToast(data.message || 'Durum güncellenemedi', true);
+          return;
+        }
+        closeRevenueDrawer();
+        await loadRevenueLedger();
+        if (typeof loadLiveDashboardStats === 'function') loadLiveDashboardStats();
+        showToast(isActive ? 'Abonelik AKTİF yapıldı' : 'Abonelik PASİF / BİTTİ olarak işaretlendi');
+      } catch (e) {
+        showToast('Bağlantı hatası', true);
+      }
     }
 
     async function setRevenueEnvironment(kind, id, isSandbox) {

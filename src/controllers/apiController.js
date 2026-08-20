@@ -1332,11 +1332,18 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       }
       const isSandbox = req.body?.is_sandbox;
       const isHidden = req.body?.is_hidden;
+      const isActive = req.body?.is_active;
       const table = kind === 'plus' ? 'pro_subscriptions' : 'supporters';
       const patch = {};
       if (typeof isSandbox === 'boolean') {
         patch.is_sandbox = isSandbox;
         patch.environment = isSandbox ? 'sandbox' : 'production';
+      }
+      if (typeof isActive === 'boolean' && table === 'pro_subscriptions') {
+        patch.is_active = isActive;
+        if (!isActive) {
+          patch.expires_at = new Date().toISOString();
+        }
       }
       if (typeof isHidden === 'boolean') {
         if (table !== 'supporters') {
@@ -1353,7 +1360,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         .from(table)
         .update(patch)
         .eq('id', id)
-        .select(kind === 'soup' ? 'id, is_sandbox, environment, is_hidden' : 'id, is_sandbox, environment')
+        .select(kind === 'soup' ? 'id, is_sandbox, environment, is_hidden' : 'id, is_sandbox, environment, is_active, expires_at')
         .maybeSingle();
       if (error) throw error;
       if (!data) {
