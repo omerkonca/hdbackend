@@ -1407,6 +1407,8 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       };
 
+      const escapeHtml = (str) => String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
       const docNo = `HD-${isPlus ? 'PLUS' : 'IKR'}-${record.id.slice(0, 8).toUpperCase()}`;
       const title = isPlus
         ? (record.plan === 'yearly' ? 'Hepsi Düziçi Plus (1 Yıllık VIP Üyelik)' : 'Hepsi Düziçi Plus (Aylık VIP Üyelik)')
