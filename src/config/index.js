@@ -95,7 +95,7 @@ const config = {
 
   AI_NEWS: {
     BEAUTIFY_SCRAPED: process.env.AI_BEAUTIFY_SCRAPED_NEWS === 'true',
-    REPORTER_ENABLED: process.env.AI_REPORTER_ENABLED === 'true',
+    REPORTER_ENABLED: process.env.AI_REPORTER_ENABLED !== 'false',
     REPORTER_HOUR_TR: Number(process.env.AI_REPORTER_HOUR_TR || 20), // Runs at 20:00 TR
   },
 

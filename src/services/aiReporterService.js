@@ -635,7 +635,7 @@ class AiReporterService {
 
   async generateIfDue() {
     const config = require('../config');
-    let reporterEnabled = config.AI_NEWS.REPORTER_ENABLED;
+    let reporterEnabled = config.AI_NEWS.REPORTER_ENABLED !== false;
     let requireApproval = false;
     try {
       const cityContent = await fileService.readCityContent();

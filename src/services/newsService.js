@@ -980,8 +980,44 @@ KURALLAR:
       this.preFetchFullTexts(syncItems).catch(err => {
         console.error('❌ Background news pre-fetch trigger error:', err.message);
       });
+
+      // 60 günden eski dış kaynak haberlerini otomatik temizle (günde 1 kez)
+      this.cleanupOldScrapedNews().catch(err => {
+        console.error('❌ Background news cleanup error:', err.message);
+      });
     } catch (err) {
       console.error('❌ Supabase news cache sync failed:', err.message);
+    }
+  }
+
+  async cleanupOldScrapedNews({ retentionDays = 60 } = {}) {
+    try {
+      const now = Date.now();
+      if (this._lastCleanupAt && (now - this._lastCleanupAt < 24 * 60 * 60 * 1000)) {
+        return;
+      }
+      this._lastCleanupAt = now;
+
+      const supabase = require('../utils/supabaseClient');
+      const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
+
+      const { data, error } = await supabase
+        .from('news_items')
+        .delete()
+        .lt('created_at', cutoff)
+        .eq('verified', false)
+        .eq('is_ai_generated', false)
+        .not('id', 'like', 'news-custom-%')
+        .not('id', 'like', 'news-ai-reporter-%')
+        .select('id');
+
+      if (error) {
+        console.error('❌ Old news auto-cleanup error:', error.message);
+      } else if (data && data.length > 0) {
+        console.log(`🧹 [news] Auto-cleaned ${data.length} scraped news items older than ${retentionDays} days.`);
+      }
+    } catch (err) {
+      console.error('❌ Old news auto-cleanup exception:', err.message);
     }
   }
 
@@ -992,21 +1028,20 @@ KURALLAR:
     }
 
     const systemPrompt =
-      'Sen Düziçi ve Osmaniye bölgesi için çalışan profesyonel bir yerel haber editörüsün. ' +
-      'Görevin, sana verilen ham haber başlığını ve gövde metnini yerel haberciliğe uygun, ' +
-      'akıcı, imlası düzgün ve ilgi çekici hale getirmektir. ' +
-      'Gereksiz reklamları, "haberin devamı için tıklayın", sosyal medya paylaşım linklerini veya ' +
-      'metin dışı kısımları tamamen temizlemelisin. ' +
-      'Haberin özünü asla değiştirmemeli ve bilgi uydurmamalısın. ' +
-      'Yanıtını sadece belirtilen JSON formatında vermelisin.';
+      'Sen Düziçi ve Osmaniye bölgesi için çalışan usta ve profesyonel bir yerel haber editörüsün. ' +
+      'Görevin, sana verilen ham haber içeriğini gazete kalitesinde, akıcı, zengin ve sürükleyici ' +
+      'bütünleşik bir haber metnine dönüştürmektir. ' +
+      'Gereksiz site reklamlarını, "ayrıntılar için tıklayın", spam linkleri tamamen temizle. ' +
+      'Haberin olay akışını bozmadan, okuyucunun keyifle okuyacağı zengin ve net 2-3 paragraflık bir haber gövdesi oluştur. ' +
+      'Yanıtını sadece belirtilen JSON formatında ver.';
 
     const userPrompt =
       `Ham Haber Başlığı: ${title}\n\n` +
       `Ham Haber Gövde Metni:\n${fullText}\n\n` +
       `GÖREV TALİMATLARI:\n` +
-      `1. title: Haber için ilgi çekici, clickbait olmayan, imlası düzgün yeni bir başlık yaz (max 100 karakter).\n` +
-      `2. summary: Haberden yola çıkarak 2 veya 3 cümlelik, merak uyandıran ve bilgilendirici samimi bir özet yaz (max 250 karakter).\n` +
-      `3. fullText: Haberin tamamını okunaklı paragraflar halinde yeniden yaz. Markdown veya HTML kullanma.\n\n` +
+      `1. title: Haber için ilgi çekici, profesyonel ve imlası düzgün yeni bir başlık yaz (max 100 karakter).\n` +
+      `2. summary: Bildirim ve liste kartları için 2 cümlelik net bir özet yaz (max 220 karakter).\n` +
+      `3. fullText: Haberin tamamını akıcı, profesyonel 2 ila 4 paragraftan oluşan tek ve bütünleşik bir haber yazısı olarak kaleme al. Paragraflar arasında çift satır boşluğu bırak. Markdown (#, *) veya HTML etiketleri kullanma.\n\n` +
       `JSON FORMATI:\n` +
       `{\n` +
       `  "title": "...",\n` +
@@ -1481,190 +1516,59 @@ KURALLAR:
   }
 
   parseArticleHtmlToText(html) {
-    // Standalone related news links removal using Cheerio
     try {
       const $ = cheerio.load(html);
-      $('a').each((i, el) => {
-        const $el = $(el);
-        const text = $el.text().trim();
-        const parent = $el.parent();
-        if (parent.length && (parent.is('p') || parent.is('h1') || parent.is('h2') || parent.is('h3') || parent.is('h4') || parent.is('h5') || parent.is('h6') || parent.is('div'))) {
-          if (parent.text().trim() === text) {
-            parent.remove();
-          }
-        }
-      });
-      html = $.html();
-    } catch (e) {
-      console.error('[news] Cheerio pre-processing failed:', e.message);
-    }
 
-    // 1) Tum sayfada gurultu olabilecek blok tag'leri ic icerik ile birlikte sil.
-    const noiseTags = [
-      'script', 'style', 'noscript', 'nav', 'header', 'footer', 'aside',
-      'form', 'iframe', 'svg', 'button', 'figcaption',
-    ];
-    for (const tag of noiseTags) {
-      html = html.replace(new RegExp(`<${tag}\\b[^>]*>[\\s\\S]*?<\\/${tag}>`, 'gi'), ' ');
-      html = html.replace(new RegExp(`<${tag}\\b[^>]*\\/>`, 'gi'), ' ');
-    }
+      // 1. Gürültü ve reklam elementlerini kaldır
+      $('script, style, noscript, nav, header, footer, aside, form, iframe, svg, button, figcaption, .post-flash, .article-source, [id^="ad_"], [class*="advert"], [class*="banner"], [class*="share"], [class*="sosyal"], [class*="related"]').remove();
 
-    // 2) Class/id ismi tipik gurultu kelimelerini iceren kapsayicilari sil.
-    const noiseAttrPattern = '(share|sosyal|social|related|ilgili|comment|yorum|sidebar|breadcrumb|tag-list|tags|author|byline|meta|footer|menu|popup|modal|advert|\\bads?\\b|banner|newsletter|subscribe|widget|toolbar|read-more|next-prev|pagination|cookie|post-info|post-meta|haber-info|haber-meta|stats|tools)';
-    const noiseAttrRegex = new RegExp(
-      `<(div|section|ul|ol|aside|p|span)[^>]*\\b(class|id)\\s*=\\s*"[^"]*${noiseAttrPattern}[^"]*"[^>]*>[\\s\\S]*?<\\/\\1>`,
-      'gi',
-    );
-    for (let i = 0; i < 4; i++) {
-      const next = html.replace(noiseAttrRegex, ' ');
-      if (next === html) break;
-      html = next;
-    }
+      // 2. Makale gövde kapsayıcısını bul
+      const selectors = [
+        '[property="articleBody"]',
+        '[itemprop="articleBody"]',
+        '.article-text',
+        '.article-body',
+        '.entry-content',
+        '.post-content',
+        '.haber-icerik',
+        '.haberDetay',
+        '.haber-detay',
+        'article',
+        'main',
+      ];
 
-    // 2.5) Haber spotunu/özetini (Genellikle h2 itemprop="description") bulup temizle
-    const spotCandidates = [
-      /<h2[^>]*itemprop\s*=\s*"description"[^>]*>/i,
-      /<div[^>]*class\s*=\s*"[^"]*(?:article-spot|haber-spot|spot-haber|post-spot|entry-summary)[^"]*">/i,
-      /<h2[^>]*class\s*=\s*"[^"]*(?:spot|summary)[^"]*">/i,
-    ];
-    let spot = '';
-    for (const re of spotCandidates) {
-      const match = html.match(re);
-      if (match) {
-        const content = this.extractContainerContent(html, re);
-        if (content) {
-          spot = stripHtml(content).trim();
-          if (spot.length > 10) break;
-        }
-      }
-    }
-    if (spot) {
-      spot = decodeXmlEntities(spot);
-    }
-
-    // 3) Oncelikli secicilerle haber govdesini bul.
-    const bodyCandidates = [
-      /<div[^>]*itemprop\s*=\s*"articleBody"[^>]*>/i,
-      /<div[^>]*property\s*=\s*"articleBody"[^>]*>/i,
-      /<div[^>]*class\s*=\s*"[^"]*(?:article-body|entry-content|article-content|post-content|news-content|haber-icerik|haberDetay|haber-detay|content-body|article__body|article-text)[^"]*>/i,
-      /<article[^>]*>/i,
-      /<main[^>]*>/i,
-    ];
-    let main = '';
-    for (const re of bodyCandidates) {
-      const match = html.match(re);
-      if (match) {
-        const content = this.extractContainerContent(html, re);
-        if (content && content.replace(/<[^>]+>/g, '').trim().length > 100) {
-          main = content;
+      let $container = null;
+      for (const sel of selectors) {
+        const candidate = $(sel).first();
+        if (candidate.length && candidate.text().trim().length > 80) {
+          $container = candidate;
           break;
         }
       }
-    }
-    if (!main) {
-      main = html
-        .replace(/^[\s\S]*<body[^>]*>/i, '')
-        .replace(/<\/body>[\s\S]*$/i, '');
-    }
 
-    // 4) Paragraf bazli ayrim: <p>, <h*>, <li>, <br><br> sinirlarinda kes.
-    const blocks = main
-      .replace(/<br\s*\/?\>(\s*<br\s*\/?\>)+/gi, '</p><p>')
-      .split(/<\/(?:p|h[1-6]|li|blockquote|div)>/i)
-      .map((part) => stripHtml(part))
-      .map((s) => s.replace(/\s+/g, ' ').trim())
-      .filter(Boolean);
-
-    // 5) Satir/paragraf seviyesinde gurultu temizligi.
-    const noiseLineRe = /^(paylaş|paylas|tweet|linkedin|pinterest|telegram|whatsapp|yazdır|yazdir|kopyala|facebook|reddit|önceki|onceki|sonraki|paylaşım|paylasim|yorum( yap)?|haber merkezi|editör|editor|yayınlanma|yayinlanma|güncelleme|guncelleme|okunma süresi|okunma suresi|a\s*-\s*a\s*\+|a\s*\+\s*a\s*-|reklam|sponsor|abone ol|kategori|etiket|tarih|tüm hakları saklıdır|copyright|©.*|kaynak\s*:.*|muhabir\s*:.*|editörün seçtiği.*|editorun sectigi.*|içeriği görüntüle.*|icerigi goruntule.*|https?:\/\/\S+)$/i;
-    const shareWordsRe = /\b(paylaş|paylas|tweet|linkedin|pinterest|telegram|whatsapp|yazdır|yazdir|kopyala|facebook|reddit|paylaşım|paylasim)\b/gi;
-    const metaPrefixRe = /^(editör|editor|muhabir|yayınlanma|yayinlanma|güncelleme|guncelleme|paylaşım|paylasim|okunma|haber merkezi|kategori|etiket|tarih|tag(s)?|\d{1,2}[\./-]\d{1,2}[\./-]\d{2,4})\b/i;
-    const generalMetaRe = /\b(yayınlanma|yayinlanma|güncelleme|guncelleme|okunma süresi|okunma suresi|haber merkezi)\b/i;
-
-    const cleaned = blocks.filter((line) => {
-      if (line.length < 25) return false;
-      if (noiseLineRe.test(line)) return false;
-      if (metaPrefixRe.test(line) && line.length < 120) return false;
-      if (generalMetaRe.test(line) && line.length < 120) return false;
-      const words = line.split(/\s+/);
-      const matches = line.match(shareWordsRe) || [];
-      if (words.length > 0 && matches.length / words.length > 0.25) return false;
-      // Sadece tarih/saat ve sayilardan olusan satirlar (meta).
-      const lettersOnly = line.replace(/[^a-zçğıöşü]/gi, '');
-      if (lettersOnly.length < 10) return false;
-      return true;
-    });
-
-    let finalBlocks = [...cleaned];
-    if (spot && spot.length > 15) {
-      // Eğer spot metni temizlenmiş paragrafların ilkinde zaten geçmiyorsa en başa ekle
-      const firstBlock = finalBlocks[0] || '';
-      if (!firstBlock.toLowerCase().includes(spot.slice(0, 15).toLowerCase())) {
-        finalBlocks.unshift(spot);
+      if (!$container) {
+        $container = $('body');
       }
-    }
 
-    let text = finalBlocks.join('\n\n');
-    if (text.length < 200) {
-      text = normalizeText(stripHtml(main));
-    }
+      // 3. Paragrafları ve alt başlıkları temiz bir şekilde topla
+      const blocks = [];
+      $container.find('p, h1, h2, h3, h4, h5, h6, li, blockquote').each((_, el) => {
+        const text = $(el).text().replace(/\s+/g, ' ').trim();
+        const noiseLineRe = /^(paylaş|paylas|tweet|linkedin|pinterest|telegram|whatsapp|yazdır|yazdir|kopyala|facebook|reddit|önceki|sonraki|paylaşım|yorum|haber merkezi|editör|yayınlanma|güncelleme|reklam|sponsor|abone ol|kategori|etiket|tüm hakları saklıdır|copyright|©.*|kaynak\s*:.*|muhabir\s*:.*|içeriği görüntüle.*|https?:\/\/\S+)$/i;
+        if (text.length > 20 && !noiseLineRe.test(text) && !blocks.includes(text)) {
+          blocks.push(text);
+        }
+      });
 
-    // 6) Editor/meta satirlari ve onlara baglı kuyruk gurultusunu kes.
-    //    "Editörün Seçtiği ..." baslayan kisim ve sonrasini at.
-    const cutMarkers = [
-      /Edit[oö]r[uü]n\s*Se[cç]ti[gğ]i/i,
-      /Muhabir\s*:/i,
-      /Haber Merkezi(?:\s|$)/i,
-      /Edit[oö]r\s*Hakk[ıi]nda/i,
-      /İlgili\s*Haberler/i,
-      /Etiketler\s*:/i,
-      /Yorumlar\s*\(/i,
-      /Yorum\s*Yaz/i,
-      /Bunlar\s+da\s+ilgini(?:zi)?\s+çekebilir/i,
-      /Daha\s+fazla(?:\s+haber)?/i,
-      /Son\s+Haberler(?:\s|$)/i,
-    ];
-    for (const re of cutMarkers) {
-      const m = text.match(re);
-      if (m && m.index > 200) {
-        text = text.slice(0, m.index).trim();
-        break;
+      if (blocks.length > 0) {
+        return blocks.join('\n\n');
       }
+
+      return $container.text().replace(/\s+/g, ' ').trim();
+    } catch (e) {
+      console.error('[news] Cheerio parser failed:', e.message);
+      return '';
     }
-
-    // 7) Sonek olarak yine kalmis "Paylas Linkedin..." kuyruklarini at.
-    text = text.replace(/(?:\b(?:paylaş|paylas|tweet|linkedin|pinterest|telegram|whatsapp|yazdır|yazdir|kopyala|facebook|reddit)\b[\s,;\-•|]*){2,}/gi, ' ');
-    // Editor 30.04.2026 - 14:05 Yayınlanma 1 ... gibi inline meta blogu.
-    text = text.replace(/Edit[oö]r\s*\d{1,2}\.\d{1,2}\.\d{2,4}[\s\S]*?(?:Okunma\s*S[uü]resi|A\s*[-+]\s*A\s*[+-])/gi, ' ');
-    // "A - A +" yazi boyutu kontrolu - kelime siniri olmadan.
-    text = text.replace(/A\s*[-+]\s*A\s*[+-]/g, ' ');
-    // "--> ... İçeriği Görüntüle" gibi "ilgili icerik" satirlarini at.
-    text = text.replace(/-->[^\n]*?İçeriği\s*Görüntüle[^\n]*/gi, ' ');
-    text = text.replace(/İçeriği\s*Görüntüle/gi, ' ');
-
-    // 8) Paragraf bazli son temizlik:
-    //    - Sonda kalmis "haber basligi" gorunumlu paragraflari kes
-    //      (cumle gibi olmayan, ! ile biten ya da cok kisa olanlar).
-    let paragraphs = text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
-    const isLikelyTitle = (p) => {
-      if (!p) return true;
-      if (p.length < 40) return true;
-      // Cumle bitirici (. ! ?) ile bitmiyorsa ve uzun degilse, baslik gibi.
-      if (!/[.!?…]\s*$/.test(p) && p.length < 220) return true;
-      // ! veya ? ile biten kisa metinler - clickbait basligi.
-      if (/[!?]\s*$/.test(p) && p.length < 220) return true;
-      // Tek cumle, virgulsuz ve kisa: yine baslik olabilir.
-      const sentences = p.split(/[.!?]+\s+/).filter(Boolean);
-      if (sentences.length === 1 && p.length < 200 && !/,/.test(p)) return true;
-      return false;
-    };
-    while (paragraphs.length > 1 && isLikelyTitle(paragraphs[paragraphs.length - 1])) {
-      paragraphs.pop();
-    }
-    text = paragraphs.join('\n\n');
-
-    text = text.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
-    return truncateNewsExcerpt(text);
   }
 }
 

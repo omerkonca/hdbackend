@@ -750,7 +750,7 @@ class ApiController {
       const settings = data?.aiNewsSettings || {};
       const defaults = {
         beautifyScraped: false,
-        reporterEnabled: false,
+        reporterEnabled: true,
         reporterRequireApproval: false,
         beautifyDailyLimit: 25,
         beautifyCountToday: 0,
