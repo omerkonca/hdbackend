@@ -595,24 +595,34 @@
 
       if (isVideo) {
         isVideoMode = true;
-        imgEl.style.display = 'none';
         vidEl.style.display = 'block';
         vidEl.muted = true;
+        vidEl.defaultMuted = true;
         vidEl.playsInline = true;
         vidEl.setAttribute('muted', '');
         vidEl.setAttribute('playsinline', '');
         vidEl.autoplay = true;
         vidEl.loop = true;
+        vidEl.src = url;
 
         let finished = false;
-        function onVideoReady() {
+        async function onVideoReady() {
           if (finished) return;
           finished = true;
+          imgEl.style.display = 'none';
           progBar.style.width = '100%';
           progPercent.innerText = '100%';
           progStatus.innerText = `✅ Video Hazır (${fileSizeMB} MB)`;
           labelText.innerText = `🎥 ${file.name.slice(0, 20)}... (${fileSizeMB} MB)`;
-          vidEl.play().catch(() => {});
+
+          try {
+            await vidEl.play();
+          } catch (err) {
+            console.log('Autoplay blocked, retrying on touch:', err);
+            // Kullanıcı kart üzerine dokunduğunda oynat
+            document.getElementById('bptCard').addEventListener('click', () => { vidEl.play(); }, { once: true });
+          }
+
           setTimeout(() => { progCont.style.display = 'none'; }, 1200);
         }
 
@@ -623,22 +633,25 @@
         vidEl.onerror = () => {
           if (finished) return;
           finished = true;
-          progStatus.innerText = '❌ Video açılamadı (.mp4 formatı önerilir)';
+          imgEl.style.display = 'block';
+          vidEl.style.display = 'none';
+          progStatus.innerText = '❌ Video formatı desteklenmiyor (Lütfen H.264 .mp4 deneyin)';
           labelText.innerText = '📁 Başka Video Seç';
         };
 
-        vidEl.src = url;
         vidEl.load();
 
-        // 400ms Güvenlik Zamanlayıcısı (Asla %90'da takılı kalmaz)
+        // 300ms sonra video hazırsa başlat
         setTimeout(() => {
-          onVideoReady();
-        }, 400);
+          if (vidEl.readyState >= 1) {
+            onVideoReady();
+          }
+        }, 300);
 
       } else {
         isVideoMode = false;
         vidEl.style.display = 'none';
-        vidEl.pause();
+        try { vidEl.pause(); } catch(_) {}
         imgEl.style.display = 'block';
 
         imgEl.onload = () => {
