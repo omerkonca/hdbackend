@@ -934,17 +934,56 @@
           ctx.fillText(l, textLeft, quoteStartY + (idx * qLineH));
         });
 
-        // İndirme tetikle
-        const link = document.createElement('a');
-        link.download = `hepsi_duzici_post_${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png', 1.0);
-        document.body.appendChild(link);
-        link.click();
-        setTimeout(() => document.body.removeChild(link), 100);
+        // 100% Mobil & Masaüstü Uyumlu İndirme Motoru
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            alert('Görsel oluşturulamadı.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            return;
+          }
+
+          const fileName = `hepsi_duzici_post_${Date.now()}.png`;
+          const file = new File([blob], fileName, { type: 'image/png' });
+
+          // 1. Mobil Cihazlar İçin Yerel Paylaş / Galeriye Kaydet (iOS & Android)
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'Hepsi Düziçi',
+                text: 'Hepsi Düziçi BPT Gönderisi'
+              });
+              btn.innerText = '✅ Kaydedildi / Paylaşıldı!';
+              setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+              return;
+            } catch (shareErr) {
+              if (shareErr.name === 'AbortError') {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                return;
+              }
+            }
+          }
+
+          // 2. Masaüstü & Standart Tarayıcı İndirmesi
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = blobUrl;
+          document.body.appendChild(link);
+          link.click();
+          setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(blobUrl);
+          }, 1000);
+
+          btn.innerText = '✅ İndirildi!';
+          setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
+        }, 'image/png');
 
       } catch (err) {
         alert('Görsel oluşturulamadı: ' + err.message);
-      } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
       }
@@ -996,17 +1035,39 @@
           if (e.data && e.data.size > 0) chunks.push(e.data);
         };
 
-        recorder.onstop = () => {
+        recorder.onstop = async () => {
           const blob = new Blob(chunks, { type: mimeType });
+          const fileName = `hepsi_duzici_video_${Date.now()}.${ext}`;
+          const file = new File([blob], fileName, { type: mimeType });
+
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'Hepsi Düziçi Video',
+                text: 'Hepsi Düziçi Video Gönderisi'
+              });
+              btn.innerText = '✅ Video Paylaşıldı / Kaydedildi!';
+              setTimeout(() => { btn.innerText = '🎥 Video İndir'; btn.disabled = false; }, 2000);
+              return;
+            } catch (err) {
+              if (err.name === 'AbortError') {
+                btn.innerText = '🎥 Video İndir';
+                btn.disabled = false;
+                return;
+              }
+            }
+          }
+
           const link = document.createElement('a');
-          link.download = `hepsi_duzici_video_${Date.now()}.${ext}`;
+          link.download = fileName;
           link.href = URL.createObjectURL(blob);
           document.body.appendChild(link);
           link.click();
           setTimeout(() => {
             document.body.removeChild(link);
             URL.revokeObjectURL(link.href);
-          }, 500);
+          }, 1000);
 
           btn.innerText = '✅ Video İndirildi!';
           setTimeout(() => {
