@@ -447,10 +447,20 @@
       </button>
 
       <div>
-        <label class="custom-file-upload">
-          📁 Fotoğraf veya Video Seç
-          <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;" onchange="handleFile(event)">
+        <label class="custom-file-upload" id="uploadLabel">
+          <span id="uploadLabelText">📁 Fotoğraf veya Video Seç</span>
+          <input type="file" id="fileInput" accept="image/*,video/*,.mp4,.mov,.webm,.m4v" style="display:none;" onchange="handleFile(event)">
         </label>
+        <!-- Yükleme İlerleme Çubuğu -->
+        <div id="uploadProgressContainer" style="display:none; margin-top:8px;">
+          <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:700; color:var(--primary); margin-bottom:4px;">
+            <span id="progressStatus">⏳ Medya Yükleniyor...</span>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div style="width:100%; height:6px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden;">
+            <div id="progressBar" style="width:0%; height:100%; background:linear-gradient(90deg, #EAB308, #EF4444); transition:width 0.15s;"></div>
+          </div>
+        </div>
       </div>
 
       <div style="display:flex; gap:8px;">
@@ -553,20 +563,78 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      const url = URL.createObjectURL(file);
+      const progCont = document.getElementById('uploadProgressContainer');
+      const progBar = document.getElementById('progressBar');
+      const progStatus = document.getElementById('progressStatus');
+      const progPercent = document.getElementById('progressPercent');
+      const labelText = document.getElementById('uploadLabelText');
+
+      progCont.style.display = 'block';
+      progBar.style.width = '10%';
+      progPercent.innerText = '10%';
+      progStatus.innerText = `⏳ "${file.name}" okunuyor...`;
+
+      const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name);
       const imgEl = document.getElementById('cardBgImg');
       const vidEl = document.getElementById('cardBgVideo');
 
-      if (file.type.startsWith('video/')) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+
+      // Simüle edilen / gerçek dosya yükleme ilerlemesi
+      let progress = 10;
+      const interval = setInterval(() => {
+        if (progress < 90) {
+          progress += Math.floor(Math.random() * 20) + 10;
+          if (progress > 90) progress = 90;
+          progBar.style.width = `${progress}%`;
+          progPercent.innerText = `${progress}%`;
+        }
+      }, 50);
+
+      const url = URL.createObjectURL(file);
+
+      if (isVideo) {
         isVideoMode = true;
         imgEl.style.display = 'none';
         vidEl.style.display = 'block';
+        vidEl.muted = true;
+        vidEl.playsInline = true;
+        vidEl.autoplay = true;
+        vidEl.loop = true;
         vidEl.src = url;
-        vidEl.play().catch(() => {});
+
+        vidEl.onloadeddata = () => {
+          clearInterval(interval);
+          progBar.style.width = '100%';
+          progPercent.innerText = '100%';
+          progStatus.innerText = `✅ Video Hazır (${fileSizeMB} MB)`;
+          labelText.innerText = `🎥 ${file.name.slice(0, 18)}... (${fileSizeMB} MB)`;
+          vidEl.play().catch(err => console.log('Video autoplay:', err));
+          setTimeout(() => { progCont.style.display = 'none'; }, 2000);
+        };
+
+        vidEl.onerror = () => {
+          clearInterval(interval);
+          progStatus.innerText = '❌ Video formatı desteklenmiyor (.mp4 önerilir)';
+          labelText.innerText = '📁 Başka Video Seç';
+        };
+
+        vidEl.load();
       } else {
         isVideoMode = false;
         vidEl.style.display = 'none';
+        vidEl.pause();
         imgEl.style.display = 'block';
+
+        imgEl.onload = () => {
+          clearInterval(interval);
+          progBar.style.width = '100%';
+          progPercent.innerText = '100%';
+          progStatus.innerText = `✅ Görsel Hazır (${fileSizeMB} MB)`;
+          labelText.innerText = `🖼️ ${file.name.slice(0, 18)}...`;
+          setTimeout(() => { progCont.style.display = 'none'; }, 1500);
+        };
+
         imgEl.src = url;
       }
     }
