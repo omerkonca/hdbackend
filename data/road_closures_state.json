@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "lastSyncAt": "2026-08-13T13:44:09.498Z",
+  "lastSyncAt": "2026-08-21T21:14:10.861Z",
   "items": {
     "belediye_trafik_2025_27": {
       "id": "belediye_trafik_2025_27",
       "fingerprint": "belediye_trafik_2025_27",
       "title": "İl Trafik Komisyonu Kararı (2025/27)",
       "subtitle": "İrfanlı Mahallesi güzergâhında trafik düzenlemesi",
-      "status": "Devam Ediyor",
+      "status": "Tamamlandı",
       "reason": "Osmaniye İl Trafik Komisyonu kararı",
       "roadCode": "İrfanlı Mah.",
       "address": "İrfanlı Mahallesi, Düziçi, Osmaniye",
@@ -23,14 +23,16 @@
       "autoManaged": false,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 1
+      "missedScans": 3,
+      "closedAt": "2026-08-21T21:14:10.861Z",
+      "closeReason": "Manuel kayıt artık canlı kaynakta yok"
     },
     "belediye_haberler_recep-tayyip-erdogan-bulvari-yenileniyor": {
       "id": "belediye_rte_bulvari",
       "fingerprint": "belediye_haberler_recep-tayyip-erdogan-bulvari-yenileniyor",
       "title": "Recep Tayyip Erdoğan Bulvarı Yenileniyor",
       "subtitle": "Asfalt ve kaldırım yenileme çalışması",
-      "status": "Devam Ediyor",
+      "status": "Tamamlandı",
       "reason": "Belediye üstyapı projesi",
       "roadCode": "R.T. Erdoğan Bulvarı",
       "address": "Recep Tayyip Erdoğan Bulvarı, Düziçi, Osmaniye",
@@ -46,7 +48,9 @@
       "autoManaged": false,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 1
+      "missedScans": 3,
+      "closedAt": "2026-08-21T21:14:10.861Z",
+      "closeReason": "Manuel kayıt artık canlı kaynakta yok"
     },
     "belediye_il-trafik-komisyonun-25032025-ve-202527-sayili-karari": {
       "id": "belediye_il-trafik-komisyonun-25032025-ve-202527-sayili-karari",
@@ -69,8 +73,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 498,
-      "closedAt": "2026-08-13T13:44:09.498Z",
+      "missedScans": 500,
+      "closedAt": "2026-08-21T21:14:10.861Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberlerrecep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -94,8 +98,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 498,
-      "closedAt": "2026-08-13T13:44:09.498Z",
+      "missedScans": 500,
+      "closedAt": "2026-08-21T21:14:10.861Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_recep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -119,8 +123,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 498,
-      "closedAt": "2026-08-13T13:44:09.498Z",
+      "missedScans": 500,
+      "closedAt": "2026-08-21T21:14:10.861Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_uzunbani-mahallelerinde-asfaltlama-calismalari-bas": {
@@ -144,8 +148,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:44:28.809Z",
       "lastSeenAt": "2026-06-24T20:44:28.809Z",
-      "missedScans": 3,
-      "closedAt": "2026-08-13T13:44:09.498Z",
+      "missedScans": 5,
+      "closedAt": "2026-08-21T21:14:10.861Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "kgm_31-78-osmaniye-organize-sanayi-bolgesi-botas-tesisleri-31-76-iya-0-4": {
@@ -170,10 +174,10 @@
       "kgmMeta": {
         "branch": "HATAY (53. Şube)",
         "kkNo": "31-78",
-        "updatedAt": "13.08.2026 13:47:39"
+        "updatedAt": "21.08.2026 12:41:56"
       },
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-08-13T13:44:09.498Z",
+      "lastSeenAt": "2026-08-21T21:14:10.861Z",
       "missedScans": 0
     },
     "osmaniye_bel_httpsosmaniye-bldgovtrkemal-satir-caddesi-modern-yol-gorunumune-kavusuyorhtml": {
@@ -197,9 +201,9 @@
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
       "lastSeenAt": "2026-08-13T13:44:09.498Z",
-      "missedScans": 0,
-      "closedAt": "2026-08-13T13:44:09.499Z",
-      "closeReason": "Asfaltlama duyurusu max yaş aşımı"
+      "missedScans": 2,
+      "closedAt": "2026-08-21T21:14:10.861Z",
+      "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_duyurular": {
       "id": "belediye_duyurular",
@@ -222,8 +226,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-07-14T12:20:54.294Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 1,
-      "closedAt": "2026-08-13T13:44:09.498Z",
+      "missedScans": 3,
+      "closedAt": "2026-08-21T21:14:10.861Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberleruzunbani-mahallelerinde-asfaltlama-calismalari-basladi": {
@@ -246,9 +250,9 @@
       "kind": "municipality",
       "autoManaged": true,
       "firstSeenAt": "2026-08-13T13:44:09.498Z",
-      "lastSeenAt": "2026-08-13T13:44:09.498Z",
+      "lastSeenAt": "2026-08-21T21:14:10.861Z",
       "missedScans": 0,
-      "closedAt": "2026-08-13T13:44:09.499Z",
+      "closedAt": "2026-08-21T21:14:10.862Z",
       "closeReason": "Uzunbanı asfaltlama duyurusu süresi doldu"
     }
   }

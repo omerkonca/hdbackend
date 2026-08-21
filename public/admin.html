@@ -7761,7 +7761,7 @@
       list.innerHTML = '';
 
       if (outages.length === 0 && roadClosures.length === 0) {
-        list.innerHTML = '<div style="padding:12px; background:#fff; border-radius:8px; border:1px solid #fed7aa; color:#9a3412; font-size:13px">Metinde herhangi bir kesinti veya yol çalışması tespit edilemedi.</div>';
+        list.innerHTML = '<div style="padding:12px; background:#fff; border-radius:8px; border:1px solid #fed7aa; color:#9a3412; font-size:13px">Metinde herhangi bir kesinti veya yol çalışması tespit edilemedi. Lütfen metni kontrol edin.</div>';
         wrap.style.display = 'block';
         return;
       }
@@ -7771,27 +7771,43 @@
 
       outages.forEach((item, idx) => {
         const div = document.createElement('div');
-        div.style = 'padding:14px; background:#fff; border-radius:10px; border:1px solid #fed7aa; box-shadow:0 2px 4px rgba(0,0,0,0.03)';
+        div.style = 'padding:16px; background:#fff; border-radius:12px; border:1.5px solid #fed7aa; box-shadow:0 4px 8px rgba(0,0,0,0.04); margin-bottom:12px';
         div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
-            <span style="background:${item.type === 'SU' ? '#e0f2fe' : '#fef3c7'}; color:${item.type === 'SU' ? '#0369a1' : '#b45309'}; font-weight:800; font-size:11px; padding:3px 8px; border-radius:6px">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+            <span style="background:${item.type === 'SU' ? '#e0f2fe' : '#fef3c7'}; color:${item.type === 'SU' ? '#0369a1' : '#b45309'}; font-weight:800; font-size:11.5px; padding:4px 10px; border-radius:6px">
               ${item.type === 'SU' ? '💧 SU KESİNTİSİ' : '⚡ ELEKTRİK KESİNTİSİ'}
             </span>
-            <span style="font-size:11px; color:#64748b">${escapeHtml(item.source || 'Resmi')}</span>
+            <input type="text" id="outage_source_${idx}" value="${escapeHtml(item.source || (item.type === 'SU' ? 'Düziçi Belediyesi Su İşleri' : 'Toroslar EDAŞ'))}" style="font-size:11.5px; color:#64748b; border:1px solid #e2e8f0; border-radius:6px; padding:2px 8px; width:160px; text-align:right" placeholder="Kaynak">
           </div>
-          <div style="font-weight:700; font-size:14px; margin-bottom:4px">${escapeHtml(item.title)}</div>
-          <div style="font-size:12px; color:#475569; margin-bottom:6px">${escapeHtml(item.subtitle || '')}</div>
-          <div style="font-size:12px; color:#334155; margin-bottom:10px">
-            <strong>Bölge/Sokak:</strong> ${escapeHtml(item.area || 'Düziçi')} <br>
-            ${item.startAt ? `<strong>Tarih/Saat:</strong> ${new Date(item.startAt).toLocaleString('tr-TR')} ${item.endAt ? ` - ${new Date(item.endAt).toLocaleTimeString('tr-TR')}` : ''}` : ''}
+          <div style="margin-bottom:8px">
+            <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:2px">Başlık (Kısa & Net):</label>
+            <input type="text" id="outage_title_${idx}" value="${escapeHtml(item.title)}" style="width:100%; font-weight:700; font-size:13.5px; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px">
           </div>
-          <div style="display:flex; gap:8px; align-items:center">
-            <button type="button" class="btn btn-primary" onclick="publishExtractedItem('outage', ${idx}, this)" style="background:#16a34a; border-color:#15803d; font-size:12px; padding:6px 14px">
+          <div style="margin-bottom:8px">
+            <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:2px">Duyuru / Açıklama Metni:</label>
+            <textarea id="outage_subtitle_${idx}" rows="2" style="width:100%; font-size:12.5px; color:#334155; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px">${escapeHtml(item.subtitle || '')}</textarea>
+          </div>
+          <div style="margin-bottom:8px">
+            <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:2px">Etkilenecek Mahalle / Yayla / Sokaklar:</label>
+            <input type="text" id="outage_area_${idx}" value="${escapeHtml(item.area || 'Düziçi geneli')}" style="width:100%; font-size:12.5px; font-weight:600; color:#1e293b; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px">
+            <div>
+              <label style="display:block; font-size:11px; font-weight:700; color:#64748b; margin-bottom:2px">Başlangıç Zamanı:</label>
+              <input type="text" id="outage_start_${idx}" value="${item.startAt ? item.startAt.slice(0, 16).replace('T', ' ') : ''}" placeholder="YYYY-AA-GG SS:DD" style="width:100%; font-size:12px; padding:5px 8px; border:1px solid #cbd5e1; border-radius:6px">
+            </div>
+            <div>
+              <label style="display:block; font-size:11px; font-weight:700; color:#64748b; margin-bottom:2px">Bitiş Zamanı:</label>
+              <input type="text" id="outage_end_${idx}" value="${item.endAt ? item.endAt.slice(0, 16).replace('T', ' ') : ''}" placeholder="YYYY-AA-GG SS:DD" style="width:100%; font-size:12px; padding:5px 8px; border:1px solid #cbd5e1; border-radius:6px">
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:10px">
+            <label style="font-size:12px; color:#475569; display:flex; align-items:center; gap:5px; cursor:pointer">
+              <input type="checkbox" id="push_outage_${idx}" checked style="accent-color:#16a34a; width:15px; height:15px"> Anlık Bildirim Gönder (FCM)
+            </label>
+            <button type="button" class="btn btn-primary" onclick="publishExtractedItem('outage', ${idx}, this)" style="background:#16a34a; border-color:#15803d; font-size:12.5px; font-weight:700; padding:7px 18px; border-radius:8px">
               ✅ Uygulamada Yayınla
             </button>
-            <label style="font-size:12px; color:#475569; display:flex; align-items:center; gap:4px">
-              <input type="checkbox" id="push_outage_${idx}" checked style="accent-color:#16a34a"> Anlık Bildirim Gönder (FCM)
-            </label>
           </div>
         `;
         list.appendChild(div);
@@ -7799,27 +7815,33 @@
 
       roadClosures.forEach((item, idx) => {
         const div = document.createElement('div');
-        div.style = 'padding:14px; background:#fff; border-radius:10px; border:1px solid #cbd5e1; box-shadow:0 2px 4px rgba(0,0,0,0.03)';
+        div.style = 'padding:16px; background:#fff; border-radius:12px; border:1.5px solid #cbd5e1; box-shadow:0 4px 8px rgba(0,0,0,0.04); margin-bottom:12px';
         div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
-            <span style="background:#fee2e2; color:#b91c1c; font-weight:800; font-size:11px; padding:3px 8px; border-radius:6px">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+            <span style="background:#fee2e2; color:#b91c1c; font-weight:800; font-size:11.5px; padding:4px 10px; border-radius:6px">
               🚧 YOL ÇALIŞMASI / KAPALI
             </span>
-            <span style="font-size:11px; color:#64748b">${escapeHtml(item.source || 'Belediye')}</span>
+            <input type="text" id="road_source_${idx}" value="${escapeHtml(item.source || 'Düziçi Belediyesi')}" style="font-size:11.5px; color:#64748b; border:1px solid #e2e8f0; border-radius:6px; padding:2px 8px; width:160px; text-align:right" placeholder="Kaynak">
           </div>
-          <div style="font-weight:700; font-size:14px; margin-bottom:4px">${escapeHtml(item.title)}</div>
-          <div style="font-size:12px; color:#475569; margin-bottom:6px">${escapeHtml(item.subtitle || item.reason || '')}</div>
-          <div style="font-size:12px; color:#334155; margin-bottom:10px">
-            <strong>Adres:</strong> ${escapeHtml(item.address || 'Düziçi')} <br>
-            <strong>Durum:</strong> ${item.severity === 'full' ? 'Tam Kapalı' : 'Kısmi / Şerit Daralması'}
+          <div style="margin-bottom:8px">
+            <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:2px">Başlık:</label>
+            <input type="text" id="road_title_${idx}" value="${escapeHtml(item.title)}" style="width:100%; font-weight:700; font-size:13.5px; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px">
           </div>
-          <div style="display:flex; gap:8px; align-items:center">
-            <button type="button" class="btn btn-primary" onclick="publishExtractedItem('road', ${idx}, this)" style="background:#2563eb; border-color:#1d4ed8; font-size:12px; padding:6px 14px">
+          <div style="margin-bottom:8px">
+            <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:2px">Açıklama / Neden:</label>
+            <textarea id="road_subtitle_${idx}" rows="2" style="width:100%; font-size:12.5px; color:#334155; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px">${escapeHtml(item.subtitle || item.reason || '')}</textarea>
+          </div>
+          <div style="margin-bottom:8px">
+            <label style="display:block; font-size:11.5px; font-weight:700; color:#475569; margin-bottom:2px">Adres / Güzergah:</label>
+            <input type="text" id="road_address_${idx}" value="${escapeHtml(item.address || 'Düziçi')}" style="width:100%; font-size:12.5px; font-weight:600; color:#1e293b; padding:6px 10px; border:1px solid #cbd5e1; border-radius:6px">
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:10px">
+            <label style="font-size:12px; color:#475569; display:flex; align-items:center; gap:5px; cursor:pointer">
+              <input type="checkbox" id="push_road_${idx}" checked style="accent-color:#2563eb; width:15px; height:15px"> Anlık Bildirim Gönder (FCM)
+            </label>
+            <button type="button" class="btn btn-primary" onclick="publishExtractedItem('road', ${idx}, this)" style="background:#2563eb; border-color:#1d4ed8; font-size:12.5px; font-weight:700; padding:7px 18px; border-radius:8px">
               ✅ Uygulamada Yayınla
             </button>
-            <label style="font-size:12px; color:#475569; display:flex; align-items:center; gap:4px">
-              <input type="checkbox" id="push_road_${idx}" checked style="accent-color:#2563eb"> Anlık Bildirim Gönder (FCM)
-            </label>
           </div>
         `;
         list.appendChild(div);
@@ -7829,8 +7851,41 @@
     }
 
     async function publishExtractedItem(type, index, btn) {
-      const item = type === 'outage' ? window._currentParsedOutages?.[index] : window._currentParsedRoads?.[index];
+      let item = type === 'outage' ? window._currentParsedOutages?.[index] : window._currentParsedRoads?.[index];
       if (!item) return;
+
+      // Güncel form değerlerini al
+      if (type === 'outage') {
+        const titleEl = document.getElementById(`outage_title_${index}`);
+        const subEl = document.getElementById(`outage_subtitle_${index}`);
+        const areaEl = document.getElementById(`outage_area_${index}`);
+        const srcEl = document.getElementById(`outage_source_${index}`);
+        const startEl = document.getElementById(`outage_start_${index}`);
+        const endEl = document.getElementById(`outage_end_${index}`);
+
+        item = {
+          ...item,
+          title: titleEl ? titleEl.value.trim() : item.title,
+          subtitle: subEl ? subEl.value.trim() : item.subtitle,
+          area: areaEl ? areaEl.value.trim() : item.area,
+          source: srcEl ? srcEl.value.trim() : item.source,
+          startAt: startEl && startEl.value.trim() ? (startEl.value.includes('T') ? startEl.value : startEl.value.replace(' ', 'T') + ':00+03:00') : item.startAt,
+          endAt: endEl && endEl.value.trim() ? (endEl.value.includes('T') ? endEl.value : endEl.value.replace(' ', 'T') + ':00+03:00') : item.endAt,
+        };
+      } else {
+        const titleEl = document.getElementById(`road_title_${index}`);
+        const subEl = document.getElementById(`road_subtitle_${index}`);
+        const addrEl = document.getElementById(`road_address_${index}`);
+        const srcEl = document.getElementById(`road_source_${index}`);
+
+        item = {
+          ...item,
+          title: titleEl ? titleEl.value.trim() : item.title,
+          subtitle: subEl ? subEl.value.trim() : item.subtitle,
+          address: addrEl ? addrEl.value.trim() : item.address,
+          source: srcEl ? srcEl.value.trim() : item.source,
+        };
+      }
 
       const pushCheckbox = document.getElementById(type === 'outage' ? `push_outage_${index}` : `push_road_${index}`);
       const sendPush = pushCheckbox ? pushCheckbox.checked : true;

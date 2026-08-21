@@ -1,110 +1,83 @@
 const aiClient = require('./aiClient');
 const { normalizeText, slugify } = require('../utils/helpers');
 
-const OUTAGE_KEYWORDS = [
-  'elektrik kesint',
-  'su kesint',
-  'sebeke bakim',
-  'şebeke bakım',
-  'planli kesint',
-  'planlı kesint',
-  'toroslar edas',
-  'toroslar edaş',
-  'enerjisa',
-  'tedas',
-  'tedaş',
-  'aski',
-  'askı',
-];
-
-const ROAD_KEYWORDS = [
-  'yol yapim',
-  'yol yapım',
-  'asfalt serim',
-  'asfalt calis',
-  'asfalt çalış',
-  'kilit parke',
-  'trafige kapat',
-  'trafiğe kapat',
-  'serit daral',
-  'şerit daral',
-  'kazi calis',
-  'kazı çalış',
-  'menfez yapim',
-  'menfez yapım',
-  'kopru yapim',
-  'köprü yapım',
-  'yol calismasi',
-  'yol çalışması',
-];
-
-function isOutageOrRoadText(text) {
-  const t = normalizeText(text).toLowerCase();
-  const hasOutage = OUTAGE_KEYWORDS.some((k) => t.includes(k));
-  const hasRoad = ROAD_KEYWORDS.some((k) => t.includes(k));
-  return hasOutage || hasRoad;
-}
+const MONTH_MAP = {
+  ocak: '01',
+  subat: '02',
+  şubat: '02',
+  mart: '03',
+  nisan: '04',
+  mayis: '05',
+  mayıs: '05',
+  haziran: '06',
+  temmuz: '07',
+  agustos: '08',
+  ağustos: '08',
+  eylul: '09',
+  eylül: '09',
+  ekim: '10',
+  kasim: '11',
+  kasım: '11',
+  aralik: '12',
+  aralık: '12',
+};
 
 class OutageExtractorService {
   /**
    * Ham metni (WhatsApp duyurusu, gazete haberi, belediye bülteni)
-   * yapay zeka ve kural tabanlı motorla kesinti ve yol çalışması kayıtlarına ayrıştırır.
+   * yapay zeka ve akıllı Türkçe kural motoruyla net, anlaşılır kesinti ve yol çalışması kayıtlarına ayrıştırır.
    */
-  async extractFromText(rawText, options = {}) {
+  async extractFromText(rawText) {
     const text = String(rawText || '').trim();
     if (!text) return { outages: [], roadClosures: [] };
 
-    // Eğer AI yapılandırılmışsa AI ile kusursuz ayrıştır
+    // 1. Eğer AI yapılandırılmışsa AI ile kusursuz ayrıştır
     if (aiClient.isConfigured()) {
       try {
-        const prompt =
-          `Aşağıdaki metin Düziçi (Osmaniye) veya bölge için planlı elektrik/su kesintisi ya da yol çalışması içerebilir.\n` +
-          `Metni analiz et ve JSON formatında yapılandırılmış kesinti (outages) ve yol çalışması (roadClosures) listesini çıkar.\n\n` +
-          `KURALLAR:\n` +
-          `1. Yalnızca metinde geçen gerçek bilgileri kullan. Uydurma bilgi ekleme.\n` +
-          `2. type: "ELEKTRİK" veya "SU"\n` +
-          `3. status: "Planlandı" veya "Devam Ediyor"\n` +
-          `4. severity (yol için): "full" (tam kapalı) veya "partial" (şerit daralması/çalışma)\n` +
-          `5. Tarih ve saatleri ISO-8601 (örn. 2026-08-18T09:00:00+03:00) olarak çıkar; saat bilinmiyorsa null bırak.\n\n` +
-          `METİN:\n"""\n${text.slice(0, 3000)}\n"""\n\n` +
-          `JSON FORMATI:\n` +
+        const systemPrompt =
+          `Sen Düziçi (Osmaniye) ilçesi için resmi duyuru ve bildirim editörüsün.\n` +
+          `Görevin; Toroslar EDAŞ, ASKİ, Belediye, Muhtarlık veya yerel haber sitelerinden gelen karmaşık, ham metinleri okuyup halkın hemen anlayacağı SADE, NET ve PROFESYONEL duyurulara dönüştürmektir.\n\n` +
+          `ÖNEMLİ KURALLAR:\n` +
+          `1. Başlık (title): Kısa, vurucu ve lokasyonu içermeli. Asla haberin ilk cümlesini kopyalama! (Örn: "Soğulcak Yaylası & Çoban Elektrik Kesintisi" veya "Kurtuluş Mahallesi Su Kesintisi")\n` +
+          `2. Açıklama (subtitle): Tarih, saat ve nedeni özetleyen tek/iki temiz Türkçe cümle olmalı. (Örn: "22 Ağustos Cumartesi günü 09:00 - 17:00 saatleri arasında şebeke bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır.")\n` +
+          `3. Etkilenen Bölgeler (area): Etkilenecek tüm mahalle, yayla, sokak ve mevkileri açıkça listele. (Örn: "Soğulcak Yaylası (1, 3, 5, 7 Nolu sokaklar), Çoban (1 Nolu dahil), İlgiliç, Tikenli")\n` +
+          `4. Tür (type): Yalnızca "ELEKTRİK" veya "SU"\n` +
+          `5. Kaynak (source): "Toroslar EDAŞ", "Düziçi Belediyesi", "ASKİ" vb.\n` +
+          `6. Tarih/Saat (startAt, endAt): Metinde geçen tarih ve saatleri Türkiye saatine göre tam ISO-8601 (Örn: "2026-08-22T09:00:00+03:00") olarak üret.\n` +
+          `7. Yol Çalışmaları için (roadClosures): Başlık, etkilenen cadde/bulvar (address), neden (reason), durum (severity: "full" veya "partial") ve tarihleri çıkar.\n` +
+          `8. Yanıtı SADECE geçerli bir JSON nesnesi olarak ver.`;
+
+        const userPrompt =
+          `Aşağıdaki ham metni incele ve JSON formatında yapılandırılmış kesinti (outages) ve yol çalışmaları (roadClosures) listesini çıkar:\n\n` +
+          `METİN:\n"""\n${text.slice(0, 4000)}\n"""\n\n` +
+          `İSTENEN JSON FORMATI:\n` +
           `{\n` +
           `  "outages": [\n` +
           `    {\n` +
-          `      "title": "Kurtuluş Mh. Elektrik Kesintisi",\n` +
-          `      "subtitle": "Şebeke bakım ve yenileme çalışması nedeniyle",\n` +
+          `      "title": "Soğulcak Yaylası & Çoban Elektrik Kesintisi",\n` +
+          `      "subtitle": "22 Ağustos Cumartesi günü 09:00 - 17:00 saatleri arasında bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır.",\n` +
           `      "type": "ELEKTRİK",\n` +
-          `      "area": "Kurtuluş Mahallesi, Atatürk Caddesi ve civarı",\n` +
-          `      "startAt": "2026-08-18T09:00:00+03:00",\n` +
-          `      "endAt": "2026-08-18T17:00:00+03:00",\n` +
-          `      "reason": "Şebeke yenileme",\n` +
+          `      "area": "Soğulcak Yaylası (1, 3, 5, 7 Nolu sokaklar), Çoban (1 Nolu dahil), İlgiliç ve Tikenli",\n` +
+          `      "startAt": "2026-08-22T09:00:00+03:00",\n` +
+          `      "endAt": "2026-08-22T17:00:00+03:00",\n` +
+          `      "reason": "Yayla bölgelerinde şebeke bakım çalışması",\n` +
           `      "source": "Toroslar EDAŞ"\n` +
           `    }\n` +
           `  ],\n` +
-          `  "roadClosures": [\n` +
-          `    {\n` +
-          `      "title": "Refik Cesur Bulvarı Asfalt Çalışması",\n` +
-          `      "subtitle": "Tek şerit trafiğe kapalı, kontrollü geçiş sağlanıyor",\n` +
-          `      "address": "Refik Cesur Bulvarı, Düziçi",\n` +
-          `      "reason": "Sıcak asfalt serim çalışması",\n` +
-          `      "severity": "partial",\n` +
-          `      "startAt": "2026-08-18T08:00:00+03:00",\n` +
-          `      "endAt": "2026-08-19T18:00:00+03:00",\n` +
-          `      "source": "Düziçi Belediyesi Fen İşleri"\n` +
-          `    }\n` +
-          `  ]\n` +
+          `  "roadClosures": []\n` +
           `}`;
 
-        const parsed = await aiClient.generateJson(prompt, { maxTokens: 1000 });
+        const res = await aiClient.generateJson({ systemPrompt, userPrompt });
+        const parsed = res?.data;
         if (parsed && (Array.isArray(parsed.outages) || Array.isArray(parsed.roadClosures))) {
           return this._normalizeExtracted(parsed);
         }
       } catch (err) {
-        console.warn('[outage-extractor] AI parse failed, fallback to rules:', err.message);
+        console.warn('[outage-extractor] AI parse başarısız veya API key yok, akıllı kural motoruna geçiliyor:', err.message);
       }
     }
 
-    // Fallback: Kural ve regex tabanlı hızlı ayrıştırma
+    // 2. Fallback: Akıllı Türkçe Regex ve Kural Motoru
     return this._extractWithRules(text);
   }
 
@@ -114,12 +87,12 @@ class OutageExtractorService {
       return {
         id,
         title: item.title || 'Planlı Kesinti',
-        subtitle: item.subtitle || item.reason || 'Düziçi kesinti kaydı',
+        subtitle: item.subtitle || item.reason || 'Düziçi kesinti duyurusu',
         type: item.type === 'SU' ? 'SU' : 'ELEKTRİK',
         status: item.status || 'Planlandı',
-        source: item.source || 'Resmi Duyuru',
+        source: item.source || (item.type === 'SU' ? 'Düziçi Belediyesi Su İşleri' : 'Toroslar EDAŞ'),
         sourceKind: 'extracted',
-        area: item.area || 'Düziçi',
+        area: item.area || 'Düziçi geneli',
         lat: 37.244,
         lng: 36.451,
         date: item.startAt || new Date().toISOString(),
@@ -138,7 +111,7 @@ class OutageExtractorService {
         title: item.title || 'Yol Çalışması',
         subtitle: item.subtitle || item.reason || 'Düziçi yol durumu kaydı',
         status: 'Devam Ediyor',
-        reason: item.reason || 'Belediye / Yol çalışması',
+        reason: item.reason || 'Yol ve altyapı çalışması',
         roadCode: item.roadCode || 'Düziçi',
         address: item.address || 'Düziçi / Osmaniye',
         lat: 37.244,
@@ -156,39 +129,126 @@ class OutageExtractorService {
     return { outages, roadClosures };
   }
 
+  /**
+   * Akıllı Türkçe Kural & Regex Tabanlı Ayrıştırma Motoru
+   */
   _extractWithRules(text) {
     const outages = [];
     const roadClosures = [];
-    const isWater = /su kesint/i.test(text);
-    const isElectric = /elektrik|toroslar|edaş|enerjisa|trafo|şebeke/i.test(text);
-    const isRoad = ROAD_KEYWORDS.some((k) => text.toLowerCase().includes(k));
+    const normalized = text.replace(/\r\n/g, '\n');
 
-    const dateMatch = text.match(/(\d{1,2})[./](\d{1,2})[./](20\d{2})/);
-    const timeMatch = text.match(/(\d{1,2}:\d{2})/g) || [];
-    let startAt = null;
-    let endAt = null;
-    if (dateMatch) {
-      const [, d, mo, y] = dateMatch;
-      const iso = `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
-      if (timeMatch[0]) startAt = `${iso}T${timeMatch[0]}:00+03:00`;
-      if (timeMatch[1]) endAt = `${iso}T${timeMatch[1]}:00+03:00`;
+    const isWater = /su kesint|aski|askı|su arıza|şebeke boru|içme suyu|su kesil/i.test(normalized);
+    const isRoad = /yol.*çalış|asfalt|trafiğe kapat|şerit daral|menfez|köprü yapım|kilit parke|yol yapım/i.test(normalized);
+    const isAnyOutage = /kesint|bakım|şebeke|arıza|onarım|toroslar|edaş|enerjisa|elektrik|trafo|etkilenecek/i.test(normalized);
+    const isElectric = !isWater && (isAnyOutage || /elektrik|toroslar|edaş|enerjisa|trafo/i.test(normalized));
+
+    // 1. Saat aralığını bul (Örn: "09:00 - 17:00", "09:00'da başlayıp 17:00'ye kadar", "09.00 - 17.00")
+    let startTimeStr = '';
+    let endTimeStr = '';
+    const timeRangeMatch = normalized.match(/(\d{1,2}[:.]\d{2})\s*(?:-|–|ile|ila|'da başlayıp|\s)\s*(\d{1,2}[:.]\d{2})/i);
+    if (timeRangeMatch) {
+      startTimeStr = timeRangeMatch[1].replace('.', ':').padStart(5, '0');
+      endTimeStr = timeRangeMatch[2].replace('.', ':').padStart(5, '0');
+    } else {
+      const singleTimes = normalized.match(/\b(\d{1,2}[:.]\d{2})\b/g);
+      if (singleTimes && singleTimes.length >= 2) {
+        startTimeStr = singleTimes[0].replace('.', ':').padStart(5, '0');
+        endTimeStr = singleTimes[1].replace('.', ':').padStart(5, '0');
+      } else if (singleTimes && singleTimes.length === 1) {
+        startTimeStr = singleTimes[0].replace('.', ':').padStart(5, '0');
+      }
     }
 
+    // 2. Tarihi bul (Örn: "22 ağustos cumartesi", "22.08.2026", "22/08/2026")
+    let parsedDate = new Date();
+    let dateFormattedTr = '';
+    const textDateMatch = normalized.match(/(\d{1,2})\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)(?:\s+(\d{4}))?(?:\s+(pazartesi|salı|sali|çarşamba|carsamba|perşembe|persembe|cuma|cumartesi|pazar))?/i);
+    const numDateMatch = normalized.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{4}))?/);
+
+    if (textDateMatch) {
+      const day = textDateMatch[1].padStart(2, '0');
+      const monthName = textDateMatch[2].toLowerCase();
+      const month = MONTH_MAP[monthName] || '01';
+      const year = textDateMatch[3] || new Date().getFullYear().toString();
+      const dayName = textDateMatch[4] ? textDateMatch[4].charAt(0).toUpperCase() + textDateMatch[4].slice(1) : '';
+      parsedDate = new Date(`${year}-${month}-${day}T00:00:00+03:00`);
+      dateFormattedTr = `${parseInt(day, 10)} ${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${dayName}`.trim();
+    } else if (numDateMatch) {
+      const day = numDateMatch[1].padStart(2, '0');
+      const month = numDateMatch[2].padStart(2, '0');
+      const year = numDateMatch[3] || new Date().getFullYear().toString();
+      parsedDate = new Date(`${year}-${month}-${day}T00:00:00+03:00`);
+      dateFormattedTr = `${day}.${month}.${year}`;
+    }
+
+    const yearStr = parsedDate.getFullYear();
+    const monthStr = String(parsedDate.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(parsedDate.getDate()).padStart(2, '0');
+    const baseIsoDate = `${yearStr}-${monthStr}-${dayStr}`;
+
+    const startAt = startTimeStr ? `${baseIsoDate}T${startTimeStr}:00+03:00` : `${baseIsoDate}T09:00:00+03:00`;
+    const endAt = endTimeStr ? `${baseIsoDate}T${endTimeStr}:00+03:00` : (startTimeStr ? `${baseIsoDate}T17:00:00+03:00` : null);
+
+    // 3. Etkilenen Bölgeleri Ayıkla
+    let area = '';
+    const affectedMatch = normalized.match(/(?:etkilenecek yerler|etkilenen bölgeler|kesinti yapılacak yerler|kesintiden etkilenecek|bölgeler|yerler)[:\s\n]+([^\n.]+)/i);
+    if (affectedMatch && affectedMatch[1]) {
+      area = affectedMatch[1].replace(/\b(?:20\d{2}|gün|günü|saat|arası|tarihinde|yapılacak)\b.*/i, '').trim();
+    }
+
+    if (!area) {
+      // Metin içinde geçen bilinen mahalle/yayla isimlerini ara
+      const knownLocations = [
+        'Soğulcak Yaylası', 'Çoban Yaylası', 'Zorkun', 'İlgiliç', 'Tikenli',
+        'Kurtuluş', 'Cumhuriyet', 'İrfanlı', 'Üzümlü', 'Hürriyet', 'Yeşilova',
+        'Refik Cesur', 'Atatürk Caddesi', 'Yarbaşı', 'Ellek', 'Böke', 'Gökçedam'
+      ];
+      const found = knownLocations.filter(loc => new RegExp(loc, 'i').test(normalized));
+      if (found.length > 0) {
+        area = found.join(', ');
+      } else {
+        area = 'Düziçi İlçe Geneli';
+      }
+    }
+
+    // 4. Profesyonel Başlık ve Açıklama Oluştur
     if (isElectric || isWater) {
       const type = isWater ? 'SU' : 'ELEKTRİK';
-      const title = text.slice(0, 70);
+      
+      // Başlık için ana lokasyonları derle
+      const locCandidates = area
+        .replace(/\(.*?\)/g, '')
+        .split(/[,&]/)
+        .map((s) => s.replace(/bölgeleri|bölgesi|dahil|nolu|sokaklar/gi, '').trim())
+        .filter((s) => s.length > 2 && !/^(ve|ile|nolu|dahil)$/i.test(s));
+
+      let locSummary = '';
+      if (locCandidates.length >= 2) {
+        locSummary = `${locCandidates[0]} & ${locCandidates[1]}`;
+      } else if (locCandidates.length === 1) {
+        locSummary = locCandidates[0];
+      }
+
+      const title = locSummary && locSummary !== 'Düziçi İlçe Geneli'
+        ? (isWater ? `Düziçi Su Kesintisi (${locSummary})` : `Düziçi Elektrik Kesintisi (${locSummary})`)
+        : (isWater ? 'Düziçi Planlı Su Kesintisi' : 'Düziçi Planlı Elektrik Kesintisi');
+
+      const timeText = (startTimeStr && endTimeStr) ? `${startTimeStr} - ${endTimeStr} saatleri arasında` : 'gün boyunca';
+      const dateText = dateFormattedTr ? `${dateFormattedTr} günü ` : '';
+      const subtitle = `${dateText}${timeText} şebeke bakım ve yenileme çalışmaları nedeniyle kesinti uygulanacaktır.`;
+
       outages.push({
-        id: `rule_outage_${Date.now()}`,
-        title: title.length > 60 ? `${title.slice(0, 57)}...` : title,
-        subtitle: text.slice(0, 180),
+        id: `extracted_outage_${Date.now()}`,
+        title,
+        subtitle,
         type,
         status: 'Planlandı',
         source: isWater ? 'Düziçi Belediyesi Su İşleri' : 'Toroslar EDAŞ',
-        sourceKind: 'rule',
-        area: 'Düziçi',
+        sourceKind: 'extracted',
+        area: area || 'Düziçi',
         lat: 37.244,
         lng: 36.451,
-        date: startAt || new Date().toISOString(),
+        date: startAt,
         publishedAt: new Date().toISOString(),
         startAt,
         endAt,
@@ -197,23 +257,26 @@ class OutageExtractorService {
     }
 
     if (isRoad) {
+      const title = 'Düziçi Yol ve Asfalt Çalışması';
+      const subtitle = `${dateFormattedTr ? `${dateFormattedTr} günü ` : ''}altyapı ve asfalt çalışması nedeniyle kontrollü geçiş sağlanmaktadır.`;
+
       roadClosures.push({
-        id: `rule_road_${Date.now()}`,
-        fingerprint: `rule_road_${Date.now()}`,
-        title: text.slice(0, 65),
-        subtitle: text.slice(0, 160),
+        id: `extracted_road_${Date.now()}`,
+        fingerprint: `extracted_road_${Date.now()}`,
+        title,
+        subtitle,
         status: 'Devam Ediyor',
-        reason: 'Yol / Altyapı çalışması',
+        reason: 'Altyapı ve Asfalt Serim Çalışması',
         roadCode: 'Düziçi',
-        address: 'Düziçi / Osmaniye',
+        address: area || 'Düziçi / Osmaniye',
         lat: 37.244,
         lng: 36.451,
         alternativeRoute: 'Alternatif güzergâhlara dikkat ediniz.',
-        severity: /tamamen|trafiğe kapalı/i.test(text) ? 'full' : 'partial',
-        startAt: startAt || new Date().toISOString(),
+        severity: /tamamen|trafiğe kapalı|kapalı/i.test(normalized) ? 'full' : 'partial',
+        startAt,
         endAt,
-        source: 'Düziçi Belediyesi',
-        kind: 'rule',
+        source: 'Düziçi Belediyesi Fen İşleri',
+        kind: 'extracted',
         autoManaged: true,
       });
     }

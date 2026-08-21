@@ -1524,38 +1524,7 @@
       }
     ],
     "cityDeals": [],
-    "lostFound": [
-      {
-        "id": "lf_1781555000001",
-        "type": "Bulunan",
-        "image": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=960",
-        "title": "Düziçi Çarşıda Erkek Kol Saati Bulundu",
-        "isPaid": true,
-        "address": "Belediye Meydanı, Düziçi",
-        "contact": "0505 999 88 77",
-        "category": "Diğer",
-        "isActive": true,
-        "whatsapp": "+905059998877",
-        "createdAt": "2026-06-16T11:00:00.000Z",
-        "description": "15 Haziran pazartesi günü belediye meydanındaki bankta gümüş renkli metal kordonlu bir erkek kol saati bulunmuştur. Sahibi irtibata geçip teslim alabilir.",
-        "lostFoundDate": "2026-06-15"
-      },
-      {
-        "id": "lf_1781555000002",
-        "type": "Kayıp",
-        "image": "https://images.unsplash.com/photo-1627124357773-41319df4e9c2?w=960",
-        "title": "Mavi Cüzdan Kayıp (Kimlik ve Kartlar)",
-        "isPaid": false,
-        "address": "Refik Cesur Bulvarı güzergahı",
-        "contact": "0545 777 66 55",
-        "category": "Cüzdan & Kart",
-        "isActive": true,
-        "whatsapp": "+905457776655",
-        "createdAt": "2026-06-16T10:00:00.000Z",
-        "description": "Refik Cesur Bulvarı üzerinde içinde kimlik kartı, ehliyet ve Düziçi belediye kartı olan mavi deri cüzdan kaybolmuştur. Bulanların insaniyet namına irtibat kurmasını rica ederim.",
-        "lostFoundDate": "2026-06-14"
-      }
-    ],
+    "lostFound": [],
     "categories": [
       {
         "id": "guide",
@@ -3031,114 +3000,8 @@
         "subtitle": "Düziçi Belediyesi ücretsiz kablosuz internet noktaları"
       }
     ],
-    "jobListings": [
-      {
-        "id": "jl_1781555000001",
-        "image": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=960",
-        "title": "Kasa Görevlisi ve Satış Danışmanı Aranıyor",
-        "isPaid": true,
-        "salary": "Asgari Ücret + Yemek",
-        "address": "İrfanlı Mahallesi, Refik Cesur Bulvarı No: 124",
-        "contact": "0532 111 22 33",
-        "jobType": "Tam Zamanlı",
-        "category": "Satış & Mağazacılık",
-        "isActive": true,
-        "whatsapp": "+905321112233",
-        "createdAt": "2026-06-16T12:00:00.000Z",
-        "companyName": "Doğanlar Süpermarket",
-        "description": "Süpermarketimizin merkez şubesinde kasa ve reyonlarda görev alacak, güler yüzlü ve takım çalışmasına yatkın takım arkadaşları arıyoruz."
-      },
-      {
-        "id": "jl_1781555000002",
-        "image": "https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=960",
-        "title": "Part-time Kurye (A2 Ehliyetli)",
-        "isPaid": false,
-        "salary": "Saatlik Ücret + Paket Başı Prim",
-        "address": "Kurtuluş Mahallesi, Park Caddesi No: 45",
-        "contact": "0544 333 44 55",
-        "jobType": "Yarı Zamanlı",
-        "category": "Restoran & Kafe",
-        "isActive": true,
-        "whatsapp": "+905443334455",
-        "createdAt": "2026-06-16T13:00:00.000Z",
-        "companyName": "Öz Döner Salonu",
-        "description": "Akşam saatlerinde (17:00 - 22:00) çalışacak, A2 ehliyete sahip, Düziçi sokaklarını iyi bilen paket servis elemanı aranıyor."
-      }
-    ],
-    "realEstates": [
-      {
-        "id": "re_1781555775522",
-        "area": "140 m2",
-        "type": "Daire",
-        "image": "",
-        "price": "3500000",
-        "title": "Test Satilik 3+1 Daire",
-        "images": [],
-        "isPaid": false,
-        "address": "Duzici Mahallesi Merkez Sokak",
-        "contact": "05555555555",
-        "category": "Satılık",
-        "isActive": true,
-        "createdAt": "2026-06-15T20:36:15.522Z",
-        "roomCount": "3+1",
-        "sellerName": "Deneme Emlakci",
-        "description": "Test amacli eklenmis deneme emlak ilanidir."
-      },
-      {
-        "id": "re_1781426475244",
-        "area": "135 m²",
-        "type": "Daire",
-        "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=960",
-        "price": "2850000",
-        "title": "Satılık 3+1 Lüks Daire - Cumhuriyet Mah.",
-        "images": [],
-        "isPaid": true,
-        "address": "Cumhuriyet Mah. No: 12, Düziçi",
-        "contact": "0532 596 70 79",
-        "category": "Satılık",
-        "isActive": true,
-        "createdAt": "2026-06-15T10:00:00.000Z",
-        "roomCount": "3+1",
-        "sellerName": "Merkez Emlak",
-        "description": "Düziçi merkezinde, okula ve marketlere yakın, sıfır lüks daire."
-      },
-      {
-        "id": "re_1781426475245",
-        "area": "450 m²",
-        "type": "Arsa/Arazi",
-        "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=960",
-        "price": "1200000",
-        "title": "İmarlı Satılık Arsa - Yeşilova Mah.",
-        "images": [],
-        "isPaid": false,
-        "address": "Yeşilova Mah. Çevre Yolu Yakını, Düziçi",
-        "contact": "0328 876 45 45",
-        "category": "Satılık",
-        "isActive": true,
-        "createdAt": "2026-06-15T11:00:00.000Z",
-        "roomCount": "",
-        "sellerName": "Düziçi Emlak Ofisi",
-        "description": "Yeşilova Mahallesi'nde villa yapımına uygun, yolu açık imarlı arsa."
-      },
-      {
-        "id": "re_1781426475246",
-        "area": "95 m²",
-        "type": "Daire",
-        "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=960",
-        "price": "12000",
-        "title": "Kiralık 2+1 Eşyalı Daire - İrfanlı Mah.",
-        "images": [],
-        "isPaid": false,
-        "address": "İrfanlı Mah. Hastane Cad. No: 8",
-        "contact": "0542 585 60 10",
-        "category": "Kiralık",
-        "isActive": true,
-        "createdAt": "2026-06-15T12:00:00.000Z",
-        "roomCount": "2+1",
-        "sellerName": "Sahibinden",
-        "description": "Devlet hastanesi yakınında, eşyalı kiralık daire."
-      }
-    ],
+    "jobListings": [],
+    "realEstates": [],
     "suggestions": [
       {
         "icon": "route",
@@ -3388,28 +3251,7 @@
         "subtitle": "Yayla ferahlığı ve güvenlik öncelikli kısa plan."
       }
     ],
-    "autoVehicles": [
-      {
-        "id": "v_1781426475243",
-        "km": "4",
-        "year": "2030",
-        "brand": "Bmw",
-        "color": "Beyaz",
-        "image": "",
-        "model": "320",
-        "price": "1000",
-        "title": "Honda",
-        "images": [],
-        "isPaid": false,
-        "contact": "05416429621",
-        "bodyType": "sedan",
-        "fuelType": "benzin",
-        "gearType": "manuel",
-        "isActive": true,
-        "createdAt": "2026-06-14T08:41:15.243Z",
-        "sellerName": "Alda"
-      }
-    ],
+    "autoVehicles": [],
     "cityServices": [
       {
         "id": "villages",
@@ -3490,28 +3332,7 @@
         "title": "Oto Galeri",
         "target": "screen:directory",
         "subtitle": "Düziçi'deki araç galerileri",
-        "directoryData": [
-          {
-            "name": "Coşkun Oto Galeri",
-            "phone": "0542 242 83 71",
-            "address": "Üzümlü Mah., Düziçi"
-          },
-          {
-            "name": "Güzeller Oto Galeri",
-            "phone": "0533 437 01 80",
-            "address": "Refik Cesur Bulvarı, Düziçi"
-          },
-          {
-            "name": "Osmanlı Otomotiv",
-            "phone": "0505 314 93 47",
-            "address": "Şehit Ahmet Metlioğlu Cad., Düziçi"
-          },
-          {
-            "name": "Koylu Auto",
-            "phone": "0542 123 45 67",
-            "address": "Düziçi Merkez"
-          }
-        ]
+        "directoryData": []
       },
       {
         "id": "real_estate",
@@ -3520,23 +3341,7 @@
         "title": "Emlak İlanları",
         "target": "screen:directory",
         "subtitle": "Satılık ve kiralık mülkler",
-        "directoryData": [
-          {
-            "name": "Merkez Emlak",
-            "phone": "0532 596 70 79",
-            "address": "Yeni Halkbank Üstü, Düziçi"
-          },
-          {
-            "name": "Düziçi Galeria Emlak",
-            "phone": "0542 585 60 10",
-            "address": "Refik Cesur Bulvarı No:463, Düziçi"
-          },
-          {
-            "name": "Düziçi Emlak Ofisi",
-            "phone": "0328 876 45 45",
-            "address": "Cumhuriyet Mah., Şehit Ahmet Metlioğlu Cad., No:22"
-          }
-        ]
+        "directoryData": []
       },
       {
         "id": "local_market",
@@ -3780,6 +3585,25 @@
         "createdAt": "2026-06-16T12:20:00.000Z",
         "sellerName": "Hatice Teyze",
         "description": "Düziçi yöremizin meşhur, bol malzemeli, taş fırında odun ateşinde pişirilmiş çıtır çıtır etli kömbesi. Sipariş üzerine günlük taze yapılır."
+      }
+    ],
+    "outages": [
+      {
+        "id": "outage_duzici_yayla_20260822",
+        "title": "Düziçi Elektrik Kesintisi (Soğulcak Yaylası & Çoban)",
+        "subtitle": "22 Ağustos Cumartesi günü 09:00 - 17:00 saatleri arasında yayla bölgelerinde şebeke bakım ve yenileme çalışmaları nedeniyle kesinti uygulanacaktır.",
+        "type": "ELEKTRİK",
+        "status": "Planlandı",
+        "source": "Toroslar EDAŞ",
+        "sourceKind": "manual",
+        "area": "Soğulcak Yaylası (1, 3, 5, 7 Nolu sokaklar), Çoban (1 Nolu dahil), İlgiliç ve Tikenli bölgeleri",
+        "lat": 37.244,
+        "lng": 36.451,
+        "date": "2026-08-22T09:00:00+03:00",
+        "publishedAt": "2026-08-21T21:10:09.836Z",
+        "startAt": "2026-08-22T09:00:00+03:00",
+        "endAt": "2026-08-22T17:00:00+03:00",
+        "isActive": true
       }
     ]
   },
@@ -6447,93 +6271,7 @@
     }
   ],
   "customEvents": [],
-  "privateTutors": [
-    {
-      "id": "tutor-001",
-      "bio": "8 yılı aşkın özel ders deneyimimle, özellikle YKS ve LGS hazırlık süreçlerinde öğrencilerimi başarıya taşımaktayım. Sabırlı ve sistematik bir öğretim anlayışıyla, her öğrencinin kendi hızında ilerlemesine destek olurum.",
-      "name": "Ahmet Yılmaz",
-      "title": "Matematik ve Fizik Öğretmeni",
-      "isPaid": false,
-      "levels": [
-        "İlkokul",
-        "Ortaokul",
-        "Lise",
-        "YKS"
-      ],
-      "contact": "0532 111 22 33",
-      "imageUrl": "",
-      "isActive": true,
-      "location": "Düziçi Merkez",
-      "subjects": [
-        "Matematik",
-        "Fizik",
-        "Geometri"
-      ],
-      "whatsapp": "905321112233",
-      "createdAt": "2026-06-17",
-      "education": "Çukurova Üniversitesi – Matematik Öğretmenliği",
-      "experience": "8 yıl deneyimli",
-      "sessionType": "Yüz Yüze & Online",
-      "pricePerHour": "250 ₺"
-    },
-    {
-      "id": "tutor-002",
-      "bio": "Günlük konuşmadan akademik İngilizceye kadar her seviyede ders veriyorum. Özellikle üniversite öğrencilerine YDS/YÖKDİL hazırlığı ve çeviri desteği sunuyorum. Online ders imkânım da mevcut.",
-      "name": "Elif Demir",
-      "title": "İngilizce Öğretmeni & Çevirmen",
-      "isPaid": true,
-      "levels": [
-        "İlkokul",
-        "Ortaokul",
-        "Lise",
-        "Üniversite",
-        "Yetişkin"
-      ],
-      "contact": "0543 222 33 44",
-      "imageUrl": "",
-      "isActive": true,
-      "location": "Düziçi / Online",
-      "subjects": [
-        "İngilizce",
-        "YDS Hazırlık",
-        "Konuşma Pratiği"
-      ],
-      "whatsapp": "905432223344",
-      "createdAt": "2026-06-17",
-      "education": "Gaziantep Üniversitesi – İngiliz Dili ve Edebiyatı",
-      "experience": "5 yıl deneyimli",
-      "sessionType": "Online & Yüz Yüze",
-      "pricePerHour": "200 ₺"
-    },
-    {
-      "id": "tutor-003",
-      "bio": "12 yıldır özel ders ve kurs merkezlerinde Türkçe ve Edebiyat dersleri veriyorum. TYT Türkçe puanını kısa sürede ciddi ölçüde artırma konusunda kanıtlanmış bir metodum var.",
-      "name": "Murat Kaya",
-      "title": "Türkçe ve Edebiyat Öğretmeni",
-      "isPaid": false,
-      "levels": [
-        "Ortaokul",
-        "Lise",
-        "YKS"
-      ],
-      "contact": "0555 333 44 55",
-      "imageUrl": "",
-      "isActive": true,
-      "location": "Düziçi Merkez",
-      "subjects": [
-        "Türkçe",
-        "TYT Türkçe",
-        "Edebiyat",
-        "Kompozisyon"
-      ],
-      "whatsapp": "905553334455",
-      "createdAt": "2026-06-17",
-      "education": "Selçuk Üniversitesi – Türk Dili ve Edebiyatı Öğretmenliği",
-      "experience": "12 yıl deneyimli",
-      "sessionType": "Yüz Yüze",
-      "pricePerHour": "220 ₺"
-    }
-  ],
+  "privateTutors": [],
   "supportersWall": {
     "title": "Düziçi Destekçileri 🏆",
     "enabled": true,
@@ -6545,5 +6283,24 @@
     "heroEmojis": "🥜 🫓 🥣 🍖",
     "emptySubtitle": "İlk ikramda bulunan sen ol!",
     "featuredMessage": ""
-  }
+  },
+  "outages": [
+    {
+      "id": "outage_duzici_yayla_20260822",
+      "title": "Düziçi Elektrik Kesintisi (Soğulcak Yaylası & Çoban)",
+      "subtitle": "22 Ağustos Cumartesi günü 09:00 - 17:00 saatleri arasında yayla bölgelerinde şebeke bakım ve yenileme çalışmaları nedeniyle kesinti uygulanacaktır.",
+      "type": "ELEKTRİK",
+      "status": "Planlandı",
+      "source": "Toroslar EDAŞ",
+      "sourceKind": "manual",
+      "area": "Soğulcak Yaylası (1, 3, 5, 7 Nolu sokaklar), Çoban (1 Nolu dahil), İlgiliç ve Tikenli bölgeleri",
+      "lat": 37.244,
+      "lng": 36.451,
+      "date": "2026-08-22T09:00:00+03:00",
+      "publishedAt": "2026-08-21T21:10:09.836Z",
+      "startAt": "2026-08-22T09:00:00+03:00",
+      "endAt": "2026-08-22T17:00:00+03:00",
+      "isActive": true
+    }
+  ]
 }

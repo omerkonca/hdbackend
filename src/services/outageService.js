@@ -114,10 +114,44 @@ class OutageService {
       } catch (_) {}
 
       const merged = mergeOutages([manualOutages, newsExtracted, belediye, toroslar]);
+      const now = new Date();
+      const nowMs = now.getTime();
       const todayKey = turkeyDateKey();
-      const active = merged.filter((item) => item.isActive !== false && item.status !== 'Tamamlandı');
+
+      // Saati biten kesintiler otomatik olarak Aktif'ten kalkar, Geçmiş'e düşer!
+      const active = [];
+      const expiredOrHistory = [];
+
+      for (const item of merged) {
+        if (item.isActive === false || item.status === 'Tamamlandı') {
+          expiredOrHistory.push(item);
+          continue;
+        }
+
+        let isExpired = false;
+        if (item.endAt) {
+          const endMs = new Date(item.endAt).getTime();
+          if (!isNaN(endMs) && endMs < nowMs) {
+            isExpired = true;
+          }
+        } else if (item.startAt) {
+          const startMs = new Date(item.startAt).getTime();
+          // Bitiş saati bilinmiyorsa başlangıçtan 10 saat sonra sona ermiş kabul edilir
+          if (!isNaN(startMs) && startMs + 10 * 60 * 60 * 1000 < nowMs) {
+            isExpired = true;
+          }
+        }
+
+        if (isExpired) {
+          item.status = 'Tamamlandı';
+          expiredOrHistory.push(item);
+        } else {
+          active.push(item);
+        }
+      }
+
       const activeIds = new Set(active.map((item) => item.id));
-      const history = merged.filter((item) => {
+      const history = expiredOrHistory.filter((item) => {
         if (activeIds.has(item.id)) return false;
         const publishedKey = turkeyDateKey(new Date(item.publishedAt || item.date || Date.now()));
         return daysBetween(publishedKey, todayKey) <= HISTORY_DAYS;
@@ -132,7 +166,7 @@ class OutageService {
         toroslar.length > 0 ? 'belediye+toroslar' : belediye.length > 0 ? 'belediye-duyuru' : 'empty';
 
       console.info(
-        `[outages] ${active.length} aktif, ${history.length} geçmiş (manuel: ${manualOutages.length}, haber: ${newsExtracted.length}, belediye: ${belediye.length}, toroslar: ${toroslar.length})`,
+        `[outages] ${active.length} aktif, ${history.length} geçmiş (saati geçenler geçmişe taşındı)`,
       );
       return active;
     } catch (error) {
