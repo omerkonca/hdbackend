@@ -903,16 +903,14 @@
         if (qLine) qLines.push(qLine.trim());
 
         // Alttan yukarı dinamik Y hesabı (Dengeli ve Ferah Konumlandırma)
-        const hLineH = 60;
-        const qLineH = 46;
-        const gap = 34;
-        const bottomMargin = 148;
+        const hLineH = 62;
+        const qLineH = 48;
+        const baselineGap = 84; // Headline son satırı ile Alıntı ilk satırı arası ferah 84px taban çizgisi
+        const bottomMargin = 135;
 
-        const quoteTotalH = qLines.length * qLineH;
-        const headlineTotalH = hLines.length * hLineH;
-
-        const quoteStartY = 1350 - bottomMargin - quoteTotalH + 34;
-        const headlineStartY = quoteStartY - gap - (headlineTotalH - hLineH);
+        const quoteStartY = 1350 - bottomMargin - ((qLines.length - 1) * qLineH);
+        const lastHeadlineY = quoteStartY - baselineGap;
+        const headlineStartY = lastHeadlineY - ((hLines.length - 1) * hLineH);
 
         // Manşet Çizimi
         ctx.fillStyle = '#FFFFFF';
@@ -1135,16 +1133,14 @@
         }
         if (qLine) qLines.push(qLine.trim());
 
-        const hLineH = 60;
-        const qLineH = 46;
-        const gap = 34;
-        const bottomMargin = 148;
+        const hLineH = 62;
+        const qLineH = 48;
+        const baselineGap = 84;
+        const bottomMargin = 135;
 
-        const quoteTotalH = qLines.length * qLineH;
-        const headlineTotalH = hLines.length * hLineH;
-
-        const quoteStartY = 1350 - bottomMargin - quoteTotalH + 34;
-        const headlineStartY = quoteStartY - gap - (headlineTotalH - hLineH);
+        const quoteStartY = 1350 - bottomMargin - ((qLines.length - 1) * qLineH);
+        const lastHeadlineY = quoteStartY - baselineGap;
+        const headlineStartY = lastHeadlineY - ((hLines.length - 1) * hLineH);
 
         const loop = setInterval(() => {
           // Video Kadrajı (Cover)
