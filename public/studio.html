@@ -903,16 +903,16 @@
         if (qLine) qLines.push(qLine.trim());
 
         // Alttan yukarı dinamik Y hesabı (Dengeli ve Ferah Konumlandırma)
-        const hLineH = 62;
-        const qLineH = 48;
-        const gap = 24;
+        const hLineH = 60;
+        const qLineH = 46;
+        const gap = 34;
         const bottomMargin = 148;
 
         const quoteTotalH = qLines.length * qLineH;
         const headlineTotalH = hLines.length * hLineH;
 
         const quoteStartY = 1350 - bottomMargin - quoteTotalH + 34;
-        const headlineStartY = quoteStartY - gap - headlineTotalH + 44;
+        const headlineStartY = quoteStartY - gap - (headlineTotalH - hLineH);
 
         // Manşet Çizimi
         ctx.fillStyle = '#FFFFFF';
@@ -1135,16 +1135,16 @@
         }
         if (qLine) qLines.push(qLine.trim());
 
-        const hLineH = 62;
-        const qLineH = 48;
-        const gap = 24;
+        const hLineH = 60;
+        const qLineH = 46;
+        const gap = 34;
         const bottomMargin = 148;
 
         const quoteTotalH = qLines.length * qLineH;
         const headlineTotalH = hLines.length * hLineH;
 
         const quoteStartY = 1350 - bottomMargin - quoteTotalH + 34;
-        const headlineStartY = quoteStartY - gap - headlineTotalH + 44;
+        const headlineStartY = quoteStartY - gap - (headlineTotalH - hLineH);
 
         const loop = setInterval(() => {
           // Video Kadrajı (Cover)
