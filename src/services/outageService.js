@@ -3,7 +3,7 @@ const toroslarOutageScraper = require('./toroslarOutageScraper');
 const fcmService = require('./fcmService');
 const outagePushLog = require('../utils/outagePushLog');
 
-const CACHE_MS = 30 * 60 * 1000; // 30 dk
+const CACHE_MS = 1 * 60 * 1000; // 1 dk taze veri
 const HISTORY_DAYS = 7;
 
 function turkeyDateKey(ms = Date.now()) {
@@ -107,6 +107,13 @@ class OutageService {
       const expiredOrHistory = [];
 
       for (const item of merged) {
+        if (!item || !item.title) continue;
+
+        // Eski bozuk/yarım haber kayıtlarını temizle
+        if (/Yaylalarda Kesinti Var|3 İlçede|Yaz aylarında/i.test(item.title) || /Yaz aylarında vatandaşların/i.test(item.subtitle || '')) {
+          continue;
+        }
+
         if (item.isActive === false || item.status === 'Tamamlandı') {
           expiredOrHistory.push(item);
           continue;
