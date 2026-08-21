@@ -182,16 +182,16 @@
       border-radius: 12px;
       margin-top: -12px;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-end;
-      padding-bottom: 16px;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 24px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      position: relative;
     }
 
     .strip-text {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
+      transform: rotate(-90deg);
+      transform-origin: center center;
       white-space: nowrap;
       color: #0F172A;
       font-size: 8.5px;
@@ -200,6 +200,8 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      position: absolute;
+      bottom: 115px;
     }
 
     /* Metin Katmanı */
@@ -411,8 +413,8 @@
           </div>
           <div class="white-strip">
             <div class="strip-text">
-              <span id="stripLoc">📍 DÜZİÇİ</span>
-              <span>📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
+              <span id="stripLocText">📍 DÜZİÇİ</span>
+              <span id="stripBrandText">📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
             </div>
           </div>
         </div>
@@ -463,9 +465,14 @@
         </div>
       </div>
 
-      <div style="display:flex; gap:8px;">
-        <input type="text" id="locInput" class="input-box" value="DÜZİÇİ" placeholder="Konum" style="max-width:110px;" oninput="document.getElementById('stripLoc').innerText='📍 '+this.value">
-        <button class="btn btn-secondary" onclick="resetKadraj()">🔄 Kadraj Sıfırla</button>
+      <!-- Sütun Yazıları Düzenleme -->
+      <div style="background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:10px; padding:10px;">
+        <div class="panel-title" style="margin-bottom:6px; font-size:11.5px;">⚪ Beyaz Sütun Yazıları</div>
+        <div style="display:flex; gap:6px; margin-bottom:6px;">
+          <input type="text" id="inputStripTop" class="input-box" value="📍 DÜZİÇİ" placeholder="Üst Yazı (Örn: 📍 DÜZİÇİ)" oninput="document.getElementById('stripLocText').innerText=this.value">
+          <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="resetKadraj()">🔄 Kadraj</button>
+        </div>
+        <input type="text" id="inputStripBottom" class="input-box" value="📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI" placeholder="Alt Yazı (Örn: 📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI)" oninput="document.getElementById('stripBrandText').innerText=this.value">
       </div>
 
       <div>
@@ -478,7 +485,7 @@
         <textarea id="formQuote" class="input-box" placeholder="Haber Spotu..." oninput="document.getElementById('cardQuote').innerText='“'+this.value.replace(/^“|”$/g,'')+'”'"></textarea>
       </div>
 
-      <div class="btn-group" style="margin-top:6px;">
+      <div class="btn-group" style="margin-top:4px;">
         <button class="btn btn-primary" onclick="downloadImage()">
           <span>📸 1080x1350 Foto İndir</span>
         </button>
@@ -643,7 +650,7 @@
       const btn = document.getElementById('btnAi');
       const headline = document.getElementById('cardHeadline').innerText;
       const quote = document.getElementById('cardQuote').innerText;
-      const loc = document.getElementById('locInput').value || 'DÜZİÇİ';
+      const loc = (document.getElementById('inputStripTop').value || 'DÜZİÇİ').replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim();
 
       btn.innerText = '🤖 AI Hazırlıyor...';
       btn.disabled = true;
@@ -660,8 +667,8 @@
           document.getElementById('cardQuote').innerText = `“${data.quote}”`;
           document.getElementById('formHeadline').value = data.headline;
           document.getElementById('formQuote').value = data.quote;
-          document.getElementById('locInput').value = data.location;
-          document.getElementById('stripLoc').innerText = `📍 ${data.location}`;
+          document.getElementById('inputStripTop').value = `📍 ${data.location}`;
+          document.getElementById('stripLocText').innerText = `📍 ${data.location}`;
           if (data.suggestedTheme === 'ruby') {
             setTheme(4, document.querySelectorAll('.color-dot')[4]);
           } else if (data.suggestedTheme === 'gold') {
@@ -739,7 +746,8 @@
 
         const headline = document.getElementById('cardHeadline').innerText;
         const quote = document.getElementById('cardQuote').innerText;
-        const locationText = document.getElementById('locInput').value || 'DÜZİÇİ';
+        const stripTopText = document.getElementById('stripLocText').innerText;
+        const stripBottomText = document.getElementById('stripBrandText').innerText;
         const t = themes[currentThemeIndex];
 
         const loop = setInterval(() => {
@@ -783,7 +791,7 @@
           ctx.fillStyle = '#0F172A';
           ctx.font = '900 22px Inter';
           ctx.textAlign = 'left';
-          ctx.fillText(`📍 ${locationText}   📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI`, 0, 8);
+          ctx.fillText(`${stripTopText}   ${stripBottomText}`, 0, 8);
           ctx.restore();
 
           // Manşet Metni
