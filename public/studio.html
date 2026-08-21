@@ -783,7 +783,7 @@
         ctx.shadowBlur = 20;
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(40, 102, 62, 1350 - 204, 31);
+        ctx.roundRect(40, 102, 68, 1350 - 204, 34);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -800,44 +800,44 @@
         ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
         ctx.shadowBlur = 18;
         ctx.beginPath();
-        ctx.arc(71, 102, 60, 0, Math.PI * 2);
+        ctx.arc(74, 102, 60, 0, Math.PI * 2);
         ctx.fillStyle = '#EAB308';
         ctx.fill();
         ctx.lineWidth = 7;
         ctx.strokeStyle = '#FFFFFF';
         ctx.stroke();
         ctx.clip();
-        ctx.drawImage(logoImg, 11, 42, 120, 120);
+        ctx.drawImage(logoImg, 14, 42, 120, 120);
         ctx.restore();
 
-        // 5. Dikey Metin (Sütun İçi - Vektör İkonlar + İnce Zarif Font)
+        // 5. Dikey Metin (Sütun İçi - Tam Merkez Vektör İkonlar + İnce Zarif Font)
         const rawTop = document.getElementById('stripLocText').innerText || 'DÜZİÇİ';
         const rawBottom = document.getElementById('stripBrandText').innerText || 'HEPSİ DÜZİÇİ MOBİL UYGULAMASI';
         const locText = rawTop.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
         const brandText = rawBottom.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
 
         ctx.save();
-        ctx.translate(71, 1350 - 355);
+        ctx.translate(74, 1350 - 180);
         ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = '#0F172A';
         ctx.font = '700 20px Inter, sans-serif';
         ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
 
-        // Konum İkonu (Vektör Pin)
+        // Konum İkonu (Vektör Pin - Tam Merkez)
         ctx.save();
-        ctx.translate(0, -6);
         ctx.fillStyle = '#0F172A';
         ctx.beginPath();
-        ctx.arc(7, 4, 4, 0, Math.PI * 2);
+        ctx.arc(7, -2, 5, 0, Math.PI * 2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(3, 4);
-        ctx.lineTo(7, 12);
-        ctx.lineTo(11, 4);
+        ctx.moveTo(2.5, -2);
+        ctx.lineTo(7, 7);
+        ctx.lineTo(11.5, -2);
         ctx.fill();
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.arc(7, 4, 1.5, 0, Math.PI * 2);
+        ctx.arc(7, -2, 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
@@ -845,23 +845,22 @@
         ctx.fillText(locText, 20, 0);
         const locW = ctx.measureText(locText).width;
 
-        // Telefon İkonu (Vektör Mobil)
+        // Telefon İkonu (Vektör Mobil - Tam Merkez)
         const phoneX = 20 + locW + 28;
         ctx.save();
-        ctx.translate(phoneX, -10);
         ctx.fillStyle = '#0F172A';
         ctx.beginPath();
-        ctx.roundRect(0, 0, 11, 16, 2.5);
+        ctx.roundRect(phoneX, -8, 12, 17, 2.5);
         ctx.fill();
         ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(2, 2, 7, 10);
+        ctx.fillRect(phoneX + 2, -6, 8, 10);
         ctx.beginPath();
-        ctx.arc(5.5, 14, 0.8, 0, Math.PI * 2);
+        ctx.arc(phoneX + 6, 6, 0.9, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
         ctx.fillStyle = '#0F172A';
-        ctx.fillText(brandText, phoneX + 18, 0);
+        ctx.fillText(brandText, phoneX + 20, 0);
         ctx.restore();
 
         // 6 & 7. Manşet Başlığı & Alıntı (Birebir CSS Oranlarıyla Alttan Yukarı)
@@ -1165,7 +1164,7 @@
           ctx.shadowBlur = 20;
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
-          ctx.roundRect(40, 102, 62, 1350 - 204, 31);
+          ctx.roundRect(40, 102, 68, 1350 - 204, 34);
           ctx.fill();
           ctx.shadowBlur = 0;
 
@@ -1174,7 +1173,7 @@
           ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
           ctx.shadowBlur = 18;
           ctx.beginPath();
-          ctx.arc(71, 102, 60, 0, Math.PI * 2);
+          ctx.arc(74, 102, 60, 0, Math.PI * 2);
           ctx.fillStyle = '#EAB308';
           ctx.fill();
           ctx.lineWidth = 7;
@@ -1182,33 +1181,33 @@
           ctx.stroke();
           ctx.clip();
           if (logoImg.complete) {
-            ctx.drawImage(logoImg, 11, 42, 120, 120);
+            ctx.drawImage(logoImg, 14, 42, 120, 120);
           }
           ctx.restore();
 
-          // Dikey Metin (Vektör İkonlar)
+          // Dikey Metin (Tam Merkez Vektör İkonlar)
           ctx.save();
-          ctx.translate(71, 1350 - 355);
+          ctx.translate(74, 1350 - 180);
           ctx.rotate(-Math.PI / 2);
           ctx.fillStyle = '#0F172A';
           ctx.font = '700 20px Inter, sans-serif';
           ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
 
           // Konum İğnesi
           ctx.save();
-          ctx.translate(0, -6);
           ctx.fillStyle = '#0F172A';
           ctx.beginPath();
-          ctx.arc(7, 4, 4, 0, Math.PI * 2);
+          ctx.arc(7, -2, 5, 0, Math.PI * 2);
           ctx.fill();
           ctx.beginPath();
-          ctx.moveTo(3, 4);
-          ctx.lineTo(7, 12);
-          ctx.lineTo(11, 4);
+          ctx.moveTo(2.5, -2);
+          ctx.lineTo(7, 7);
+          ctx.lineTo(11.5, -2);
           ctx.fill();
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
-          ctx.arc(7, 4, 1.5, 0, Math.PI * 2);
+          ctx.arc(7, -2, 2, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
@@ -1219,20 +1218,19 @@
           // Telefon
           const phoneX = 20 + locW + 28;
           ctx.save();
-          ctx.translate(phoneX, -10);
           ctx.fillStyle = '#0F172A';
           ctx.beginPath();
-          ctx.roundRect(0, 0, 11, 16, 2.5);
+          ctx.roundRect(phoneX, -8, 12, 17, 2.5);
           ctx.fill();
           ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(2, 2, 7, 10);
+          ctx.fillRect(phoneX + 2, -6, 8, 10);
           ctx.beginPath();
-          ctx.arc(5.5, 14, 0.8, 0, Math.PI * 2);
+          ctx.arc(phoneX + 6, 6, 0.9, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
           ctx.fillStyle = '#0F172A';
-          ctx.fillText(brandText, phoneX + 18, 0);
+          ctx.fillText(brandText, phoneX + 20, 0);
           ctx.restore();
 
           // Manşet Çizimi
