@@ -142,10 +142,10 @@
       );
     }
 
-    /* Sol Dikey Şerit (Mobildeki ile 1:1 Aynı) */
+    /* Sol Dikey Şerit (Mobildeki ile 1:1 Birebir Aynı) */
     .strip-wrapper {
       position: absolute;
-      left: 12px;
+      left: 14px;
       top: 32px;
       bottom: 32px;
       display: flex;
@@ -156,10 +156,10 @@
     }
 
     .logo-badge {
-      width: 40px;
-      height: 40px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: #0F172A;
+      background: #EAB308;
       border: 2.5px solid #FFFFFF;
       box-shadow: 0 4px 10px rgba(0,0,0,0.45);
       display: flex;
@@ -176,27 +176,27 @@
     }
 
     .white-strip {
-      width: 22px;
+      width: 24px;
       flex: 1;
       background: #FFFFFF;
-      border-radius: 11px;
-      margin-top: -14px;
+      border-radius: 12px;
+      margin-top: -12px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding-bottom: 14px;
+      padding-bottom: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
 
     .strip-text {
-      transform: rotate(-90deg);
-      transform-origin: center center;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
       white-space: nowrap;
       color: #0F172A;
       font-size: 8.5px;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.4px;
       display: flex;
       align-items: center;
       gap: 10px;
@@ -205,8 +205,8 @@
     /* Metin Katmanı */
     .text-layer {
       position: absolute;
-      left: 58px;
-      right: 16px;
+      left: 64px;
+      right: 18px;
       bottom: 36px;
       z-index: 2;
       display: flex;
@@ -216,9 +216,9 @@
 
     .headline {
       font-weight: 900;
-      font-size: 17px;
+      font-size: 18px;
       line-height: 1.22;
-      letter-spacing: -0.35px;
+      letter-spacing: -0.4px;
       color: #FFFFFF;
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
       outline: none;
@@ -232,7 +232,7 @@
 
     .quote {
       font-weight: 600;
-      font-size: 13px;
+      font-size: 13.5px;
       line-height: 1.38;
       letter-spacing: -0.15px;
       color: rgba(255, 255, 255, 0.95);
@@ -280,7 +280,7 @@
     }
 
     .panel-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       color: var(--muted);
       text-transform: uppercase;
@@ -398,7 +398,7 @@
 
       <div class="bpt-card" id="bptCard">
         <!-- Arka Plan Görseli / Videosu -->
-        <img id="cardBgImg" class="card-media" src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80" alt="Background">
+        <img id="cardBgImg" class="card-media" src="/images/duzici_aerial_header.jpg" alt="Background" onerror="this.src='https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80'">
         <video id="cardBgVideo" class="card-media" style="display:none;" loop muted playsinline autoplay></video>
 
         <!-- Sinematik Degrade -->
@@ -407,7 +407,7 @@
         <!-- Sol Dikey Şerit (Mobille Birebir Aynı) -->
         <div class="strip-wrapper">
           <div class="logo-badge">
-            <div style="font-weight:900; font-size:13px; color:#fff;">HD</div>
+            <img src="/app_icon.png" alt="HD" onerror="this.src='/images/app_icon.png'">
           </div>
           <div class="white-strip">
             <div class="strip-text">
@@ -594,6 +594,11 @@
           document.getElementById('formQuote').value = data.quote;
           document.getElementById('locInput').value = data.location;
           document.getElementById('stripLoc').innerText = `📍 ${data.location}`;
+          if (data.suggestedTheme === 'ruby') {
+            setTheme(4, document.querySelectorAll('.color-dot')[4]);
+          } else if (data.suggestedTheme === 'gold') {
+            setTheme(1, document.querySelectorAll('.color-dot')[1]);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -694,8 +699,8 @@
           ctx.roundRect(35, 130, 60, canvas.height - 220, 30);
           ctx.fill();
 
-          // Logo
-          ctx.fillStyle = '#0F172A';
+          // Logo Yuvarlağı
+          ctx.fillStyle = '#EAB308';
           ctx.beginPath();
           ctx.arc(65, 135, 52, 0, Math.PI * 2);
           ctx.fill();
@@ -703,12 +708,7 @@
           ctx.strokeStyle = '#FFFFFF';
           ctx.stroke();
 
-          ctx.fillStyle = '#FFFFFF';
-          ctx.font = '900 32px Inter';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('HD', 65, 135);
-
+          // Dikey Metin (Rotated)
           ctx.save();
           ctx.translate(65, canvas.height - 140);
           ctx.rotate(-Math.PI / 2);
@@ -718,7 +718,7 @@
           ctx.fillText(`📍 ${locationText}   📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI`, 0, 8);
           ctx.restore();
 
-          // Metin
+          // Manşet Metni
           ctx.fillStyle = '#FFFFFF';
           ctx.font = '900 45px Inter';
           ctx.textAlign = 'left';
@@ -746,6 +746,7 @@
           }
           ctx.fillText(line, textLeft, curY);
 
+          // Alıntı Metni
           ctx.font = '600 34px Inter';
           ctx.shadowBlur = 18;
           curY += 50;
