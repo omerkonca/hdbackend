@@ -97,23 +97,7 @@ class OutageService {
       ]);
 
       const manualOutages = Array.isArray(cityData?.outages) ? cityData.outages : [];
-
-      // Son 36 saatteki yerel haberlerden kesinti tespiti
-      let newsExtracted = [];
-      try {
-        const recentNews = await newsService.getNews({ max: 15 });
-        for (const item of recentNews) {
-          const text = `${item.title} ${item.summary || ''}`;
-          if (/kesint|elektrik|su kes|şebeke bakım|trafo/i.test(text)) {
-            const ext = await outageExtractorService.extractFromText(text);
-            if (ext.outages?.length) {
-              newsExtracted.push(...ext.outages);
-            }
-          }
-        }
-      } catch (_) {}
-
-      const merged = mergeOutages([manualOutages, newsExtracted, belediye, toroslar]);
+      const merged = mergeOutages([manualOutages, belediye, toroslar]);
       const now = new Date();
       const nowMs = now.getTime();
       const todayKey = turkeyDateKey();
