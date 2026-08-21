@@ -3,23 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hepsi Düziçi - Medya & Video Stüdyosu (Canva + AI)</title>
+  <title>Hepsi Düziçi - Medya & Video Stüdyosu</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
-      --bg-dark: #090D16;
-      --panel-bg: #111726;
-      --card-bg: #182032;
-      --border-color: rgba(255, 255, 255, 0.1);
+      --bg: #090D16;
+      --card-bg: #111726;
       --primary: #EAB308;
       --primary-hover: #CA8A04;
-      --accent: #3B82F6;
-      --text-white: #FFFFFF;
-      --text-muted: #94A3B8;
-      --danger: #EF4444;
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #FFFFFF;
+      --muted: #94A3B8;
     }
 
     * {
@@ -27,327 +24,97 @@
       margin: 0;
       padding: 0;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
     }
 
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-white);
+      background-color: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      align-items: center;
+      padding: 16px;
     }
 
-    /* Üst Başlık Barı */
+    /* Üst Minimal Başlık */
     header {
-      background: var(--panel-bg);
-      border-bottom: 1px solid var(--border-color);
-      padding: 10px 16px;
+      width: 100%;
+      max-width: 900px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      z-index: 20;
-      position: sticky;
-      top: 0;
+      margin-bottom: 16px;
     }
 
-    .brand-title {
+    .brand {
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 18px;
       font-weight: 900;
-      font-size: 16px;
-      letter-spacing: -0.4px;
     }
 
-    .brand-badge {
+    .badge {
       background: var(--primary);
       color: #000;
-      font-size: 10px;
-      font-weight: 900;
-      padding: 2px 6px;
-      border-radius: 6px;
-      text-transform: uppercase;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 12.5px;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: #0F172A;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-hover);
-    }
-
-    .btn-video {
-      background: linear-gradient(135deg, #EF4444, #DC2626);
-      color: #fff;
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-      border: 1px solid var(--border-color);
-    }
-
-    .btn-ai {
-      background: linear-gradient(135deg, #6366F1, #A855F7);
-      color: #fff;
-    }
-
-    /* Mobil Segment Sekmeleri */
-    .mobile-tab-nav {
-      display: none;
-      background: #0E1422;
-      border-bottom: 1px solid var(--border-color);
-      padding: 6px 12px;
-      gap: 6px;
-      position: sticky;
-      top: 51px;
-      z-index: 15;
-    }
-
-    .mobile-tab-btn {
-      flex: 1;
-      padding: 8px 4px;
-      background: transparent;
-      border: 1px solid transparent;
-      color: #94A3B8;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-    }
-
-    .mobile-tab-btn.active {
-      background: var(--card-bg);
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    /* Ana Çalışma Alanı */
-    main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 340px 1fr 340px;
-      min-height: calc(100vh - 55px);
-    }
-
-    /* Sol & Sağ Panel */
-    .sidebar-left, .sidebar-right {
-      background: var(--panel-bg);
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
-    .sidebar-left {
-      border-right: 1px solid var(--border-color);
-    }
-
-    .sidebar-right {
-      border-left: 1px solid var(--border-color);
-    }
-
-    .panel-section {
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .section-title {
-      font-size: 12.5px;
-      font-weight: 800;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 11.5px;
-      font-weight: 600;
-      color: #CBD5E1;
-      margin-bottom: 5px;
-    }
-
-    .form-input, .form-textarea {
-      width: 100%;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: #fff;
-      padding: 9px 11px;
-      border-radius: 8px;
-      font-size: 13px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .form-input:focus, .form-textarea:focus {
-      border-color: var(--primary);
-    }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-
-    /* Medya Seçici Butonları */
-    .media-type-toggle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .toggle-btn {
-      padding: 7px;
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      color: #94A3B8;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 8px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
-    }
-
-    .toggle-btn.active {
-      background: rgba(234, 179, 8, 0.15);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    /* Haber Seçim Listesi */
-    .news-list {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-height: 180px;
-      overflow-y: auto;
-    }
-
-    .news-card-item {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      padding: 8px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .news-card-item:hover {
-      border-color: var(--primary);
-    }
-
-    .news-item-img {
-      width: 40px;
-      height: 40px;
-      border-radius: 6px;
-      object-fit: cover;
-      background: #334155;
-      flex-shrink: 0;
-    }
-
-    .news-item-text {
-      flex: 1;
-      font-size: 11.5px;
-      font-weight: 600;
-      line-height: 1.3;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    /* Orta Canvas (Canva Canlı Önizleme) */
-    .canvas-center {
-      background: #060911;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      padding: 16px;
-      overflow: auto;
-    }
-
-    .canvas-hint {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-color);
-      padding: 5px 12px;
-      border-radius: 20px;
       font-size: 11px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    /* Ana Çalışma Alanı: Sade 2 Sütun */
+    .studio-container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: row;
+      gap: 24px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .studio-container {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Sol / Orta: Canva Canlı Kart */
+    .card-preview-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .drag-hint {
+      font-size: 12px;
       font-weight: 600;
       color: var(--primary);
-      backdrop-filter: blur(8px);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       text-align: center;
     }
 
-    /* Kart Viewport Wrapper (Mobilde Taşmayı Önler) */
-    .card-viewport {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      max-width: 100%;
-    }
-
-    /* 4:5 Oranında Instagram Kartı */
-    .bpt-post-card {
-      width: 432px;
-      height: 540px;
+    /* 4:5 Birebir Kart */
+    .bpt-card {
+      width: 380px;
+      height: 475px; /* 4:5 Tam Oran */
       border-radius: 20px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
       user-select: none;
       cursor: grab;
-      background: #020617;
+      background: #0F172A;
       touch-action: none;
-      transform-origin: center center;
     }
 
-    .bpt-post-card:active {
+    .bpt-card:active {
       cursor: grabbing;
     }
 
-    .card-bg-media {
+    .card-media {
       position: absolute;
       top: 0;
       left: 0;
@@ -357,7 +124,7 @@
       pointer-events: none;
     }
 
-    .card-gradient-overlay {
+    .card-gradient {
       position: absolute;
       top: 0;
       left: 0;
@@ -375,12 +142,12 @@
       );
     }
 
-    /* BPT Sol Dikey Şerit */
-    .bpt-strip-wrapper {
+    /* Sol Dikey Şerit (Mobildeki ile 1:1 Aynı) */
+    .strip-wrapper {
       position: absolute;
-      left: 14px;
-      top: 36px;
-      bottom: 36px;
+      left: 12px;
+      top: 32px;
+      bottom: 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -388,13 +155,13 @@
       z-index: 2;
     }
 
-    .bpt-logo-badge {
-      width: 42px;
-      height: 42px;
+    .logo-badge {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: #0F172A;
       border: 2.5px solid #FFFFFF;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.45);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -402,377 +169,315 @@
       z-index: 3;
     }
 
-    .bpt-logo-badge img {
+    .logo-badge img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
 
-    .bpt-white-strip {
-      width: 24px;
+    .white-strip {
+      width: 22px;
       flex: 1;
       background: #FFFFFF;
-      border-radius: 12px;
+      border-radius: 11px;
       margin-top: -14px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-end;
-      padding-bottom: 16px;
+      padding-bottom: 14px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
 
-    .bpt-strip-text {
+    .strip-text {
       transform: rotate(-90deg);
       transform-origin: center center;
       white-space: nowrap;
       color: #0F172A;
-      font-size: 9px;
+      font-size: 8.5px;
       font-weight: 900;
       letter-spacing: 0.5px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     /* Metin Katmanı */
-    .card-text-layer {
+    .text-layer {
       position: absolute;
-      left: 66px;
-      right: 20px;
-      bottom: 38px;
+      left: 58px;
+      right: 16px;
+      bottom: 36px;
       z-index: 2;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .card-headline {
-      font-family: 'Inter', sans-serif;
+    .headline {
       font-weight: 900;
-      font-size: 18px;
+      font-size: 17px;
       line-height: 1.22;
-      letter-spacing: -0.4px;
+      letter-spacing: -0.35px;
       color: #FFFFFF;
       text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
       outline: none;
       border-radius: 4px;
-      padding: 2px 4px;
+      padding: 2px;
     }
 
-    .card-headline:focus {
+    .headline:focus, .quote:focus {
       background: rgba(255, 255, 255, 0.15);
     }
 
-    .card-quote {
-      font-family: 'Inter', sans-serif;
+    .quote {
       font-weight: 600;
-      font-size: 13.5px;
+      font-size: 13px;
       line-height: 1.38;
       letter-spacing: -0.15px;
       color: rgba(255, 255, 255, 0.95);
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
       outline: none;
       border-radius: 4px;
-      padding: 2px 4px;
+      padding: 2px;
     }
 
-    .card-quote:focus {
-      background: rgba(255, 255, 255, 0.15);
+    /* Renk Seçici Palet */
+    .color-palette {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
     }
 
-    /* Tema Seçici */
-    .theme-selector-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .theme-dot {
-      width: 100%;
-      height: 36px;
-      border-radius: 8px;
+    .color-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
       border: 2px solid transparent;
       cursor: pointer;
       transition: all 0.2s;
     }
 
-    .theme-dot.active {
-      border-color: #fff;
-      transform: scale(1.06);
+    .color-dot.active {
+      border-color: #FFFFFF;
+      transform: scale(1.15);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
     }
 
-    .caption-box {
+    /* Sağ: Sade Kontrol Paneli */
+    .controls-panel {
+      flex: 1;
+      width: 100%;
+      max-width: 440px;
       background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 12px;
-      line-height: 1.45;
-      color: #E2E8F0;
-      white-space: pre-wrap;
-      max-height: 140px;
-      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .privacy-badge {
+    .panel-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, #6366F1, #A855F7);
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #000;
+    }
+
+    .btn-video {
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--border);
+    }
+
+    .input-box {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .input-box:focus {
+      border-color: var(--primary);
+    }
+
+    textarea.input-box {
+      resize: vertical;
+      min-height: 60px;
+    }
+
+    .custom-file-upload {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #CBD5E1;
+      text-align: center;
+    }
+
+    .custom-file-upload:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .badge-free {
       background: rgba(16, 185, 129, 0.15);
       border: 1px solid rgba(16, 185, 129, 0.3);
       color: #10B981;
-      padding: 5px 8px;
+      padding: 6px 10px;
       border-radius: 8px;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-
-    .loading-spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* 📱 MOBİL UYUMLULUK (RESPONSIVE MEDIA QUERIES) */
-    @media (max-width: 992px) {
-      header {
-        padding: 8px 12px;
-      }
-      .brand-title {
-        font-size: 14px;
-      }
-      .header-actions .btn span {
-        display: none; /* Mobilde sadece ikon/kısa metin */
-      }
-      .header-actions .btn {
-        padding: 7px 10px;
-      }
-      .header-actions .btn::before {
-        content: attr(data-short);
-      }
-
-      .mobile-tab-nav {
-        display: flex;
-      }
-
-      main {
-        display: block;
-        height: auto;
-        min-height: calc(100vh - 95px);
-      }
-
-      .sidebar-left, .sidebar-right, .canvas-center {
-        display: none;
-        width: 100%;
-        height: auto;
-        border: none;
-      }
-
-      .sidebar-left.tab-active, .sidebar-right.tab-active, .canvas-center.tab-active {
-        display: flex;
-      }
-
-      .canvas-center {
-        min-height: 580px;
-        padding: 12px 8px;
-      }
-
-      /* Mobilde Kartı Ekrana Sığdıracak Şekilde Otomatik Ölçekle */
-      .card-viewport {
-        transform-origin: top center;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .bpt-post-card {
-        transform: scale(0.78);
-        margin: -50px 0;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .bpt-post-card {
-        transform: scale(0.70);
-        margin: -75px 0;
-      }
+      text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- Üst Başlık Barı -->
   <header>
-    <div class="brand-title">
+    <div class="brand">
       <span>🎨 Hepsi Düziçi</span>
-      <span class="brand-badge">Stüdyo</span>
+      <span class="badge">BPT Stüdyo</span>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-ai" id="btnAiFormat" data-short="🤖 AI Format" onclick="triggerAiFormat()">
-        <span>🤖 AI Format</span>
-      </button>
-      <button class="btn btn-primary" data-short="📸 Foto" onclick="exportHighResImage()">
-        <span>📸 Foto İndir</span>
-      </button>
-      <button class="btn btn-video" id="btnExportVideo" data-short="🎥 Video" onclick="exportVideo()">
-        <span>🎥 Video İndir</span>
-      </button>
-    </div>
+    <div class="badge-free">🔒 %100 Cihazda Render (0 DB / 0 Kota)</div>
   </header>
 
-  <!-- Mobilde Sekme Geçiş Çubuğu -->
-  <nav class="mobile-tab-nav">
-    <button class="mobile-tab-btn active" onclick="switchMobileTab('canvas', this)">🎨 Canlı Kart</button>
-    <button class="mobile-tab-btn" onclick="switchMobileTab('left', this)">✍️ İçerik &amp; Medya</button>
-    <button class="mobile-tab-btn" onclick="switchMobileTab('right', this)">⚙️ Tema &amp; İndir</button>
-  </nav>
+  <div class="studio-container">
+    <!-- Sol: Kart Önizleme (Canva Canlı) -->
+    <div class="card-preview-area">
+      <div class="drag-hint">👆 Fotoğrafı sürükleyerek kadrajlayabilir, yazılara tıklayıp düzenleyebilirsin!</div>
 
-  <!-- Ana Çalışma Alanı -->
-  <main>
-    <!-- Sol Panel: İçerik & Haberler -->
-    <div class="sidebar-left" id="panelLeft">
-      <div class="panel-section">
-        <div class="section-title">
-          <span>📰 Son Haberlerden Seç</span>
-          <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="loadRecentNews()">Yenile</button>
-        </div>
-        <div class="news-list" id="newsListContainer">
-          <div style="font-size: 12px; color: var(--text-muted);">Haberler yükleniyor...</div>
-        </div>
-      </div>
+      <div class="bpt-card" id="bptCard">
+        <!-- Arka Plan Görseli / Videosu -->
+        <img id="cardBgImg" class="card-media" src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80" alt="Background">
+        <video id="cardBgVideo" class="card-media" style="display:none;" loop muted playsinline autoplay></video>
 
-      <div class="panel-section">
-        <div class="section-title">✍️ Metin &amp; Detaylar</div>
-        <div class="form-group">
-          <label>Ana Başlık (Manşet)</label>
-          <input type="text" id="inputHeadline" class="form-input" placeholder="Örn: Düziçi'nde Karayolu Genişletme:" oninput="syncFromInputs()">
-        </div>
-        <div class="form-group">
-          <label>Haber Spotu / Alıntı</label>
-          <textarea id="inputQuote" class="form-textarea" placeholder="Haberin vurucu özeti veya açıklaması..." oninput="syncFromInputs()"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Konum Etiketi</label>
-          <input type="text" id="inputLocation" class="form-input" value="DÜZİÇİ" oninput="syncFromInputs()">
-        </div>
-      </div>
+        <!-- Sinematik Degrade -->
+        <div class="card-gradient" id="cardOverlay"></div>
 
-      <div class="panel-section">
-        <div class="section-title">🎬 Arka Plan Medyası</div>
-        <div class="media-type-toggle">
-          <button class="toggle-btn active" id="btnModeImage" onclick="setMediaType('image')">🖼️ Fotoğraf</button>
-          <button class="toggle-btn" id="btnModeVideo" onclick="setMediaType('video')">🎥 Video</button>
-        </div>
-
-        <div class="form-group">
-          <label id="lblMediaUrl">Medya URL</label>
-          <input type="text" id="inputMediaUrl" class="form-input" placeholder="https://..." onchange="updateMediaUrl(this.value)">
-        </div>
-        <div class="form-group">
-          <label>Veya Cihazdan Seç</label>
-          <input type="file" id="inputFileUpload" accept="image/*,video/*" class="form-input" onchange="handleFileUpload(event)">
-        </div>
-      </div>
-    </div>
-
-    <!-- Orta Canvas: Canva Canlı Kart Önizleme -->
-    <div class="canvas-center tab-active" id="panelCanvas">
-      <div class="canvas-hint">👆 Metinlere dokunup değiştirebilir veya fotoğrafı parmağınla kaydırabilirsin!</div>
-
-      <div class="card-viewport">
-        <div class="bpt-post-card" id="bptCard">
-          <!-- Arka Plan Görseli -->
-          <img id="cardBgImg" class="card-bg-media" src="/assets/images/duzici_aerial_header.jpg" alt="Background">
-
-          <!-- Arka Plan Videosu (Video Modu için) -->
-          <video id="cardBgVideo" class="card-bg-media" style="display:none;" loop muted playsinline autoplay></video>
-
-          <!-- Degrade Katmanı -->
-          <div class="card-gradient-overlay" id="cardOverlay"></div>
-
-          <!-- Sol Dikey BPT Şeridi -->
-          <div class="bpt-strip-wrapper">
-            <div class="bpt-logo-badge">
-              <img src="/assets/images/app_icon.png" alt="HD Logo" onerror="this.src='/assets/images/app_logo.png'">
-            </div>
-            <div class="bpt-white-strip">
-              <div class="bpt-strip-text">
-                <span id="stripLocation">📍 DÜZİÇİ</span>
-                <span>📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
-              </div>
-            </div>
+        <!-- Sol Dikey Şerit (Mobille Birebir Aynı) -->
+        <div class="strip-wrapper">
+          <div class="logo-badge">
+            <div style="font-weight:900; font-size:13px; color:#fff;">HD</div>
           </div>
-
-          <!-- Metin Katmanı (Tıklanabilir ve Canlı Düzenlenebilir) -->
-          <div class="card-text-layer">
-            <div class="card-headline" id="cardHeadline" contenteditable="true" oninput="syncToInputs()">
-              Düziçi'nde Karayolu Genişletme Çalışması İncelendi
-            </div>
-            <div class="card-quote" id="cardQuote" contenteditable="true" oninput="syncToInputs()">
-              “Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik çalışmalar yerinde incelenerek yatırım süreci değerlendirildi.”
+          <div class="white-strip">
+            <div class="strip-text">
+              <span id="stripLoc">📍 DÜZİÇİ</span>
+              <span>📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
             </div>
           </div>
         </div>
+
+        <!-- Yazı Alanı -->
+        <div class="text-layer">
+          <div class="headline" id="cardHeadline" contenteditable="true" oninput="syncToForm()">
+            Düziçi'nde Karayolu Genişletme Çalışması İncelendi
+          </div>
+          <div class="quote" id="cardQuote" contenteditable="true" oninput="syncToForm()">
+            “Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik çalışmalar yerinde incelenerek yatırım süreci değerlendirildi.”
+          </div>
+        </div>
+      </div>
+
+      <!-- Renk Seçici Palet -->
+      <div class="color-palette">
+        <div class="color-dot active" style="background: linear-gradient(#0F172A, #020617);" onclick="setTheme(0, this)" title="Derin Gece"></div>
+        <div class="color-dot" style="background: linear-gradient(#EAB308, #78350F);" onclick="setTheme(1, this)" title="Düziçi Altın Sarısı"></div>
+        <div class="color-dot" style="background: linear-gradient(#6366F1, #1E1B4B);" onclick="setTheme(2, this)" title="Kraliyet Moru"></div>
+        <div class="color-dot" style="background: linear-gradient(#10B981, #064E3B);" onclick="setTheme(3, this)" title="Zümrüt Yeşili"></div>
+        <div class="color-dot" style="background: linear-gradient(#EF4444, #991B1B);" onclick="setTheme(4, this)" title="Haber Kırmızısı"></div>
       </div>
     </div>
 
-    <!-- Sağ Panel: Renk Teması & Sosyal Medya -->
-    <div class="sidebar-right" id="panelRight">
-      <div class="panel-section">
-        <div class="privacy-badge">
-          <span>🔒 %100 Cihazda İşlenir (0 DB Yükü, 0 Kota)</span>
-        </div>
+    <!-- Sağ: Sade Kontrol Paneli -->
+    <div class="controls-panel">
+      <div class="panel-title">⚡ Hızlı İşlemler</div>
 
-        <div class="section-title">🎨 Renk Temaları</div>
-        <div class="theme-selector-grid">
-          <div class="theme-dot active" style="background: linear-gradient(#0F172A, #020617);" onclick="setTheme(0, this)" title="Derin Gece"></div>
-          <div class="theme-dot" style="background: linear-gradient(#EAB308, #78350F);" onclick="setTheme(1, this)" title="Düziçi Altın Sarısı"></div>
-          <div class="theme-dot" style="background: linear-gradient(#6366F1, #1E1B4B);" onclick="setTheme(2, this)" title="Kraliyet Moru"></div>
-          <div class="theme-dot" style="background: linear-gradient(#10B981, #064E3B);" onclick="setTheme(3, this)" title="Zümrüt Yeşili"></div>
-          <div class="theme-dot" style="background: linear-gradient(#EF4444, #991B1B);" onclick="setTheme(4, this)" title="Haber Kırmızısı"></div>
-        </div>
+      <button class="btn btn-ai" id="btnAi" onclick="autoAiFormat()">
+        <span>🤖 AI ile Başlık &amp; Spot Üret</span>
+      </button>
+
+      <div>
+        <label class="custom-file-upload">
+          📁 Fotoğraf veya Video Seç
+          <input type="file" id="fileInput" accept="image/*,video/*" style="display:none;" onchange="handleFile(event)">
+        </label>
       </div>
 
-      <div class="panel-section">
-        <div class="section-title">
-          <span>📋 Instagram / X Açıklaması</span>
-          <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 11px;" onclick="copyCaption()">Kopyala</button>
-        </div>
-        <div class="caption-box" id="captionText">
-Düziçi'nde Karayolu Genişletme Çalışması İncelendi ✨
-
-Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik çalışmalar yerinde incelenerek yatırım süreci değerlendirildi.
-
-📱 Detaylar Hepsi Düziçi Mobil Uygulamasında!
-
-#Düziçi #Osmaniye #HepsiDüziçi #SonDakika
-        </div>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="locInput" class="input-box" value="DÜZİÇİ" placeholder="Konum" style="max-width:110px;" oninput="document.getElementById('stripLoc').innerText='📍 '+this.value">
+        <button class="btn btn-secondary" onclick="resetKadraj()">🔄 Kadraj Sıfırla</button>
       </div>
 
-      <div class="panel-section">
-        <div class="section-title">⚡ İndirme İşlemleri</div>
-        <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px; padding: 11px;" onclick="exportHighResImage()">
-          <span>📸 1080x1350 Fotoğraf İndir</span>
+      <div>
+        <div class="panel-title" style="margin-bottom:6px;">Manşet Başlığı</div>
+        <input type="text" id="formHeadline" class="input-box" placeholder="Haber Başlığı" oninput="document.getElementById('cardHeadline').innerText=this.value">
+      </div>
+
+      <div>
+        <div class="panel-title" style="margin-bottom:6px;">Haber Spotu / Alıntı</div>
+        <textarea id="formQuote" class="input-box" placeholder="Haber Spotu..." oninput="document.getElementById('cardQuote').innerText='“'+this.value.replace(/^“|”$/g,'')+'”'"></textarea>
+      </div>
+
+      <div class="btn-group" style="margin-top:6px;">
+        <button class="btn btn-primary" onclick="downloadImage()">
+          <span>📸 1080x1350 Foto İndir</span>
         </button>
-        <button class="btn btn-video" style="width: 100%; margin-bottom: 8px; padding: 11px;" onclick="exportVideo()">
-          <span>🎥 Video Şablonu İndir</span>
-        </button>
-        <button class="btn btn-secondary" style="width: 100%;" onclick="resetAlignment()">
-          <span>🔄 Kadrajı Sıfırla</span>
+        <button class="btn btn-video" id="btnVid" onclick="downloadVideo()">
+          <span>🎥 Video İndir</span>
         </button>
       </div>
     </div>
-  </main>
+  </div>
 
   <script>
     const themes = [
@@ -784,109 +489,95 @@ Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik ç
     ];
 
     let currentThemeIndex = 0;
-    let mediaMode = 'image';
-    let imgPosX = 50;
-    let imgPosY = 30;
-    let isDragging = false;
-    let startX, startY;
+    let isVideoMode = false;
+    let imgPosX = 50, imgPosY = 30;
+    let isDragging = false, startX, startY;
 
-    // Sayfa Yüklendiğinde
     document.addEventListener('DOMContentLoaded', () => {
-      loadRecentNews();
-      setupMediaDragging();
-      syncToInputs();
+      setupDrag();
+      syncToForm();
     });
 
-    // Mobil Sekme Geçişi
-    function switchMobileTab(tabName, el) {
-      document.querySelectorAll('.mobile-tab-btn').forEach(b => b.classList.remove('active'));
+    function setTheme(idx, el) {
+      currentThemeIndex = idx;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
       if (el) el.classList.add('active');
 
-      const pLeft = document.getElementById('panelLeft');
-      const pCanvas = document.getElementById('panelCanvas');
-      const pRight = document.getElementById('panelRight');
-
-      pLeft.classList.remove('tab-active');
-      pCanvas.classList.remove('tab-active');
-      pRight.classList.remove('tab-active');
-
-      if (tabName === 'left') pLeft.classList.add('tab-active');
-      else if (tabName === 'right') pRight.classList.add('tab-active');
-      else pCanvas.classList.add('tab-active');
+      const t = themes[idx];
+      document.getElementById('cardOverlay').style.background = `linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.35) 0%,
+        transparent 20%,
+        transparent 40%,
+        ${t.first}B3 62%,
+        ${t.first}EB 82%,
+        ${t.last}FA 100%
+      )`;
     }
 
-    // Medya Tipi Değiştir
-    function setMediaType(type) {
-      mediaMode = type;
+    function setupDrag() {
+      const card = document.getElementById('bptCard');
+
+      function start(cx, cy) { isDragging = true; startX = cx; startY = cy; }
+      function move(cx, cy) {
+        if (!isDragging) return;
+        imgPosX = Math.max(0, Math.min(100, imgPosX - ((cx - startX) / 3)));
+        imgPosY = Math.max(0, Math.min(100, imgPosY - ((cy - startY) / 3)));
+        document.getElementById('cardBgImg').style.objectPosition = `${imgPosX}% ${imgPosY}%`;
+        document.getElementById('cardBgVideo').style.objectPosition = `${imgPosX}% ${imgPosY}%`;
+        startX = cx; startY = cy;
+      }
+      function end() { isDragging = false; }
+
+      card.addEventListener('mousedown', (e) => { if (!e.target.isContentEditable) start(e.clientX, e.clientY); });
+      window.addEventListener('mousemove', (e) => move(e.clientX, e.clientY));
+      window.addEventListener('mouseup', end);
+
+      card.addEventListener('touchstart', (e) => { if (!e.target.isContentEditable) start(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+      window.addEventListener('touchmove', (e) => move(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+      window.addEventListener('touchend', end);
+    }
+
+    function resetKadraj() {
+      imgPosX = 50; imgPosY = 30;
+      document.getElementById('cardBgImg').style.objectPosition = '50% 30%';
+      document.getElementById('cardBgVideo').style.objectPosition = '50% 30%';
+    }
+
+    function syncToForm() {
+      document.getElementById('formHeadline').value = document.getElementById('cardHeadline').innerText;
+      document.getElementById('formQuote').value = document.getElementById('cardQuote').innerText.replace(/^“|”$/g, '');
+    }
+
+    function handleFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const url = URL.createObjectURL(file);
       const imgEl = document.getElementById('cardBgImg');
-      const videoEl = document.getElementById('cardBgVideo');
-      const btnImg = document.getElementById('btnModeImage');
-      const btnVid = document.getElementById('btnModeVideo');
+      const vidEl = document.getElementById('cardBgVideo');
 
-      if (type === 'video') {
+      if (file.type.startsWith('video/')) {
+        isVideoMode = true;
         imgEl.style.display = 'none';
-        videoEl.style.display = 'block';
-        btnVid.classList.add('active');
-        btnImg.classList.remove('active');
-        document.getElementById('lblMediaUrl').innerText = 'Video URL (.mp4 / .webm)';
-        document.getElementById('inputMediaUrl').placeholder = 'https://.../video.mp4';
+        vidEl.style.display = 'block';
+        vidEl.src = url;
+        vidEl.play().catch(() => {});
       } else {
-        videoEl.style.display = 'none';
+        isVideoMode = false;
+        vidEl.style.display = 'none';
         imgEl.style.display = 'block';
-        btnImg.classList.add('active');
-        btnVid.classList.remove('active');
-        document.getElementById('lblMediaUrl').innerText = 'Görsel URL';
-        document.getElementById('inputMediaUrl').placeholder = 'https://.../image.jpg';
+        imgEl.src = url;
       }
     }
 
-    // Son Haberleri Listele
-    async function loadRecentNews() {
-      const container = document.getElementById('newsListContainer');
-      container.innerHTML = '<div style="font-size: 12px; color: var(--text-muted);">Yükleniyor...</div>';
-      try {
-        const res = await fetch('/api/studio/recent-news?limit=15');
-        const data = await res.json();
-        if (data.ok && data.data && data.data.length > 0) {
-          container.innerHTML = data.data.map(item => `
-            <div class="news-card-item" onclick='selectNews(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
-              <img src="${item.image_url || '/assets/images/duzici_aerial_header.jpg'}" class="news-item-img" onerror="this.src='/assets/images/duzici_aerial_header.jpg'">
-              <div class="news-item-text">${item.title}</div>
-            </div>
-          `).join('');
-        } else {
-          container.innerHTML = '<div style="font-size: 12px; color: var(--text-muted);">Henüz haber bulunamadı.</div>';
-        }
-      } catch (err) {
-        container.innerHTML = '<div style="font-size: 12px; color: #EF4444;">Haberler yüklenemedi.</div>';
-      }
-    }
-
-    // Haber Seçimi
-    function selectNews(item) {
-      document.getElementById('inputHeadline').value = item.title;
-      document.getElementById('inputQuote').value = item.summary || item.content || '';
-      document.getElementById('cardHeadline').innerText = item.title;
-      document.getElementById('cardQuote').innerText = `“${item.summary || item.title}”`;
-      if (item.image_url) {
-        setMediaType('image');
-        updateMediaUrl(item.image_url);
-      }
-      triggerAiFormat();
-      // Mobilde haber seçilince canlı karta geç
-      if (window.innerWidth <= 992) {
-        switchMobileTab('canvas', document.querySelectorAll('.mobile-tab-btn')[0]);
-      }
-    }
-
-    // AI ile BPT Formatına Dönüştür
-    async function triggerAiFormat() {
-      const btn = document.getElementById('btnAiFormat');
+    async function autoAiFormat() {
+      const btn = document.getElementById('btnAi');
       const headline = document.getElementById('cardHeadline').innerText;
       const quote = document.getElementById('cardQuote').innerText;
-      const loc = document.getElementById('inputLocation').value || 'DÜZİÇİ';
+      const loc = document.getElementById('locInput').value || 'DÜZİÇİ';
 
-      btn.innerHTML = '<span class="loading-spinner"></span> <span>AI...</span>';
+      btn.innerText = '🤖 AI Hazırlıyor...';
       btn.disabled = true;
 
       try {
@@ -899,181 +590,48 @@ Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik ç
         if (data.ok) {
           document.getElementById('cardHeadline').innerText = data.headline;
           document.getElementById('cardQuote').innerText = `“${data.quote}”`;
-          document.getElementById('inputHeadline').value = data.headline;
-          document.getElementById('inputQuote').value = data.quote;
-          document.getElementById('inputLocation').value = data.location;
-          document.getElementById('stripLocation').innerText = `📍 ${data.location}`;
-          if (data.socialCaption) {
-            document.getElementById('captionText').innerText = data.socialCaption;
-          }
+          document.getElementById('formHeadline').value = data.headline;
+          document.getElementById('formQuote').value = data.quote;
+          document.getElementById('locInput').value = data.location;
+          document.getElementById('stripLoc').innerText = `📍 ${data.location}`;
         }
       } catch (err) {
-        console.error('AI hatası:', err);
+        console.error(err);
       } finally {
-        btn.innerHTML = '<span>🤖 AI Format</span>';
+        btn.innerText = '🤖 AI ile Başlık & Spot Üret';
         btn.disabled = false;
       }
     }
 
-    // Tema Değiştirme
-    function setTheme(idx, el) {
-      currentThemeIndex = idx;
-      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
-      if (el) el.classList.add('active');
-
-      const theme = themes[idx];
-      const overlay = document.getElementById('cardOverlay');
-      overlay.style.background = `linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, 0.35) 0%,
-        transparent 20%,
-        transparent 40%,
-        ${theme.first}B3 62%,
-        ${theme.first}EB 82%,
-        ${theme.last}FA 100%
-      )`;
-    }
-
-    // Medya Sürükleme (Mouse + Dokunmatik / Touch Drag & Pan)
-    function setupMediaDragging() {
-      const card = document.getElementById('bptCard');
-
-      function handleDragStart(clientX, clientY) {
-        isDragging = true;
-        startX = clientX;
-        startY = clientY;
-      }
-
-      function handleDragMove(clientX, clientY) {
-        if (!isDragging) return;
-        const dx = clientX - startX;
-        const dy = clientY - startY;
-
-        imgPosX = Math.max(0, Math.min(100, imgPosX - (dx / 3)));
-        imgPosY = Math.max(0, Math.min(100, imgPosY - (dy / 3)));
-
-        document.getElementById('cardBgImg').style.objectPosition = `${imgPosX}% ${imgPosY}%`;
-        document.getElementById('cardBgVideo').style.objectPosition = `${imgPosX}% ${imgPosY}%`;
-        startX = clientX;
-        startY = clientY;
-      }
-
-      function handleDragEnd() {
-        isDragging = false;
-      }
-
-      // Mouse Olayları
-      card.addEventListener('mousedown', (e) => {
-        if (e.target.isContentEditable) return;
-        handleDragStart(e.clientX, e.clientY);
-      });
-      window.addEventListener('mousemove', (e) => handleDragMove(e.clientX, e.clientY));
-      window.addEventListener('mouseup', handleDragEnd);
-
-      // Touch / Dokunmatik Olayları (Mobil)
-      card.addEventListener('touchstart', (e) => {
-        if (e.target.isContentEditable) return;
-        const t = e.touches[0];
-        handleDragStart(t.clientX, t.clientY);
-      }, { passive: true });
-
-      window.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const t = e.touches[0];
-        handleDragMove(t.clientX, t.clientY);
-      }, { passive: true });
-
-      window.addEventListener('touchend', handleDragEnd);
-    }
-
-    function resetAlignment() {
-      imgPosX = 50;
-      imgPosY = 30;
-      document.getElementById('cardBgImg').style.objectPosition = '50% 30%';
-      document.getElementById('cardBgVideo').style.objectPosition = '50% 30%';
-    }
-
-    function updateMediaUrl(url) {
-      if (!url) return;
-      document.getElementById('inputMediaUrl').value = url;
-      if (mediaMode === 'video' || url.match(/\.(mp4|webm|mov)(\?.*)?$/i)) {
-        setMediaType('video');
-        const vid = document.getElementById('cardBgVideo');
-        vid.src = url;
-        vid.play().catch(() => {});
-      } else {
-        setMediaType('image');
-        document.getElementById('cardBgImg').src = url;
-      }
-    }
-
-    function handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const url = URL.createObjectURL(file);
-      if (file.type.startsWith('video/')) {
-        setMediaType('video');
-        const vid = document.getElementById('cardBgVideo');
-        vid.src = url;
-        vid.play().catch(() => {});
-      } else {
-        setMediaType('image');
-        document.getElementById('cardBgImg').src = url;
-      }
-    }
-
-    function syncFromInputs() {
-      document.getElementById('cardHeadline').innerText = document.getElementById('inputHeadline').value;
-      document.getElementById('cardQuote').innerText = `“${document.getElementById('inputQuote').value}”`;
-      const loc = document.getElementById('inputLocation').value || 'DÜZİÇİ';
-      document.getElementById('stripLocation').innerText = `📍 ${loc}`;
-    }
-
-    function syncToInputs() {
-      document.getElementById('inputHeadline').value = document.getElementById('cardHeadline').innerText;
-      document.getElementById('inputQuote').value = document.getElementById('cardQuote').innerText.replace(/^“|”$/g, '');
-    }
-
-    function copyCaption() {
-      const text = document.getElementById('captionText').innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Instagram açıklaması kopyalandı! 📋✨');
-      });
-    }
-
-    // 📸 1080x1350 HD PNG İndir (%100 Cihazda)
-    async function exportHighResImage() {
+    async function downloadImage() {
       const card = document.getElementById('bptCard');
       try {
         const canvas = await html2canvas(card, {
-          scale: 2.5,
+          scale: 2.84, // 380x475 * 2.84 = 1080x1350 HD
           useCORS: true,
           allowTaint: true,
-          backgroundColor: '#020617',
-          logging: false
+          backgroundColor: '#020617'
         });
 
         const link = document.createElement('a');
-        link.download = `hepsi_duzici_bpt_post_${Date.now()}.png`;
+        link.download = `hepsi_duzici_post_${Date.now()}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       } catch (err) {
-        alert('Görsel oluşturulurken bir hata oluştu: ' + err.message);
+        alert('Görsel oluşturulamadı: ' + err.message);
       }
     }
 
-    // 🎥 Video Şablon İndir (Canvas + MediaRecorder - %100 Cihazda)
-    async function exportVideo() {
-      const videoEl = document.getElementById('cardBgVideo');
-      const btn = document.getElementById('btnExportVideo');
+    async function downloadVideo() {
+      const vid = document.getElementById('cardBgVideo');
+      const btn = document.getElementById('btnVid');
 
-      if (mediaMode !== 'video' || !videoEl.src) {
-        alert('Lütfen önce bir video seçin veya yükleyin!');
+      if (!isVideoMode || !vid.src) {
+        alert('Lütfen önce "Fotoğraf veya Video Seç" butonundan bir video seçin!');
         return;
       }
 
-      btn.innerHTML = '<span class="loading-spinner"></span> <span>Kaydediliyor...</span>';
+      btn.innerText = '🎥 Kaydediliyor...';
       btn.disabled = true;
 
       try {
@@ -1084,74 +642,62 @@ Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik ç
 
         const stream = canvas.captureStream(30);
         let mimeType = 'video/webm;codecs=vp9';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          mimeType = 'video/mp4';
-          if (!MediaRecorder.isTypeSupported(mimeType)) {
-            mimeType = 'video/webm';
-          }
-        }
+        if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
 
         const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
         const chunks = [];
 
-        recorder.ondataavailable = (e) => {
-          if (e.data.size > 0) chunks.push(e.data);
-        };
-
+        recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
         recorder.onstop = () => {
           const blob = new Blob(chunks, { type: mimeType });
-          const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-          link.download = `hepsi_duzici_bpt_video_${Date.now()}.${ext}`;
-          link.href = url;
+          link.download = `hepsi_duzici_video_${Date.now()}.${ext}`;
+          link.href = URL.createObjectURL(blob);
           link.click();
 
-          btn.innerHTML = '<span>🎥 Video İndir</span>';
+          btn.innerText = '🎥 Video İndir';
           btn.disabled = false;
         };
 
-        videoEl.currentTime = 0;
-        await videoEl.play();
+        vid.currentTime = 0;
+        await vid.play();
         recorder.start();
 
         const headline = document.getElementById('cardHeadline').innerText;
         const quote = document.getElementById('cardQuote').innerText;
-        const locationText = document.getElementById('inputLocation').value || 'DÜZİÇİ';
-        const theme = themes[currentThemeIndex];
+        const locationText = document.getElementById('locInput').value || 'DÜZİÇİ';
+        const t = themes[currentThemeIndex];
 
-        const renderInterval = setInterval(() => {
-          if (videoEl.paused || videoEl.ended) {
-            clearInterval(renderInterval);
+        const loop = setInterval(() => {
+          if (vid.paused || vid.ended) {
+            clearInterval(loop);
             recorder.stop();
             return;
           }
 
-          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
 
           const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
           grad.addColorStop(0, 'rgba(0, 0, 0, 0.35)');
           grad.addColorStop(0.20, 'transparent');
           grad.addColorStop(0.40, 'transparent');
-          grad.addColorStop(0.62, theme.first + 'B3');
-          grad.addColorStop(0.82, theme.first + 'EB');
-          grad.addColorStop(1.0, theme.last + 'FA');
+          grad.addColorStop(0.62, t.first + 'B3');
+          grad.addColorStop(0.82, t.first + 'EB');
+          grad.addColorStop(1.0, t.last + 'FA');
           ctx.fillStyle = grad;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-          const stripX = 35;
-          const stripY = 90;
-          const stripW = 60;
-          const stripH = canvas.height - 180;
-
+          // Şerit
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
-          ctx.roundRect(stripX, stripY + 40, stripW, stripH - 40, 30);
+          ctx.roundRect(35, 130, 60, canvas.height - 220, 30);
           ctx.fill();
 
+          // Logo
           ctx.fillStyle = '#0F172A';
           ctx.beginPath();
-          ctx.arc(stripX + stripW / 2, stripY + 45, 52, 0, Math.PI * 2);
+          ctx.arc(65, 135, 52, 0, Math.PI * 2);
           ctx.fill();
           ctx.lineWidth = 6;
           ctx.strokeStyle = '#FFFFFF';
@@ -1161,10 +707,10 @@ Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik ç
           ctx.font = '900 32px Inter';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText('HD', stripX + stripW / 2, stripY + 45);
+          ctx.fillText('HD', 65, 135);
 
           ctx.save();
-          ctx.translate(stripX + stripW / 2, stripY + stripH - 50);
+          ctx.translate(65, canvas.height - 140);
           ctx.rotate(-Math.PI / 2);
           ctx.fillStyle = '#0F172A';
           ctx.font = '900 22px Inter';
@@ -1172,6 +718,7 @@ Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik ç
           ctx.fillText(`📍 ${locationText}   📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI`, 0, 8);
           ctx.restore();
 
+          // Metin
           ctx.fillStyle = '#FFFFFF';
           ctx.font = '900 45px Inter';
           ctx.textAlign = 'left';
@@ -1222,14 +769,14 @@ Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik ç
 
         setTimeout(() => {
           if (recorder.state === 'recording') {
-            clearInterval(renderInterval);
+            clearInterval(loop);
             recorder.stop();
           }
         }, 15000);
 
       } catch (err) {
-        alert('Video oluşturulurken bir hata oluştu: ' + err.message);
-        btn.innerHTML = '<span>🎥 Video İndir</span>';
+        alert('Hata: ' + err.message);
+        btn.innerText = '🎥 Video İndir';
         btn.disabled = false;
       }
     }
