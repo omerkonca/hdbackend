@@ -778,12 +778,12 @@
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, 1080, 1350);
 
-        // 3. Beyaz Dikey Sütun (Pill)
+        // 3. Beyaz Dikey Sütun (CSS ile 1:1 Birebir Oran)
         ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
         ctx.shadowBlur = 20;
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(40, 102, 68, 1350 - 204, 34);
+        ctx.roundRect(71, 154, 62.5, 1094, 31);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -800,14 +800,14 @@
         ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
         ctx.shadowBlur = 18;
         ctx.beginPath();
-        ctx.arc(74, 102, 60, 0, Math.PI * 2);
+        ctx.arc(102.3, 162, 60, 0, Math.PI * 2);
         ctx.fillStyle = '#EAB308';
         ctx.fill();
         ctx.lineWidth = 7;
         ctx.strokeStyle = '#FFFFFF';
         ctx.stroke();
         ctx.clip();
-        ctx.drawImage(logoImg, 14, 42, 120, 120);
+        ctx.drawImage(logoImg, 42.3, 102, 120, 120);
         ctx.restore();
 
         // 5. Dikey Metin (Sütun İçi - Tam Merkez Vektör İkonlar + İnce Zarif Font)
@@ -817,7 +817,7 @@
         const brandText = rawBottom.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
 
         ctx.save();
-        ctx.translate(74, 1350 - 180);
+        ctx.translate(102.3, 1350 - 220);
         ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = '#0F172A';
         ctx.font = '700 20px Inter, sans-serif';
@@ -1147,7 +1147,28 @@
         const headlineStartY = quoteStartY - gap - headlineTotalH + 44;
 
         const loop = setInterval(() => {
-          ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+          // Video Kadrajı (Cover)
+          const sx = (imgPosX / 100);
+          const sy = (imgPosY / 100);
+          const mw = vid.videoWidth || 1080;
+          const mh = vid.videoHeight || 1350;
+          const targetAspect = 1080 / 1350;
+          const mediaAspect = mw / mh;
+
+          let renderW, renderH, offsetX, offsetY;
+          if (mediaAspect > targetAspect) {
+            renderH = mh;
+            renderW = mh * targetAspect;
+            offsetX = (mw - renderW) * sx;
+            offsetY = 0;
+          } else {
+            renderW = mw;
+            renderH = mw / targetAspect;
+            offsetX = 0;
+            offsetY = (mh - renderH) * sy;
+          }
+
+          ctx.drawImage(vid, offsetX, offsetY, renderW, renderH, 0, 0, 1080, 1350);
 
           const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
           grad.addColorStop(0, 'rgba(0, 0, 0, 0.35)');
@@ -1164,7 +1185,7 @@
           ctx.shadowBlur = 20;
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
-          ctx.roundRect(40, 102, 68, 1350 - 204, 34);
+          ctx.roundRect(71, 154, 62.5, 1094, 31);
           ctx.fill();
           ctx.shadowBlur = 0;
 
@@ -1173,7 +1194,7 @@
           ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
           ctx.shadowBlur = 18;
           ctx.beginPath();
-          ctx.arc(74, 102, 60, 0, Math.PI * 2);
+          ctx.arc(102.3, 162, 60, 0, Math.PI * 2);
           ctx.fillStyle = '#EAB308';
           ctx.fill();
           ctx.lineWidth = 7;
@@ -1181,13 +1202,13 @@
           ctx.stroke();
           ctx.clip();
           if (logoImg.complete) {
-            ctx.drawImage(logoImg, 14, 42, 120, 120);
+            ctx.drawImage(logoImg, 42.3, 102, 120, 120);
           }
           ctx.restore();
 
           // Dikey Metin (Tam Merkez Vektör İkonlar)
           ctx.save();
-          ctx.translate(74, 1350 - 180);
+          ctx.translate(102.3, 1350 - 220);
           ctx.rotate(-Math.PI / 2);
           ctx.fillStyle = '#0F172A';
           ctx.font = '700 20px Inter, sans-serif';
