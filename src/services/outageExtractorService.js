@@ -189,7 +189,7 @@ class OutageExtractorService {
     const startAt = startTimeStr ? `${baseIsoDate}T${startTimeStr}:00+03:00` : `${baseIsoDate}T09:00:00+03:00`;
     const endAt = endTimeStr ? `${baseIsoDate}T${endTimeStr}:00+03:00` : (startTimeStr ? `${baseIsoDate}T17:00:00+03:00` : null);
 
-    // 3. Etkilenen Bölgeleri Ayıkla
+    // 3. Etkilenen Bölgeleri Ayıkla ve Zenginleştir
     let area = '';
     const affectedMatch = normalized.match(/(?:etkilenecek yerler|etkilenen bölgeler|kesinti yapılacak yerler|kesintiden etkilenecek|bölgeler|yerler)[:\s\n]+([^\n.]+)/i);
     if (affectedMatch && affectedMatch[1]) {
@@ -210,6 +210,9 @@ class OutageExtractorService {
         area = 'Düziçi İlçe Geneli';
       }
     }
+
+    // Düziçi Yerel İsimlerini Zenginleştir (Halkın net anlaması için Yaylası / Mevkii / Mahallesi ekle)
+    area = this._enrichDuziciArea(area, normalized);
 
     // 4. Profesyonel Başlık ve Açıklama Oluştur
     if (isElectric || isWater) {
@@ -282,6 +285,36 @@ class OutageExtractorService {
     }
 
     return { outages, roadClosures };
+  }
+
+  _enrichDuziciArea(areaText, fullText = '') {
+    if (!areaText) return 'Düziçi İlçe Geneli';
+    let res = areaText;
+
+    const isYaylaContext = /yayla/i.test(fullText) || /yayla/i.test(areaText);
+
+    // 1. Yayla isimlerini zenginleştir
+    if (isYaylaContext || /\bçoban\b/i.test(res)) {
+      res = res.replace(/\bçoban\b(?!\s+yaylası)/gi, 'Çoban Yaylası');
+    }
+    if (isYaylaContext || /\bilgiliç\b/i.test(res)) {
+      res = res.replace(/\bilgiliç\b(?!\s+(?:yaylası|mevkii))/gi, 'İlgiliç Yaylası / Mevkii');
+    }
+    if (isYaylaContext || /\btikenli\b/i.test(res)) {
+      res = res.replace(/\btikenli\b(?!\s+(?:yaylası|mevkii))/gi, 'Tikenli Yaylası / Mevkii');
+    }
+    if (isYaylaContext || /\bsoğulcak\b/i.test(res)) {
+      res = res.replace(/\bsoğulcak\b(?!\s+yaylası)/gi, 'Soğulcak Yaylası');
+    }
+    if (isYaylaContext || /\bzorkun\b/i.test(res)) {
+      res = res.replace(/\bzorkun\b(?!\s+yaylası)/gi, 'Zorkun Yaylası');
+    }
+
+    // 2. Sokak ve dahil kalıplarını düzelt
+    res = res.replace(/(\d+(?:,\s*\d+)*(?:\s+ve\s+\d+)?)\s*nolu\s*(?:sokaklar|sokak)?/gi, '$1 Nolu Sokaklar');
+    res = res.replace(/(\d+)\s*nolu\s*dahil/gi, '$1 Nolu Sokak dahil');
+
+    return res.trim();
   }
 }
 
