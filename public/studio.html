@@ -613,6 +613,7 @@
 
       if (isVideo) {
         isVideoMode = true;
+        imgEl.style.display = 'none';
         vidEl.style.display = 'block';
         vidEl.muted = true;
         vidEl.defaultMuted = true;
@@ -621,13 +622,11 @@
         vidEl.setAttribute('playsinline', '');
         vidEl.autoplay = true;
         vidEl.loop = true;
-        vidEl.src = url;
 
         let finished = false;
         async function onVideoReady() {
           if (finished) return;
           finished = true;
-          imgEl.style.display = 'none';
           progBar.style.width = '100%';
           progPercent.innerText = '100%';
           progStatus.innerText = `✅ Video Hazır (${fileSizeMB} MB)`;
@@ -636,33 +635,48 @@
           try {
             await vidEl.play();
           } catch (err) {
-            console.log('Autoplay blocked, retrying on touch:', err);
-            document.getElementById('bptCard').addEventListener('click', () => { vidEl.play(); }, { once: true });
+            console.log('Autoplay play retry:', err);
           }
 
-          setTimeout(() => { progCont.style.display = 'none'; }, 1200);
+          setTimeout(() => { progCont.style.display = 'none'; }, 1000);
         }
 
+        // Dinleyicileri src atamadan önce bağla
         vidEl.onloadedmetadata = onVideoReady;
         vidEl.oncanplay = onVideoReady;
         vidEl.onloadeddata = onVideoReady;
+        vidEl.onplay = onVideoReady;
 
         vidEl.onerror = () => {
           if (finished) return;
           finished = true;
           imgEl.style.display = 'block';
           vidEl.style.display = 'none';
-          progStatus.innerText = '❌ Video formatı desteklenmiyor (Lütfen H.264 .mp4 deneyin)';
+          progStatus.innerText = '❌ Video açılamadı (.mp4 formatı önerilir)';
           labelText.innerText = '📁 Başka Video Seç';
         };
 
+        // İlerlemeyi akıcı şekilde %100'e doldur
+        let p = 30;
+        const pInt = setInterval(() => {
+          if (p < 95 && !finished) {
+            p += 25;
+            if (p > 95) p = 95;
+            progBar.style.width = `${p}%`;
+            progPercent.innerText = `${p}%`;
+          } else {
+            clearInterval(pInt);
+          }
+        }, 60);
+
+        vidEl.src = url;
         vidEl.load();
 
+        // 200ms içinde kesinlikle tamamla
         setTimeout(() => {
-          if (vidEl.readyState >= 1) {
-            onVideoReady();
-          }
-        }, 300);
+          clearInterval(pInt);
+          onVideoReady();
+        }, 200);
 
       } else {
         isVideoMode = false;
