@@ -185,12 +185,17 @@
       justify-content: center;
       overflow: hidden;
       z-index: 10;
+      padding: 0;
+      margin: 0;
     }
 
     .logo-badge img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      object-position: center center;
+      display: block;
+      border-radius: 50%;
     }
 
     .strip-text {
@@ -204,6 +209,16 @@
       display: flex;
       align-items: center;
       gap: 12px;
+    }
+
+    .strip-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .strip-item svg {
+      flex-shrink: 0;
     }
 
     /* Metin Katmanı */
@@ -412,8 +427,14 @@
         <div class="strip-wrapper">
           <div class="white-strip">
             <div class="strip-text">
-              <span id="stripLocText">📍 DÜZİÇİ</span>
-              <span id="stripBrandText">📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
+              <span class="strip-item">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="#0F172A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <span id="stripLocText">DÜZİÇİ</span>
+              </span>
+              <span class="strip-item">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="#0F172A"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+                <span id="stripBrandText">HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
+              </span>
             </div>
           </div>
           <div class="logo-badge">
@@ -471,10 +492,10 @@
       <div style="background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:10px; padding:10px;">
         <div class="panel-title" style="margin-bottom:6px; font-size:11.5px;">⚪ Beyaz Sütun Yazıları</div>
         <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="text" id="inputStripTop" class="input-box" value="📍 DÜZİÇİ" placeholder="Üst Yazı (Örn: 📍 DÜZİÇİ)" oninput="document.getElementById('stripLocText').innerText=this.value">
+          <input type="text" id="inputStripTop" class="input-box" value="DÜZİÇİ" placeholder="Üst Yazı (Örn: DÜZİÇİ)" oninput="document.getElementById('stripLocText').innerText=this.value">
           <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="resetKadraj()">🔄 Kadraj</button>
         </div>
-        <input type="text" id="inputStripBottom" class="input-box" value="📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI" placeholder="Alt Yazı (Örn: 📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI)" oninput="document.getElementById('stripBrandText').innerText=this.value">
+        <input type="text" id="inputStripBottom" class="input-box" value="HEPSİ DÜZİÇİ MOBİL UYGULAMASI" placeholder="Alt Yazı (Örn: HEPSİ DÜZİÇİ MOBİL UYGULAMASI)" oninput="document.getElementById('stripBrandText').innerText=this.value">
       </div>
 
       <div>
@@ -616,7 +637,6 @@
             await vidEl.play();
           } catch (err) {
             console.log('Autoplay blocked, retrying on touch:', err);
-            // Kullanıcı kart üzerine dokunduğunda oynat
             document.getElementById('bptCard').addEventListener('click', () => { vidEl.play(); }, { once: true });
           }
 
@@ -638,7 +658,6 @@
 
         vidEl.load();
 
-        // 300ms sonra video hazırsa başlat
         setTimeout(() => {
           if (vidEl.readyState >= 1) {
             onVideoReady();
@@ -686,8 +705,8 @@
           document.getElementById('cardQuote').innerText = `“${data.quote}”`;
           document.getElementById('formHeadline').value = data.headline;
           document.getElementById('formQuote').value = data.quote;
-          document.getElementById('inputStripTop').value = `📍 ${data.location}`;
-          document.getElementById('stripLocText').innerText = `📍 ${data.location}`;
+          document.getElementById('inputStripTop').value = data.location;
+          document.getElementById('stripLocText').innerText = data.location;
           if (data.suggestedTheme === 'ruby') {
             setTheme(4, document.querySelectorAll('.color-dot')[4]);
           } else if (data.suggestedTheme === 'gold') {
@@ -709,7 +728,8 @@
           scale: 2.84, // 380x475 * 2.84 = 1080x1350 HD
           useCORS: true,
           allowTaint: true,
-          backgroundColor: '#020617'
+          backgroundColor: '#020617',
+          logging: false
         });
 
         const link = document.createElement('a');
@@ -769,6 +789,9 @@
         const stripBottomText = document.getElementById('stripBrandText').innerText;
         const t = themes[currentThemeIndex];
 
+        const logoImg = new Image();
+        logoImg.src = '/app_icon.png';
+
         const loop = setInterval(() => {
           if (vid.paused || vid.ended) {
             clearInterval(loop);
@@ -795,22 +818,28 @@
           ctx.fill();
 
           // Logo Yuvarlağı
-          ctx.fillStyle = '#EAB308';
+          ctx.save();
           ctx.beginPath();
           ctx.arc(65, 135, 52, 0, Math.PI * 2);
+          ctx.fillStyle = '#EAB308';
           ctx.fill();
           ctx.lineWidth = 6;
           ctx.strokeStyle = '#FFFFFF';
           ctx.stroke();
+          ctx.clip();
+          if (logoImg.complete) {
+            ctx.drawImage(logoImg, 13, 83, 104, 104);
+          }
+          ctx.restore();
 
           // Dikey Metin (Rotated)
           ctx.save();
           ctx.translate(65, canvas.height - 140);
           ctx.rotate(-Math.PI / 2);
           ctx.fillStyle = '#0F172A';
-          ctx.font = '900 22px Inter';
+          ctx.font = '800 22px Inter';
           ctx.textAlign = 'left';
-          ctx.fillText(`${stripTopText}   ${stripBottomText}`, 0, 8);
+          ctx.fillText(`📍 ${stripTopText}   📱 ${stripBottomText}`, 0, 8);
           ctx.restore();
 
           // Manşet Metni
