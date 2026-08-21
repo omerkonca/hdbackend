@@ -142,20 +142,39 @@
       );
     }
 
-    /* Sol Dikey Şerit (Mobildeki ile 1:1 Birebir Aynı) */
+    /* Sol Dikey Şerit (Birebir BPT Tasarımı) */
     .strip-wrapper {
       position: absolute;
       left: 14px;
       top: 32px;
       bottom: 32px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      width: 44px;
       pointer-events: none;
-      z-index: 2;
+      z-index: 10;
+    }
+
+    .white-strip {
+      position: absolute;
+      top: 18px;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      background: #FFFFFF;
+      border-radius: 11px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
 
     .logo-badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
       width: 42px;
       height: 42px;
       border-radius: 50%;
@@ -166,7 +185,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      z-index: 3;
+      z-index: 10;
     }
 
     .logo-badge img {
@@ -175,33 +194,19 @@
       object-fit: cover;
     }
 
-    .white-strip {
-      width: 24px;
-      flex: 1;
-      background: #FFFFFF;
-      border-radius: 12px;
-      margin-top: -12px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: 24px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-      position: relative;
-    }
-
     .strip-text {
       transform: rotate(-90deg);
       transform-origin: center center;
       white-space: nowrap;
       color: #0F172A;
-      font-size: 8.5px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       position: absolute;
-      bottom: 115px;
+      bottom: 120px;
     }
 
     /* Metin Katmanı */
@@ -408,14 +413,14 @@
 
         <!-- Sol Dikey Şerit (Mobille Birebir Aynı) -->
         <div class="strip-wrapper">
-          <div class="logo-badge">
-            <img src="/app_icon.png" alt="HD" onerror="this.src='/images/app_icon.png'">
-          </div>
           <div class="white-strip">
             <div class="strip-text">
               <span id="stripLocText">📍 DÜZİÇİ</span>
               <span id="stripBrandText">📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
             </div>
+          </div>
+          <div class="logo-badge">
+            <img src="/app_icon.png" alt="HD" onerror="this.src='/images/app_icon.png'">
           </div>
         </div>
 
