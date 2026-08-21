@@ -725,22 +725,168 @@
     }
 
     async function downloadImage() {
-      const card = document.getElementById('bptCard');
+      const btn = document.querySelector('.btn-primary');
+      const originalText = btn.innerHTML;
+      btn.innerText = '📸 HD Görsel Hazırlanıyor...';
+      btn.disabled = true;
+
       try {
-        const canvas = await html2canvas(card, {
-          scale: 2.84, // 380x475 * 2.84 = 1080x1350 HD
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#020617',
-          logging: false
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1350;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        // 1. Arka plan görseli
+        const isVid = isVideoMode;
+        const mediaEl = isVid ? document.getElementById('cardBgVideo') : document.getElementById('cardBgImg');
+
+        const sx = (imgPosX / 100);
+        const sy = (imgPosY / 100);
+
+        const mw = mediaEl.videoWidth || mediaEl.naturalWidth || mediaEl.width || 1080;
+        const mh = mediaEl.videoHeight || mediaEl.naturalHeight || mediaEl.height || 1350;
+
+        const targetAspect = 1080 / 1350;
+        const mediaAspect = mw / mh;
+
+        let renderW, renderH, offsetX, offsetY;
+        if (mediaAspect > targetAspect) {
+          renderH = mh;
+          renderW = mh * targetAspect;
+          offsetX = (mw - renderW) * sx;
+          offsetY = 0;
+        } else {
+          renderW = mw;
+          renderH = mw / targetAspect;
+          offsetX = 0;
+          offsetY = (mh - renderH) * sy;
+        }
+
+        ctx.drawImage(mediaEl, offsetX, offsetY, renderW, renderH, 0, 0, 1080, 1350);
+
+        // 2. Sinematik Degrade
+        const t = themes[currentThemeIndex];
+        const grad = ctx.createLinearGradient(0, 0, 0, 1350);
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0.35)');
+        grad.addColorStop(0.20, 'transparent');
+        grad.addColorStop(0.40, 'transparent');
+        grad.addColorStop(0.62, t.first + 'B3');
+        grad.addColorStop(0.82, t.first + 'EB');
+        grad.addColorStop(1.0, t.last + 'FA');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1080, 1350);
+
+        // 3. Beyaz Dikey Sütun (Pill)
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        ctx.shadowBlur = 20;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(38, 120, 58, 1350 - 215, 29);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // 4. Hepsi Düziçi Logo Rozeti
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.src = '/app_icon.png';
+        await new Promise((resolve) => {
+          if (logoImg.complete) resolve();
+          else { logoImg.onload = resolve; logoImg.onerror = resolve; }
         });
 
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+        ctx.shadowBlur = 18;
+        ctx.beginPath();
+        ctx.arc(67, 122, 54, 0, Math.PI * 2);
+        ctx.fillStyle = '#EAB308';
+        ctx.fill();
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.stroke();
+        ctx.clip();
+        ctx.drawImage(logoImg, 13, 68, 108, 108);
+        ctx.restore();
+
+        // 5. Dikey Metin (Sütun İçi - 1080p Ultra Net)
+        const stripTopText = document.getElementById('stripLocText').innerText;
+        const stripBottomText = document.getElementById('stripBrandText').innerText;
+
+        ctx.save();
+        ctx.translate(67, 1350 - 180);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '800 21px Inter';
+        ctx.textAlign = 'left';
+        ctx.fillText(`📍 ${stripTopText}   📱 ${stripBottomText}`, 0, 8);
+        ctx.restore();
+
+        // 6. Manşet Başlığı (1080p HD)
+        const headline = document.getElementById('cardHeadline').innerText;
+        const quote = document.getElementById('cardQuote').innerText;
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 46px Inter';
+        ctx.textAlign = 'left';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        ctx.shadowBlur = 22;
+        ctx.shadowOffsetY = 4;
+
+        const textLeft = 165;
+        const maxTextW = 1080 - textLeft - 50;
+
+        let words = headline.split(' ');
+        let line = '';
+        let curY = 1350 - 230;
+
+        for (let n = 0; n < words.length; n++) {
+          let testLine = line + words[n] + ' ';
+          let metrics = ctx.measureText(testLine);
+          if (metrics.width > maxTextW && n > 0) {
+            ctx.fillText(line, textLeft, curY);
+            line = words[n] + ' ';
+            curY += 56;
+          } else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line, textLeft, curY);
+
+        // 7. Spot / Alıntı Metni
+        ctx.font = '600 34px Inter';
+        ctx.shadowBlur = 16;
+        curY += 50;
+
+        let quoteWords = quote.split(' ');
+        let qLine = '';
+        for (let n = 0; n < quoteWords.length; n++) {
+          let testLine = qLine + quoteWords[n] + ' ';
+          let metrics = ctx.measureText(testLine);
+          if (metrics.width > maxTextW && n > 0) {
+            ctx.fillText(qLine, textLeft, curY);
+            qLine = quoteWords[n] + ' ';
+            curY += 44;
+          } else {
+            qLine = testLine;
+          }
+        }
+        ctx.fillText(qLine, textLeft, curY);
+
+        // İndirme tetikle
         const link = document.createElement('a');
         link.download = `hepsi_duzici_post_${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
+        link.href = canvas.toDataURL('image/png', 1.0);
+        document.body.appendChild(link);
         link.click();
+        setTimeout(() => document.body.removeChild(link), 100);
+
       } catch (err) {
         alert('Görsel oluşturulamadı: ' + err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
       }
     }
 
