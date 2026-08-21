@@ -745,8 +745,8 @@
         const sx = (imgPosX / 100);
         const sy = (imgPosY / 100);
 
-        const mw = mediaEl.videoWidth || mediaEl.naturalWidth || mediaEl.width || 1080;
-        const mh = mediaEl.videoHeight || mediaEl.naturalHeight || mediaEl.height || 1350;
+        const mw = mediaEl.naturalWidth || mediaEl.videoWidth || mediaEl.width || 1080;
+        const mh = mediaEl.naturalHeight || mediaEl.videoHeight || mediaEl.height || 1350;
 
         const targetAspect = 1080 / 1350;
         const mediaAspect = mw / mh;
@@ -783,7 +783,7 @@
         ctx.shadowBlur = 20;
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(38, 120, 58, 1350 - 215, 29);
+        ctx.roundRect(40, 102, 62, 1350 - 204, 31);
         ctx.fill();
         ctx.shadowBlur = 0;
 
@@ -800,79 +800,139 @@
         ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
         ctx.shadowBlur = 18;
         ctx.beginPath();
-        ctx.arc(67, 122, 54, 0, Math.PI * 2);
+        ctx.arc(71, 102, 60, 0, Math.PI * 2);
         ctx.fillStyle = '#EAB308';
         ctx.fill();
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 7;
         ctx.strokeStyle = '#FFFFFF';
         ctx.stroke();
         ctx.clip();
-        ctx.drawImage(logoImg, 13, 68, 108, 108);
+        ctx.drawImage(logoImg, 11, 42, 120, 120);
         ctx.restore();
 
-        // 5. Dikey Metin (Sütun İçi - 1080p Ultra Net)
-        const stripTopText = document.getElementById('stripLocText').innerText;
-        const stripBottomText = document.getElementById('stripBrandText').innerText;
+        // 5. Dikey Metin (Sütun İçi - Vektör İkonlar + İnce Zarif Font)
+        const rawTop = document.getElementById('stripLocText').innerText || 'DÜZİÇİ';
+        const rawBottom = document.getElementById('stripBrandText').innerText || 'HEPSİ DÜZİÇİ MOBİL UYGULAMASI';
+        const locText = rawTop.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
+        const brandText = rawBottom.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
 
         ctx.save();
-        ctx.translate(67, 1350 - 180);
+        ctx.translate(71, 1350 - 355);
         ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = '#0F172A';
-        ctx.font = '800 21px Inter';
+        ctx.font = '700 20px Inter, sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(`📍 ${stripTopText}   📱 ${stripBottomText}`, 0, 8);
+
+        // Konum İkonu (Vektör Pin)
+        ctx.save();
+        ctx.translate(0, -6);
+        ctx.fillStyle = '#0F172A';
+        ctx.beginPath();
+        ctx.arc(7, 4, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(3, 4);
+        ctx.lineTo(7, 12);
+        ctx.lineTo(11, 4);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(7, 4, 1.5, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
 
-        // 6. Manşet Başlığı (1080p HD)
+        ctx.fillStyle = '#0F172A';
+        ctx.fillText(locText, 20, 0);
+        const locW = ctx.measureText(locText).width;
+
+        // Telefon İkonu (Vektör Mobil)
+        const phoneX = 20 + locW + 28;
+        ctx.save();
+        ctx.translate(phoneX, -10);
+        ctx.fillStyle = '#0F172A';
+        ctx.beginPath();
+        ctx.roundRect(0, 0, 11, 16, 2.5);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(2, 2, 7, 10);
+        ctx.beginPath();
+        ctx.arc(5.5, 14, 0.8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.fillStyle = '#0F172A';
+        ctx.fillText(brandText, phoneX + 18, 0);
+        ctx.restore();
+
+        // 6 & 7. Manşet Başlığı & Alıntı (Birebir CSS Oranlarıyla Alttan Yukarı)
         const headline = document.getElementById('cardHeadline').innerText;
         const quote = document.getElementById('cardQuote').innerText;
 
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = '900 46px Inter';
-        ctx.textAlign = 'left';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-        ctx.shadowBlur = 22;
-        ctx.shadowOffsetY = 4;
+        const textLeft = 182;
+        const maxTextW = 1028 - textLeft;
 
-        const textLeft = 165;
-        const maxTextW = 1080 - textLeft - 50;
-
-        let words = headline.split(' ');
-        let line = '';
-        let curY = 1350 - 230;
-
-        for (let n = 0; n < words.length; n++) {
-          let testLine = line + words[n] + ' ';
-          let metrics = ctx.measureText(testLine);
-          if (metrics.width > maxTextW && n > 0) {
-            ctx.fillText(line, textLeft, curY);
-            line = words[n] + ' ';
-            curY += 56;
+        // Manşet satırları
+        ctx.font = '900 50px Inter, sans-serif';
+        const hWords = headline.split(' ');
+        const hLines = [];
+        let hLine = '';
+        for (let n = 0; n < hWords.length; n++) {
+          let testLine = hLine + hWords[n] + ' ';
+          if (ctx.measureText(testLine).width > maxTextW && n > 0) {
+            hLines.push(hLine.trim());
+            hLine = hWords[n] + ' ';
           } else {
-            line = testLine;
+            hLine = testLine;
           }
         }
-        ctx.fillText(line, textLeft, curY);
+        if (hLine) hLines.push(hLine.trim());
 
-        // 7. Spot / Alıntı Metni
-        ctx.font = '600 34px Inter';
-        ctx.shadowBlur = 16;
-        curY += 50;
-
-        let quoteWords = quote.split(' ');
+        // Alıntı satırları
+        ctx.font = '600 36px Inter, sans-serif';
+        const qWords = quote.split(' ');
+        const qLines = [];
         let qLine = '';
-        for (let n = 0; n < quoteWords.length; n++) {
-          let testLine = qLine + quoteWords[n] + ' ';
-          let metrics = ctx.measureText(testLine);
-          if (metrics.width > maxTextW && n > 0) {
-            ctx.fillText(qLine, textLeft, curY);
-            qLine = quoteWords[n] + ' ';
-            curY += 44;
+        for (let n = 0; n < qWords.length; n++) {
+          let testLine = qLine + qWords[n] + ' ';
+          if (ctx.measureText(testLine).width > maxTextW && n > 0) {
+            qLines.push(qLine.trim());
+            qLine = qWords[n] + ' ';
           } else {
             qLine = testLine;
           }
         }
-        ctx.fillText(qLine, textLeft, curY);
+        if (qLine) qLines.push(qLine.trim());
+
+        // Alttan yukarı dinamik Y hesabı
+        const hLineH = 60;
+        const qLineH = 48;
+        const gap = 24;
+        const bottomMargin = 102;
+
+        const quoteTotalH = qLines.length * qLineH;
+        const headlineTotalH = hLines.length * hLineH;
+
+        const quoteStartY = 1350 - bottomMargin - quoteTotalH + 34;
+        const headlineStartY = quoteStartY - gap - headlineTotalH + 42;
+
+        // Manşet Çizimi
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 50px Inter, sans-serif';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        ctx.shadowBlur = 24;
+        ctx.shadowOffsetY = 4;
+
+        hLines.forEach((l, idx) => {
+          ctx.fillText(l, textLeft, headlineStartY + (idx * hLineH));
+        });
+
+        // Alıntı Çizimi
+        ctx.font = '600 36px Inter, sans-serif';
+        ctx.shadowBlur = 18;
+
+        qLines.forEach((l, idx) => {
+          ctx.fillText(l, textLeft, quoteStartY + (idx * qLineH));
+        });
 
         // İndirme tetikle
         const link = document.createElement('a');
