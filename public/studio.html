@@ -577,26 +577,14 @@
       const labelText = document.getElementById('uploadLabelText');
 
       progCont.style.display = 'block';
-      progBar.style.width = '10%';
-      progPercent.innerText = '10%';
-      progStatus.innerText = `⏳ "${file.name}" okunuyor...`;
+      progBar.style.width = '30%';
+      progPercent.innerText = '30%';
+      progStatus.innerText = `⏳ "${file.name}" yükleniyor...`;
 
       const isVideo = file.type.startsWith('video/') || /\.(mp4|mov|webm|m4v|avi|mkv)$/i.test(file.name);
       const imgEl = document.getElementById('cardBgImg');
       const vidEl = document.getElementById('cardBgVideo');
-
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
-
-      // Simüle edilen / gerçek dosya yükleme ilerlemesi
-      let progress = 10;
-      const interval = setInterval(() => {
-        if (progress < 90) {
-          progress += Math.floor(Math.random() * 20) + 10;
-          if (progress > 90) progress = 90;
-          progBar.style.width = `${progress}%`;
-          progPercent.innerText = `${progress}%`;
-        }
-      }, 50);
 
       const url = URL.createObjectURL(file);
 
@@ -606,27 +594,42 @@
         vidEl.style.display = 'block';
         vidEl.muted = true;
         vidEl.playsInline = true;
+        vidEl.setAttribute('muted', '');
+        vidEl.setAttribute('playsinline', '');
         vidEl.autoplay = true;
         vidEl.loop = true;
-        vidEl.src = url;
 
-        vidEl.onloadeddata = () => {
-          clearInterval(interval);
+        let finished = false;
+        function onVideoReady() {
+          if (finished) return;
+          finished = true;
           progBar.style.width = '100%';
           progPercent.innerText = '100%';
           progStatus.innerText = `✅ Video Hazır (${fileSizeMB} MB)`;
-          labelText.innerText = `🎥 ${file.name.slice(0, 18)}... (${fileSizeMB} MB)`;
-          vidEl.play().catch(err => console.log('Video autoplay:', err));
-          setTimeout(() => { progCont.style.display = 'none'; }, 2000);
-        };
+          labelText.innerText = `🎥 ${file.name.slice(0, 20)}... (${fileSizeMB} MB)`;
+          vidEl.play().catch(() => {});
+          setTimeout(() => { progCont.style.display = 'none'; }, 1200);
+        }
+
+        vidEl.onloadedmetadata = onVideoReady;
+        vidEl.oncanplay = onVideoReady;
+        vidEl.onloadeddata = onVideoReady;
 
         vidEl.onerror = () => {
-          clearInterval(interval);
-          progStatus.innerText = '❌ Video formatı desteklenmiyor (.mp4 önerilir)';
+          if (finished) return;
+          finished = true;
+          progStatus.innerText = '❌ Video açılamadı (.mp4 formatı önerilir)';
           labelText.innerText = '📁 Başka Video Seç';
         };
 
+        vidEl.src = url;
         vidEl.load();
+
+        // 400ms Güvenlik Zamanlayıcısı (Asla %90'da takılı kalmaz)
+        setTimeout(() => {
+          onVideoReady();
+        }, 400);
+
       } else {
         isVideoMode = false;
         vidEl.style.display = 'none';
@@ -634,16 +637,17 @@
         imgEl.style.display = 'block';
 
         imgEl.onload = () => {
-          clearInterval(interval);
           progBar.style.width = '100%';
           progPercent.innerText = '100%';
           progStatus.innerText = `✅ Görsel Hazır (${fileSizeMB} MB)`;
-          labelText.innerText = `🖼️ ${file.name.slice(0, 18)}...`;
-          setTimeout(() => { progCont.style.display = 'none'; }, 1500);
+          labelText.innerText = `🖼️ ${file.name.slice(0, 20)}...`;
+          setTimeout(() => { progCont.style.display = 'none'; }, 1200);
         };
 
         imgEl.src = url;
       }
+
+      e.target.value = '';
     }
 
     async function autoAiFormat() {
