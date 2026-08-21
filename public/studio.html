@@ -753,7 +753,8 @@
         return;
       }
 
-      btn.innerText = '🎥 Kaydediliyor...';
+      let secondsLeft = 6;
+      btn.innerText = `🎥 Kaydediliyor (${secondsLeft}s)...`;
       btn.disabled = true;
 
       try {
@@ -764,27 +765,60 @@
 
         const stream = canvas.captureStream(30);
         let mimeType = 'video/webm;codecs=vp9';
-        if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
+        let ext = 'webm';
 
-        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 6000000 });
+        if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')) {
+          mimeType = 'video/mp4;codecs=avc1';
+          ext = 'mp4';
+        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+          mimeType = 'video/mp4';
+          ext = 'mp4';
+        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
+          mimeType = 'video/webm;codecs=h264';
+          ext = 'mp4'; // çoğu oynatıcı mp4 olarak açar
+        } else if (MediaRecorder.isTypeSupported('video/webm')) {
+          mimeType = 'video/webm';
+          ext = 'webm';
+        }
+
+        const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
         const chunks = [];
 
-        recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) chunks.push(e.data);
+        };
+
         recorder.onstop = () => {
           const blob = new Blob(chunks, { type: mimeType });
           const link = document.createElement('a');
-          const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
           link.download = `hepsi_duzici_video_${Date.now()}.${ext}`;
           link.href = URL.createObjectURL(blob);
+          document.body.appendChild(link);
           link.click();
+          setTimeout(() => {
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+          }, 500);
 
-          btn.innerText = '🎥 Video İndir';
-          btn.disabled = false;
+          btn.innerText = '✅ Video İndirildi!';
+          setTimeout(() => {
+            btn.innerText = '🎥 Video İndir';
+            btn.disabled = false;
+          }, 2000);
         };
 
         vid.currentTime = 0;
         await vid.play();
-        recorder.start();
+        recorder.start(100); // her 100ms'de veri topla
+
+        const countdownInterval = setInterval(() => {
+          secondsLeft--;
+          if (secondsLeft > 0) {
+            btn.innerText = `🎥 Kaydediliyor (${secondsLeft}s)...`;
+          } else {
+            clearInterval(countdownInterval);
+          }
+        }, 1000);
 
         const headline = document.getElementById('cardHeadline').innerText;
         const quote = document.getElementById('cardQuote').innerText;
@@ -796,12 +830,6 @@
         logoImg.src = '/app_icon.png';
 
         const loop = setInterval(() => {
-          if (vid.paused || vid.ended) {
-            clearInterval(loop);
-            recorder.stop();
-            return;
-          }
-
           ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
 
           const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -817,13 +845,13 @@
           // Şerit
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
-          ctx.roundRect(35, 130, 60, canvas.height - 220, 30);
+          ctx.roundRect(35, 120, 60, canvas.height - 210, 30);
           ctx.fill();
 
           // Logo Yuvarlağı
           ctx.save();
           ctx.beginPath();
-          ctx.arc(65, 135, 52, 0, Math.PI * 2);
+          ctx.arc(65, 125, 52, 0, Math.PI * 2);
           ctx.fillStyle = '#EAB308';
           ctx.fill();
           ctx.lineWidth = 6;
@@ -831,16 +859,16 @@
           ctx.stroke();
           ctx.clip();
           if (logoImg.complete) {
-            ctx.drawImage(logoImg, 13, 83, 104, 104);
+            ctx.drawImage(logoImg, 13, 73, 104, 104);
           }
           ctx.restore();
 
           // Dikey Metin (Rotated)
           ctx.save();
-          ctx.translate(65, canvas.height - 140);
+          ctx.translate(65, canvas.height - 180);
           ctx.rotate(-Math.PI / 2);
           ctx.fillStyle = '#0F172A';
-          ctx.font = '800 22px Inter';
+          ctx.font = '800 21px Inter';
           ctx.textAlign = 'left';
           ctx.fillText(`📍 ${stripTopText}   📱 ${stripBottomText}`, 0, 8);
           ctx.restore();
@@ -895,15 +923,17 @@
 
         }, 1000 / 30);
 
+        // 6 saniye sonra kaydı bitirip dosyayı indir
         setTimeout(() => {
+          clearInterval(loop);
+          clearInterval(countdownInterval);
           if (recorder.state === 'recording') {
-            clearInterval(loop);
             recorder.stop();
           }
-        }, 15000);
+        }, 6000);
 
       } catch (err) {
-        alert('Hata: ' + err.message);
+        alert('Video indirme hatası: ' + err.message);
         btn.innerText = '🎥 Video İndir';
         btn.disabled = false;
       }
