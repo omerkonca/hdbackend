@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hepsi Düziçi - Medya & İçerik Stüdyosu (Canva + AI)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #090D16;
+      --panel-bg: #111726;
+      --card-bg: #182032;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --primary: #EAB308;
+      --primary-hover: #CA8A04;
+      --accent: #3B82F6;
+      --text-white: #FFFFFF;
+      --text-muted: #94A3B8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-white);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Üst Başlık Barı */
+    header {
+      background: var(--panel-bg);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-badge {
+      background: var(--primary);
+      color: #000;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #0F172A;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-ai {
+      background: linear-gradient(135deg, #6366F1, #A855F7);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(168, 85, 247, 0.35);
+    }
+
+    .btn-ai:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    /* Ana Çalışma Alanı */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 340px 1fr 340px;
+      height: calc(100vh - 65px);
+      overflow: hidden;
+    }
+
+    /* Sol Panel (Haberler & Araçlar) */
+    .sidebar-left {
+      background: var(--panel-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .panel-section {
+      padding: 18px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #CBD5E1;
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Haber Seçim Listesi */
+    .news-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .news-card-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .news-card-item:hover {
+      border-color: var(--primary);
+      transform: translateX(2px);
+    }
+
+    .news-item-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #334155;
+    }
+
+    .news-item-text {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.3;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Orta Canvas (Canva Canlı Önizleme) */
+    .canvas-center {
+      background: #060911;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .canvas-hint {
+      position: absolute;
+      top: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+
+    /* 4:5 Oranında Instagram Kartı */
+    .bpt-post-card {
+      width: 432px; /* 1080 / 2.5 */
+      height: 540px; /* 1350 / 2.5 (Tam 4:5 Oranı) */
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      user-select: none;
+      cursor: grab;
+      background: #020617;
+    }
+
+    .bpt-post-card:active {
+      cursor: grabbing;
+    }
+
+    .card-bg-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      transition: object-position 0.05s ease-out;
+    }
+
+    .card-gradient-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.35) 0%,
+        transparent 20%,
+        transparent 40%,
+        rgba(15, 23, 42, 0.70) 62%,
+        rgba(15, 23, 42, 0.92) 82%,
+        rgba(2, 6, 23, 0.98) 100%
+      );
+    }
+
+    /* BPT Sol Dikey Şerit */
+    .bpt-strip-wrapper {
+      position: absolute;
+      left: 14px;
+      top: 36px;
+      bottom: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .bpt-logo-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #0F172A;
+      border: 2.5px solid #FFFFFF;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 3;
+    }
+
+    .bpt-logo-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bpt-white-strip {
+      width: 24px;
+      flex: 1;
+      background: #FFFFFF;
+      border-radius: 12px;
+      margin-top: -14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
+
+    .bpt-strip-text {
+      transform: rotate(-90deg);
+      transform-origin: center center;
+      white-space: nowrap;
+      color: #0F172A;
+      font-size: 9.5px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Metin Katmanı */
+    .card-text-layer {
+      position: absolute;
+      left: 66px;
+      right: 20px;
+      bottom: 38px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-headline {
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: 18px;
+      line-height: 1.22;
+      letter-spacing: -0.4px;
+      color: #FFFFFF;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+      outline: none;
+      border-radius: 4px;
+      padding: 2px 4px;
+      transition: background 0.2s;
+    }
+
+    .card-headline:focus {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .card-quote {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 13.5px;
+      line-height: 1.38;
+      letter-spacing: -0.15px;
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+      outline: none;
+      border-radius: 4px;
+      padding: 2px 4px;
+      transition: background 0.2s;
+    }
+
+    .card-quote:focus {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Sağ Panel (Stil & Dışa Aktar) */
+    .sidebar-right {
+      background: var(--panel-bg);
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .theme-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .theme-dot {
+      width: 100%;
+      height: 36px;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-dot.active {
+      border-color: #fff;
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .caption-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: #E2E8F0;
+      white-space: pre-wrap;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Üst Başlık Barı -->
+  <header>
+    <div class="brand-title">
+      <span>🎨 Hepsi Düziçi</span>
+      <span class="brand-badge">Medya Stüdyosu (AI + Canva)</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ai" id="btnAiFormat" onclick="triggerAiFormat()">
+        <span>🤖 AI ile BPT Formatına Çevir</span>
+      </button>
+      <button class="btn btn-primary" onclick="exportHighResImage()">
+        <span>📸 1080x1350 HD İndir</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Ana Çalışma Alanı -->
+  <main>
+    <!-- Sol Panel: İçerik & Haberler -->
+    <div class="sidebar-left">
+      <div class="panel-section">
+        <div class="section-title">
+          <span>📰 Son Haberlerden Seç</span>
+          <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="loadRecentNews()">Yenile</button>
+        </div>
+        <div class="news-list" id="newsListContainer">
+          <div style="font-size: 12px; color: var(--text-muted);">Haberler yükleniyor...</div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">✍️ Metin & Detaylar</div>
+        <div class="form-group">
+          <label>Ana Başlık (Manşet)</label>
+          <input type="text" id="inputHeadline" class="form-input" placeholder="Örn: Düziçi'nde Karayolu Genişletme:" oninput="syncFromInputs()">
+        </div>
+        <div class="form-group">
+          <label>Haber Spotu / Alıntı</label>
+          <textarea id="inputQuote" class="form-textarea" placeholder="Haberin vurucu özeti veya açıklaması..." oninput="syncFromInputs()"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Konum Etiketi</label>
+          <input type="text" id="inputLocation" class="form-input" value="DÜZİÇİ" oninput="syncFromInputs()">
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">🖼️ Arka Plan Görseli</div>
+        <div class="form-group">
+          <label>Görsel URL</label>
+          <input type="text" id="inputImageUrl" class="form-input" placeholder="https://..." onchange="updateImageUrl(this.value)">
+        </div>
+        <div class="form-group">
+          <label>Veya Dosya Yükle</label>
+          <input type="file" id="inputFileUpload" accept="image/*" class="form-input" onchange="handleFileUpload(event)">
+        </div>
+      </div>
+    </div>
+
+    <!-- Orta Canvas: Canva Canlı Kart Önizleme -->
+    <div class="canvas-center">
+      <div class="canvas-hint">👆 Karttaki metinlere tıklayıp düzenleyebilir veya fotoğrafı sürükleyerek hizalayabilirsin!</div>
+
+      <div class="bpt-post-card" id="bptCard">
+        <!-- Arka Plan Görseli -->
+        <img id="cardBgImg" class="card-bg-image" src="/assets/images/duzici_aerial_header.jpg" alt="Background">
+
+        <!-- Degrade Katmanı -->
+        <div class="card-gradient-overlay" id="cardOverlay"></div>
+
+        <!-- Sol Dikey BPT Şeridi -->
+        <div class="bpt-strip-wrapper">
+          <div class="bpt-logo-badge">
+            <img src="/assets/images/app_icon.png" alt="HD Logo" onerror="this.src='/assets/images/app_logo.png'">
+          </div>
+          <div class="bpt-white-strip">
+            <div class="bpt-strip-text">
+              <span id="stripLocation">📍 DÜZİÇİ</span>
+              <span>📱 HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metin Katmanı (Tıklanabilir ve Canlı Düzenlenebilir) -->
+        <div class="card-text-layer">
+          <div class="card-headline" id="cardHeadline" contenteditable="true" oninput="syncToInputs()">
+            Düziçi'nde Karayolu Genişletme Çalışması İncelendi
+          </div>
+          <div class="card-quote" id="cardQuote" contenteditable="true" oninput="syncToInputs()">
+            “Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik çalışmalar yerinde incelenerek yatırım süreci değerlendirildi.”
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sağ Panel: Renk Teması & Sosyal Medya -->
+    <div class="sidebar-right">
+      <div class="panel-section">
+        <div class="section-title">🎨 Renk Temaları</div>
+        <div class="theme-selector-grid">
+          <div class="theme-dot active" style="background: linear-gradient(#0F172A, #020617);" onclick="setTheme(0, this)" title="Derin Gece"></div>
+          <div class="theme-dot" style="background: linear-gradient(#EAB308, #78350F);" onclick="setTheme(1, this)" title="Düziçi Altın Sarısı"></div>
+          <div class="theme-dot" style="background: linear-gradient(#6366F1, #1E1B4B);" onclick="setTheme(2, this)" title="Kraliyet Moru"></div>
+          <div class="theme-dot" style="background: linear-gradient(#10B981, #064E3B);" onclick="setTheme(3, this)" title="Zümrüt Yeşili"></div>
+          <div class="theme-dot" style="background: linear-gradient(#F43F5E, #831843);" onclick="setTheme(4, this)" title="Bordo"></div>
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">
+          <span>📋 Instagram / X Açıklaması</span>
+          <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="copyCaption()">Kopyala</button>
+        </div>
+        <div class="caption-box" id="captionText">
+Düziçi'nde Karayolu Genişletme Çalışması İncelendi ✨
+
+Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik çalışmalar yerinde incelenerek yatırım süreci değerlendirildi.
+
+📱 Detaylar Hepsi Düziçi Mobil Uygulamasında!
+
+#Düziçi #Osmaniye #HepsiDüziçi #SonDakika
+        </div>
+      </div>
+
+      <div class="panel-section">
+        <div class="section-title">⚡ Hızlı İşlemler</div>
+        <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="exportHighResImage()">
+          <span>📥 1080x1350 PNG Olarak İndir</span>
+        </button>
+        <button class="btn btn-secondary" style="width: 100%;" onclick="resetAlignment()">
+          <span>🔄 Kadrajı Sıfırla</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const themes = [
+      { first: '#0F172A', last: '#020617' }, // Derin Gece
+      { first: '#854F0B', last: '#1E1303' }, // Düziçi Altın Sarısı
+      { first: '#1E1B4B', last: '#0F0E2A' }, // Kraliyet Moru
+      { first: '#064E3B', last: '#022C22' }, // Zümrüt Yeşili
+      { first: '#831843', last: '#500724' }  // Bordo
+    ];
+
+    let currentThemeIndex = 0;
+    let imgPosX = 50; // %50 (center)
+    let imgPosY = 30; // %30 (slightly top)
+    let isDragging = false;
+    let startX, startY;
+
+    // Sayfa Yüklendiğinde
+    document.addEventListener('DOMContentLoaded', () => {
+      loadRecentNews();
+      setupImageDragging();
+      syncToInputs();
+    });
+
+    // Son Haberleri Listele
+    async function loadRecentNews() {
+      const container = document.getElementById('newsListContainer');
+      container.innerHTML = '<div style="font-size: 12px; color: var(--text-muted);">Yükleniyor...</div>';
+      try {
+        const res = await fetch('/api/studio/recent-news?limit=15');
+        const data = await res.json();
+        if (data.ok && data.data && data.data.length > 0) {
+          container.innerHTML = data.data.map(item => `
+            <div class="news-card-item" onclick='selectNews(${JSON.stringify(item).replace(/'/g, "&apos;")})'>
+              <img src="${item.image_url || '/assets/images/duzici_aerial_header.jpg'}" class="news-item-img" onerror="this.src='/assets/images/duzici_aerial_header.jpg'">
+              <div class="news-item-text">${item.title}</div>
+            </div>
+          `).join('');
+        } else {
+          container.innerHTML = '<div style="font-size: 12px; color: var(--text-muted);">Henüz haber bulunamadı.</div>';
+        }
+      } catch (err) {
+        container.innerHTML = '<div style="font-size: 12px; color: #EF4444;">Haberler yüklenemedi.</div>';
+      }
+    }
+
+    // Haber Seçimi
+    function selectNews(item) {
+      document.getElementById('inputHeadline').value = item.title;
+      document.getElementById('inputQuote').value = item.summary || item.content || '';
+      document.getElementById('cardHeadline').innerText = item.title;
+      document.getElementById('cardQuote').innerText = `“${item.summary || item.title}”`;
+      if (item.image_url) {
+        updateImageUrl(item.image_url);
+      }
+      triggerAiFormat();
+    }
+
+    // AI ile BPT Formatına Dönüştür
+    async function triggerAiFormat() {
+      const btn = document.getElementById('btnAiFormat');
+      const headline = document.getElementById('cardHeadline').innerText;
+      const quote = document.getElementById('cardQuote').innerText;
+      const loc = document.getElementById('inputLocation').value || 'DÜZİÇİ';
+
+      btn.innerHTML = '<span class="loading-spinner"></span> <span>AI Hazırlıyor...</span>';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/studio/ai-format', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: headline, content: quote, location: loc })
+        });
+        const data = await res.json();
+        if (data.ok) {
+          document.getElementById('cardHeadline').innerText = data.headline;
+          document.getElementById('cardQuote').innerText = `“${data.quote}”`;
+          document.getElementById('inputHeadline').value = data.headline;
+          document.getElementById('inputQuote').value = data.quote;
+          document.getElementById('inputLocation').value = data.location;
+          document.getElementById('stripLocation').innerText = `📍 ${data.location}`;
+          if (data.socialCaption) {
+            document.getElementById('captionText').innerText = data.socialCaption;
+          }
+        }
+      } catch (err) {
+        console.error('AI hatası:', err);
+      } finally {
+        btn.innerHTML = '<span>🤖 AI ile BPT Formatına Çevir</span>';
+        btn.disabled = false;
+      }
+    }
+
+    // Tema Değiştirme
+    function setTheme(idx, el) {
+      currentThemeIndex = idx;
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+      if (el) el.classList.add('active');
+
+      const theme = themes[idx];
+      const overlay = document.getElementById('cardOverlay');
+      overlay.style.background = `linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.35) 0%,
+        transparent 20%,
+        transparent 40%,
+        ${theme.first}B3 62%,
+        ${theme.first}EB 82%,
+        ${theme.last}FA 100%
+      )`;
+    }
+
+    // Fotoğraf Sürükleme (Drag & Pan Kadrajı)
+    function setupImageDragging() {
+      const card = document.getElementById('bptCard');
+      const img = document.getElementById('cardBgImg');
+
+      card.addEventListener('mousedown', (e) => {
+        if (e.target.isContentEditable) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        imgPosX = Math.max(0, Math.min(100, imgPosX - (dx / 4)));
+        imgPosY = Math.max(0, Math.min(100, imgPosY - (dy / 4)));
+
+        img.style.objectPosition = `${imgPosX}% ${imgPosY}%`;
+        startX = e.clientX;
+        startY = e.clientY;
+      });
+
+      window.addEventListener('mouseup', () => { isDragging = false; });
+    }
+
+    function resetAlignment() {
+      imgPosX = 50;
+      imgPosY = 30;
+      document.getElementById('cardBgImg').style.objectPosition = '50% 30%';
+    }
+
+    function updateImageUrl(url) {
+      if (!url) return;
+      document.getElementById('cardBgImg').src = url;
+      document.getElementById('inputImageUrl').value = url;
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updateImageUrl(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function syncFromInputs() {
+      document.getElementById('cardHeadline').innerText = document.getElementById('inputHeadline').value;
+      document.getElementById('cardQuote').innerText = `“${document.getElementById('inputQuote').value}”`;
+      const loc = document.getElementById('inputLocation').value || 'DÜZİÇİ';
+      document.getElementById('stripLocation').innerText = `📍 ${loc}`;
+    }
+
+    function syncToInputs() {
+      document.getElementById('inputHeadline').value = document.getElementById('cardHeadline').innerText;
+      document.getElementById('inputQuote').value = document.getElementById('cardQuote').innerText.replace(/^“|”$/g, '');
+    }
+
+    function copyCaption() {
+      const text = document.getElementById('captionText').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Instagram açıklaması kopyalandı! 📋✨');
+      });
+    }
+
+    // 1080x1350 HD PNG İndir
+    async function exportHighResImage() {
+      const card = document.getElementById('bptCard');
+      const origTransform = card.style.transform;
+
+      try {
+        const canvas = await html2canvas(card, {
+          scale: 2.5, // 432x540 * 2.5 = 1080x1350 Tam Instagram Gönderi Çözünürlüğü
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#020617',
+          logging: false
+        });
+
+        const link = document.createElement('a');
+        link.download = `hepsi_duzici_bpt_post_${Date.now()}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        alert('Görsel oluşturulurken bir hata oluştu: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

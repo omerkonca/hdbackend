@@ -41,12 +41,17 @@ app.get(['/admin', '/admin.html'], (req, res) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'admin.html'));
 });
+app.get(['/studio', '/studio.html'], (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'studio.html'));
+});
 
 app.use(express.static(config.PATHS.PUBLIC_DIR));
 app.use('/assets', express.static(path.join(__dirname, '../../assets')));
 
 // Routes
 app.use('/api', apiRoutes);
+app.use('/api/studio', require('./routes/studioRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/push', require('./routes/push'));
 app.use('/api/announcements', require('./routes/announcements'));
