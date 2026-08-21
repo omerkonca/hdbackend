@@ -83,9 +83,8 @@ const config = {
     API_URL: 'https://api.open-meteo.com/v1/forecast',
     LAT: 37.24,
     LON: 36.45,
-    // Sabah 08:00 TR'de bir kez yenilenir; TTL yedek güvenlik ağı
-    CACHE_TTL_MS: 1000 * 60 * 60 * 24,
-    REFRESH_HOUR_TR: Number(process.env.WEATHER_REFRESH_HOUR_TR || 8),
+    // Canlı sıcaklık takibi için en fazla 30 dakikada bir yenilenir
+    CACHE_TTL_MS: 1000 * 60 * 30, // 30 mins
   },
 
   DAILY_BRIEFING: {

@@ -29,47 +29,15 @@ class WeatherService {
     };
   }
 
-  _needsMorningRefresh(fetchedAtMs) {
-    if (!fetchedAtMs) return true;
-    const refreshHour = config.WEATHER.REFRESH_HOUR_TR ?? 8;
-    const tr = turkeyDateParts();
-    const fetchedTr = turkeyDateParts(new Date(fetchedAtMs));
-
-    // 08:00 öncesi: gece boyunca yeni çekme; eldeki cache yeter
-    if (tr.hour < refreshHour) {
-      return false;
-    }
-
-    // 08:00 sonrası: bugün 08:00'den önce çekildiyse bir kez yenile
-    if (fetchedTr.date < tr.date) return true;
-    if (fetchedTr.date === tr.date && fetchedTr.hour < refreshHour) return true;
-    return false;
-  }
-
   async getWeather({ forceRefresh = false } = {}) {
-    if (forceRefresh) {
-      return this._fetchAndCacheWeather();
-    }
+    const now = Date.now();
+    const isCacheValid = this.cache.data && (now - this.cache.fetchedAt < config.WEATHER.CACHE_TTL_MS);
 
-    if (this.cache.data && !this._needsMorningRefresh(this.cache.fetchedAt)) {
-      return this.cache.data;
-    }
-
-    if (this.cache.data) {
-      console.log('[weather] Sabah 08:00 yenilemesi — arka planda güncelleniyor...');
-      this._refreshWeatherBackground().catch(() => {});
+    if (isCacheValid && !forceRefresh) {
       return this.cache.data;
     }
 
     return this._fetchAndCacheWeather();
-  }
-
-  async _refreshWeatherBackground() {
-    try {
-      await this._fetchAndCacheWeather();
-    } catch (e) {
-      console.warn('[weather] Background weather refresh failed:', e.message);
-    }
   }
 
   async _fetchAndCacheWeather() {
