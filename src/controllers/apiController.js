@@ -206,7 +206,7 @@ class ApiController {
       if ((fullText && fullText.trim().length > 0) || (imageUrl && imageUrl.trim().length > 0)) {
         const update = {};
         if (fullText && fullText.trim().length > 0) update.full_text = fullText;
-        if (imageUrl && imageUrl.trim().length > 0) update.image_url = imageUrl;
+        if (!cached?.image_url && imageUrl && imageUrl.trim().length > 0) update.image_url = imageUrl;
         if (images && images.length > 0) update.images = images;
         supabase
           .from('news_items')

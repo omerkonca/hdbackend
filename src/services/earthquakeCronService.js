@@ -1,6 +1,6 @@
 const { fetchEarthquakes } = require('./earthquakeService');
-const { isFcmConfigured, sendMulticast } = require('./fcmService');
-const { fetchMarketingTokens, logPush } = require('./pushTokenService');
+const { isFcmConfigured, sendToTopic } = require('./fcmService');
+const { logPush } = require('./pushTokenService');
 
 let knownQuakeIds = new Set();
 let isFirstRun = true;
@@ -39,30 +39,28 @@ async function checkNewEarthquakesAndNotify() {
         console.log(`[earthquakeCron] 🔔 YENİ DEPREM DETEKTED: ${title} - ${body}`);
 
         try {
-          const tokens = await fetchMarketingTokens();
-          if (tokens && tokens.length > 0) {
-            const pushResult = await sendMulticast(tokens, {
-              title,
-              body,
-              data: {
-                target: 'screen:earthquake',
-                quakeId: String(quake.id),
-                magnitude: String(quake.magnitude),
-                distanceKm: String(quake.distanceKm),
-                location: String(quake.location),
-              },
-            });
+          const pushResult = await sendToTopic('earthquake_alerts', {
+            title,
+            body,
+            data: {
+              target: 'screen:earthquake',
+              route: 'screen:earthquake',
+              quakeId: String(quake.id),
+              magnitude: String(quake.magnitude),
+              distanceKm: String(quake.distanceKm),
+              location: String(quake.location),
+            },
+          });
 
-            await logPush({
-              title,
-              body,
-              target: 'earthquake_alert',
-              sent: pushResult.sent,
-              failed: pushResult.failed,
-            });
+          await logPush({
+            title,
+            body,
+            target: 'earthquake_alert',
+            sent: pushResult.success ? 1 : 0,
+            failed: pushResult.success ? 0 : 1,
+          });
 
-            console.log(`[earthquakeCron] Push gönderildi: ${pushResult.sent} başarılı, ${pushResult.failed} başarısız.`);
-          }
+          console.log(`[earthquakeCron] Topic push (earthquake_alerts): ${pushResult.success ? 'başarılı' : 'başarısız (' + pushResult.error + ')'}`);
         } catch (pushErr) {
           console.error('[earthquakeCron] Push gönderimi sırasında hata:', pushErr.message);
         }

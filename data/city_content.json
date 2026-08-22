@@ -3001,7 +3001,80 @@
       }
     ],
     "jobListings": [],
-    "realEstates": [],
+    "realEstates": [
+      {
+        "id": "re_1781555775522",
+        "area": "140 m2",
+        "type": "Daire",
+        "image": "",
+        "price": "3500000",
+        "title": "Test Satilik 3+1 Daire",
+        "images": [],
+        "isPaid": false,
+        "address": "Duzici Mahallesi Merkez Sokak",
+        "contact": "05555555555",
+        "category": "Satılık",
+        "isActive": true,
+        "createdAt": "2026-06-15T20:36:15.522Z",
+        "roomCount": "3+1",
+        "sellerName": "Deneme Emlakci",
+        "description": "Test amacli eklenmis deneme emlak ilanidir."
+      },
+      {
+        "id": "re_1781426475244",
+        "area": "135 m²",
+        "type": "Daire",
+        "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=960",
+        "price": "2850000",
+        "title": "Satılık 3+1 Lüks Daire - Cumhuriyet Mah.",
+        "images": [],
+        "isPaid": true,
+        "address": "Cumhuriyet Mah. No: 12, Düziçi",
+        "contact": "0532 596 70 79",
+        "category": "Satılık",
+        "isActive": true,
+        "createdAt": "2026-06-15T10:00:00.000Z",
+        "roomCount": "3+1",
+        "sellerName": "Merkez Emlak",
+        "description": "Düziçi merkezinde, okula ve marketlere yakın, sıfır lüks daire."
+      },
+      {
+        "id": "re_1781426475245",
+        "area": "450 m²",
+        "type": "Arsa/Arazi",
+        "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=960",
+        "price": "1200000",
+        "title": "İmarlı Satılık Arsa - Yeşilova Mah.",
+        "images": [],
+        "isPaid": false,
+        "address": "Yeşilova Mah. Çevre Yolu Yakını, Düziçi",
+        "contact": "0328 876 45 45",
+        "category": "Satılık",
+        "isActive": true,
+        "createdAt": "2026-06-15T11:00:00.000Z",
+        "roomCount": "",
+        "sellerName": "Düziçi Emlak Ofisi",
+        "description": "Yeşilova Mahallesi'nde villa yapımına uygun, yolu açık imarlı arsa."
+      },
+      {
+        "id": "re_1781426475246",
+        "area": "95 m²",
+        "type": "Daire",
+        "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=960",
+        "price": "12000",
+        "title": "Kiralık 2+1 Eşyalı Daire - İrfanlı Mah.",
+        "images": [],
+        "isPaid": false,
+        "address": "İrfanlı Mah. Hastane Cad. No: 8",
+        "contact": "0542 585 60 10",
+        "category": "Kiralık",
+        "isActive": true,
+        "createdAt": "2026-06-15T12:00:00.000Z",
+        "roomCount": "2+1",
+        "sellerName": "Sahibinden",
+        "description": "Devlet hastanesi yakınında, eşyalı kiralık daire."
+      }
+    ],
     "suggestions": [
       {
         "icon": "route",
@@ -3251,7 +3324,28 @@
         "subtitle": "Yayla ferahlığı ve güvenlik öncelikli kısa plan."
       }
     ],
-    "autoVehicles": [],
+    "autoVehicles": [
+      {
+        "id": "v_1781426475243",
+        "km": "4",
+        "year": "2030",
+        "brand": "Bmw",
+        "color": "Beyaz",
+        "image": "",
+        "model": "320",
+        "price": "1000",
+        "title": "Honda",
+        "images": [],
+        "isPaid": false,
+        "contact": "05416429621",
+        "bodyType": "sedan",
+        "fuelType": "benzin",
+        "gearType": "manuel",
+        "isActive": true,
+        "createdAt": "2026-06-14T08:41:15.243Z",
+        "sellerName": "Alda"
+      }
+    ],
     "cityServices": [
       {
         "id": "villages",
@@ -3332,7 +3426,28 @@
         "title": "Oto Galeri",
         "target": "screen:directory",
         "subtitle": "Düziçi'deki araç galerileri",
-        "directoryData": []
+        "directoryData": [
+          {
+            "name": "Coşkun Oto Galeri",
+            "phone": "0542 242 83 71",
+            "address": "Üzümlü Mah., Düziçi"
+          },
+          {
+            "name": "Güzeller Oto Galeri",
+            "phone": "0533 437 01 80",
+            "address": "Refik Cesur Bulvarı, Düziçi"
+          },
+          {
+            "name": "Osmanlı Otomotiv",
+            "phone": "0505 314 93 47",
+            "address": "Şehit Ahmet Metlioğlu Cad., Düziçi"
+          },
+          {
+            "name": "Koylu Auto",
+            "phone": "0542 123 45 67",
+            "address": "Düziçi Merkez"
+          }
+        ]
       },
       {
         "id": "real_estate",
@@ -3341,7 +3456,23 @@
         "title": "Emlak İlanları",
         "target": "screen:directory",
         "subtitle": "Satılık ve kiralık mülkler",
-        "directoryData": []
+        "directoryData": [
+          {
+            "name": "Merkez Emlak",
+            "phone": "0532 596 70 79",
+            "address": "Yeni Halkbank Üstü, Düziçi"
+          },
+          {
+            "name": "Düziçi Galeria Emlak",
+            "phone": "0542 585 60 10",
+            "address": "Refik Cesur Bulvarı No:463, Düziçi"
+          },
+          {
+            "name": "Düziçi Emlak Ofisi",
+            "phone": "0328 876 45 45",
+            "address": "Cumhuriyet Mah., Şehit Ahmet Metlioğlu Cad., No:22"
+          }
+        ]
       },
       {
         "id": "local_market",
@@ -3433,17 +3564,17 @@
           {
             "name": "Düziçi Teknik Tesisat",
             "phone": "0541 228 30 20",
-            "address": "Cumhuriyet Mah., Alçı Sok."
+            "address": "Cumhuriyet Mah., Alçı Sok., Düziçi"
           },
           {
-            "name": "Gül Mekanik (Kombi/Tesisat)",
+            "name": "Gül Mekanik (Kombi & Tesisat)",
             "phone": "0535 583 64 63",
-            "address": "Düziçi Geneli"
+            "address": "Düziçi Geneli / Yerinde Servis"
           },
           {
-            "name": "Düziçi Teknik Servis",
+            "name": "Düziçi Teknik Elektrik Servisi",
             "phone": "0542 545 14 77",
-            "address": "Elektrik ve Teknik Hizmetler"
+            "address": "Kurtuluş Mah., Düziçi"
           }
         ]
       },
@@ -3480,7 +3611,7 @@
         "icon": "dentistry",
         "color": "#29B6F6",
         "title": "Diş Klinikleri",
-        "target": "screen:health",
+        "target": "screen:dental",
         "subtitle": "Ağız ve diş sağlığı merkezleri",
         "directoryData": [
           {
@@ -3586,27 +3717,42 @@
         "sellerName": "Hatice Teyze",
         "description": "Düziçi yöremizin meşhur, bol malzemeli, taş fırında odun ateşinde pişirilmiş çıtır çıtır etli kömbesi. Sipariş üzerine günlük taze yapılır."
       }
-    ],
-    "outages": [
-      {
-        "id": "manual_outage_sogulcak_coban_20260822",
-        "title": "Soğulcak Yaylası & Çoban Elektrik Kesintisi",
-        "subtitle": "22 Ağustos tarihinde 09:00 - 17:00 saatleri arasında bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır.",
-        "type": "ELEKTRİK",
-        "status": "Planlandı",
-        "source": "Toroslar EDAŞ",
-        "sourceKind": "manual",
-        "area": "Çoban Yaylası (1 Nolu Sokak dahil), Soğulcak Yaylası (1, 3, 5 ve 7 Nolu Sokaklar dahil), İlgiliç Yaylası / Mevkii ve Tikenli Yaylası / Mevkii",
-        "lat": 37.244,
-        "lng": 36.451,
-        "date": "2026-08-22T09:00:00+03:00",
-        "publishedAt": "2026-08-21T21:29:34.475Z",
-        "startAt": "2026-08-22T09:00:00+03:00",
-        "endAt": "2026-08-22T17:00:00+03:00",
-        "isActive": true
-      }
     ]
   },
+  "outages": [
+    {
+      "id": "extracted_outage_sogulcak-yaylasi-coban-elektrik-kesintisi2026-08-22t0900000300",
+      "lat": 37.244,
+      "lng": 36.451,
+      "area": "Çoban (1 Nolu dahil), Soğulcak Yaylası (1, 3, 5 ve 7 Nolu sokaklar dahil), İlgiliç ve Tikenli",
+      "date": "2026-08-22T09:00:00+03:00",
+      "type": "ELEKTRİK",
+      "endAt": "2026-08-22T17:00:00+03:00",
+      "title": "Soğulcak Yaylası & Çoban Elektrik Kesintisi",
+      "source": "Toroslar EDAŞ",
+      "status": "Planlandı",
+      "startAt": "2026-08-22T09:00:00+03:00",
+      "isActive": true,
+      "subtitle": "22 Ağustos tarihinde 09:00 - 17:00 saatleri arasında bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır.",
+      "publishedAt": "2026-08-21T21:23:08.447Z"
+    },
+    {
+      "id": "rule_outage_1787345525019",
+      "lat": 37.244,
+      "lng": 36.451,
+      "area": "Düziçi",
+      "date": "2026-08-21T20:52:19.279Z",
+      "type": "ELEKTRİK",
+      "endAt": null,
+      "title": "Düziçi Elektrik Kesintisi (Yaylalarda Kesinti Var)\nYaz ay...",
+      "source": "Toroslar EDAŞ",
+      "status": "Planlandı",
+      "startAt": null,
+      "isActive": true,
+      "subtitle": "Düziçi Elektrik Kesintisi (Yaylalarda Kesinti Var)\nYaz aylarında vatandaşların yoğun olarak bulunduğu yayla bölgelerinde de bakım çalışmaları yapılacak. Düziçi ilçesinde planlanan ",
+      "publishedAt": "2026-08-21T20:52:19.279Z"
+    }
+  ],
   "branding": {
     "appName": "Hepsi Düziçi",
     "logoUrl": "asset:assets/images/logo.png",
@@ -5106,16 +5252,6 @@
         "workingHours": "Hafta içi 08:00 - 17:00"
       },
       {
-        "lat": 37.243,
-        "lng": 36.4505,
-        "name": "Düziçi Ağız ve Diş Sağlığı Merkezi",
-        "type": "Diş Sağlığı Merkezi",
-        "phone": "0328 876 33 44",
-        "address": "Şehitler Mah. İnönü Cad. No: 28",
-        "isEmergency": false,
-        "workingHours": "Hafta içi 08:30 - 17:00"
-      },
-      {
         "lat": 37.381,
         "lng": 36.492,
         "name": "Haruniye Aile Sağlığı Merkezi",
@@ -5124,6 +5260,66 @@
         "address": "Kuşçu Köyü Yolu Üzeri, Haruniye Kaplıcaları Yakını",
         "isEmergency": false,
         "workingHours": "Hafta içi 08:00 - 17:00"
+      },
+      {
+        "lat": 37.243,
+        "lng": 36.4505,
+        "name": "Düziçi Ağız ve Diş Sağlığı Merkezi (ADSM)",
+        "type": "Kamu Diş Sağlığı Merkezi",
+        "phone": "0328 876 33 44",
+        "address": "Şehitler Mah. İnönü Cad. No: 28, Düziçi",
+        "isEmergency": false,
+        "workingHours": "Hafta içi 08:30 - 17:00"
+      },
+      {
+        "lat": 37.2425,
+        "lng": 36.451,
+        "name": "Özel Düziçi İnci Diş Sağlığı Polikliniği",
+        "type": "Özel Diş Kliniği",
+        "phone": "0328 876 15 20",
+        "address": "İrfanlı Mah. Refik Cesur Cad. No: 45, Düziçi",
+        "isEmergency": false,
+        "workingHours": "Hafta içi ve C.tesi 09:00 - 19:00"
+      },
+      {
+        "lat": 37.238,
+        "lng": 36.446,
+        "name": "DentaDüziçi Ağız ve Diş Sağlığı Kliniği",
+        "type": "Özel Diş Kliniği",
+        "phone": "0328 876 70 80",
+        "address": "Kurtuluş Mah. Şehit Kemal Keskin Cad. No: 18, Düziçi",
+        "isEmergency": false,
+        "workingHours": "Hafta içi ve C.tesi 09:00 - 19:30"
+      },
+      {
+        "lat": 37.2395,
+        "lng": 36.4485,
+        "name": "Dt. Mustafa Demir Diş Muayenehanesi",
+        "type": "Özel Diş Hekimi",
+        "phone": "0328 876 42 55",
+        "address": "Yeşilova Mah. Çarşı Meydanı İş Hanı Kat: 1, Düziçi",
+        "isEmergency": false,
+        "workingHours": "Hafta içi 09:00 - 18:00"
+      },
+      {
+        "lat": 37.241,
+        "lng": 36.454,
+        "name": "Dt. Ahmet Yıldırım Diş Tedavi Kliniği",
+        "type": "Özel Diş Hekimi",
+        "phone": "0328 876 88 90",
+        "address": "İstiklal Mah. Atatürk Cad. No: 82/B, Düziçi",
+        "isEmergency": false,
+        "workingHours": "Hafta içi ve C.tesi 09:00 - 18:30"
+      },
+      {
+        "lat": 37.236,
+        "lng": 36.444,
+        "name": "Özel Beyaz İnci Ağız ve Diş Sağlığı",
+        "type": "Özel Diş Kliniği",
+        "phone": "0328 876 55 11",
+        "address": "Uzunbanı Mah. Hükümet Cad. No: 34, Düziçi",
+        "isEmergency": false,
+        "workingHours": "Hafta içi ve C.tesi 09:00 - 19:00"
       }
     ],
     "emergencyContacts": [
@@ -6272,6 +6468,37 @@
   ],
   "customEvents": [],
   "privateTutors": [],
+  "aiNewsSettings": {
+    "lastBeautifyAt": "2026-08-22T13:24:05.522Z",
+    "lastBeautifyOk": true,
+    "lastReporterAt": "2026-08-21T20:53:01.260Z",
+    "lastReporterOk": true,
+    "beautifyScraped": true,
+    "reporterEnabled": true,
+    "beautifyCountDate": "2026-08-22",
+    "lastReporterDraft": {
+      "date": "2026-08-21",
+      "model": "gemini:gemini-3.5-flash-lite",
+      "score": 9,
+      "theme": "event",
+      "title": "Düziçi'nde Zeynep Bastık Konseri Öncesi Serin Gece ve Günün Öne Çıkan Gelişmeleri",
+      "newsId": "news-ai-reporter-583e74f9f2d0a38545524b274ccfdadc",
+      "summary": "Düziçi'nde hafta sonu yaklaşırken hava sıcaklıkları hissedilir derecede düşerken, yarın akşam gerçekleşecek Zeynep Bastık konseri ilçede heyecanla bekleniyor. Güncel yerel gelişmeler ve ilçe genelindeki tüm detaylar akşam bültenimizde.",
+      "fullText": "Herkese iyi akşamlar Düziçi. Bugün ilçemizde planlı bir elektrik veya su kesintisi yaşanmazken, sakin ve akıcı bir günü geride bıraktık.\n\nHava durumuna baktığımızda, şu an termometreler 29 dereceyi gösterirken akşam saatlerinde hafif bir serinlik hissediliyor. Halk takviminde Kuyruk Doğdu olarak bilinen mevsim dönüşümü kendini gösterdi ve geceler artık daha serin geçiyor. Yarın için tahmin edilen en yüksek sıcaklık 31, en düşük sıcaklık ise 21 derece civarında olacak ve gün boyunca gökyüzü parçalı bulutlu seyredecek. Dışarıda vakit geçirecekler için hafif bir yelek almak iyi bir fikir olabilir.\n\nAltyapı cephesinde bugün herhangi bir planlı elektrik veya su kesintisi bulunmuyor, evlerde ve iş yerlerinde akışlar normal düzeninde devam ediyor.\n\nYol çalışmalarına dikkat! Osmaniye Organize Sanayi Bölgesi ile BOTAŞ tesisleri arasındaki hatta yol yapım çalışmaları devam ediyor; bu güzergahı kullanacak sürücülerimizin dikkatli olması faydalı olacaktır.\n\nBugün nöbetçi eczanemiz İstiklal Mahallesi Karkın Caddesi Numara 5 adresinde hizmet veren Yücel Eczanesi. İhtiyacı olan hemşehrilerimiz 0328 876 68 15 numaralı telefondan ulaşabilirler. Akaryakıt fiyatlarında ise benzin 72.55 TL, motorin 81.58 TL ve LPG 34.61 TL seviyesinden işlem görüyor.\n\nYarın akşam müzik severler için büyük bir buluşma var. Yarın saat 21:00'de Festival Park'ta Zeynep Bastık sahne alacak ve ilçemize hareketlilik katacak.\n\nYerel gündemde ise yoğun bir tempo göze çarpıyor. MÜSİAD Osmaniye İl Temsilcisi Dr. Oğuzhan Velipaşaoğlu, Düziçi Belediye Başkanı Mustafa İba'yı ziyaret ederek hayırlı olsun dileklerini iletti. Öte yandan Başkan İba, Seydi Gülsoy ve ilçe yöneticileriyle birlikte Fen Lisesi dönüşümü için istişarelerde bulundu, Kanlıgeçit-Yarbaşı yolundaki çalışmalar yerinde incelendi. Tarım cephesinde ise zeytin bahçelerinde zeytin fidan tırtılı zararı tespit edildi ve üreticilerimiz uyarıldı. Son olarak, Düziçi'nde meydana gelen bir motosiklet kazasında 1 kişi yaralandı, geçmiş olsun dileklerimizi iletiyoruz.\n\nSon 48 saat içerisinde hayatını kaybeden vatandaşlarımıza Allah'tan rahmet; Gülbeyaz Üstündağ, Önder Bozan, Hatice Yeşilkaya, Muhammet Ali Çalıkoğlu, bebek Altay Karan Kara, Nurten Temel, Elif Küçükpala ve Abdullah Açıcı'nın kederli ailelerine ve tüm sevenlerine başsağlığı ve sabır dileriz.\n\nDüziçi'nin nabzını tutmaya, en güncel ve doğru bilgileri sizlerle paylaşmaya devam edeceğiz. Hepinize huzurlu, sakin ve keyifli bir akşam diliyoruz.",
+      "imageUrl": "assets/images/ai_reporter_cover.jpg",
+      "published": true
+    },
+    "lastReporterError": null,
+    "lastReporterModel": "gemini:gemini-3.5-flash-lite",
+    "lastReporterScore": 9,
+    "lastReporterTheme": "event",
+    "lastReporterTitle": "Bugünün raporu zaten yayınlı",
+    "beautifyCountToday": 25,
+    "beautifyDailyLimit": 25,
+    "lastReporterSkipped": true,
+    "lastReporterDraftOnly": false,
+    "reporterRequireApproval": false
+  },
   "supportersWall": {
     "title": "Düziçi Destekçileri 🏆",
     "enabled": true,
@@ -6283,24 +6510,5 @@
     "heroEmojis": "🥜 🫓 🥣 🍖",
     "emptySubtitle": "İlk ikramda bulunan sen ol!",
     "featuredMessage": ""
-  },
-  "outages": [
-    {
-      "id": "manual_outage_sogulcak_coban_20260822",
-      "title": "Soğulcak Yaylası & Çoban Elektrik Kesintisi",
-      "subtitle": "22 Ağustos tarihinde 09:00 - 17:00 saatleri arasında bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır.",
-      "type": "ELEKTRİK",
-      "status": "Planlandı",
-      "source": "Toroslar EDAŞ",
-      "sourceKind": "manual",
-      "area": "Çoban Yaylası (1 Nolu Sokak dahil), Soğulcak Yaylası (1, 3, 5 ve 7 Nolu Sokaklar dahil), İlgiliç Yaylası / Mevkii ve Tikenli Yaylası / Mevkii",
-      "lat": 37.244,
-      "lng": 36.451,
-      "date": "2026-08-22T09:00:00+03:00",
-      "publishedAt": "2026-08-21T21:29:34.475Z",
-      "startAt": "2026-08-22T09:00:00+03:00",
-      "endAt": "2026-08-22T17:00:00+03:00",
-      "isActive": true
-    }
-  ]
+  }
 }
