@@ -25,13 +25,17 @@ class RoadClosureSyncService {
 
     let newsExtractedRoads = [];
     try {
-      const recentNews = await newsService.getNews({ max: 15 });
+      const recentNews = await newsService.getNews({ max: 30 });
       for (const item of recentNews) {
-        const text = `${item.title} ${item.summary || ''}`;
-        if (/yol yap|asfalt|trafiğe kapat|şerit daral|menfez|kilit parke/i.test(text)) {
+        const text = `${item.title || ''}\n${item.summary || ''}\n${item.fullText || ''}`;
+        if (/yol yap|asfalt|trafiğe kapat|şerit daral|menfez|kilit parke|yol çalış|yol kapandı|çökme|heyelan|kaldırım yenile|köprü çalış|ulaşıma kapan|trafik akış|yol bakım|kazı çalış|güzergah/i.test(text)) {
           const ext = await outageExtractorService.extractFromText(text);
           if (ext.roadClosures?.length) {
-            newsExtractedRoads.push(...ext.roadClosures);
+            for (const r of ext.roadClosures) {
+              r.source = r.source || item.sourceName || 'Düziçi Haber';
+              r.announcementUrl = item.sourceUrl || '';
+              newsExtractedRoads.push(r);
+            }
           }
         }
       }

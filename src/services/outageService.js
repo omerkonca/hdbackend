@@ -90,14 +90,36 @@ class OutageService {
       const newsService = require('./newsService');
       const outageExtractorService = require('./outageExtractorService');
 
-      const [belediye, toroslar, cityData] = await Promise.all([
+      const [belediye, toroslar, cityData, recentNews] = await Promise.all([
         municipalityAnnouncementScraper.fetchOutageAnnouncements({ max: 40 }),
         toroslarOutageScraper.fetchDuziciOutages(),
         fileService.readCityContent().catch(() => ({})),
+        newsService.getNews({ max: 30 }).catch(() => []),
       ]);
 
+      const newsExtractedOutages = [];
+      if (Array.isArray(recentNews)) {
+        for (const item of recentNews) {
+          const text = `${item.title || ''}\n${item.summary || ''}\n${item.fullText || ''}`;
+          if (/kesinti|su kesint|elektrik kesint|şebeke bakım|su hattı|ana boru|arıza onarım|sular akmıyor|sular kesilecek|elektrikler kesilecek|toroslar edaş|aski/i.test(text)) {
+            try {
+              const ext = await outageExtractorService.extractFromText(text);
+              if (ext.outages && ext.outages.length > 0) {
+                for (const o of ext.outages) {
+                  o.source = o.source || item.sourceName || 'Düziçi Yerel Haber';
+                  o.announcementUrl = item.sourceUrl || '';
+                  newsExtractedOutages.push(o);
+                }
+              }
+            } catch (err) {
+              console.warn('[outage-service] Haberden kesinti çıkarırken hata:', err.message);
+            }
+          }
+        }
+      }
+
       const manualOutages = Array.isArray(cityData?.outages) ? cityData.outages : [];
-      const merged = mergeOutages([manualOutages, belediye, toroslar]);
+      const merged = mergeOutages([manualOutages, belediye, toroslar, newsExtractedOutages]);
       const now = new Date();
       const nowMs = now.getTime();
       const todayKey = turkeyDateKey();
