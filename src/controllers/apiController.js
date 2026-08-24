@@ -15,10 +15,39 @@ const dailyBriefingService = require('../services/dailyBriefingService');
 const config = require('../config');
 const { enrichExploreWithCorrections } = require('../utils/mapCorrections');
 
+function isFakeListing(item) {
+  if (!item || typeof item !== 'object') return false;
+  const str = `${item.title || ''} ${item.sellerName || ''} ${item.description || ''} ${item.brand || ''} ${item.model || ''}`.toLowerCase();
+  if (str.includes('test') || str.includes('deneme') || str.includes('örnek') || str.includes('sample')) return true;
+  const contact = String(item.contact || '').replace(/\s+/g, '');
+  if (contact === '05555555555' || (contact === '05416429621' && item.title === 'Honda')) return true;
+  if (item.id === 're_1781555775522' || item.id === 'v_1781426475243') return true;
+  return false;
+}
+
+function sanitizeListings(data) {
+  if (!data || typeof data !== 'object') return data;
+  const filterArr = (arr) => Array.isArray(arr) ? arr.filter((x) => !isFakeListing(x)) : [];
+  data.realEstates = filterArr(data.realEstates);
+  data.autoVehicles = filterArr(data.autoVehicles);
+  data.autoGallery = filterArr(data.autoGallery);
+  data.localProducts = filterArr(data.localProducts);
+  data.privateTutors = filterArr(data.privateTutors);
+  if (data.explore && typeof data.explore === 'object') {
+    data.explore.realEstates = filterArr(data.explore.realEstates);
+    data.explore.autoVehicles = filterArr(data.explore.autoVehicles);
+    data.explore.autoGallery = filterArr(data.explore.autoGallery);
+    data.explore.localProducts = filterArr(data.explore.localProducts);
+    data.explore.privateTutors = filterArr(data.explore.privateTutors);
+  }
+  return data;
+}
+
 class ApiController {
   async getCityContent(req, res) {
     try {
       let data = await fileService.readCityContent();
+      data = sanitizeListings(data);
       try {
         data = enrichExploreWithCorrections(data);
       } catch (err) {

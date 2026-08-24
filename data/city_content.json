@@ -3487,7 +3487,9 @@
         "directoryData": []
       }
     ],
-    "localProducts": []
+    "localProducts": [],
+    "autoGallery": [],
+    "privateTutors": []
   },
   "outages": [
     {
@@ -6462,5 +6464,11 @@
       "phone": "03288761234",
       "vehicleType": "koy_servisi"
     }
-  ]
+  ],
+  "realEstates": [],
+  "autoVehicles": [],
+  "autoGallery": [],
+  "localProducts": [],
+  "jobListings": [],
+  "lostFound": []
 }
