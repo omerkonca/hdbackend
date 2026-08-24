@@ -1756,6 +1756,141 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       return res.status(500).json({ ok: false, message: 'Kayıt başarısız: ' + err.message });
     }
   }
+
+  async getAdminOutagesRoads(req, res) {
+    try {
+      const fileService = require('../services/fileService');
+      const roadClosureStore = require('../services/roadClosureStore');
+      const city = await fileService.readCityContent();
+
+      const outages = Array.isArray(city.outages) ? city.outages : [];
+
+      const roadState = await roadClosureStore.load();
+      const roadItemsMap = roadState.items && typeof roadState.items === 'object' && !Array.isArray(roadState.items)
+        ? roadState.items
+        : {};
+      const roadClosures = Object.values(roadItemsMap).filter(Boolean);
+
+      return res.json({
+        ok: true,
+        outages,
+        roadClosures,
+      });
+    } catch (err) {
+      console.error('[getAdminOutagesRoads] error:', err.message);
+      return res.status(500).json({ ok: false, message: 'Kayıtlar alınamadı: ' + err.message });
+    }
+  }
+
+  async updateAdminOutageRoad(req, res) {
+    try {
+      const { type, id } = req.params;
+      const { item } = req.body || {};
+      if (!id || !item) {
+        return res.status(400).json({ ok: false, message: 'Geçersiz güncelleme verisi.' });
+      }
+
+      if (type === 'outage') {
+        const fileService = require('../services/fileService');
+        const city = await fileService.readCityContent();
+        const outages = Array.isArray(city.outages) ? city.outages : [];
+        const idx = outages.findIndex((o) => o.id === id);
+        if (idx < 0) {
+          return res.status(404).json({ ok: false, message: 'Kesinti bulunamadı.' });
+        }
+        outages[idx] = {
+          ...outages[idx],
+          ...item,
+          id,
+        };
+        city.outages = outages;
+        await fileService.writeCityContent(city);
+
+        const outageService = require('../services/outageService');
+        await outageService.getOutages({ forceRefresh: true }).catch(() => {});
+
+        return res.json({ ok: true, message: 'Kesinti güncellendi.', item: outages[idx] });
+      } else {
+        const roadClosureStore = require('../services/roadClosureStore');
+        const roadClosureBaseline = require('../services/roadClosureBaseline');
+        const fs = require('fs').promises;
+
+        try {
+          const baselineList = await roadClosureBaseline.loadBaseline();
+          const bIdx = baselineList.findIndex((r) => r.id === id || r.fingerprint === id);
+          if (bIdx >= 0) {
+            baselineList[bIdx] = { ...baselineList[bIdx], ...item, id };
+            await fs.writeFile(roadClosureBaseline.BASELINE_PATH, JSON.stringify(baselineList, null, 2), 'utf8');
+          }
+        } catch (_) {}
+
+        const state = await roadClosureStore.load();
+        const itemsMap = state.items && typeof state.items === 'object' ? state.items : {};
+        if (itemsMap[id]) {
+          itemsMap[id] = { ...itemsMap[id], ...item, id };
+        } else {
+          const k = Object.keys(itemsMap).find((key) => itemsMap[key]?.id === id);
+          if (k) itemsMap[k] = { ...itemsMap[k], ...item, id };
+        }
+        state.items = itemsMap;
+        await roadClosureStore.save(state);
+
+        const roadClosureSyncService = require('../services/roadClosureSyncService');
+        await roadClosureSyncService.sync({ force: true }).catch(() => {});
+
+        return res.json({ ok: true, message: 'Yol çalışması güncellendi.' });
+      }
+    } catch (err) {
+      console.error('[updateAdminOutageRoad] error:', err.message);
+      return res.status(500).json({ ok: false, message: 'Güncelleme başarısız: ' + err.message });
+    }
+  }
+
+  async deleteAdminOutageRoad(req, res) {
+    try {
+      const { type, id } = req.params;
+      if (!id) return res.status(400).json({ ok: false, message: 'ID gerekli.' });
+
+      if (type === 'outage') {
+        const fileService = require('../services/fileService');
+        const city = await fileService.readCityContent();
+        const outages = Array.isArray(city.outages) ? city.outages : [];
+        city.outages = outages.filter((o) => o.id !== id);
+        await fileService.writeCityContent(city);
+
+        const outageService = require('../services/outageService');
+        await outageService.getOutages({ forceRefresh: true }).catch(() => {});
+
+        return res.json({ ok: true, message: 'Kesinti silindi.' });
+      } else {
+        const roadClosureStore = require('../services/roadClosureStore');
+        const roadClosureBaseline = require('../services/roadClosureBaseline');
+        const fs = require('fs').promises;
+
+        try {
+          const baselineList = await roadClosureBaseline.loadBaseline();
+          const filtered = baselineList.filter((r) => r.id !== id && r.fingerprint !== id);
+          await fs.writeFile(roadClosureBaseline.BASELINE_PATH, JSON.stringify(filtered, null, 2), 'utf8');
+        } catch (_) {}
+
+        const state = await roadClosureStore.load();
+        const itemsMap = state.items && typeof state.items === 'object' ? state.items : {};
+        delete itemsMap[id];
+        const k = Object.keys(itemsMap).find((key) => itemsMap[key]?.id === id);
+        if (k) delete itemsMap[k];
+        state.items = itemsMap;
+        await roadClosureStore.save(state);
+
+        const roadClosureSyncService = require('../services/roadClosureSyncService');
+        await roadClosureSyncService.sync({ force: true }).catch(() => {});
+
+        return res.json({ ok: true, message: 'Yol çalışması silindi.' });
+      }
+    } catch (err) {
+      console.error('[deleteAdminOutageRoad] error:', err.message);
+      return res.status(500).json({ ok: false, message: 'Silme başarısız: ' + err.message });
+    }
+  }
 }
 
 function isSandboxRecord(row) {
