@@ -21,17 +21,120 @@ function daysBetween(olderKey, newerKey) {
   return Math.round((newer - older) / (24 * 60 * 60 * 1000));
 }
 
+function extractLocationTokens(str = '') {
+  return String(str)
+    .toLowerCase()
+    .replace(/[^\wığüşöç\s]/gi, ' ')
+    .split(/\s+/)
+    .filter(
+      (w) =>
+        w.length > 2 &&
+        !/^(ve|veya|ile|nolu|mah|mahallesi|sokak|sokagi|sokağı|caddesi|cad|mevkii|mevkileri|civarı|çevreleri|merkez|düziçi|duzici|kesintisi|elektrik|kesinti)$/i.test(
+          w,
+        ),
+    );
+}
+
+function areOutagesSame(a, b) {
+  if (!a || !b) return false;
+  if (a.id && b.id && a.id === b.id) return true;
+
+  // 1. Aynı Kesinti Türü
+  const typeA = String(a.type || '').toUpperCase();
+  const typeB = String(b.type || '').toUpperCase();
+  if (typeA !== typeB) return false;
+
+  // 2. Aynı Tarih (veya 8 saat içinde)
+  const dateA = a.startAt || a.date;
+  const dateB = b.startAt || b.date;
+  if (dateA && dateB) {
+    const timeA = new Date(dateA).getTime();
+    const timeB = new Date(dateB).getTime();
+    if (!isNaN(timeA) && !isNaN(timeB)) {
+      const diffHours = Math.abs(timeA - timeB) / (1000 * 60 * 60);
+      if (diffHours > 8) return false;
+    }
+  }
+
+  // 3. Etkilenen Bölge / Mahalle / Cadde Benzerliği
+  const tokensA = new Set(extractLocationTokens(`${a.title} ${a.area || ''} ${a.subtitle || ''}`));
+  const tokensB = new Set(extractLocationTokens(`${b.title} ${b.area || ''} ${b.subtitle || ''}`));
+
+  let sharedCount = 0;
+  for (const t of tokensA) {
+    if (tokensB.has(t)) sharedCount++;
+  }
+
+  const minSize = Math.min(tokensA.size, tokensB.size);
+  if (minSize > 0 && (sharedCount >= 3 || sharedCount / minSize >= 0.35)) {
+    return true;
+  }
+
+  return false;
+}
+
+function mergeOutagePair(primary, secondary) {
+  // Bölgeleri birleştir
+  const areaParts = new Set();
+  for (const part of `${primary.area || ''}, ${secondary.area || ''}`.split(/[,;\n•]+/)) {
+    const trimmed = part.trim();
+    if (trimmed && trimmed.length > 1) areaParts.add(trimmed);
+  }
+  const combinedArea = [...areaParts].join(', ');
+
+  // Daha belirgin ve spesifik başlığı seç
+  let bestTitle = primary.title;
+  if (/düziçi ilçesi/i.test(primary.title) && !/düziçi ilçesi/i.test(secondary.title)) {
+    bestTitle = secondary.title;
+  } else if (
+    (secondary.title || '').length > (primary.title || '').length &&
+    !/düziçi ilçesi/i.test(secondary.title)
+  ) {
+    bestTitle = secondary.title;
+  }
+
+  // En erken başlangıç, en geç bitiş
+  let startAt = primary.startAt || secondary.startAt;
+  if (primary.startAt && secondary.startAt) {
+    startAt = new Date(primary.startAt) < new Date(secondary.startAt) ? primary.startAt : secondary.startAt;
+  }
+  let endAt = primary.endAt || secondary.endAt;
+  if (primary.endAt && secondary.endAt) {
+    endAt = new Date(primary.endAt) > new Date(secondary.endAt) ? primary.endAt : secondary.endAt;
+  }
+
+  return {
+    ...primary,
+    title: bestTitle,
+    area: combinedArea || primary.area,
+    startAt,
+    endAt,
+    source: primary.source || secondary.source || 'Toroslar EDAŞ',
+    subtitle: primary.subtitle && primary.subtitle.length > 20 ? primary.subtitle : secondary.subtitle,
+  };
+}
+
 function mergeOutages(lists) {
-  const map = new Map();
+  const all = [];
   for (const list of lists) {
-    for (const item of list) {
-      const key = item.id || `${item.sourceKind || 'x'}_${item.title}`;
-      if (!map.has(key)) {
-        map.set(key, item);
+    if (Array.isArray(list)) {
+      for (const item of list) {
+        if (item && item.title) all.push({ ...item });
       }
     }
   }
-  return [...map.values()];
+
+  const merged = [];
+  for (const item of all) {
+    const matchedIndex = merged.findIndex((existing) => areOutagesSame(existing, item));
+    if (matchedIndex >= 0) {
+      merged[matchedIndex] = mergeOutagePair(merged[matchedIndex], item);
+    } else {
+      merged.push(item);
+    }
+  }
+
+  return merged;
 }
 
 class OutageService {
