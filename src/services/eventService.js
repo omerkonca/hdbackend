@@ -373,22 +373,86 @@ class EventService {
       district: 'Merkez',
       location: e.loc,
       date: e.date,
-      imageUrl: this.normalizeEventImageUrl(this.getImageForCategory(e.cat)),
+      imageUrl: this.normalizeEventImageUrl(this.getImageForEvent(e.title, e.cat, i)),
       price: e.cat === 'Festival' || e.cat === 'Kültür & Sanat' ? 'Ücretsiz' : '450 TL',
       link: 'https://www.biletix.com',
       source: 'Küratör'
     }));
   }
 
+  getImageForEvent(title = '', cat = '', index = 0) {
+    const t = title.toLowerCase();
+    
+    // Spesifik Etkinlik & Sanatçı Eşleşmeleri
+    if (t.includes('lezzet festival') || t.includes('gastronomi') || t.includes('yöresel')) {
+      return 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80';
+    }
+    if (t.includes('korkut ata') || t.includes('bahar şenli')) {
+      return 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80';
+    }
+    if (t.includes('doğa yürüyüş') || t.includes('yayla') || t.includes('zorkun')) {
+      return 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80';
+    }
+    if (t.includes('duman') || t.includes('adamlar') || t.includes('yüzyüzeyken')) {
+      return 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80';
+    }
+    if (t.includes('madrigal') || t.includes('gökhan türkmen')) {
+      return 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80';
+    }
+    if (t.includes('zeynep bastık') || t.includes('fatma turgut') || t.includes('sertab')) {
+      return 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=600&q=80';
+    }
+    if (t.includes('cem adrian') || t.includes('mabel matiz') || t.includes('karsu')) {
+      return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80';
+    }
+    if (t.includes('dondurma')) {
+      return 'https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=600&q=80';
+    }
+    if (t.includes('tiyatro') || t.includes('hastalık hastası') || t.includes('oyun') || t.includes('stand up')) {
+      return 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=600&q=80';
+    }
+    if (t.includes('sinema') || t.includes('eşkıya') || t.includes('film')) {
+      return 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80';
+    }
+    if (t.includes('voleybol') || t.includes('spor') || t.includes('maraton') || t.includes('koşu')) {
+      return 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=600&q=80';
+    }
+    if (t.includes('edeler') || t.includes('kültür') || t.includes('buluşma') || t.includes('sunay akın')) {
+      return 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=600&q=80';
+    }
+    if (t.includes('deniz festival') || t.includes('iskenderun') || t.includes('sahil')) {
+      return 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80';
+    }
+    if (t.includes('çocuk') || t.includes('atölye')) {
+      return 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=600&q=80';
+    }
+
+    // Kategoriye Göre Çeşitlendirilmiş Görsel Havuzu
+    const concertPool = [
+      'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=600&q=80',
+      'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80',
+      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&q=80',
+      'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=600&q=80',
+    ];
+    const festivalPool = [
+      'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=600&q=80',
+      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=80',
+      'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80',
+    ];
+    const theaterPool = [
+      'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=600&q=80',
+      'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=600&q=80',
+    ];
+
+    if (cat === 'Konser') return concertPool[index % concertPool.length];
+    if (cat === 'Festival') return festivalPool[index % festivalPool.length];
+    if (cat === 'Tiyatro') return theaterPool[index % theaterPool.length];
+
+    return 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=600&q=80';
+  }
+
   getImageForCategory(cat) {
-    const map = {
-      'Konser': 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=400&q=80',
-      'Festival': 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=400&q=80',
-      'Tiyatro': 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=400&q=80',
-      'Spor': 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&q=80',
-      'Kültür & Sanat': 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=400&q=80'
-    };
-    return map[cat] || 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&q=80';
+    return this.getImageForEvent('', cat, 0);
   }
 }
 

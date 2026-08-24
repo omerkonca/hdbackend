@@ -76,22 +76,27 @@ class RoadClosureStore {
     for (const [fp, prev] of Object.entries(nextItems)) {
       if (liveByFp.has(fp)) continue;
 
-      // Manuel baseline da dahil: canlıda yoksa birkaç sync sonra kapat
-      // (eski "hep aynı duyuru" sorununu çözer).
-      const missed = (prev.missedScans || 0) + 1;
-      const threshold =
-        prev.autoManaged === false ? Math.max(missedThreshold, 3) : missedThreshold;
+      // Manuel eklenen kayıtlar canlı scraper'da olmasa bile ASLA otomatik kapatılmaz!
+      if (prev.autoManaged === false || prev.kind === 'manual') {
+        if (prev.endAt && new Date(prev.endAt).getTime() < Date.now()) {
+          nextItems[fp] = {
+            ...prev,
+            status: 'Tamamlandı',
+            closedAt: now,
+            closeReason: 'Bitiş tarihi sona erdi',
+          };
+        }
+        continue;
+      }
 
-      if (missed >= threshold) {
+      const missed = (prev.missedScans || 0) + 1;
+      if (missed >= missedThreshold) {
         nextItems[fp] = {
           ...prev,
           status: 'Tamamlandı',
           missedScans: missed,
           closedAt: now,
-          closeReason:
-            prev.autoManaged === false
-              ? 'Manuel kayıt artık canlı kaynakta yok'
-              : 'Duyuru artık yayında değil',
+          closeReason: 'Duyuru artık yayında değil',
         };
       } else {
         nextItems[fp] = { ...prev, missedScans: missed };

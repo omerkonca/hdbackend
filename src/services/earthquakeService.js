@@ -71,12 +71,27 @@ async function fetchEarthquakes(forceRefresh = false) {
         const distance = calculateDistanceKm(DUZICI_LAT, DUZICI_LNG, lat, lng);
         const voteInfo = feltVotes.get(item.earthquake_id || item._id) || { total: 0, soft: 0, strong: 0 };
 
+        let ts = 0;
+        if (item.created_at) {
+          ts = item.created_at < 10000000000 ? item.created_at * 1000 : item.created_at;
+        } else if (item.timestamp) {
+          ts = item.timestamp < 10000000000 ? item.timestamp * 1000 : item.timestamp;
+        } else if (item.date_time) {
+          const iso = item.date_time.trim().replace(' ', 'T') + '+03:00';
+          ts = new Date(iso).getTime();
+        } else if (item.date) {
+          ts = new Date(item.date).getTime();
+        }
+        if (!ts || isNaN(ts)) ts = Date.now();
+
+        const formattedDate = item.date_time || item.date || new Date(ts).toISOString();
+
         return {
-          id: item.earthquake_id || item._id || `${lat}_${lng}_${item.date_time}`,
+          id: item.earthquake_id || item._id || `${lat}_${lng}_${ts}`,
           title: item.title || item.location || 'Bilinmeyen Konum',
           location: item.title || item.location || '',
-          date: item.date_time || item.date || new Date().toISOString(),
-          timestamp: item.timestamp ? item.timestamp * 1000 : new Date(item.date_time || item.date).getTime(),
+          date: formattedDate,
+          timestamp: ts,
           magnitude: mag,
           depth: depth,
           latitude: lat,
@@ -116,12 +131,27 @@ async function fetchEarthquakes(forceRefresh = false) {
           const distance = calculateDistanceKm(DUZICI_LAT, DUZICI_LNG, lat, lng);
           const voteInfo = feltVotes.get(item.earthquake_id || item._id) || { total: 0, soft: 0, strong: 0 };
 
+          let ts = 0;
+          if (item.created_at) {
+            ts = item.created_at < 10000000000 ? item.created_at * 1000 : item.created_at;
+          } else if (item.timestamp) {
+            ts = item.timestamp < 10000000000 ? item.timestamp * 1000 : item.timestamp;
+          } else if (item.date_time) {
+            const iso = item.date_time.trim().replace(' ', 'T') + '+03:00';
+            ts = new Date(iso).getTime();
+          } else if (item.date) {
+            ts = new Date(item.date).getTime();
+          }
+          if (!ts || isNaN(ts)) ts = Date.now();
+
+          const formattedDate = item.date_time || item.date || new Date(ts).toISOString();
+
           return {
-            id: item.earthquake_id || item._id || `${lat}_${lng}_${item.date_time}`,
+            id: item.earthquake_id || item._id || `${lat}_${lng}_${ts}`,
             title: item.title || item.location || 'Bilinmeyen Konum',
             location: item.title || item.location || '',
-            date: item.date_time || item.date || new Date().toISOString(),
-            timestamp: item.timestamp ? item.timestamp * 1000 : new Date(item.date_time || item.date).getTime(),
+            date: formattedDate,
+            timestamp: ts,
             magnitude: mag,
             depth: depth,
             latitude: lat,
@@ -140,6 +170,7 @@ async function fetchEarthquakes(forceRefresh = false) {
   }
 
   if (rawList.length > 0) {
+    rawList.sort((a, b) => b.timestamp - a.timestamp);
     cachedEarthquakes = rawList;
     lastFetchTime = now;
   }

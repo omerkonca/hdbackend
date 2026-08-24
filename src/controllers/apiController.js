@@ -121,19 +121,33 @@ class ApiController {
   async getNewsFullText(req, res) {
     try {
       const url = req.query.url;
-      if (!url) return res.status(400).json({ ok: false, message: 'url parametresi gerekli.' });
+      const id = req.query.id;
+      if (!url && !id) return res.status(400).json({ ok: false, message: 'url veya id parametresi gerekli.' });
       const skipLiveImages =
         req.query.images === '0' ||
         req.query.images === 'false' ||
         req.query.skipImages === '1';
+
+      const isOwnPublisher = Boolean(
+        (url && (url.includes('forvibe.app') || url.startsWith('custom-') || url.startsWith('news-'))) ||
+        (id && (id.startsWith('custom-') || id.startsWith('news-')))
+      );
       
       // 1. Check if cached in Supabase news_items table
       const supabase = require('../utils/supabaseClient');
       try {
-        const { data, error } = await supabase
+        let queryBuilder = supabase
           .from('news_items')
-          .select('full_text, image_url, images, video_url, verified, is_ai_generated, is_ai_optimized, source_name')
-          .eq('source_url', url)
+          .select('id, full_text, image_url, images, video_url, verified, is_ai_generated, is_ai_optimized, source_name');
+        if (id && url) {
+          queryBuilder = queryBuilder.or(`id.eq.${id},source_url.eq.${url}`);
+        } else if (id) {
+          queryBuilder = queryBuilder.eq('id', id);
+        } else {
+          queryBuilder = queryBuilder.eq('source_url', url);
+        }
+
+        const { data, error } = await queryBuilder
           .order('created_at', { ascending: false })
           .limit(1);
           
@@ -144,13 +158,7 @@ class ApiController {
             ? cached.images.filter(Boolean)
             : (cached.image_url ? [cached.image_url] : []);
           if (hasText) {
-            const isOwnPublisher =
-              cached.verified === true ||
-              cached.source_name === 'Hepsi Düziçi' ||
-              String(url || '').includes('forvibe.app');
-            const body = isOwnPublisher
-              ? cached.full_text
-              : truncateNewsExcerpt(cached.full_text);
+            const body = cached.full_text;
             if (skipLiveImages || cachedImages.length > 0 || isOwnPublisher) {
               return res.json({
                 ok: true,
@@ -638,8 +646,8 @@ class ApiController {
         source_url: `https://forvibe.app/duzici-news/${newsId}`,
         source_name: 'Hepsi Düziçi',
         category: category || 'Düziçi',
-        is_ai_generated: true,
-        is_ai_optimized: false,
+        is_ai_generated: false,
+        is_ai_optimized: true,
         verified: true,
         images: imageList,
         fetched_at: new Date().toISOString(),
@@ -1682,8 +1690,9 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         return res.json({ ok: true, message: 'Kesinti başarıyla kaydedildi ve yayına alındı.', item: newItem });
       } else {
         const roadClosureStore = require('../services/roadClosureStore');
-        const state = await roadClosureStore.load();
-        const items = Array.isArray(state.items) ? state.items : [];
+        const roadClosureBaseline = require('../services/roadClosureBaseline');
+        const fs = require('fs').promises;
+
         const newItem = {
           id: item.id || `manual_road_${Date.now()}`,
           fingerprint: item.id || `manual_road_${Date.now()}`,
@@ -1704,13 +1713,31 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
           autoManaged: false,
         };
 
-        const idx = items.findIndex((r) => r.id === newItem.id || r.fingerprint === newItem.fingerprint);
-        if (idx >= 0) items[idx] = newItem;
-        else items.unshift(newItem);
+        // 1. Baseline dosyasına kaydet (canlı sync'lerde silinmesin)
+        try {
+          const baselineList = await roadClosureBaseline.loadBaseline();
+          const bIdx = baselineList.findIndex((r) => r.id === newItem.id || r.fingerprint === newItem.fingerprint);
+          if (bIdx >= 0) baselineList[bIdx] = newItem;
+          else baselineList.unshift(newItem);
+          await fs.writeFile(roadClosureBaseline.BASELINE_PATH, JSON.stringify(baselineList, null, 2), 'utf8');
+        } catch (bErr) {
+          console.warn('[road-baseline] save failed:', bErr.message);
+        }
 
-        state.items = items;
+        // 2. Store nesnesine kaydet
+        const state = await roadClosureStore.load();
+        const itemsMap = state.items && typeof state.items === 'object' && !Array.isArray(state.items) ? state.items : {};
+        itemsMap[newItem.fingerprint] = {
+          ...newItem,
+          firstSeenAt: new Date().toISOString(),
+          lastSeenAt: new Date().toISOString(),
+          missedScans: 0,
+          autoManaged: false,
+        };
+        state.items = itemsMap;
         await roadClosureStore.save(state);
 
+        // 3. Canlı önbelleği hemen yenile
         const roadClosureSyncService = require('../services/roadClosureSyncService');
         await roadClosureSyncService.sync({ force: true }).catch(() => {});
 
@@ -1722,7 +1749,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
           }).catch((e) => console.warn('[push] failed:', e.message));
         }
 
-        return res.json({ ok: true, message: 'Yol çalışması kaydedildi ve yayına alındı.', item: newItem });
+        return res.json({ ok: true, message: 'Yol çalışması başarıyla kaydedildi ve yayına alındı.', item: newItem });
       }
     } catch (err) {
       console.error('[admin-publish-outage-road] error:', err.message);

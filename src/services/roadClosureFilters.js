@@ -49,6 +49,7 @@ function isValidRoadClosureRecord({
     isLocalRoadClosure,
   } = require('./duziciAreaFilter');
 
+  if (kind === 'manual') return true;
   if (kind === 'news') return false;
   if (isFarAreaExcluded(`${title} ${subtitle}`)) return false;
   if (isNoiseNews(text)) return false;

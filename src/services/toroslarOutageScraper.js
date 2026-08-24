@@ -23,13 +23,30 @@ function isDuziciRelated(text) {
 }
 
 function parseDateTime(text) {
-  const dateMatch = text.match(/(\d{1,2})[./](\d{1,2})[./](20\d{2})/);
-  const timeMatch = text.match(/\b(\d{1,2}:\d{2})\b/g) || [];
-  if (!dateMatch) return null;
-  const [, d, mo, y] = dateMatch;
-  const isoDate = `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
-  const time = timeMatch[0] || '00:00';
-  return `${isoDate}T${time}:00.000Z`;
+  if (!text) return null;
+  const s = String(text).trim();
+
+  // Format 1: 24.08.2026 09:00 veya 24/08/2026 09:00
+  const dateMatch = s.match(/(\d{1,2})[./](\d{1,2})[./](20\d{2})/);
+  if (dateMatch) {
+    const [, d, mo, y] = dateMatch;
+    const timeMatch = s.match(/\b(\d{1,2}:\d{2})\b/);
+    const time = timeMatch ? timeMatch[1].padStart(5, '0') : '00:00';
+    return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}T${time}:00+03:00`;
+  }
+
+  // Format 2: 2026-08-24T09:00:00 veya 2026-08-24 09:00
+  const isoMatch = s.match(/^(20\d{2})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/);
+  if (isoMatch) {
+    const [, y, mo, d, h, m] = isoMatch;
+    return `${y}-${mo}-${d}T${h}:${m}:00+03:00`;
+  }
+
+  const t = Date.parse(s);
+  if (!isNaN(t)) {
+    return new Date(t).toISOString();
+  }
+  return null;
 }
 
 function inferStatus(text) {

@@ -264,18 +264,17 @@ class AiReporterService {
       console.warn('[ai-reporter] Obituaries fetch failed:', err.message);
     }
 
-    // 5. Local news (Yalnızca son 36 saatin taze yerel haberleri)
+    // 5. Local news (O günün ve son 24 saatin tüm Düziçi yerel haberleri)
     try {
-      const news = await newsService.getNews({ max: 40 });
+      const news = await newsService.getNews({ max: 150 });
       const targetTime = targetDate ? new Date(`${targetDate}T23:59:59+03:00`).getTime() : Date.now();
-      const maxAgeMs = 36 * 60 * 60 * 1000;
+      const maxAgeMs = 24 * 60 * 60 * 1000;
       const localNews = (news || [])
         .filter((n) => {
-          const cat = normalizeTr(n.category || '');
           const id = String(n.id || '');
           if (id.startsWith('news-ai-reporter-')) return false;
 
-          // Güncellik filtresi: Eski haberleri bültene dahil etme
+          // Güncellik filtresi: Yalnızca son 24 saat / o günün haberleri
           const pubTime = n.createdAt ? new Date(n.createdAt).getTime() : 0;
           if (Number.isFinite(pubTime) && pubTime > 0) {
             if (targetTime - pubTime > maxAgeMs || pubTime > targetTime + 2 * 60 * 60 * 1000) {
@@ -283,9 +282,16 @@ class AiReporterService {
             }
           }
 
-          return cat.includes('duzici') || newsService.isDuziciRelated(n.title, n.summary);
+          const cat = normalizeTr(n.category || '');
+          const src = normalizeTr(n.sourceName || '');
+          const isOwn = id.startsWith('news-custom-') || src.includes('hepsi');
+          const isDuziciSource = src.includes('duzici') || src.includes('sabir') || src.includes('hasret');
+          const isDuziciCat = cat.includes('duzici');
+          const isRelated = newsService.isDuziciRelated(n.title, `${n.summary || ''} ${n.fullText || ''}`);
+
+          return isDuziciCat || isDuziciSource || isOwn || isRelated;
         })
-        .slice(0, 8);
+        .slice(0, 20);
       snapshot.newsCount = localNews.length;
       if (localNews.length > 0) {
         snapshot.newsText = localNews
@@ -427,25 +433,23 @@ class AiReporterService {
       `=== VEFAT İLANLARI (48 SAAT) ===\n${snapshot.obituariesText || 'Veri yok'}\n\n` +
       `=== YEREL HABERLER ===\n${snapshot.newsText || 'Veri yok'}\n\n` +
       `GÖREV:\n` +
-      `1. title: Habere özel, clickbait olmayan, merak uyandıran başlık (max 110 karakter).\n` +
-      `   - Günün asıl konusunu yansıt (ör. yağmur + kesinti varsa ikisini bağla).\n` +
-      `   - "Şehir Raporu - tarih" gibi düz kalıptan kaçın.\n` +
-      `   - İyi örnekler: "Düziçi'de yağışlı akşam: Yol çalışmaları sürüyor", "Kesintisiz bir gün: Etkinlikler ve nöbetçi eczaneler".\n` +
-      `2. summary: 2-3 cümle spot (max 240 karakter), başlıkla uyumlu.\n` +
+      `1. title: Günün ana Düziçi haberine ve olayına odaklanan, vurucu ve merak uyandıran manşet başlığı (max 110 karakter).\n` +
+      `   - Eğer "YEREL HABERLER" listesinde güncel haber/olay varsa, başlığı MUTLAKA günün en önemli yerel haberine/gelişmesine göre at!\n` +
+      `   - Eğer gün sakinse ve haber yoksa hava durumu, kesinti veya nöbetçi eczanelere odaklanan sıcak bir başlık yaz.\n` +
+      `   - "Şehir Raporu - tarih" veya "Düziçi Akşam Raporu" gibi kuru ve klişe başlıklardan kesinlikle kaçın.\n` +
+      `2. summary: Günün yerel haberlerini ve öne çıkan gelişmelerini özetleyen 2-3 cümlelik net spot (max 240 karakter), başlıkla birebir uyumlu.\n` +
       `3. fullText: Bölümlü haber metni. Paragraflar arasında boş satır bırak. Markdown/HTML yok.\n` +
-      `   Şu sırayı takip et (veri yoksa o bölümü 1 cümleyle geç):\n` +
-      `   - Açılış (günün özeti)\n` +
-      `   - Hava durumu: "bugün" deme; yarınki tahmini anlat + kısa pratik tavsiye\n` +
-      `   - Altyapı ve kesintiler\n` +
-      `   - Yol durumu\n` +
-      `   - Nöbetçi eczane / pratik bilgiler\n` +
-      `   - Etkinlikler (varsa)\n` +
-      `   - Yerel gelişmeler\n` +
-      `   - Taziyeler (varsa, saygılı ve kısa)\n` +
+      `   Şu sırayı takip et:\n` +
+      `   - Açılış (Günün genel özeti ve ana yerel habere giriş)\n` +
+      `   - Günün Yerel Gelişmeleri ve Haberleri (Listelenen yerel haberleri akıcı, tarafsız ve gazeteci diliyle sentezleyerek anlat)\n` +
+      `   - Altyapı, Kesinti ve Yol Durumu (Varsa kesinti ve çalışmalar, yoksa sorunsuz olduğunu belirt)\n` +
+      `   - Hava Durumu: "bugün" deme; yarınki tahmini anlat + kısa pratik tavsiye ver\n` +
+      `   - Nöbetçi Eczane ve Pratik Bilgiler\n` +
+      `   - Etkinlikler ve Taziyeler (Varsa kısa ve saygılı)\n` +
       `   - Kapanış cümlesi\n` +
       `4. themeHint: Tek kelime — rain|hot|cold|outage|road|event|pharmacy|memorial|calm|news|city\n\n` +
       `JSON:\n` +
-      `{"title":"...","summary":"...","fullText":"...","themeHint":"city"}`;
+      `{"title":"...","summary":"...","fullText":"...","themeHint":"news"}`;
 
     return { systemPrompt, userPrompt };
   }

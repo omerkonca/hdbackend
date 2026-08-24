@@ -48,10 +48,16 @@ function needsEveningRegeneration(existing, tr) {
 }
 
 function isDuziciNews(item) {
+  if (!item) return false;
+  const id = String(item.id || '');
+  if (id.startsWith('news-ai-reporter-')) return false;
   const category = String(item.category || '').toLowerCase();
   if (category.includes('duzici') || category.includes('düziçi')) return true;
-  const text = normalizeForCompare(`${item.title || ''} ${item.summary || ''}`);
-  return /duzici|yarbasi|ellek|atalan|duldul/.test(text);
+  const src = String(item.sourceName || '').toLowerCase();
+  if (src.includes('duzici') || src.includes('düziçi') || src.includes('sabir') || src.includes('hasret') || src.includes('hepsi')) return true;
+  if (id.startsWith('news-custom-')) return true;
+  const text = normalizeForCompare(`${item.title || ''} ${item.summary || ''} ${item.fullText || ''}`);
+  return /duzici|d[uü]zi[cç]i|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet|h[uü]rriyet|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal|[cç]iftlik|pe[cç]enek|kara[cç]arl[iı]/.test(text);
 }
 
 function formatNewsLine(item, index) {

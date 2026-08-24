@@ -3001,80 +3001,7 @@
       }
     ],
     "jobListings": [],
-    "realEstates": [
-      {
-        "id": "re_1781555775522",
-        "area": "140 m2",
-        "type": "Daire",
-        "image": "",
-        "price": "3500000",
-        "title": "Test Satilik 3+1 Daire",
-        "images": [],
-        "isPaid": false,
-        "address": "Duzici Mahallesi Merkez Sokak",
-        "contact": "05555555555",
-        "category": "Satılık",
-        "isActive": true,
-        "createdAt": "2026-06-15T20:36:15.522Z",
-        "roomCount": "3+1",
-        "sellerName": "Deneme Emlakci",
-        "description": "Test amacli eklenmis deneme emlak ilanidir."
-      },
-      {
-        "id": "re_1781426475244",
-        "area": "135 m²",
-        "type": "Daire",
-        "image": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=960",
-        "price": "2850000",
-        "title": "Satılık 3+1 Lüks Daire - Cumhuriyet Mah.",
-        "images": [],
-        "isPaid": true,
-        "address": "Cumhuriyet Mah. No: 12, Düziçi",
-        "contact": "0532 596 70 79",
-        "category": "Satılık",
-        "isActive": true,
-        "createdAt": "2026-06-15T10:00:00.000Z",
-        "roomCount": "3+1",
-        "sellerName": "Merkez Emlak",
-        "description": "Düziçi merkezinde, okula ve marketlere yakın, sıfır lüks daire."
-      },
-      {
-        "id": "re_1781426475245",
-        "area": "450 m²",
-        "type": "Arsa/Arazi",
-        "image": "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=960",
-        "price": "1200000",
-        "title": "İmarlı Satılık Arsa - Yeşilova Mah.",
-        "images": [],
-        "isPaid": false,
-        "address": "Yeşilova Mah. Çevre Yolu Yakını, Düziçi",
-        "contact": "0328 876 45 45",
-        "category": "Satılık",
-        "isActive": true,
-        "createdAt": "2026-06-15T11:00:00.000Z",
-        "roomCount": "",
-        "sellerName": "Düziçi Emlak Ofisi",
-        "description": "Yeşilova Mahallesi'nde villa yapımına uygun, yolu açık imarlı arsa."
-      },
-      {
-        "id": "re_1781426475246",
-        "area": "95 m²",
-        "type": "Daire",
-        "image": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=960",
-        "price": "12000",
-        "title": "Kiralık 2+1 Eşyalı Daire - İrfanlı Mah.",
-        "images": [],
-        "isPaid": false,
-        "address": "İrfanlı Mah. Hastane Cad. No: 8",
-        "contact": "0542 585 60 10",
-        "category": "Kiralık",
-        "isActive": true,
-        "createdAt": "2026-06-15T12:00:00.000Z",
-        "roomCount": "2+1",
-        "sellerName": "Sahibinden",
-        "description": "Devlet hastanesi yakınında, eşyalı kiralık daire."
-      }
-    ],
+    "realEstates": [],
     "suggestions": [
       {
         "icon": "route",
@@ -3324,28 +3251,7 @@
         "subtitle": "Yayla ferahlığı ve güvenlik öncelikli kısa plan."
       }
     ],
-    "autoVehicles": [
-      {
-        "id": "v_1781426475243",
-        "km": "4",
-        "year": "2030",
-        "brand": "Bmw",
-        "color": "Beyaz",
-        "image": "",
-        "model": "320",
-        "price": "1000",
-        "title": "Honda",
-        "images": [],
-        "isPaid": false,
-        "contact": "05416429621",
-        "bodyType": "sedan",
-        "fuelType": "benzin",
-        "gearType": "manuel",
-        "isActive": true,
-        "createdAt": "2026-06-14T08:41:15.243Z",
-        "sellerName": "Alda"
-      }
-    ],
+    "autoVehicles": [],
     "cityServices": [
       {
         "id": "villages",
@@ -3426,28 +3332,7 @@
         "title": "Oto Galeri",
         "target": "screen:directory",
         "subtitle": "Düziçi'deki araç galerileri",
-        "directoryData": [
-          {
-            "name": "Coşkun Oto Galeri",
-            "phone": "0542 242 83 71",
-            "address": "Üzümlü Mah., Düziçi"
-          },
-          {
-            "name": "Güzeller Oto Galeri",
-            "phone": "0533 437 01 80",
-            "address": "Refik Cesur Bulvarı, Düziçi"
-          },
-          {
-            "name": "Osmanlı Otomotiv",
-            "phone": "0505 314 93 47",
-            "address": "Şehit Ahmet Metlioğlu Cad., Düziçi"
-          },
-          {
-            "name": "Koylu Auto",
-            "phone": "0542 123 45 67",
-            "address": "Düziçi Merkez"
-          }
-        ]
+        "directoryData": []
       },
       {
         "id": "real_estate",
@@ -3456,23 +3341,7 @@
         "title": "Emlak İlanları",
         "target": "screen:directory",
         "subtitle": "Satılık ve kiralık mülkler",
-        "directoryData": [
-          {
-            "name": "Merkez Emlak",
-            "phone": "0532 596 70 79",
-            "address": "Yeni Halkbank Üstü, Düziçi"
-          },
-          {
-            "name": "Düziçi Galeria Emlak",
-            "phone": "0542 585 60 10",
-            "address": "Refik Cesur Bulvarı No:463, Düziçi"
-          },
-          {
-            "name": "Düziçi Emlak Ofisi",
-            "phone": "0328 876 45 45",
-            "address": "Cumhuriyet Mah., Şehit Ahmet Metlioğlu Cad., No:22"
-          }
-        ]
+        "directoryData": []
       },
       {
         "id": "local_market",
@@ -3481,29 +3350,7 @@
         "title": "Yöresel Pazar",
         "target": "screen:directory",
         "subtitle": "Pazar günleri, kurulma yerleri",
-        "directoryData": [
-          {
-            "lat": 37.2398,
-            "lng": 36.4468,
-            "name": "Pazartesi Pazarı",
-            "phone": "",
-            "address": "Mehmet Yalçın Pazar Yeri (Merkez)"
-          },
-          {
-            "lat": 37.2322,
-            "lng": 36.4409,
-            "name": "Çarşamba Pazarı",
-            "phone": "",
-            "address": "Kurtuluş Mahallesi"
-          },
-          {
-            "lat": 37.2442,
-            "lng": 36.4512,
-            "name": "Cuma Pazarı",
-            "phone": "",
-            "address": "İlçe Geneli Geleneksel Pazar Alanı"
-          }
-        ]
+        "directoryData": []
       },
       {
         "id": "city_deals",
@@ -3628,18 +3475,7 @@
         "title": "İş İlanları",
         "target": "screen:job_listings",
         "subtitle": "Esnaf ve kurum personel alımları",
-        "directoryData": [
-          {
-            "name": "İŞKUR Düziçi Hizmet Noktası",
-            "phone": "0328 876 00 01",
-            "address": "Belediye Binası Giriş Kat"
-          },
-          {
-            "name": "Sosyal Yardımlaşma İrtibat",
-            "phone": "0328 876 11 22",
-            "address": "Kaymakamlık Binası"
-          }
-        ]
+        "directoryData": []
       },
       {
         "id": "lost_found",
@@ -3648,76 +3484,10 @@
         "title": "Kayıp & Bulunan",
         "target": "screen:lost_found",
         "subtitle": "Kayıp eşya ve malzeme ilanları",
-        "directoryData": [
-          {
-            "name": "Belediye Zabıta (Kayıp Eşya Masası)",
-            "phone": "0328 876 12 12",
-            "address": "Belediye Giriş Kat"
-          },
-          {
-            "name": "İlçe Emniyet Bulunan Eşya",
-            "phone": "0328 876 13 13",
-            "address": "İlçe Emniyet Müdürlüğü"
-          }
-        ]
+        "directoryData": []
       }
     ],
-    "localProducts": [
-      {
-        "id": "lp_1781555000001",
-        "unit": "Kg",
-        "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=960",
-        "price": "120",
-        "title": "Taze Organik Köy Yoğurdu",
-        "images": [
-          "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=960"
-        ],
-        "isPaid": true,
-        "address": "Karlıca Mahallesi",
-        "contact": "0541 123 45 67",
-        "category": "Süt & Yoğurt",
-        "isActive": true,
-        "createdAt": "2026-06-16T12:00:00.000Z",
-        "sellerName": "Fatma Abla",
-        "description": "Günlük taze sağılmış inek sütünden, tamamen doğal köy mayasıyla mayalanmış taş gibi sert, lezzetli süzme yoğurt."
-      },
-      {
-        "id": "lp_1781555000002",
-        "unit": "Adet",
-        "image": "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?w=960",
-        "price": "5",
-        "title": "Serbest Gezen Köy Yumurtası",
-        "images": [
-          "https://images.unsplash.com/photo-1516448620398-c5f44bf9f441?w=960"
-        ],
-        "isPaid": false,
-        "address": "Yeşilova Mahallesi",
-        "contact": "0532 987 65 43",
-        "category": "Yumurta",
-        "isActive": true,
-        "createdAt": "2026-06-16T12:10:00.000Z",
-        "sellerName": "Mehmet Amca",
-        "description": "Doğal yemlerle beslenen köy tavuklarımızın günlük taze yumurtaları. Minimum 30 adet siparişlerde ilçe merkezine teslimat yapılır."
-      },
-      {
-        "id": "lp_1781555000003",
-        "unit": "Tepsi",
-        "image": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=960",
-        "price": "380",
-        "title": "Fırından Sıcak Ev Yapımı Etli Kömbe",
-        "images": [
-          "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=960"
-        ],
-        "isPaid": true,
-        "address": "Cumhuriyet Mahallesi",
-        "contact": "0545 444 33 22",
-        "category": "Ev Yemekleri",
-        "isActive": true,
-        "createdAt": "2026-06-16T12:20:00.000Z",
-        "sellerName": "Hatice Teyze",
-        "description": "Düziçi yöremizin meşhur, bol malzemeli, taş fırında odun ateşinde pişirilmiş çıtır çıtır etli kömbesi. Sipariş üzerine günlük taze yapılır."
-      }
-    ]
+    "localProducts": []
   },
   "outages": [
     {

@@ -301,8 +301,8 @@ KURALLAR:
   }
 
   duziciKeywordRe() {
-    // İlçe + mahalle/köy/yaygın yerel yer adları
-    return /duzici|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah/;
+    // İlçe + mahalle/köy/yaygın yerel yer adları ve kurumlar
+    return /duzici|d[uü]zi[cç]i|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal mah|[cç]iftlik mah|pe[cç]enek|kara[cç]arl[iı]/;
   }
 
   osmaniyeKeywordRe() {
@@ -639,15 +639,15 @@ KURALLAR:
       return items.map((item) => {
         const cached = cacheByUrl.get(item.sourceUrl);
         if (!cached) return item;
-        const excerpt = cached.full_text && cached.full_text.trim().length > 0
-          ? truncateNewsExcerpt(cached.full_text)
-          : null;
+        const fullText = cached.full_text && cached.full_text.trim().length > 0
+          ? cached.full_text
+          : (item.fullText || null);
         return {
           ...item,
           imageUrl: item.imageUrl || cached.image_url || null,
           images: Array.isArray(cached.images) ? cached.images : (cached.image_url ? [cached.image_url] : (item.imageUrl ? [item.imageUrl] : [])),
           category: item.category || cached.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
-          fullText: excerpt || item.fullText || null,
+          fullText,
         };
       });
     } catch (err) {

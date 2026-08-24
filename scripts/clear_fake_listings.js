@@ -33,6 +33,15 @@ function cleanListings(data) {
     exp.autoVehicles = [];
     modified = true;
   }
+  if (exp.localProducts && exp.localProducts.length > 0) {
+    console.log(`🧹 ${exp.localProducts.length} adet localProducts temizleniyor.`);
+    exp.localProducts = [];
+    modified = true;
+  }
+  if (data.localProducts && data.localProducts.length > 0) {
+    data.localProducts = [];
+    modified = true;
+  }
   if (exp.jobListings && exp.jobListings.length > 0) {
     console.log(`🧹 ${exp.jobListings.length} adet jobListings temizleniyor.`);
     exp.jobListings = [];
@@ -49,16 +58,11 @@ function cleanListings(data) {
     modified = true;
   }
 
-  // 3. cityServices directoryData temizliği (Emlak & Oto Galeri altındaki sahte yerler)
+  // 3. cityServices directoryData temizliği (Emlak & Oto Galeri & Yöresel Pazar altındaki sahte yerler)
   if (Array.isArray(exp.cityServices)) {
     for (const svc of exp.cityServices) {
-      if (svc.id === 'real_estate' && svc.directoryData && svc.directoryData.length > 0) {
-        console.log(`🧹 cityServices real_estate directoryData temizlendi.`);
-        svc.directoryData = [];
-        modified = true;
-      }
-      if (svc.id === 'auto_gallery' && svc.directoryData && svc.directoryData.length > 0) {
-        console.log(`🧹 cityServices auto_gallery directoryData temizlendi.`);
+      if (['real_estate', 'auto_gallery', 'local_products', 'local_market'].includes(svc.id) && svc.directoryData && svc.directoryData.length > 0) {
+        console.log(`🧹 cityServices ${svc.id} directoryData temizlendi.`);
         svc.directoryData = [];
         modified = true;
       }
@@ -90,13 +94,9 @@ async function main() {
   }
 
   // C. Supabase veritabanındaki city_contents tablosunu güncelle
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_ANON_KEY;
-
-  if (supabaseUrl && supabaseKey) {
-    console.log('\n📡 Supabase veritabanına bağlanılıyor...');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
+  try {
+    const { requireSupabaseAdmin } = require('../src/utils/supabaseAdmin');
+    const supabase = requireSupabaseAdmin();
     const { data: row, error: fetchErr } = await supabase
       .from('city_contents')
       .select('id, data')
@@ -117,9 +117,9 @@ async function main() {
       } else {
         console.log('✅ Supabase city_contents (id: 1) veritabanı başarıyla temizlendi ve güncellendi!');
       }
-    } else {
-      console.log('ℹ️ Supabase city_contents tablosunda kayıt bulunamadı.');
     }
+  } catch (err) {
+    console.error('❌ Supabase işlemi başarısız:', err.message);
   }
 
   console.log('\n🎉 Tüm sahte ilanlar (özel ders, emlak, kayıp eşya, iş ilanları vb.) kalıcı olarak temizlendi!');
