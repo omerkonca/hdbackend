@@ -10,7 +10,7 @@ class EventService {
       items: [],
     };
     this.CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour (full server)
-    this.CITIES = ['Osmaniye', 'Adana', 'Hatay', 'Gaziantep', 'Kahramanmaraş'];
+    this.CITIES = ['Osmaniye', 'Adana', 'Hatay', 'Gaziantep', 'Kahramanmaraş', 'Mersin'];
   }
 
   getCacheTtlMs() {
@@ -216,6 +216,45 @@ class EventService {
     }
   }
 
+  async scrapeDuziciLocalEvents() {
+    try {
+      const BASE = 'https://www.duzici.bel.tr';
+      const response = await fetchWithTimeout(`${BASE}/duyurular`, {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
+        },
+      });
+      if (!response.ok) return [];
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      const events = [];
+
+      $('a[href*="/duyurular/"]').each((i, el) => {
+        const title = $(el).text().trim();
+        if (/konser|şenlik|festival|tiyatro|turnuva|sergi|gösteri|kutlama|etkinlik|yarışma|sinema|fuar/i.test(title)) {
+          const href = $(el).attr('href') || '';
+          const fullLink = href.startsWith('http') ? href : `${BASE}${href}`;
+          events.push({
+            id: `duzici-bel-${i}-${Date.now()}`,
+            title,
+            category: this.inferCategory(title),
+            city: 'Osmaniye',
+            district: 'Düziçi',
+            location: 'Düziçi İlçe Merkezi',
+            date: new Date().toISOString(),
+            imageUrl: this.normalizeEventImageUrl(this.getImageForEvent(title, this.inferCategory(title), i)),
+            price: 'Ücretsiz',
+            link: fullLink,
+            source: 'Düziçi Belediyesi',
+          });
+        }
+      });
+      return events;
+    } catch (_) {
+      return [];
+    }
+  }
+
   inferCategory(title) {
     const t = title.toLowerCase();
     if (t.includes('konser') || t.includes('festival')) return 'Konser';
@@ -237,6 +276,14 @@ class EventService {
       console.log('[EventService] Refreshing events from sources...');
       const newsEvents = [];
       let bubiletEvents = [];
+
+      // Düziçi yerel etkinlikleri
+      try {
+        const localItems = await this.scrapeDuziciLocalEvents();
+        if (localItems.length > 0) {
+          newsEvents.push(...localItems);
+        }
+      } catch (_) {}
 
       for (const city of this.CITIES) {
         try {
