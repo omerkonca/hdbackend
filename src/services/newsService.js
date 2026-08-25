@@ -865,71 +865,28 @@ KURALLAR:
           uniqueNewItems.push(item);
         }
 
+        // 1. Yeni gelen haberlerin tam metinlerini ve görsellerini hemen çek
         if (uniqueNewItems.length > 0) {
-          console.log(`[news] ${uniqueNewItems.length} yeni haber tespit edildi. Push bildirimleri kontrol ediliyor...`);
-
-          try {
-            const fcmService = require('./fcmService');
-            if (!fcmService.isFcmConfigured()) {
-              console.warn('[news] FCM yapılandırılmamış (FIREBASE_SERVICE_ACCOUNT_JSON). Push atlanıyor.');
-            } else {
-              let pushCount = 0;
-              const pushedKeysThisRun = new Set();
-
-              for (const item of uniqueNewItems.slice(0, 5)) {
-                if (!this.isEligibleForPush(item)) {
-                  continue;
+          console.log(`[news] ${uniqueNewItems.length} yeni haber tespit edildi. Senkronizasyon öncesi tam metinler çekiliyor...`);
+          await Promise.all(
+            uniqueNewItems.slice(0, 5).map(async (item) => {
+              try {
+                if (!item.sourceUrl || /news\.google\.com/i.test(item.sourceUrl)) return;
+                const details = await this.fetchArticleDetails(item.sourceUrl);
+                if (details.fullText && details.fullText.trim().length > 0) {
+                  item.fullText = details.fullText.trim();
                 }
-                const titleKey = this.normalizeNewsTitleKey(item.title);
-                if (await newsPushLog.wasPushed(item.id, titleKey)) {
-                  console.log(`[news] push atlandı (daha önce gönderildi / aynı konu): "${item.title}"`);
-                  continue;
+                if (details.imageUrl && details.imageUrl.trim().length > 0) {
+                  item.imageUrl = details.imageUrl.trim();
                 }
-                if (titleKey && pushedKeysThisRun.has(titleKey)) {
-                  continue;
+                if (details.images && details.images.length > 0) {
+                  item.images = details.images;
                 }
-                if (
-                  [...pushedKeysThisRun].length > 0 &&
-                  uniqueNewItems.some(
-                    (other) =>
-                      other !== item &&
-                      pushedKeysThisRun.has(this.normalizeNewsTitleKey(other.title)) &&
-                      this.areDuplicateNews(other, item),
-                  )
-                ) {
-                  continue;
-                }
-
-                const isDuzici = this.isDuziciNewsItem(item.title, item.summary);
-
-                const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
-                const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
-
-                console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
-                const result = await fcmService.sendToTopic(topic, {
-                  title: pushTitle,
-                  body: item.title,
-                  data: {
-                    route: String(item.id),
-                  },
-                });
-
-                if (result.success) {
-                  await newsPushLog.markPushed(item.id, titleKey);
-                  if (titleKey) pushedKeysThisRun.add(titleKey);
-                  pushCount += 1;
-                } else {
-                  console.error(`[news] FCM başarısız (${item.id}):`, result.error);
-                }
+              } catch (err) {
+                console.warn(`[news] Yeni haber detayı anında çekilemedi (${item.sourceUrl}):`, err.message);
               }
-
-              if (pushCount > 0) {
-                console.log(`[news] ${pushCount} haber bildirimi gönderildi.`);
-              }
-            }
-          } catch (pushErr) {
-            console.error('[news] Push bildirimleri gönderilemedi:', pushErr.message);
-          }
+            }),
+          );
         }
 
         // DB'ye yazarken: mevcut kayıtlara konu-kopyası olan YENİ satırları atla (Hasret vs Sabır)
@@ -955,7 +912,9 @@ KURALLAR:
             id: item.id,
             title: item.title,
             summary: item.summary,
+            full_text: item.fullText || null,
             image_url: item.imageUrl,
+            images: Array.isArray(item.images) ? item.images : (item.imageUrl ? [item.imageUrl] : []),
             created_at: item.createdAt,
             source_url: item.sourceUrl,
             source_name: item.sourceName,
@@ -973,7 +932,73 @@ KURALLAR:
           console.error('❌ Supabase news upsert failed:', upsertError.message);
           return;
         }
-        console.log(`[news] ${rows.length} news items synced to Supabase.`);
+        console.log(`[news] ${rows.length} news items synced to Supabase (tam metinler dahil).`);
+      }
+
+      // 2. Haberler Supabase'e tam metinleriyle yazıldıktan SONRA push bildirimi gönder
+      if (uniqueNewItems.length > 0) {
+        try {
+          const fcmService = require('./fcmService');
+          if (!fcmService.isFcmConfigured()) {
+            console.warn('[news] FCM yapılandırılmamış (FIREBASE_SERVICE_ACCOUNT_JSON). Push atlanıyor.');
+          } else {
+            let pushCount = 0;
+            const pushedKeysThisRun = new Set();
+
+            for (const item of uniqueNewItems.slice(0, 5)) {
+              if (!this.isEligibleForPush(item)) {
+                continue;
+              }
+              const titleKey = this.normalizeNewsTitleKey(item.title);
+              if (await newsPushLog.wasPushed(item.id, titleKey)) {
+                console.log(`[news] push atlandı (daha önce gönderildi / aynı konu): "${item.title}"`);
+                continue;
+              }
+              if (titleKey && pushedKeysThisRun.has(titleKey)) {
+                continue;
+              }
+              if (
+                [...pushedKeysThisRun].length > 0 &&
+                uniqueNewItems.some(
+                  (other) =>
+                    other !== item &&
+                    pushedKeysThisRun.has(this.normalizeNewsTitleKey(other.title)) &&
+                    this.areDuplicateNews(other, item),
+                )
+              ) {
+                continue;
+              }
+
+              const isDuzici = this.isDuziciNewsItem(item.title, item.summary);
+
+              const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
+              const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
+
+              console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
+              const result = await fcmService.sendToTopic(topic, {
+                title: pushTitle,
+                body: item.title,
+                data: {
+                  route: String(item.id),
+                },
+              });
+
+              if (result.success) {
+                await newsPushLog.markPushed(item.id, titleKey);
+                if (titleKey) pushedKeysThisRun.add(titleKey);
+                pushCount += 1;
+              } else {
+                console.error(`[news] FCM başarısız (${item.id}):`, result.error);
+              }
+            }
+
+            if (pushCount > 0) {
+              console.log(`[news] ${pushCount} haber bildirimi gönderildi.`);
+            }
+          }
+        } catch (pushErr) {
+          console.error('[news] Push bildirimleri gönderilemedi:', pushErr.message);
+        }
       }
 
       // Arka planda yeni eklenen veya tam metni bulunmayan haberleri pre-fetch et

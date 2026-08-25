@@ -103,6 +103,44 @@ async function sendToTopic(topic, { title, body, data = {} }) {
   }
 }
 
+async function sendToDevice(token, { title, body, data = {} }) {
+  if (!ensureFirebase() || !token) {
+    return { success: false, error: 'FCM not configured or no token' };
+  }
+
+  const stringData = {};
+  for (const [key, value] of Object.entries(data || {})) {
+    stringData[String(key)] = String(value ?? '');
+  }
+
+  try {
+    const messageId = await admin.messaging().send({
+      token: String(token).trim(),
+      notification: {
+        title: String(title || '').trim() || 'Bildirim',
+        body: String(body || '').trim() || 'Detaylar için uygulamayı açın.',
+      },
+      data: stringData,
+      android: { priority: 'high' },
+      apns: {
+        headers: {
+          'apns-priority': '10',
+        },
+        payload: {
+          aps: {
+            sound: 'default',
+            badge: 1,
+          },
+        },
+      },
+    });
+    return { success: true, messageId };
+  } catch (err) {
+    console.error(`[FCM] sendToDevice failed:`, err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 function isFcmConfigured() {
   return ensureFirebase();
 }
@@ -110,5 +148,6 @@ function isFcmConfigured() {
 module.exports = {
   sendMulticast,
   sendToTopic,
+  sendToDevice,
   isFcmConfigured,
 };

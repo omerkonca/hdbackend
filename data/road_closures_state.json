@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSyncAt": "2026-08-24T12:59:06.926Z",
+  "lastSyncAt": "2026-08-25T10:54:25.671Z",
   "items": {
     "belediye_trafik_2025_27": {
       "id": "belediye_trafik_2025_27",
@@ -73,8 +73,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 505,
-      "closedAt": "2026-08-24T12:59:06.926Z",
+      "missedScans": 507,
+      "closedAt": "2026-08-25T10:54:25.671Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberlerrecep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -98,8 +98,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 505,
-      "closedAt": "2026-08-24T12:59:06.926Z",
+      "missedScans": 507,
+      "closedAt": "2026-08-25T10:54:25.671Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_recep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -123,8 +123,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 505,
-      "closedAt": "2026-08-24T12:59:06.926Z",
+      "missedScans": 507,
+      "closedAt": "2026-08-25T10:54:25.671Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_uzunbani-mahallelerinde-asfaltlama-calismalari-bas": {
@@ -148,8 +148,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:44:28.809Z",
       "lastSeenAt": "2026-06-24T20:44:28.809Z",
-      "missedScans": 10,
-      "closedAt": "2026-08-24T12:59:06.926Z",
+      "missedScans": 12,
+      "closedAt": "2026-08-25T10:54:25.671Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "kgm_31-78-osmaniye-organize-sanayi-bolgesi-botas-tesisleri-31-76-iya-0-4": {
@@ -174,10 +174,10 @@
       "kgmMeta": {
         "branch": "HATAY (53. Şube)",
         "kkNo": "31-78",
-        "updatedAt": "24.08.2026 06:15:43"
+        "updatedAt": "25.08.2026 12:58:50"
       },
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-08-24T12:59:06.926Z",
+      "lastSeenAt": "2026-08-25T10:54:25.671Z",
       "missedScans": 0
     },
     "osmaniye_bel_httpsosmaniye-bldgovtrkemal-satir-caddesi-modern-yol-gorunumune-kavusuyorhtml": {
@@ -200,9 +200,9 @@
       "kind": "municipality",
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-08-24T12:59:06.926Z",
+      "lastSeenAt": "2026-08-25T10:54:25.671Z",
       "missedScans": 0,
-      "closedAt": "2026-08-24T12:59:06.926Z",
+      "closedAt": "2026-08-25T10:54:25.672Z",
       "closeReason": "Asfaltlama duyurusu max yaş aşımı"
     },
     "belediye_duyurular": {
@@ -226,8 +226,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-07-14T12:20:54.294Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 8,
-      "closedAt": "2026-08-24T12:59:06.926Z",
+      "missedScans": 10,
+      "closedAt": "2026-08-25T10:54:25.671Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberleruzunbani-mahallelerinde-asfaltlama-calismalari-basladi": {
@@ -250,9 +250,9 @@
       "kind": "municipality",
       "autoManaged": true,
       "firstSeenAt": "2026-08-13T13:44:09.498Z",
-      "lastSeenAt": "2026-08-24T12:59:06.926Z",
+      "lastSeenAt": "2026-08-25T10:54:25.671Z",
       "missedScans": 0,
-      "closedAt": "2026-08-24T12:59:06.926Z",
+      "closedAt": "2026-08-25T10:54:25.672Z",
       "closeReason": "Uzunbanı asfaltlama duyurusu süresi doldu"
     }
   }

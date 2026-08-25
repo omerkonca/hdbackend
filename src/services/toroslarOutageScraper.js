@@ -1,25 +1,38 @@
 const { fetchWithTimeout, normalizeText, slugify } = require('../utils/helpers');
+const fs = require('fs');
+let puppeteer = null;
+try {
+  puppeteer = require('puppeteer-core');
+} catch (_) {
+  try {
+    puppeteer = require('puppeteer');
+  } catch (__) {}
+}
 
 const BASE = 'https://online.toroslaredas.com.tr';
 const OUTAGE_PAGE = `${BASE}/elektrik-kesintisi-sorgulama`;
 const OSMANIYE_PLATE = 80;
-
-const FETCH_OPTIONS = {
-  headers: {
-    'user-agent':
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123 Safari/537.36',
-    accept: 'application/json, text/plain, */*',
-    'accept-language': 'tr-TR,tr;q=0.9',
-    origin: BASE,
-    referer: OUTAGE_PAGE,
-  },
-};
-
 const DUZICI_KEYS = ['duzici', 'düziçi', 'yarbasi', 'yarbaşı', 'atalan', 'ellek', 'duldul', 'düldül'];
 
 function isDuziciRelated(text) {
   const t = normalizeText(text).toLowerCase();
   return DUZICI_KEYS.some((k) => t.includes(k)) || /osmaniye/.test(t);
+}
+
+function findChromePath() {
+  const paths = [
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+    '/usr/bin/google-chrome',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium'
+  ];
+  for (const p of paths) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
 }
 
 function parseDateTime(text) {
@@ -57,26 +70,27 @@ function inferStatus(text) {
 }
 
 function mapApiRow(row) {
-  const district = row.districtName || row.ilceAdi || row.countyName || row.ilce || '';
+  const district = row.districtName || row.ilceAdi || row.countyName || row.ilce || 'Düziçi';
   const neighborhood = row.neighborhoodName || row.mahalleAdi || row.mahalle || '';
-  const streets = row.streetName || row.sokakAdi || row.sokak || '';
-  const reason = row.reason || row.cause || row.description || row.aciklama || 'Planlı bakım';
-  const start = row.startDate || row.baslangicTarihi || row.startTime || '';
-  const end = row.endDate || row.bitisTarihi || row.endTime || '';
-  const area = [district, neighborhood, streets].filter(Boolean).join(' · ');
-  const titleParts = [neighborhood || district, 'elektrik kesintisi'].filter(Boolean);
-  const title = normalizeText(titleParts.join(' — ')) || 'Elektrik kesintisi';
+  const streets = row.streetName || row.sokakAdi || row.sokak || row.etkilenenCaddeSokak || '';
+  const reason = row.reason || row.cause || row.kesintiNedeni || row.description || row.aciklama || 'Şebeke Arızası';
+  const start = row.startDate || row.baslangicTarihi || row.kesintiBaslangicTarihi || row.startTime || '';
+  const end = row.endDate || row.bitisTarihi || row.kesintiBitisTarihi || row.endTime || row.kesintiTahminiBitisTarihi || '';
+  
+  const areaParts = [neighborhood, streets].filter(Boolean);
+  const area = areaParts.length > 0 ? areaParts.join(', ') : district;
+  
+  const titleParts = [neighborhood || district, 'Elektrik Kesintisi'].filter(Boolean);
+  const title = normalizeText(titleParts.join(' · ')) || 'Düziçi Elektrik Kesintisi';
+  
   const subtitle = normalizeText(
     `${reason}${start ? ` · Başlangıç: ${start}` : ''}${end ? ` · Bitiş: ${end}` : ''}`,
   );
-  const full = `${title} ${subtitle} ${area}`;
-  if (!isDuziciRelated(full) && district && !/duzici|düziçi/i.test(district)) {
-    return null;
-  }
 
   const publishedAt = parseDateTime(`${start} ${end}`) || new Date().toISOString();
-  const status = inferStatus(full);
-  const id = `toroslar_${slugify(`${district}_${neighborhood}_${start}_${end}`)}`;
+  const isPlanned = row.kesintiTipi === 2 || /planl/i.test(reason) || !!row.isPlanned;
+  const status = isPlanned ? 'Planlandı' : inferStatus(`${reason} ${subtitle}`);
+  const id = `toroslar_${slugify(`${district}_${neighborhood}_${streets}_${start}_${reason}`)}`;
 
   return {
     id,
@@ -98,162 +112,247 @@ function mapApiRow(row) {
   };
 }
 
-function normalizeApiPayload(payload) {
-  if (!payload) return [];
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload.data)) return payload.data;
-  if (Array.isArray(payload.result)) return payload.result;
-  if (Array.isArray(payload.outages)) return payload.outages;
-  if (Array.isArray(payload.items)) return payload.items;
-  return [];
-}
-
-async function postJson(path, body) {
-  const res = await fetchWithTimeout(
-    `${BASE}${path}`,
-    {
-      method: 'POST',
-      ...FETCH_OPTIONS,
-      headers: {
-        ...FETCH_OPTIONS.headers,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    },
-    25000,
-  );
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-async function tryApiEndpoints() {
-  const attempts = [
-    ['/api/Outage/GetOutageList', { cityId: OSMANIYE_PLATE, outageType: 1 }],
-    ['/api/outage/getoutagelist', { cityId: OSMANIYE_PLATE, outageType: 1 }],
-    ['/Outage/GetPlannedOutages', { cityId: OSMANIYE_PLATE }],
-    ['/api/v1/outage/planned', { cityCode: OSMANIYE_PLATE, districtName: 'Düziçi' }],
-    ['/api/Outage/GetOutageByAddress', { cityId: OSMANIYE_PLATE, districtName: 'DÜZİÇİ' }],
-  ];
-
-  for (const [path, body] of attempts) {
-    try {
-      const json = await postJson(path, body);
-      const rows = normalizeApiPayload(json)
-        .map(mapApiRow)
-        .filter(Boolean);
-      if (rows.length > 0) {
-        console.info(`[toroslar-kesinti] ${rows.length} kayıt (${path})`);
-        return rows;
-      }
-    } catch (err) {
-      console.warn('[toroslar-kesinti]', path, err.message);
-    }
-  }
-  return [];
-}
-
-function parseJinaMarkdown(text) {
-  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
-  const outages = [];
-  for (const line of lines) {
-    if (!/kesint|arıza|bakım|elektrik/i.test(line)) continue;
-    if (!isDuziciRelated(line) && !/osmaniye/i.test(line)) continue;
-    const status = inferStatus(line);
-    const publishedAt = parseDateTime(line) || new Date().toISOString();
-    const title = line.length > 90 ? `${line.slice(0, 87)}...` : line;
-    outages.push({
-      id: `toroslar_${slugify(title)}`,
-      title,
-      subtitle: 'Toroslar EDAŞ planlı kesinti kaydı',
-      type: 'ELEKTRİK',
-      status,
-      source: 'Toroslar EDAŞ',
-      sourceKind: 'toroslar',
-      url: OUTAGE_PAGE,
-      area: 'Düziçi',
-      lat: 37.244,
-      lng: 36.451,
-      date: publishedAt,
-      publishedAt,
-      startAt: null,
-      endAt: null,
-      isActive: status !== 'Tamamlandı',
-    });
-  }
-  return outages;
-}
-
-async function tryJinaFallback() {
-  const jinaUrl = `https://r.jina.ai/${OUTAGE_PAGE}`;
-  const res = await fetchWithTimeout(
-    jinaUrl,
-    {
-      headers: {
-        Accept: 'text/plain',
-        'User-Agent': 'Mozilla/5.0 (compatible; HepsiDuziciBot/1.0)',
-      },
-    },
-    30000,
-  );
-  if (!res.ok) throw new Error(`Jina ${res.status}`);
-  const text = await res.text();
-  return parseJinaMarkdown(text);
-}
-
-async function tryTedasApi() {
-  const tedasAttempts = [
-    'https://kesintisorgulama.tedas.gov.tr/api/v1/outages?city=80',
-    'https://kesintisorgulama.tedas.gov.tr/api/outage/list?il=80',
-    'https://online.toroslaredas.com.tr/api/Outage/GetOutagesByCity?cityId=80',
-    'https://online.toroslaredas.com.tr/api/Outage/GetPlannedOutagesByDistrict?cityId=80&districtName=D%C3%9CZ%C4%B0%C3%87%C4%B0',
-  ];
-
-  for (const url of tedasAttempts) {
-    try {
-      const res = await fetchWithTimeout(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          Accept: 'application/json, text/plain, */*',
-        },
-      }, 15000);
-      if (!res.ok) continue;
-      const json = await res.json();
-      const rows = normalizeApiPayload(json).map(mapApiRow).filter(Boolean);
-      if (rows.length > 0) {
-        console.info(`[tedas-kesinti] ${rows.length} kayıt (${url})`);
-        return rows;
-      }
-    } catch (e) {
-      // Continue next attempt
-    }
-  }
-  return [];
-}
-
 class ToroslarOutageScraper {
-  async fetchDuziciOutages() {
-    try {
-      const apiRows = await tryApiEndpoints();
-      if (apiRows.length > 0) return apiRows;
-    } catch (err) {
-      console.warn('[toroslar-kesinti] API başarısız:', err.message);
+  constructor() {
+    this._browserScraping = false;
+    this._lastScrapeTime = 0;
+    this._cachedRows = [];
+  }
+
+  async scrapeViaBrowser() {
+    if (!puppeteer) {
+      console.warn('[toroslar-scraper] puppeteer bulunamadı.');
+      return [];
     }
 
-    try {
-      const tedasRows = await tryTedasApi();
-      if (tedasRows.length > 0) return tedasRows;
-    } catch (err) {
-      console.warn('[toroslar-kesinti] TEDAŞ API başarısız:', err.message);
+    const executablePath = findChromePath();
+    if (!executablePath) {
+      console.warn('[toroslar-scraper] Chrome/Edge yolu bulunamadı.');
+      return [];
     }
 
+    if (this._browserScraping) {
+      console.log('[toroslar-scraper] Tarayıcı kazıma işlemi zaten çalışıyor...');
+      return this._cachedRows;
+    }
+
+    this._browserScraping = true;
+    let browser = null;
+
     try {
-      const jinaRows = await tryJinaFallback();
-      if (jinaRows.length > 0) {
-        console.info(`[toroslar-kesinti] ${jinaRows.length} kayıt (Jina)`);
-        return jinaRows;
+      console.info('[toroslar-scraper] Başsız tarayıcı başlatılıyor...');
+      browser = await puppeteer.launch({
+        executablePath,
+        headless: 'new',
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-blink-features=AutomationControlled',
+          '--window-size=1280,900'
+        ],
+        defaultViewport: { width: 1280, height: 900 }
+      });
+
+      const page = await browser.newPage();
+      await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+      });
+
+      await page.setUserAgent(
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+      );
+
+      let capturedPayload = null;
+      page.on('response', async (response) => {
+        const url = response.url();
+        if (url.includes('/wkt-sorgulama') || url.includes('/elektrik-kesintisi-sorgulama')) {
+          try {
+            const json = await response.json();
+            if (json && (json.state === 1 || json.result)) {
+              capturedPayload = json.result || json;
+            }
+          } catch (_) {}
+        }
+      });
+
+      await page.goto(OUTAGE_PAGE, {
+        waitUntil: 'networkidle2',
+        timeout: 30000
+      });
+
+      // Farklı bir adres seç
+      await page.evaluate(() => {
+        const radio = document.querySelector('#radio-farkli-bir-adres');
+        if (radio) {
+          radio.click();
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+
+      await new Promise(r => setTimeout(r, 600));
+
+      // İl seç: 80 (Osmaniye)
+      await page.evaluate(() => {
+        const $il = window.jQuery && window.jQuery('#IlKodu');
+        if ($il && $il.length) {
+          $il.val('80').change();
+          $il.selectpicker('refresh');
+        }
+      });
+
+      // İlçe bekle
+      await page.waitForFunction(() => {
+        const select = document.querySelector('#IlceKodu');
+        return select && select.options && select.options.length > 1;
+      }, { timeout: 10000 });
+
+      // İlçe seç: Düziçi
+      await page.evaluate(() => {
+        const select = document.querySelector('#IlceKodu');
+        let val = '00001743';
+        for (const opt of select.options) {
+          if (/düziçi|duzici/i.test(opt.text)) {
+            val = opt.value;
+            break;
+          }
+        }
+        const $ilce = window.jQuery && window.jQuery('#IlceKodu');
+        if ($ilce && $ilce.length) {
+          $ilce.val(val).change();
+          $ilce.selectpicker('refresh');
+        }
+      });
+
+      await new Promise(r => setTimeout(r, 600));
+
+      // reCAPTCHA checkbox'ı tıkla
+      try {
+        const iframeElement = await page.$('iframe[src*="recaptcha/api2/anchor"]');
+        if (iframeElement) {
+          const frame = await iframeElement.contentFrame();
+          if (frame) {
+            const checkbox = await frame.$('#recaptcha-anchor');
+            if (checkbox) {
+              await checkbox.click();
+              await new Promise(r => setTimeout(r, 2000));
+            }
+          }
+        }
+      } catch (_) {}
+
+      // Sorgula butonuna bas
+      await page.evaluate(() => {
+        const btn = document.querySelector('#elektrikKesintiSorgulaBtn');
+        if (btn) btn.click();
+      });
+
+      // Yanıtların gelmesini bekle
+      await new Promise(r => setTimeout(r, 6000));
+
+      // DOM ve sayfa durumunu kontrol et
+      const pageData = await page.evaluate(() => {
+        const rawMevcut = window.mapMevcutPolygonList || [];
+        const rawPlanli = window.mapPlanlananPolygonList || [];
+        
+        // DOM card'larından da veri topla
+        const cards = [];
+        document.querySelectorAll('.item-elektrik-kesintisi-sorgulama').forEach(c => {
+          cards.push(c.innerText.trim());
+        });
+
+        return { rawMevcut, rawPlanli, cards };
+      });
+
+      const outages = [];
+
+      // 1. API yanıtından topla
+      if (capturedPayload) {
+        const mevcut = capturedPayload.mevcutKesintiListe || [];
+        const planli = capturedPayload.planlananKesintiListe || [];
+        for (const r of [...mevcut, ...planli]) {
+          const mapped = mapApiRow(r);
+          if (mapped) outages.push(mapped);
+        }
+      }
+
+      // 2. Sayfa window listesinden topla
+      if (pageData.rawMevcut && pageData.rawMevcut.length > 0) {
+        for (const r of pageData.rawMevcut) {
+          const mapped = mapApiRow(r);
+          if (mapped) outages.push(mapped);
+        }
+      }
+      if (pageData.rawPlanli && pageData.rawPlanli.length > 0) {
+        for (const r of pageData.rawPlanli) {
+          const mapped = mapApiRow({ ...r, isPlanned: true });
+          if (mapped) outages.push(mapped);
+        }
+      }
+
+      // 3. Eğer DOM card'ları varsa ve liste boşsa metinden ayıkla
+      if (outages.length === 0 && pageData.cards && pageData.cards.length > 0) {
+        for (const cardText of pageData.cards) {
+          const lines = cardText.split('\n').map(l => l.trim()).filter(Boolean);
+          const reasonMatch = cardText.match(/Kesinti Nedeni:\s*([^\n]+)/i);
+          const reason = reasonMatch ? reasonMatch[1].trim() : 'Şebeke Arızası';
+          const areaMatch = cardText.match(/([A-ZÇĞİÖŞÜa-zçğıöşü]+,\s*[^bölgesinde]+)\s*bölgesinde/i);
+          const area = areaMatch ? areaMatch[1].trim() : 'Düziçi';
+          const isPlanned = /planl/i.test(cardText);
+          const status = isPlanned ? 'Planlandı' : 'Devam Ediyor';
+          const title = `${area} Elektrik Kesintisi`;
+          const id = `toroslar_${slugify(`${title}_${reason}_${Date.now()}`)}`;
+          outages.push({
+            id,
+            title,
+            subtitle: `${reason} · Çalışmalar Devam Ediyor`,
+            type: 'ELEKTRİK',
+            status,
+            source: 'Toroslar EDAŞ',
+            sourceKind: 'toroslar',
+            url: OUTAGE_PAGE,
+            area,
+            lat: 37.244,
+            lng: 36.451,
+            date: new Date().toISOString(),
+            publishedAt: new Date().toISOString(),
+            startAt: null,
+            endAt: null,
+            isActive: true,
+          });
+        }
+      }
+
+      if (outages.length > 0) {
+        console.info(`[toroslar-scraper] Tarayıcı ile ${outages.length} Düziçi kesintisi başarıyla çekildi.`);
+        this._cachedRows = outages;
+        this._lastScrapeTime = Date.now();
+        return outages;
       }
     } catch (err) {
-      console.warn('[toroslar-kesinti] Jina başarısız:', err.message);
+      console.warn('[toroslar-scraper] Tarayıcı çalıştırma hatası:', err.message);
+    } finally {
+      this._browserScraping = false;
+      if (browser) {
+        try { await browser.close(); } catch (_) {}
+      }
+    }
+
+    return this._cachedRows;
+  }
+
+  async fetchDuziciOutages() {
+    // 1. Tarayıcı ile çek
+    try {
+      const browserOutages = await this.scrapeViaBrowser();
+      if (browserOutages.length > 0) return browserOutages;
+    } catch (err) {
+      console.warn('[toroslar-kesinti] Tarayıcı başarısız:', err.message);
+    }
+
+    // 2. Cache'de kayıt varsa dön
+    if (this._cachedRows && this._cachedRows.length > 0) {
+      return this._cachedRows;
     }
 
     return [];

@@ -34,4 +34,23 @@ async function wasPushed(id) {
   return ids.has(id);
 }
 
-module.exports = { loadPushedIds, markPushed, wasPushed };
+async function markPlusPushed(outageId, token) {
+  const ids = await loadPushedIds();
+  const key = `plus_${outageId}_${String(token).slice(-16)}`;
+  ids.add(key);
+  await savePushedIds(ids);
+}
+
+async function wasPlusPushed(outageId, token) {
+  const ids = await loadPushedIds();
+  const key = `plus_${outageId}_${String(token).slice(-16)}`;
+  return ids.has(key);
+}
+
+module.exports = {
+  loadPushedIds,
+  markPushed,
+  wasPushed,
+  markPlusPushed,
+  wasPlusPushed,
+};

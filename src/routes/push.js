@@ -13,7 +13,17 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
   try {
-    const { token, platform, appVersion, marketingOptIn } = req.body ?? {};
+    const {
+      token,
+      platform,
+      appVersion,
+      marketingOptIn,
+      isPlus,
+      mahalle,
+      sokak,
+      lat,
+      lng,
+    } = req.body ?? {};
     if (!token || typeof token !== 'string' || token.length < 20) {
       return res.status(400).json({ ok: false, message: 'Geçersiz token' });
     }
@@ -26,6 +36,11 @@ router.post('/register', async (req, res) => {
       platform,
       appVersion,
       marketingOptIn: marketingOptIn !== false,
+      isPlus,
+      mahalle,
+      sokak,
+      lat,
+      lng,
     });
 
     if (!result.ok) {

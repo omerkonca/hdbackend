@@ -408,47 +408,45 @@ class AiReporterService {
 
   buildPrompts({ targetDate, dateLabel, snapshot, quietDay }) {
     const systemPrompt =
-      'Sen Düziçi (Osmaniye) için akşam bülteni yazan deneyimli bir yerel muhabirsin. ' +
-      'Dil doğal, samimi ve bilgilendirici olsun; robotik veya aşırı resmi olma. ' +
-      'Abartı ve uydurma bilgi yok — yalnızca verilen güncel verilere dayan. ' +
-      'Eski veya geçmişteki haber/talepleri bugün yaşanmış gibi anlatma. Yeni haber yoksa sakin gün vurgusu yap. ' +
-      'Başlık, haberin asıl vurgusuyla entegre olsun (hava, kesinti, yol, etkinlik vb.). ' +
+      'Sen Düziçi (Osmaniye) ilçesinin resmî dijital yayın editörü ve tarafsız baş şehir muhabirisin. ' +
+      'GÖREVİN: Tek bir habere takılı kalmak DEĞİL; son 24 saatte Düziçi\'de yaşanan TÜM yerel haberleri, kesintileri, hava durumunu ve duyuruları tek bir kapsamlı "Günün Özeti" bülteninde topluca analiz edip sentezlemektir. ' +
+      'Dil doğal, akıcı, güvenilir ve bilgilendirici bir gazeteci dili olsun. ' +
+      'Abartı ve uydurma bilgi kesinlikle yasaktır; yalnızca verilen güncel gerçek verilere dayan. ' +
       'Yanıtını yalnızca geçerli JSON olarak ver.';
-
-    const modeHint = quietDay
-      ? 'Bugün veri seyrek. Kısa ama sıcak bir "sakin gün" bülteni yaz; boş başlıkları uzatma.'
-      : 'Veriler zengin. Okuyucuyu bilgilendiren, bölümleri net bir akşam raporu yaz.';
 
     const userPrompt =
       `Tarih: ${dateLabel} (${targetDate})\n` +
-      `Konum: Düziçi, Osmaniye\n` +
-      `Mod: ${quietDay ? 'sakin-gun' : 'tam-rapor'}\n` +
-      `${modeHint}\n\n` +
-      `=== HAVA DURUMU (AKŞAM BÜLTENİ — YARINA ODAKLI) ===\n${snapshot.weatherText || 'Veri yok'}\n\n` +
-      `=== ELEKTRİK / SU KESİNTİLERİ ===\n${snapshot.outagesText || 'Veri yok'}\n\n` +
-      `=== YOL KAPAMA / ÇALIŞMALAR ===\n${snapshot.closuresText || 'Veri yok'}\n\n` +
-      `=== NÖBETÇİ ECZANE ===\n${snapshot.pharmacyText || 'Veri yok'}\n\n` +
-      `=== ETKİNLİKLER (3 GÜN) ===\n${snapshot.eventsText || 'Veri yok'}\n\n` +
+      `Konum: Düziçi, Osmaniye\n\n` +
+      `=== SON 24 SAATİN DÜZİÇİ YEREL HABERLERİ ===\n${snapshot.newsText || 'Bugün öne çıkan yerel haber sınırlı'}\n\n` +
+      `=== ELEKTRİK & SU KESİNTİLERİ ===\n${snapshot.outagesText || 'Veri yok'}\n\n` +
+      `=== YOL VE TRAFİK DURUMU ===\n${snapshot.closuresText || 'Veri yok'}\n\n` +
+      `=== HAVA DURUMU (YARINA ODAKLI) ===\n${snapshot.weatherText || 'Veri yok'}\n\n` +
+      `=== NÖBETÇİ ECZANELER ===\n${snapshot.pharmacyText || 'Veri yok'}\n\n` +
+      `=== ETKİNLİKLER ===\n${snapshot.eventsText || 'Veri yok'}\n\n` +
+      `=== VEFAT İLANLARI ===\n${snapshot.obituariesText || 'Veri yok'}\n\n` +
       `=== AKARYAKIT ===\n${snapshot.fuelText || 'Veri yok'}\n\n` +
-      `=== VEFAT İLANLARI (48 SAAT) ===\n${snapshot.obituariesText || 'Veri yok'}\n\n` +
-      `=== YEREL HABERLER ===\n${snapshot.newsText || 'Veri yok'}\n\n` +
-      `GÖREV:\n` +
-      `1. title: Günün ana Düziçi haberine ve olayına odaklanan, vurucu ve merak uyandıran manşet başlığı (max 110 karakter).\n` +
-      `   - Eğer "YEREL HABERLER" listesinde güncel haber/olay varsa, başlığı MUTLAKA günün en önemli yerel haberine/gelişmesine göre at!\n` +
-      `   - Eğer gün sakinse ve haber yoksa hava durumu, kesinti veya nöbetçi eczanelere odaklanan sıcak bir başlık yaz.\n` +
-      `   - "Şehir Raporu - tarih" veya "Düziçi Akşam Raporu" gibi kuru ve klişe başlıklardan kesinlikle kaçın.\n` +
-      `2. summary: Günün yerel haberlerini ve öne çıkan gelişmelerini özetleyen 2-3 cümlelik net spot (max 240 karakter), başlıkla birebir uyumlu.\n` +
-      `3. fullText: Bölümlü haber metni. Paragraflar arasında boş satır bırak. Markdown/HTML yok.\n` +
-      `   Şu sırayı takip et:\n` +
-      `   - Açılış (Günün genel özeti ve ana yerel habere giriş)\n` +
-      `   - Günün Yerel Gelişmeleri ve Haberleri (Listelenen yerel haberleri akıcı, tarafsız ve gazeteci diliyle sentezleyerek anlat)\n` +
-      `   - Altyapı, Kesinti ve Yol Durumu (Varsa kesinti ve çalışmalar, yoksa sorunsuz olduğunu belirt)\n` +
-      `   - Hava Durumu: "bugün" deme; yarınki tahmini anlat + kısa pratik tavsiye ver\n` +
-      `   - Nöbetçi Eczane ve Pratik Bilgiler\n` +
-      `   - Etkinlikler ve Taziyeler (Varsa kısa ve saygılı)\n` +
-      `   - Kapanış cümlesi\n` +
-      `4. themeHint: Tek kelime — rain|hot|cold|outage|road|event|pharmacy|memorial|calm|news|city\n\n` +
-      `JSON:\n` +
+      `YAZIM VE FORMAT KURALLARI:\n` +
+      `1. title (BAŞLIK): Kesinlikle tek bir partinin, tek bir olayın veya tek bir şahsın haberi manşet başlığı olamaz!\n` +
+      `   Başlık MUTLAKA günün toplu şehir özetini yansıtmalıdır.\n` +
+      `   Örnek başlık kalıpları:\n` +
+      `   - "Düziçi'de Günün Özeti: İlçe Gündemi, Kesintiler ve Önemli Gelişmeler"\n` +
+      `   - "Düziçi'de Bugün Neler Oldu? Günün Öne Çıkan Gelişmeleri ve Şehir Bülteni"\n` +
+      `   - "Düziçi Akşam Bülteni: Şehirde Gün Boyu Yaşanan Tüm Gelişmeler"\n` +
+      `   (Maksimum 90 karakter, vurucu ve saygın)\n\n` +
+      `2. summary (SPOT ÖZET):\n` +
+      `   Günün tüm gelişmelerini (yerel haberler, elektrik/altyapı, hava, eczane) toparlayan 2-3 cümlelik akıcı özet (maksimum 220 karakter).\n\n` +
+      `3. fullText (HABER İÇERİĞİ):\n` +
+      `   Paragraflar arasında birer boş satır bırak. Markdown veya HTML etiketi kullanma.\n` +
+      `   Şu akışla tüm verileri eksiksiz sentezle:\n` +
+      `   - Giriş: "Değerli Düziçililer..." şeklinde günün genel atmosferi ve günün özeti takdimi.\n` +
+      `   - Günün Yerel Gelişmeleri: Verilen tüm yerel haberleri tek bir olaya takılmadan, paragraflar halinde akıcı ve tarafsızca aktar.\n` +
+      `   - Altyapı, Kesintiler ve Yol Durumu: Toroslar EDAŞ kesintileri veya su durumlarını net olarak belirt.\n` +
+      `   - Yarınki Hava Durumu: Yarın beklenen sıcaklık ve vatandaşlara pratik öneri.\n` +
+      `   - Nöbetçi Eczane & Pratik Bilgiler: Bu gece nöbetçi olan eczanenin adı ve adresi.\n` +
+      `   - Vefatlar ve Taziyeler (Varsa saygıyla an, yoksa atla).\n` +
+      `   - Kapanış: Güzel bir iyi akşamlar dileği.\n\n` +
+      `4. themeHint: Tek kelime — news|city|outage|rain|hot|cold|event|pharmacy|memorial\n\n` +
+      `JSON FORMATI:\n` +
       `{"title":"...","summary":"...","fullText":"...","themeHint":"news"}`;
 
     return { systemPrompt, userPrompt };

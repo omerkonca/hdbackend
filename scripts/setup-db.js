@@ -98,6 +98,26 @@ CREATE TABLE IF NOT EXISTS daily_news_briefings (
   model TEXT,
   generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- 6. Cihaz Bildirim Tokenları ve Konumları (Plus Kesinti Bildirimleri için)
+CREATE TABLE IF NOT EXISTS device_tokens (
+  token TEXT PRIMARY KEY,
+  platform TEXT NOT NULL,
+  app_version TEXT,
+  marketing_opt_in BOOLEAN DEFAULT TRUE,
+  is_plus BOOLEAN DEFAULT FALSE,
+  mahalle TEXT,
+  sokak TEXT,
+  lat DOUBLE PRECISION,
+  lng DOUBLE PRECISION,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE device_tokens ADD COLUMN IF NOT EXISTS is_plus BOOLEAN DEFAULT FALSE;
+ALTER TABLE device_tokens ADD COLUMN IF NOT EXISTS mahalle TEXT;
+ALTER TABLE device_tokens ADD COLUMN IF NOT EXISTS sokak TEXT;
+ALTER TABLE device_tokens ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
+ALTER TABLE device_tokens ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
 `;
 
 async function run() {
