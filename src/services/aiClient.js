@@ -35,23 +35,19 @@ const DEPRECATED_GEMINI_MODELS = new Set([
 ]);
 
 function geminiModelCandidates() {
-  // Yalnızca güncel modeller (2026)
-  const preferred = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
-
-  const envModel = String(process.env.GEMINI_MODEL || '').trim();
+  // Günlük 1 rapor = 1 API çağrısı yeter; çoklu model kota yakar.
+  const primary = String(process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite').trim();
   const ordered = [];
-
   const pushUnique = (m) => {
     const id = String(m || '').trim();
     if (!id || DEPRECATED_GEMINI_MODELS.has(id) || ordered.includes(id)) return;
     ordered.push(id);
   };
-
-  // Env'deki ölü modeli yok say; güncel modeller önce
-  for (const m of preferred) pushUnique(m);
-  if (envModel && !DEPRECATED_GEMINI_MODELS.has(envModel)) pushUnique(envModel);
-
-  return ordered.length ? ordered : ['gemini-3.5-flash-lite', 'gemini-3.5-flash'];
+  pushUnique(primary);
+  if (process.env.GEMINI_FALLBACK_MODELS === 'true') {
+    pushUnique('gemini-3.5-flash');
+  }
+  return ordered.length ? ordered : ['gemini-3.5-flash-lite'];
 }
 
 function isGeminiModelGoneError(err) {
@@ -61,6 +57,11 @@ function isGeminiModelGoneError(err) {
     (/404/.test(msg) && /models\//i.test(msg)) ||
     /NOT_FOUND/i.test(msg)
   );
+}
+
+function isGeminiQuotaError(err) {
+  const msg = String(err?.message || err || '');
+  return /429/.test(msg) || /quota/i.test(msg) || /rate.?limit/i.test(msg) || /RESOURCE_EXHAUSTED/i.test(msg);
 }
 
 async function generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt }) {
@@ -111,11 +112,18 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
       return await generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt });
     } catch (err) {
       lastError = err;
+      if (isGeminiQuotaError(err)) {
+        console.warn(`[ai] ${model} kota/rate limit — Gemini durduruldu, OpenAI denenecek`);
+        return null;
+      }
       const gone = isGeminiModelGoneError(err);
-      console.warn(`[ai] ${model} başarısız${gone ? ' (model kalkmış, sıradakine geçiliyor)' : ''}: ${err.message}`);
+      console.warn(
+        `[ai] ${model} başarısız${gone ? ' (model kalkmış)' : ''}: ${err.message}`,
+      );
     }
   }
-  throw lastError || new Error('Gemini modellerinin hiçbiri çalışmadı');
+  console.warn('[ai] Gemini modelleri başarısız:', lastError?.message || 'bilinmeyen');
+  return null;
 }
 
 async function generateWithOpenAI({ systemPrompt, userPrompt }) {
@@ -171,6 +179,11 @@ async function generateJson({ systemPrompt, userPrompt }) {
 
   if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
     throw new Error('GEMINI_API_KEY veya OPENAI_API_KEY tanımlı değil');
+  }
+  if (lastError && isGeminiQuotaError(lastError) && !process.env.OPENAI_API_KEY) {
+    throw new Error(
+      'Gemini API kotası doldu. Render ortamına OPENAI_API_KEY ekleyin veya Google AI kotasını yükseltin.',
+    );
   }
   throw lastError || new Error('AI üretimi başarısız');
 }

@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "main": "src/server.js",
   "scripts": {
     "start": "node --max-old-space-size=384 src/server.js",
