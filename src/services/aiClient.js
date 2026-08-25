@@ -24,17 +24,28 @@ function extractJsonObject(text) {
 }
 
 function geminiModelCandidates() {
-  if (process.env.GEMINI_MODEL) {
-    return [process.env.GEMINI_MODEL];
-  }
-  // Güncel Gemini Flash modelleri (eski 1.5 / 2.0 / 2.5 shutdown olabilir)
-  return [
-    'gemini-3.6-flash',
-    'gemini-3.5-flash',
+  // Çalıştığı bilinen modeller önce; 2.5-lite "new users" için 404 veriyor.
+  const preferred = [
     'gemini-3.5-flash-lite',
+    'gemini-3.5-flash',
+    'gemini-3.6-flash',
     'gemini-2.5-flash',
-    'gemini-2.5-flash-lite',
   ];
+  const envModel = String(process.env.GEMINI_MODEL || '').trim();
+  if (!envModel) return preferred;
+
+  // Env tek modele kilitlenmesin: önce env, sonra yedekler (ölü modelde takılı kalmasın)
+  const rest = preferred.filter((m) => m !== envModel);
+  return [envModel, ...rest];
+}
+
+function isGeminiModelGoneError(err) {
+  const msg = String(err?.message || err || '');
+  return (
+    /no longer available/i.test(msg) ||
+    (/404/.test(msg) && /models\//i.test(msg)) ||
+    /NOT_FOUND/i.test(msg)
+  );
 }
 
 async function generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt }) {
@@ -85,7 +96,8 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
       return await generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt });
     } catch (err) {
       lastError = err;
-      console.warn(`[ai] ${model} başarısız: ${err.message}`);
+      const gone = isGeminiModelGoneError(err);
+      console.warn(`[ai] ${model} başarısız${gone ? ' (model kalkmış, sıradakine geçiliyor)' : ''}: ${err.message}`);
     }
   }
   throw lastError || new Error('Gemini modellerinin hiçbiri çalışmadı');
