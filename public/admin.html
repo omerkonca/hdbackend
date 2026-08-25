@@ -7541,6 +7541,8 @@
         const data = await res.json();
         if (!data.ok) throw new Error(data.message || 'Ayarlar alınamadı');
         const s = data.settings || {};
+        window._backendVersion = data.backendVersion || '';
+        window._aiGeminiCandidates = Array.isArray(data.aiGeminiCandidates) ? data.aiGeminiCandidates : [];
         document.getElementById('aiBeautifyScraped').checked = s.beautifyScraped === true;
         document.getElementById('aiReporterEnabled').checked = s.reporterEnabled === true;
         const approvalEl = document.getElementById('aiReporterRequireApproval');
@@ -7585,12 +7587,18 @@
       if (detailEl) {
         const bits = [];
         bits.push(`Son: ${formatAiTime(s.lastReporterAt)}`);
+        if (window._backendVersion) bits.push(`Backend: v${escapeHtml(window._backendVersion)}`);
+        if (window._aiGeminiCandidates && window._aiGeminiCandidates.length) {
+          bits.push(`Gemini: ${escapeHtml(window._aiGeminiCandidates.join(' → '))}`);
+        }
         if (s.lastReporterTitle) bits.push(`Başlık: ${escapeHtml(s.lastReporterTitle)}`);
         if (s.lastReporterTheme) bits.push(`Tema: ${escapeHtml(s.lastReporterTheme)}`);
         if (s.lastReporterScore != null) bits.push(`Veri skoru: ${s.lastReporterScore}`);
         if (s.lastReporterModel) bits.push(`Model: ${escapeHtml(s.lastReporterModel)}`);
         if (s.reporterRequireApproval) bits.push('Otomatik: onaylı taslak modu');
-        if (s.lastReporterError) bits.push(`Hata: ${escapeHtml(s.lastReporterError)}`);
+        if (s.lastReporterError && s.lastReporterOk !== true) {
+          bits.push(`Hata: ${escapeHtml(s.lastReporterError)}`);
+        }
         detailEl.innerHTML = bits.join('<br>') || 'Henüz şehir raporu çalıştırılmadı.';
       }
 

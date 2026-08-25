@@ -23,20 +23,38 @@ function extractJsonObject(text) {
   }
 }
 
+/** Google'ın kaldırdığı / yeni kullanıcıya kapalı modeller — asla deneme. */
+const DEPRECATED_GEMINI_MODELS = new Set([
+  'gemini-2.5-flash-lite',
+  'gemini-2.0-flash-lite',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+  'gemini-1.5-pro',
+]);
+
 function geminiModelCandidates() {
-  // Çalıştığı bilinen modeller önce; 2.5-lite "new users" için 404 veriyor.
   const preferred = [
     'gemini-3.5-flash-lite',
     'gemini-3.5-flash',
     'gemini-3.6-flash',
     'gemini-2.5-flash',
+    'gemini-2.0-flash',
   ];
-  const envModel = String(process.env.GEMINI_MODEL || '').trim();
-  if (!envModel) return preferred;
 
-  // Env tek modele kilitlenmesin: önce env, sonra yedekler (ölü modelde takılı kalmasın)
-  const rest = preferred.filter((m) => m !== envModel);
-  return [envModel, ...rest];
+  const envModel = String(process.env.GEMINI_MODEL || '').trim();
+  const ordered = [];
+
+  const pushUnique = (m) => {
+    const id = String(m || '').trim();
+    if (!id || DEPRECATED_GEMINI_MODELS.has(id) || ordered.includes(id)) return;
+    ordered.push(id);
+  };
+
+  // Env'deki ölü modeli yok say; güncel modeller önce
+  for (const m of preferred) pushUnique(m);
+  if (envModel && !DEPRECATED_GEMINI_MODELS.has(envModel)) pushUnique(envModel);
+
+  return ordered.length ? ordered : ['gemini-3.5-flash-lite', 'gemini-3.5-flash'];
 }
 
 function isGeminiModelGoneError(err) {
@@ -167,4 +185,6 @@ function isConfigured() {
 module.exports = {
   generateJson,
   isConfigured,
+  getGeminiModelCandidates: geminiModelCandidates,
+  DEPRECATED_GEMINI_MODELS: [...DEPRECATED_GEMINI_MODELS],
 };

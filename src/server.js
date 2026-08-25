@@ -61,7 +61,24 @@ app.use('/api/app-version', require('./routes/appVersionRoutes'));
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ ok: true, service: 'hepsi-duzici-city-content-api', timestamp: new Date().toISOString() });
+  let ai = null;
+  try {
+    const pkg = require('../package.json');
+    const aiClient = require('./services/aiClient');
+    ai = {
+      geminiEnv: process.env.GEMINI_MODEL || null,
+      geminiCandidates: aiClient.getGeminiModelCandidates(),
+    };
+    return res.json({
+      ok: true,
+      service: 'hepsi-duzici-city-content-api',
+      version: pkg.version,
+      ai,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (_) {
+    return res.json({ ok: true, service: 'hepsi-duzici-city-content-api', timestamp: new Date().toISOString() });
+  }
 });
 
 // Global Error Handler
@@ -72,7 +89,13 @@ app.use((err, req, res, next) => {
 
 // Start Server
 const server = app.listen(config.PORT, () => {
-  console.log(`\n🚀 [city-content-api] running on http://localhost:${config.PORT}`);
+  const pkg = require('../package.json');
+  console.log(`\n🚀 [city-content-api] v${pkg.version} running on http://localhost:${config.PORT}`);
+  try {
+    const aiClient = require('./services/aiClient');
+    const geminiEnv = process.env.GEMINI_MODEL || '(unset)';
+    console.log(`🤖 [ai] Gemini env=${geminiEnv} → candidates: ${aiClient.getGeminiModelCandidates().join(', ')}`);
+  } catch (_) {}
   const tokenOk = config.ADMIN_TOKEN && config.ADMIN_TOKEN.length >= 24;
   console.log(`🔑 [city-content-api] admin token: ${tokenOk ? 'yapılandırıldı' : 'eksik/zayıf'}`);
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);

@@ -648,6 +648,7 @@ class AiReporterService {
     }
 
     console.log(`[ai-reporter] Collecting enriched city snapshot for ${targetDate}...`);
+    await this.saveReporterStatus({ lastReporterError: null, lastReporterSkipped: false });
     const snapshot = await this.collectCitySnapshot(targetDate);
     const score = this.scoreSnapshot(snapshot);
     const quietDay = score <= 2;

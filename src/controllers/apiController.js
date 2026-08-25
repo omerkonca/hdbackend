@@ -853,6 +853,14 @@ class ApiController {
         settings: { ...defaults, ...settings },
         briefing,
         latestReporter,
+        backendVersion: require('../../package.json').version,
+        aiGeminiCandidates: (() => {
+          try {
+            return require('../services/aiClient').getGeminiModelCandidates();
+          } catch (_) {
+            return [];
+          }
+        })(),
       });
     } catch (error) {
       return res.status(500).json({ ok: false, message: 'Ayarlar okunamadı.', detail: error.message });
