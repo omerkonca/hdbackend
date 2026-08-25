@@ -23,9 +23,11 @@ function extractJsonObject(text) {
   }
 }
 
-/** Google'ın kaldırdığı / yeni kullanıcıya kapalı modeller — asla deneme. */
+/** Google'ın kaldırdığı modeller — asla deneme. */
 const DEPRECATED_GEMINI_MODELS = new Set([
   'gemini-2.5-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
   'gemini-1.5-flash',
   'gemini-1.5-flash-8b',
@@ -33,13 +35,8 @@ const DEPRECATED_GEMINI_MODELS = new Set([
 ]);
 
 function geminiModelCandidates() {
-  const preferred = [
-    'gemini-3.5-flash-lite',
-    'gemini-3.5-flash',
-    'gemini-3.6-flash',
-    'gemini-2.5-flash',
-    'gemini-2.0-flash',
-  ];
+  // Yalnızca güncel modeller (2026)
+  const preferred = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
 
   const envModel = String(process.env.GEMINI_MODEL || '').trim();
   const ordered = [];
