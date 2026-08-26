@@ -143,38 +143,71 @@ function formatTrClock(iso) {
   }
 }
 
-/** Kesinti hedef güne (TR) düşüyor mu? start / end / published. */
+/** Kesinti hedef güne (TR) ilgili mi? */
 function outageTouchesTargetDate(item, targetDate) {
-  const keys = [
-    item.startAt,
-    item.endAt,
-    item.publishedAt,
-    item.date,
-    item.createdAt,
-  ]
-    .filter(Boolean)
-    .map((v) => {
-      try {
-        return turkeyDateParts(new Date(v)).date;
-      } catch (_) {
-        return null;
-      }
-    })
-    .filter(Boolean);
-  if (keys.includes(targetDate)) return true;
-  // start–end aralığı günü kapsıyorsa
-  if (item.startAt && item.endAt) {
-    try {
-      const start = new Date(item.startAt).getTime();
-      const end = new Date(item.endAt).getTime();
-      const dayStart = new Date(`${targetDate}T00:00:00+03:00`).getTime();
-      const dayEnd = new Date(`${targetDate}T23:59:59+03:00`).getTime();
-      if (Number.isFinite(start) && Number.isFinite(end) && start <= dayEnd && end >= dayStart) {
-        return true;
-      }
-    } catch (_) {}
+  const dayStart = new Date(`${targetDate}T00:00:00+03:00`).getTime();
+  const dayEnd = new Date(`${targetDate}T23:59:59+03:00`).getTime();
+
+  const toMs = (v) => {
+    if (!v) return NaN;
+    const t = new Date(v).getTime();
+    return Number.isFinite(t) ? t : NaN;
+  };
+
+  const start = toMs(item.startAt || item.date);
+  const end = toMs(item.endAt);
+  const published = toMs(item.publishedAt || item.createdAt);
+
+  // start–end (veya end yoksa ~14 saat varsayımı) günü kesiyorsa
+  if (Number.isFinite(start)) {
+    const effectiveEnd = Number.isFinite(end) ? end : start + 14 * 60 * 60 * 1000;
+    if (start <= dayEnd && effectiveEnd >= dayStart) return true;
   }
+
+  // Bugün yayınlandı / kayda düştü
+  if (Number.isFinite(published) && published >= dayStart && published <= dayEnd + 3 * 60 * 60 * 1000) {
+    return true;
+  }
+
+  // Metinde "26 Ağustos" / "26.08.2026" geçiyorsa
+  const blob = normalizeTr(`${item.title || ''} ${item.subtitle || ''} ${item.area || ''}`);
+  const [, mm, dd] = String(targetDate).split('-');
+  const dayNum = String(parseInt(dd, 10));
+  const monthNames = {
+    '01': 'ocak',
+    '02': 'subat',
+    '03': 'mart',
+    '04': 'nisan',
+    '05': 'mayis',
+    '06': 'haziran',
+    '07': 'temmuz',
+    '08': 'agustos',
+    '09': 'eylul',
+    '10': 'ekim',
+    '11': 'kasim',
+    '12': 'aralik',
+  };
+  const monthName = monthNames[mm];
+  if (monthName && new RegExp(`\\b${dayNum}\\s+${monthName}\\b`).test(blob)) return true;
+  if (new RegExp(`\\b${dayNum}[./]${mm}([./]\\d{2,4})?\\b`).test(blob)) return true;
+
   return false;
+}
+
+/** AI'nın "kesinti yok" yalanını, elimde kayıt varken temizle. */
+function scrubFalseNoOutageClaims(text, hasOutages) {
+  if (!hasOutages || !text) return text;
+  let out = String(text);
+  const patterns = [
+    /planlı\s+(elektrik|su)(\s+veya\s+(elektrik|su))?\s+kesintisi\s+(bulunmuyor|yok|rapor\s+edilmedi)[^.!\n]*/gi,
+    /gün\s+boyunca\s+planlı\s+[^.!\n]*kesinti[^.!\n]*(bulunmuyor|yok|rapor\s+edilmedi)[^.!\n]*/gi,
+    /kesinti\s+(kaydı\s+)?(bulunmuyor|yok|rapor\s+edilmedi)[^.!\n]*/gi,
+    /elektrik\s+veya\s+su\s+kesintisi\s+(bulunmuyor|yaşanmıyor|rapor\s+edilmedi)[^.!\n]*/gi,
+  ];
+  for (const re of patterns) {
+    out = out.replace(re, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  return out;
 }
 
 function formatOutageLine(o, { finished = false } = {}) {
@@ -273,19 +306,19 @@ class AiReporterService {
       console.warn('[ai-reporter] Weather fetch failed:', err.message);
     }
 
-    // 2. Outages — aktif + bugün tamamlanan (history). Sadece "şu an aktif" yetmez.
+    // 2. Outages — tüm aktifler + bugünle ilgili history (tarih kayması / biten kayıtlar dahil)
     try {
       await outageService.getOutages({ forceRefresh: true });
       const activeRaw = (await outageService.getOutages()) || [];
       const historyRaw = outageService.getHistory() || [];
 
-      const active = activeRaw
-        .filter((o) => o && o.isActive !== false && o.status !== 'Tamamlandı')
-        .filter((o) => outageTouchesTargetDate(o, targetDate) || !o.startAt);
+      // Aktif kesintiler her zaman bugünkü bültene girer (tarih filtresi yok)
+      const active = activeRaw.filter(
+        (o) => o && o.isActive !== false && normalizeTr(o.status || '') !== 'tamamlandi',
+      );
 
       const finishedToday = historyRaw.filter((o) => o && outageTouchesTargetDate(o, targetDate));
 
-      // Aynı id iki kez yazılmasın
       const seen = new Set();
       const uniquePush = (list, item) => {
         const key = String(item.id || `${item.title}|${item.area}|${item.startAt || ''}`);
@@ -297,15 +330,15 @@ class AiReporterService {
       const mergedActive = [];
       const mergedFinished = [];
       for (const o of active) uniquePush(mergedActive, o);
-      for (const o of finishedToday) {
-        const key = String(o.id || `${o.title}|${o.area}|${o.startAt || ''}`);
-        if (seen.has(key)) continue;
-        uniquePush(mergedFinished, o);
-      }
+      for (const o of finishedToday) uniquePush(mergedFinished, o);
 
       snapshot.outageCount = mergedActive.length + mergedFinished.length;
       snapshot.activeOutageCount = mergedActive.length;
       snapshot.finishedOutageCount = mergedFinished.length;
+
+      console.log(
+        `[ai-reporter] outages: active=${mergedActive.length} finishedToday=${mergedFinished.length} historyRaw=${historyRaw.length}`,
+      );
 
       if (snapshot.outageCount > 0) {
         const lines = [];
@@ -314,7 +347,7 @@ class AiReporterService {
           lines.push(...mergedActive.slice(0, 12).map((o) => formatOutageLine(o)));
         }
         if (mergedFinished.length) {
-          lines.push('BUGÜN YAŞANIP SONA EREN:');
+          lines.push('BUGÜN YAŞANIP SONA EREN (veya bugünle ilgili tamamlanan):');
           lines.push(
             ...mergedFinished.slice(0, 12).map((o) => formatOutageLine(o, { finished: true })),
           );
@@ -668,10 +701,18 @@ class AiReporterService {
     const { data, model } = await this.generateWithRetry(prompts, 2);
 
     const title = String(data.title || `Düziçi akşam bülteni — ${dateLabel}`).trim().slice(0, 110);
-    const summary = String(data.summary || '').trim().slice(0, 250);
-    const fullText = String(data.fullText || '').trim();
+    let summary = String(data.summary || '').trim().slice(0, 250);
+    let fullText = String(data.fullText || '').trim();
     if (!fullText || fullText.length < 80) {
       throw new Error('AI metni çok kısa veya boş');
+    }
+
+    // Kesinti kaydı varken model "kesinti yok" yazarsa temizle
+    const hasOutages = (snapshot.outageCount || 0) > 0;
+    summary = scrubFalseNoOutageClaims(summary, hasOutages).slice(0, 250);
+    fullText = scrubFalseNoOutageClaims(fullText, hasOutages);
+    if (hasOutages && !/kesinti/i.test(fullText)) {
+      fullText = `${fullText}\n\nAltyapı: ${snapshot.outagesText}`.trim();
     }
 
     const theme =

@@ -160,7 +160,9 @@ class OutageExtractorService {
     }
 
     // 2. Tarihi bul (Örn: "22 ağustos cumartesi", "22.08.2026", "22/08/2026")
-    let parsedDate = new Date();
+    // ÖNEMLİ: Render UTC'de çalışır; Date#getDate() günü bir gün kaydırabilir.
+    // Bu yüzden ISO tarihi eşleşen stringlerden üret, yerel getDate kullanma.
+    let baseIsoDate = null;
     let dateFormattedTr = '';
     const textDateMatch = normalized.match(/(\d{1,2})\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)(?:\s+(\d{4}))?(?:\s+(pazartesi|salı|sali|çarşamba|carsamba|perşembe|persembe|cuma|cumartesi|pazar))?/i);
     const numDateMatch = normalized.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{4}))?/);
@@ -169,25 +171,33 @@ class OutageExtractorService {
       const day = textDateMatch[1].padStart(2, '0');
       const monthName = textDateMatch[2].toLowerCase();
       const month = MONTH_MAP[monthName] || '01';
-      const year = textDateMatch[3] || new Date().getFullYear().toString();
+      const year = textDateMatch[3] || new Date().toLocaleString('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric' });
       const dayName = textDateMatch[4] ? textDateMatch[4].charAt(0).toUpperCase() + textDateMatch[4].slice(1) : '';
-      parsedDate = new Date(`${year}-${month}-${day}T00:00:00+03:00`);
+      baseIsoDate = `${year}-${month}-${day}`;
       dateFormattedTr = `${parseInt(day, 10)} ${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${dayName}`.trim();
     } else if (numDateMatch) {
       const day = numDateMatch[1].padStart(2, '0');
       const month = numDateMatch[2].padStart(2, '0');
-      const year = numDateMatch[3] || new Date().getFullYear().toString();
-      parsedDate = new Date(`${year}-${month}-${day}T00:00:00+03:00`);
+      const year = numDateMatch[3] || new Date().toLocaleString('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric' });
+      baseIsoDate = `${year}-${month}-${day}`;
       dateFormattedTr = `${day}.${month}.${year}`;
+    } else {
+      // Tarih yoksa bugünün TR tarihi
+      baseIsoDate = new Date().toLocaleString('en-CA', {
+        timeZone: 'Europe/Istanbul',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
     }
 
-    const yearStr = parsedDate.getFullYear();
-    const monthStr = String(parsedDate.getMonth() + 1).padStart(2, '0');
-    const dayStr = String(parsedDate.getDate()).padStart(2, '0');
-    const baseIsoDate = `${yearStr}-${monthStr}-${dayStr}`;
-
     const startAt = startTimeStr ? `${baseIsoDate}T${startTimeStr}:00+03:00` : `${baseIsoDate}T09:00:00+03:00`;
-    const endAt = endTimeStr ? `${baseIsoDate}T${endTimeStr}:00+03:00` : (startTimeStr ? `${baseIsoDate}T17:00:00+03:00` : null);
+    // "gün boyunca" / saat yoksa 09:00–20:00 varsay (10 saat kuralında history'ye erken düşmesin)
+    const endAt = endTimeStr
+      ? `${baseIsoDate}T${endTimeStr}:00+03:00`
+      : startTimeStr
+        ? `${baseIsoDate}T17:00:00+03:00`
+        : `${baseIsoDate}T20:00:00+03:00`;
 
     // 3. Etkilenen Bölgeleri Ayıkla ve Zenginleştir
     let area = '';
