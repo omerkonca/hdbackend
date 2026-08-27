@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const config = require('../config');
 const { normalizeText, fetchPage, stripHtml, fetchWithTimeout } = require('../utils/helpers');
 const { normalizePharmacyDateLabels } = require('../utils/pharmacyDutyLabels');
@@ -373,9 +375,34 @@ class PharmacyService {
   }
 
   async maybePushDutyPharmacy(pharmacies) {
-    const todayKey = istanbulDateKey();
-    if (this._lastPushedDateKey === todayKey) return;
+    // 1. Saat kontrolü (Türkiye saati UTC+3)
+    const now = new Date();
+    const istanbulOffset = 3 * 60; // UTC+3
+    const localMs = now.getTime() + (istanbulOffset + now.getTimezoneOffset()) * 60000;
+    const istDate = new Date(localMs);
+    const istHour = istDate.getHours();
+    const istMinute = istDate.getMinutes();
+    const timeVal = istHour * 60 + istMinute;
 
+    // Yalnızca sabah nöbet devrinden sonra (08:30 - 11:00 arası) gönderilebilir.
+    // Gece veya öğleden sonra kesinlikle otomatik push atılmaz!
+    if (timeVal < 510 || timeVal > 660) {
+      return;
+    }
+
+    const todayKey = istanbulDateKey();
+
+    // 2. Kalıcı kontrol (Sunucu yeniden başlasa bile diske bakılır)
+    const PUSH_STATE_FILE = path.join(__dirname, '../../data/last_pharmacy_push.json');
+    let lastPushedKey = this._lastPushedDateKey;
+    if (!lastPushedKey && fs.existsSync(PUSH_STATE_FILE)) {
+      try {
+        const saved = JSON.parse(fs.readFileSync(PUSH_STATE_FILE, 'utf8'));
+        lastPushedKey = saved.lastPushedDateKey;
+      } catch (_) {}
+    }
+
+    if (lastPushedKey === todayKey) return;
     if (!fcmService.isFcmConfigured()) return;
     if (!pharmacies || !pharmacies.length) return;
 
@@ -383,6 +410,13 @@ class PharmacyService {
     if (!todayPharmacy) return;
 
     this._lastPushedDateKey = todayKey;
+    try {
+      fs.writeFileSync(
+        PUSH_STATE_FILE,
+        JSON.stringify({ lastPushedDateKey: todayKey, sentAt: new Date().toISOString() }, null, 2),
+        'utf8',
+      );
+    } catch (_) {}
 
     const title = 'Bugün Nöbetçi Eczane 🏥';
     const body = `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir.`;

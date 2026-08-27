@@ -43,7 +43,7 @@ if (hasCloudinary) {
 
 const upload = multer({
   storage,
-  limits: { fileSize: 12 * 1024 * 1024, files: 3 },
+  limits: { fileSize: 3 * 1024 * 1024, files: 3 },
 });
 
 function fileToUrl(file) {
