@@ -1090,6 +1090,7 @@
       <div class="menu-group-title" onclick="toggleMenuGroup('groupAnnounce')">📢 Duyurular &amp; Bildirim <span class="arrow">▼</span></div>
       <div class="menu-group-items" id="groupAnnounce">
         <div class="nav-item" onclick="window.open('/studio', '_blank')" style="color: #EAB308; font-weight: 700;">🎨 Medya &amp; Video Stüdyosu (BPT + AI) ↗</div>
+        <div class="nav-item" onclick="switchView('popups')">🚀 Pop-up / Açılır Duyuru</div>
         <div class="nav-item" onclick="switchView('announcements')">📣 Duyuru Yayınla (Canva + Push)</div>
         <div class="nav-item" onclick="switchView('outageRoadAi')">⚡ Kesinti &amp; Yol Çalışması (AI)</div>
         <div class="nav-item" onclick="switchView('push')">📲 Sadece Bildirim Gönder</div>
@@ -1535,6 +1536,123 @@
 
       <div id="revDrawerBg" class="rev-drawer-bg" onclick="if(event.target===this) closeRevenueDrawer()">
         <div class="rev-drawer" id="revDrawer"></div>
+      </div>
+
+      <!-- Pop-up Announcements -->
+      <div id="popupsView" class="view-section">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap:20px; align-items:start">
+          <div class="card">
+            <div class="section-title">🚀 Pop-up / Açılır Duyuru Yayınla</div>
+            <p style="color:var(--text-muted); font-size:14px; margin-top:0">
+              Canva'dan hazırladığınız duyuru/afiş görselini yükleyin. Uygulama açılışında kullanıcıların karşısına tam ekran veya zarif modal olarak anında açılır.
+            </p>
+            
+            <div class="form-group">
+              <label>Duyuru Görseli (Canva / Afiş PNG/JPG)</label>
+              <div id="popupImagePreview" style="margin:10px 0; max-height:260px; min-height:140px; border-radius:14px; background:#f8fafc; border:2px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; overflow:hidden; color:var(--text-muted); font-size:13px; font-weight:600; text-align:center; padding:10px">
+                Görsel seçilmedi (Görsel olmadan sadece metinli pop-up da yapabilirsiniz)
+              </div>
+              <div class="row" style="gap:10px; margin-bottom:12px; flex-wrap:wrap">
+                <input type="file" id="popupImageFile" accept="image/*" style="display:none" onchange="uploadPopupImageFile()">
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('popupImageFile').click()">🖼️ Görsel / Afiş Yükle</button>
+                <button type="button" class="btn btn-secondary" onclick="clearPopupImage()">✕ Görseli Kaldır</button>
+              </div>
+              <input id="popupImageUrlInput" placeholder="veya doğrudan Görsel URL'si yapıştırın (https://...)" oninput="onPopupImageUrlManualChange(this.value)" style="font-size:12px">
+            </div>
+
+            <div class="form-group">
+              <label>Başlık <span style="color:var(--danger)">*</span></label>
+              <input id="popupTitle" placeholder="Örn: ÖNEMLİ DUYURU (Doğalgaz Kazı Çalışmaları)" oninput="updatePopupLivePreview()">
+            </div>
+
+            <div class="form-group">
+              <label>Duyuru / Açıklama Metni</label>
+              <textarea id="popupMessage" rows="4" placeholder="Vatandaşlarımızın dikkatine: Bulvar çalışmaları öncesinde..." style="width:100%; padding:12px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px" oninput="updatePopupLivePreview()"></textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px">
+              <div class="form-group">
+                <label>Aksiyon Butonu Yazısı (İsteğe Bağlı)</label>
+                <input id="popupActionText" placeholder="Örn: Detayı Gör / Başvur" oninput="updatePopupLivePreview()">
+              </div>
+              <div class="form-group">
+                <label>Buton Linki veya Hedef Ekran</label>
+                <input id="popupActionUrl" placeholder="Örn: https://... veya screen:news">
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:8px">
+              <div class="form-group">
+                <label>Gösterim Sıklığı</label>
+                <select id="popupShowFrequency">
+                  <option value="once_per_day">Günde 1 Kez Göster</option>
+                  <option value="every_launch">Her Uygulama Açılışında</option>
+                  <option value="once_until_dismissed">Kullanıcı Kapatana Kadar (1 Kez)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Öncelik Sırası</label>
+                <input type="number" id="popupPriority" value="10" placeholder="0-100 (Yüksek olan önce açılır)">
+              </div>
+            </div>
+
+            <div class="row" style="margin:14px 0 18px 0; align-items:center; gap:16px">
+              <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; color:var(--text-main)">
+                <input type="checkbox" id="popupIsActive" checked> 🟢 Pop-up Şu An Yayında (Aktif)
+              </label>
+            </div>
+
+            <div id="popupPublishResult" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
+            <div id="popupEditBanner" style="display:none; margin-bottom:12px; padding:12px 14px; border-radius:12px; background:rgba(59,130,246,0.1); color:#1d4ed8; font-size:13px; font-weight:700">
+              Düzenleme modu — değişiklikleri kaydetmek için Güncelle'ye basın.
+            </div>
+
+            <div class="row" style="gap:10px; flex-wrap:wrap">
+              <button type="button" class="btn btn-primary" id="popupPublishBtn" onclick="publishPopup()" style="padding:12px 24px; font-size:15px">🚀 Pop-up'ı Kaydet &amp; Yayınla</button>
+              <button type="button" class="btn btn-secondary" id="popupCancelEditBtn" style="display:none" onclick="cancelPopupEdit()">Vazgeç</button>
+            </div>
+          </div>
+
+          <!-- Canlı Önizleme Kartı -->
+          <div class="card" style="background:#0f172a; color:#f8fafc; border-color:#334155">
+            <div class="section-title" style="color:#f8fafc">📱 Canlı Uygulama Önizlemesi</div>
+            <p style="color:#94a3b8; font-size:13px; margin-top:0">
+              Kullanıcıların telefon ekranında açılacak olan pencerenin birebir önizlemesi:
+            </p>
+
+            <div style="margin:20px auto; max-width:320px; background:#ffffff; color:#0f172a; border-radius:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); overflow:hidden; border:1px solid #e2e8f0; position:relative">
+              <!-- Close button -->
+              <div style="position:absolute; top:12px; right:12px; width:32px; height:32px; border-radius:50%; background:rgba(0,0,0,0.6); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:15px; z-index:10; cursor:pointer; backdrop-filter:blur(4px)">✕</div>
+              
+              <!-- Image preview -->
+              <div id="previewPopupImgContainer" style="width:100%; max-height:240px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; overflow:hidden">
+                <img id="previewPopupImg" src="" style="width:100%; height:auto; display:none; object-fit:contain">
+                <div id="previewPopupImgPlaceholder" style="padding:30px 10px; color:#94a3b8; font-size:12px; text-align:center">🖼️ Afiş Görseli Burada Görünecek</div>
+              </div>
+
+              <!-- Content body -->
+              <div style="padding:18px">
+                <div id="previewPopupTitle" style="font-size:17px; font-weight:800; color:#0f172a; line-height:1.3; margin-bottom:8px; text-align:center">
+                  ÖNEMLİ DUYURU
+                </div>
+                <div id="previewPopupMessage" style="font-size:13px; color:#475569; line-height:1.5; margin-bottom:14px; text-align:center; white-space:pre-line">
+                  Duyuru metniniz burada bu şekilde görüntülenecektir.
+                </div>
+                <div id="previewPopupBtn" style="display:none; width:100%; padding:10px 16px; background:#0284c7; color:#fff; font-weight:700; font-size:14px; border-radius:12px; text-align:center; margin-bottom:10px; cursor:pointer">
+                  Detayı Gör
+                </div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:6px; font-size:11px; color:#94a3b8; padding-top:4px">
+                  <span>▢ Bugün bir daha gösterme</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:20px">
+          <div class="section-title">📋 Mevcut Pop-up Duyurular</div>
+          <div id="popupsAdminList" style="font-size:14px; color:var(--text-muted)">Yükleniyor...</div>
+        </div>
       </div>
 
       <!-- Publisher Announcements -->
@@ -2784,6 +2902,299 @@
       }
     }
 
+    // ==========================================
+    // POP-UP / AÇILIR DUYURU YÖNETİMİ
+    // ==========================================
+    let popupImageUrl = null;
+    let editingPopupId = null;
+    const popupsAdminCache = {};
+
+    function updatePopupLivePreview() {
+      const title = document.getElementById('popupTitle')?.value.trim() || 'ÖNEMLİ DUYURU';
+      const msg = document.getElementById('popupMessage')?.value.trim() || 'Duyuru metniniz burada bu şekilde görüntülenecektir.';
+      const actionText = document.getElementById('popupActionText')?.value.trim();
+      
+      const titleEl = document.getElementById('previewPopupTitle');
+      const msgEl = document.getElementById('previewPopupMessage');
+      const btnEl = document.getElementById('previewPopupBtn');
+      
+      if (titleEl) titleEl.textContent = title;
+      if (msgEl) msgEl.textContent = msg;
+      
+      if (btnEl) {
+        if (actionText) {
+          btnEl.textContent = actionText;
+          btnEl.style.display = 'block';
+        } else {
+          btnEl.style.display = 'none';
+        }
+      }
+    }
+
+    function setPopupImagePreview(url) {
+      const box = document.getElementById('popupImagePreview');
+      const input = document.getElementById('popupImageUrlInput');
+      const prevImg = document.getElementById('previewPopupImg');
+      const placeholder = document.getElementById('previewPopupImgPlaceholder');
+
+      if (url) {
+        box.innerHTML = `<img src="${escapeHtml(url)}" style="max-height:240px; max-width:100%; object-fit:contain; border-radius:10px">`;
+        if (input) input.value = url;
+        if (prevImg) {
+          prevImg.src = url;
+          prevImg.style.display = 'block';
+        }
+        if (placeholder) placeholder.style.display = 'none';
+      } else {
+        box.innerHTML = 'Görsel seçilmedi (Görsel olmadan sadece metinli pop-up da yapabilirsiniz)';
+        if (input) input.value = '';
+        if (prevImg) {
+          prevImg.src = '';
+          prevImg.style.display = 'none';
+        }
+        if (placeholder) placeholder.style.display = 'block';
+      }
+    }
+
+    function onPopupImageUrlManualChange(url) {
+      popupImageUrl = url.trim() || null;
+      setPopupImagePreview(popupImageUrl);
+    }
+
+    function clearPopupImage() {
+      popupImageUrl = null;
+      document.getElementById('popupImageFile').value = '';
+      setPopupImagePreview(null);
+    }
+
+    async function uploadPopupImageFile() {
+      const fileInput = document.getElementById('popupImageFile');
+      const file = fileInput.files?.[0];
+      if (!file) return;
+      if (!currentToken) return showToast('Önce admin girişi yapın', true);
+
+      const formData = new FormData();
+      formData.append('file', file);
+      showToast('Görsel yükleniyor...');
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'x-admin-token': currentToken },
+          body: formData,
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message || 'Yükleme başarısız');
+        let url = data.fileUrl;
+        if (url.startsWith('/uploads/')) url = window.location.origin + url;
+        popupImageUrl = url;
+        setPopupImagePreview(url);
+        showToast('Görsel başarıyla yüklendi');
+      } catch (e) {
+        showToast(e.message || 'Yükleme hatası', true);
+      }
+    }
+
+    function resetPopupForm() {
+      editingPopupId = null;
+      popupImageUrl = null;
+      document.getElementById('popupTitle').value = '';
+      document.getElementById('popupMessage').value = '';
+      document.getElementById('popupActionText').value = '';
+      document.getElementById('popupActionUrl').value = '';
+      document.getElementById('popupPriority').value = '10';
+      document.getElementById('popupShowFrequency').value = 'once_per_day';
+      document.getElementById('popupIsActive').checked = true;
+      document.getElementById('popupPublishBtn').textContent = '🚀 Pop-up\'ı Kaydet & Yayınla';
+      document.getElementById('popupCancelEditBtn').style.display = 'none';
+      document.getElementById('popupEditBanner').style.display = 'none';
+      document.getElementById('popupPublishResult').textContent = '';
+      clearPopupImage();
+      updatePopupLivePreview();
+    }
+
+    function cancelPopupEdit() {
+      resetPopupForm();
+      showToast('Düzenleme iptal edildi');
+    }
+
+    function startEditPopup(id) {
+      const p = popupsAdminCache[id];
+      if (!p) return showToast('Kayıt bulunamadı', true);
+      editingPopupId = id;
+      popupImageUrl = p.imageUrl || null;
+      document.getElementById('popupTitle').value = p.title || '';
+      document.getElementById('popupMessage').value = p.message || '';
+      document.getElementById('popupActionText').value = p.actionText || '';
+      document.getElementById('popupActionUrl').value = p.actionUrl || '';
+      document.getElementById('popupPriority').value = p.priority ?? 10;
+      document.getElementById('popupShowFrequency').value = p.showFrequency || 'once_per_day';
+      document.getElementById('popupIsActive').checked = p.isActive !== false;
+      document.getElementById('popupPublishBtn').textContent = '💾 Değişiklikleri Güncelle';
+      document.getElementById('popupCancelEditBtn').style.display = 'inline-block';
+      document.getElementById('popupEditBanner').style.display = 'block';
+      setPopupImagePreview(popupImageUrl);
+      updatePopupLivePreview();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function publishPopup() {
+      const title = document.getElementById('popupTitle').value.trim();
+      const message = document.getElementById('popupMessage').value.trim();
+      const actionText = document.getElementById('popupActionText').value.trim();
+      const actionUrl = document.getElementById('popupActionUrl').value.trim();
+      const showFrequency = document.getElementById('popupShowFrequency').value;
+      const priority = parseInt(document.getElementById('popupPriority').value, 10) || 0;
+      const isActive = document.getElementById('popupIsActive').checked;
+      const resultEl = document.getElementById('popupPublishResult');
+      const btn = document.getElementById('popupPublishBtn');
+
+      if (!title) return showToast('Lütfen başlık girin', true);
+      const isEdit = Boolean(editingPopupId);
+      btn.disabled = true;
+      btn.textContent = isEdit ? 'Güncelleniyor...' : 'Kaydediliyor...';
+      resultEl.textContent = '';
+
+      try {
+        const payload = {
+          title,
+          message,
+          imageUrl: popupImageUrl,
+          actionText,
+          actionUrl,
+          showFrequency,
+          priority,
+          isActive,
+        };
+
+        const res = await fetch(
+          isEdit ? '/api/popups/' + editingPopupId : '/api/popups',
+          {
+            method: isEdit ? 'PUT' : 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-admin-token': currentToken },
+            body: JSON.stringify(payload),
+          },
+        );
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Kayıt başarısız');
+
+        resultEl.style.color = 'var(--success)';
+        resultEl.textContent = isEdit ? 'Pop-up güncellendi' : 'Pop-up başarıyla yayınlandı';
+        showToast(isEdit ? 'Pop-up güncellendi' : 'Pop-up yayında!');
+        resetPopupForm();
+        loadPopupsAdminList();
+      } catch (e) {
+        resultEl.style.color = 'var(--danger)';
+        resultEl.textContent = e.message;
+        showToast(e.message, true);
+      } finally {
+        btn.disabled = false;
+        if (!editingPopupId) {
+          btn.textContent = '🚀 Pop-up\'ı Kaydet & Yayınla';
+        }
+      }
+    }
+
+    async function togglePopupActive(id) {
+      try {
+        const res = await fetch('/api/popups/' + id + '/toggle', {
+          method: 'PATCH',
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Durum değiştirilemedi');
+        showToast('Pop-up durumu güncellendi');
+        loadPopupsAdminList();
+      } catch (e) {
+        showToast(e.message, true);
+      }
+    }
+
+    async function deletePopup(id) {
+      if (!confirm('Bu pop-up duyuruyu silmek istediğinize emin misiniz?')) return;
+      try {
+        const res = await fetch('/api/popups/' + id, {
+          method: 'DELETE',
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Silinemedi');
+        showToast('Pop-up silindi');
+        loadPopupsAdminList();
+      } catch (e) {
+        showToast(e.message, true);
+      }
+    }
+
+    async function loadPopupsAdminList() {
+      const list = document.getElementById('popupsAdminList');
+      if (!list) return;
+      if (!currentToken) {
+        list.textContent = 'Lütfen giriş yapın';
+        return;
+      }
+      list.textContent = 'Yükleniyor...';
+      try {
+        const res = await fetch('/api/popups/admin/all', {
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          list.textContent = data.message || 'Pop-up listesi alınamadı';
+          return;
+        }
+        const items = data.popups || [];
+        Object.keys(popupsAdminCache).forEach(k => delete popupsAdminCache[k]);
+        items.forEach(p => { if (p && p.id) popupsAdminCache[p.id] = p; });
+
+        if (!items.length) {
+          list.innerHTML = '<div style="padding:16px; color:var(--text-muted)">Henüz oluşturulmuş pop-up duyuru bulunmuyor.</div>';
+          return;
+        }
+
+        list.innerHTML = items.map(item => {
+          const date = item.createdAt ? new Date(item.createdAt).toLocaleString('tr-TR') : '';
+          const statusBadge = item.isActive !== false
+            ? '<span style="background:#dcfce7; color:#15803d; padding:3px 8px; border-radius:6px; font-weight:700; font-size:12px">🟢 YAYINDA</span>'
+            : '<span style="background:#fee2e2; color:#b91c1c; padding:3px 8px; border-radius:6px; font-weight:700; font-size:12px">🔴 PASİF</span>';
+          
+          const img = item.imageUrl
+            ? '<img src="' + escapeHtml(item.imageUrl) + '" style="width:64px;height:64px;object-fit:cover;border-radius:10px;margin-right:14px;border:1px solid #e2e8f0">'
+            : '<div style="width:64px;height:64px;border-radius:10px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;margin-right:14px;font-size:22px">🚀</div>';
+
+          const freqLabel = item.showFrequency === 'every_launch' ? 'Her Açılışta' : (item.showFrequency === 'once_until_dismissed' ? 'Kapatana Kadar' : 'Günde 1 Kez');
+
+          return `
+            <div class="list-item" style="display:flex; align-items:center; justify-content:space-between; padding:14px; margin-bottom:12px; border-radius:14px; background:#fff; border:1px solid var(--border)">
+              <div style="display:flex; align-items:center; min-width:0; flex:1">
+                ${img}
+                <div style="min-width:0">
+                  <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px">
+                    <strong>${escapeHtml(item.title || '')}</strong>
+                    ${statusBadge}
+                  </div>
+                  <div style="font-size:12px; color:var(--text-muted); line-height:1.4">
+                    ${escapeHtml(item.message ? item.message.substring(0, 80) + (item.message.length > 80 ? '...' : '') : 'Açıklama yok')}
+                  </div>
+                  <div style="font-size:11px; color:#94a3b8; margin-top:4px">
+                    Sıklık: <strong>${freqLabel}</strong> · Öncelik: <strong>${item.priority || 0}</strong> · Oluşturulma: ${escapeHtml(date)}
+                  </div>
+                </div>
+              </div>
+              <div class="row" style="gap:8px; margin-left:14px">
+                <button type="button" class="btn btn-secondary" onclick="startEditPopup('${item.id}')">✏️ Düzenle</button>
+                <button type="button" class="btn ${item.isActive ? 'btn-secondary' : 'btn-primary'}" onclick="togglePopupActive('${item.id}')">
+                  ${item.isActive ? '⏸️ Pasife Al' : '▶️ Yayına Al'}
+                </button>
+                <button type="button" class="btn btn-secondary" style="color:var(--danger)" onclick="deletePopup('${item.id}')">🗑️ Sil</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        list.textContent = 'Bağlantı hatası: ' + (e.message || 'sunucu yanıt vermedi');
+      }
+    }
+
     async function loadPushStatus() {
       const box = document.getElementById('pushStatusBox');
       if (!box || !currentToken) return;
@@ -3163,6 +3574,7 @@
         services: ['Hizmetler', 'Ana ekrandaki hizmet kartlarını yönetin.'],
         explore: ['Keşfet', 'Şehir rehberi kategorilerini düzenleyin.'],
         sponsors: ['Sponsorlar', 'Uygulamadaki reklam ve sponsor alanları.'],
+        popups: ['🚀 Pop-up / Açılır Duyuru', 'Uygulama açılışında kullanıcıları karşılayan görsel veya metinli açılır pencereler.'],
         announcements: ['Yayıncı Duyuruları', 'Canva görseli ve metin ile duyuru yayınlayın; isteğe bağlı push gönderin.'],
         outageRoadAi: ['Kesinti & Yol Çalışması (Yapay Zeka)', 'WhatsApp, Facebook veya basın bülteni metinlerini saniyeler içinde ayrıştırıp uygulamada yayınlayın.'],
         push: ['Toplu Bildirim', 'Tüm kullanıcılara push bildirim gönderin.'],
@@ -3196,6 +3608,9 @@
       }
       if (view === 'citizenReports') {
         loadCitizenReports();
+      }
+      if (view === 'popups') {
+        loadPopupsAdminList();
       }
       if (view === 'announcements') {
         loadAnnouncementsAdminList();

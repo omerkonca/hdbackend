@@ -14,7 +14,7 @@ const weatherService = require('./services/weatherService');
 const dailyBriefingService = require('./services/dailyBriefingService');
 const outageService = require('./services/outageService');
 const aiReporterService = require('./services/aiReporterService');
-const { ensureCitizenReportsTable } = require('./utils/runMigrations');
+const { ensureCitizenReportsTable, ensurePopupAnnouncementsTable } = require('./utils/runMigrations');
 const emailService = require('./services/emailService');
 
 const app = express();
@@ -55,6 +55,7 @@ app.use('/api/studio', require('./routes/studioRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/push', require('./routes/push'));
 app.use('/api/announcements', require('./routes/announcements'));
+app.use('/api/popups', require('./routes/popupRoutes'));
 app.use('/api/earthquakes', require('./routes/earthquakeRoutes'));
 app.use('/api/radiation', require('./routes/radiationRoutes'));
 app.use('/api/app-version', require('./routes/appVersionRoutes'));
@@ -101,6 +102,7 @@ const server = app.listen(config.PORT, () => {
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);
 
   ensureCitizenReportsTable().catch(() => {});
+  ensurePopupAnnouncementsTable().catch(() => {});
 
   try {
     const { startEarthquakeCron } = require('./services/earthquakeCronService');
