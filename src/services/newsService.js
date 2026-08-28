@@ -16,6 +16,8 @@ const {
   buildBrowserHeaders,
 } = require('../utils/helpers');
 
+const { getDbPool } = require('../utils/dbPool');
+
 class NewsService {
   constructor() {
     this.cache = {
@@ -59,16 +61,36 @@ class NewsService {
   }
 
   async getPublisherNewsFromDb(limit = 40) {
-    const supabase = require('../utils/supabaseClient');
-    // verified + kendi id önekleri (Türkçe source_name eq kaçın)
-    const { data, error } = await supabase
-      .from('news_items')
-      .select('id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text')
-      .or('verified.eq.true,id.like.news-custom-%,id.like.news-ai-reporter-%')
-      .order('created_at', { ascending: false })
-      .limit(limit);
-    if (error) throw new Error(error.message);
-    return (data || []).map((row) => this.mapDbRowToItem(row));
+    const pool = getDbPool();
+    if (pool) {
+      try {
+        const sql = `
+          SELECT id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text
+          FROM news_items
+          WHERE verified = true OR id LIKE 'news-custom-%' OR id LIKE 'news-ai-reporter-%'
+          ORDER BY created_at DESC
+          LIMIT $1
+        `;
+        const res = await pool.query(sql, [limit]);
+        return res.rows.map((row) => this.mapDbRowToItem(row));
+      } catch (err) {
+        console.error('❌ PG getPublisherNewsFromDb error:', err.message);
+      }
+    }
+
+    try {
+      const supabase = require('../utils/supabaseClient');
+      const { data, error } = await supabase
+        .from('news_items')
+        .select('id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text')
+        .or('verified.eq.true,id.like.news-custom-%,id.like.news-ai-reporter-%')
+        .order('created_at', { ascending: false })
+        .limit(limit);
+      if (error) throw new Error(error.message);
+      return (data || []).map((row) => this.mapDbRowToItem(row));
+    } catch (_) {
+      return [];
+    }
   }
 
   prependToCache(item) {
@@ -621,6 +643,35 @@ KURALLAR:
     const urls = items.map((item) => item.sourceUrl).filter(Boolean);
     if (urls.length === 0) return items;
 
+    const pool = getDbPool();
+    if (pool) {
+      try {
+        const sql = `
+          SELECT source_url, image_url, full_text, category, images
+          FROM news_items
+          WHERE source_url = ANY($1::text[])
+        `;
+        const res = await pool.query(sql, [urls]);
+        const cacheByUrl = new Map((res.rows || []).map((row) => [row.source_url, row]));
+        return items.map((item) => {
+          const cached = cacheByUrl.get(item.sourceUrl);
+          if (!cached) return item;
+          const fullText = cached.full_text && cached.full_text.trim().length > 0
+            ? cached.full_text
+            : (item.fullText || null);
+          return {
+            ...item,
+            imageUrl: item.imageUrl || cached.image_url || null,
+            images: Array.isArray(cached.images) ? cached.images : (cached.image_url ? [cached.image_url] : (item.imageUrl ? [item.imageUrl] : [])),
+            category: item.category || cached.category || this.inferNewsCategory(item.title, item.summary, item.sourceName),
+            fullText,
+          };
+        });
+      } catch (err) {
+        console.error('❌ Direct PG news cache read failed:', err.message);
+      }
+    }
+
     try {
       const supabase = require('../utils/supabaseClient');
       const allData = [];
@@ -672,8 +723,33 @@ KURALLAR:
       return this.withPublisherNews(this.cache.items, max);
     }
 
-    // 3. Memory cache is empty -> check Supabase database (fast cache fallback)
+    // 3. Memory cache is empty -> check database (fast cache fallback)
     if (!forceRefresh) {
+      const pool = getDbPool();
+      if (pool) {
+        try {
+          const sql = `
+            SELECT id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text
+            FROM news_items
+            ORDER BY created_at DESC
+            LIMIT 100
+          `;
+          const res = await pool.query(sql);
+          if (res.rows && res.rows.length > 0) {
+            const dbItems = res.rows.map(row => this.mapDbRowToItem(row));
+            this.cache = {
+              fetchedAt: 0,
+              items: dbItems,
+            };
+            console.log(`[news] Loaded ${dbItems.length} items from PG cache. Refreshing from RSS in background...`);
+            this._refreshNewsBackground(max).catch(() => {});
+            return dbItems.slice(0, max);
+          }
+        } catch (pgErr) {
+          console.error('❌ PG news read fallback failed:', pgErr.message);
+        }
+      }
+
       try {
         console.log('[news] Memory cache is empty, trying Supabase DB cache...');
         const supabase = require('../utils/supabaseClient');
@@ -776,9 +852,9 @@ KURALLAR:
 
   async _syncNewsToSupabase(items) {
     try {
-      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
       const newsPushLog = require('../utils/newsPushLog');
-      const db = requireSupabaseAdmin();
+      const pool = getDbPool();
+
       // Kendi yayıncı haberlerini RSS sync ile ezme (verified/video/full_text korunur)
       const syncItems = items.filter(
         (item) =>
@@ -786,156 +862,148 @@ KURALLAR:
           !(item?.id || '').startsWith('news-ai-reporter-') &&
           item?.verified !== true,
       );
-      const rows = syncItems.map(item => ({
-        id: item.id,
-        title: item.title,
-        summary: item.summary,
-        image_url: item.imageUrl,
-        created_at: item.createdAt,
-        source_url: item.sourceUrl,
-        source_name: item.sourceName,
-        category: item.category,
-        fetched_at: new Date().toISOString(),
-        is_ai_generated: item.isAiGenerated || false,
-        is_ai_optimized: item.isAiOptimized || false,
-      }));
+
+      if (syncItems.length === 0) return;
 
       const ids = syncItems.map(item => item.id);
       const urls = [...new Set(syncItems.map(item => item.sourceUrl).filter(Boolean))];
-      const { data: existing, error: checkError } = await db
-        .from('news_items')
-        .select('id, title, source_url')
-        .in('id', ids);
 
+      let existing = [];
       let existingByUrl = [];
-      if (urls.length > 0) {
-        const urlChunkSize = 20;
-        for (let i = 0; i < urls.length; i += urlChunkSize) {
-          const chunk = urls.slice(i, i + urlChunkSize);
-          try {
-            const { data: urlRows, error: urlError } = await db
-              .from('news_items')
-              .select('id, title, source_url')
-              .in('source_url', chunk);
-            if (urlError) {
-              console.error('[news] Supabase URL kontrolü başarısız:', urlError.message);
-            } else if (urlRows) {
-              existingByUrl.push(...urlRows);
-            }
-          } catch (urlErr) {
-            console.error('[news] Supabase URL kontrolü başarısız:', urlErr.message);
+
+      if (pool) {
+        try {
+          const resIds = await pool.query('SELECT id, title, source_url FROM news_items WHERE id = ANY($1::text[])', [ids]);
+          existing = resIds.rows || [];
+          if (urls.length > 0) {
+            const resUrls = await pool.query('SELECT id, title, source_url FROM news_items WHERE source_url = ANY($1::text[])', [urls]);
+            existingByUrl = resUrls.rows || [];
           }
+        } catch (pgErr) {
+          console.error('[news] PG existing check error:', pgErr.message);
         }
+      } else {
+        try {
+          const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+          const db = requireSupabaseAdmin();
+          const { data } = await db.from('news_items').select('id, title, source_url').in('id', ids);
+          if (data) existing = data;
+        } catch (_) {}
       }
 
-      if (checkError) {
-        console.error('[news] Supabase mevcut haber kontrolü başarısız:', checkError.message);
+      const existingIds = new Set([
+        ...existing.map((row) => row.id),
+        ...existingByUrl.map((row) => row.id),
+      ]);
+      const existingUrls = new Set(existingByUrl.map((row) => row.source_url).filter(Boolean));
+      const existingTitleKeys = new Set(
+        [...existing, ...existingByUrl]
+          .map((row) => this.normalizeNewsTitleKey(row.title))
+          .filter(Boolean),
+      );
+      const existingRows = [...existing, ...existingByUrl];
+
+      const newItems = syncItems.filter((item) => {
+        if (existingIds.has(item.id)) return false;
+        if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
+        const titleKey = this.normalizeNewsTitleKey(item.title);
+        if (titleKey && existingTitleKeys.has(titleKey)) return false;
+        if (existingRows.some((row) => this.areDuplicateNews(row, item))) return false;
+        return true;
+      });
+
+      // Aynı sync turunda Sabır+Hasret gibi kopyaları tekilleştir (ilk kalan)
+      const uniqueNewItems = [];
+      for (const item of [...newItems].sort((a, b) => {
+        const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return ta - tb;
+      })) {
+        if (uniqueNewItems.some((kept) => this.areDuplicateNews(kept, item))) continue;
+        uniqueNewItems.push(item);
       }
 
-      if (!checkError && existing) {
-        const existingIds = new Set([
-          ...(existing || []).map((row) => row.id),
-          ...existingByUrl.map((row) => row.id),
-        ]);
-        const existingUrls = new Set(existingByUrl.map((row) => row.source_url).filter(Boolean));
-        const existingTitleKeys = new Set(
-          [...(existing || []), ...existingByUrl]
-            .map((row) => this.normalizeNewsTitleKey(row.title))
-            .filter(Boolean),
-        );
-        const existingRows = [...(existing || []), ...existingByUrl];
-
-        const newItems = syncItems.filter((item) => {
-          if (existingIds.has(item.id)) return false;
-          if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
-          const titleKey = this.normalizeNewsTitleKey(item.title);
-          if (titleKey && existingTitleKeys.has(titleKey)) return false;
-          if (existingRows.some((row) => this.areDuplicateNews(row, item))) return false;
-          return true;
-        });
-
-        // Aynı sync turunda Sabır+Hasret gibi kopyaları tekilleştir (ilk kalan)
-        const uniqueNewItems = [];
-        for (const item of [...newItems].sort((a, b) => {
-          const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return ta - tb;
-        })) {
-          if (uniqueNewItems.some((kept) => this.areDuplicateNews(kept, item))) continue;
-          uniqueNewItems.push(item);
-        }
-
-        // 1. Yeni gelen haberlerin tam metinlerini ve görsellerini hemen çek
-        if (uniqueNewItems.length > 0) {
-          console.log(`[news] ${uniqueNewItems.length} yeni haber tespit edildi. Senkronizasyon öncesi tam metinler çekiliyor...`);
-          await Promise.all(
-            uniqueNewItems.slice(0, 5).map(async (item) => {
-              try {
-                if (!item.sourceUrl || /news\.google\.com/i.test(item.sourceUrl)) return;
-                const details = await this.fetchArticleDetails(item.sourceUrl);
-                if (details.fullText && details.fullText.trim().length > 0) {
-                  item.fullText = details.fullText.trim();
-                }
-                if (details.imageUrl && details.imageUrl.trim().length > 0) {
-                  item.imageUrl = details.imageUrl.trim();
-                }
-                if (details.images && details.images.length > 0) {
-                  item.images = details.images;
-                }
-              } catch (err) {
-                console.warn(`[news] Yeni haber detayı anında çekilemedi (${item.sourceUrl}):`, err.message);
+      // 1. Yeni gelen haberlerin tam metinlerini ve görsellerini hemen çek
+      if (uniqueNewItems.length > 0) {
+        console.log(`[news] ${uniqueNewItems.length} yeni haber tespit edildi. Senkronizasyon öncesi tam metinler çekiliyor...`);
+        await Promise.all(
+          uniqueNewItems.slice(0, 5).map(async (item) => {
+            try {
+              if (!item.sourceUrl || /news\.google\.com/i.test(item.sourceUrl)) return;
+              const details = await this.fetchArticleDetails(item.sourceUrl);
+              if (details.fullText && details.fullText.trim().length > 0) {
+                item.fullText = details.fullText.trim();
               }
-            }),
-          );
-        }
-
-        // DB'ye yazarken: mevcut kayıtlara konu-kopyası olan YENİ satırları atla (Hasret vs Sabır)
-        const skipInsertIds = new Set(
-          syncItems
-            .filter((item) => {
-              if (existingIds.has(item.id)) return false;
-              const titleKey = this.normalizeNewsTitleKey(item.title);
-              if (titleKey && existingTitleKeys.has(titleKey)) return true;
-              return existingRows.some((row) => this.areDuplicateNews(row, item));
-            })
-            .map((item) => item.id),
-        );
-        if (skipInsertIds.size > 0) {
-          console.log(`[news] ${skipInsertIds.size} kopya haber DB'ye yazılmadı (benzer başlık).`);
-        }
-        const filteredSync = this.dedupeNewsList(
-          syncItems.filter((item) => !skipInsertIds.has(item.id)),
-        );
-        rows.length = 0;
-        rows.push(
-          ...filteredSync.map((item) => ({
-            id: item.id,
-            title: item.title,
-            summary: item.summary,
-            full_text: item.fullText || null,
-            image_url: item.imageUrl,
-            images: Array.isArray(item.images) ? item.images : (item.imageUrl ? [item.imageUrl] : []),
-            created_at: item.createdAt,
-            source_url: item.sourceUrl,
-            source_name: item.sourceName,
-            category: item.category,
-            fetched_at: new Date().toISOString(),
-            is_ai_generated: item.isAiGenerated || false,
-            is_ai_optimized: item.isAiOptimized || false,
-          })),
+              if (details.imageUrl && details.imageUrl.trim().length > 0) {
+                item.imageUrl = details.imageUrl.trim();
+              }
+              if (details.images && details.images.length > 0) {
+                item.images = details.images;
+              }
+            } catch (err) {
+              console.warn(`[news] Yeni haber detayı anında çekilemedi (${item.sourceUrl}):`, err.message);
+            }
+          }),
         );
       }
 
-      if (rows.length > 0) {
-        const { error: upsertError } = await db.from('news_items').upsert(rows);
-        if (upsertError) {
-          console.error('❌ Supabase news upsert failed:', upsertError.message);
-          return;
+      // DB'ye yazarken: mevcut kayıtlara konu-kopyası olan YENİ satırları atla (Hasret vs Sabır)
+      const skipInsertIds = new Set(
+        syncItems
+          .filter((item) => {
+            if (existingIds.has(item.id)) return false;
+            const titleKey = this.normalizeNewsTitleKey(item.title);
+            if (titleKey && existingTitleKeys.has(titleKey)) return true;
+            return existingRows.some((row) => this.areDuplicateNews(row, item));
+          })
+          .map((item) => item.id),
+      );
+      if (skipInsertIds.size > 0) {
+        console.log(`[news] ${skipInsertIds.size} kopya haber DB'ye yazılmadı (benzer başlık).`);
+      }
+      const filteredSync = this.dedupeNewsList(
+        syncItems.filter((item) => !skipInsertIds.has(item.id)),
+      );
+
+      if (pool && filteredSync.length > 0) {
+        try {
+          for (const item of filteredSync) {
+            const sql = `
+              INSERT INTO news_items (
+                id, title, summary, full_text, image_url, images, created_at,
+                source_url, source_name, category, fetched_at, is_ai_generated, is_ai_optimized
+              ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(), $11, $12)
+              ON CONFLICT (id) DO UPDATE SET
+                title = EXCLUDED.title,
+                summary = EXCLUDED.summary,
+                full_text = COALESCE(EXCLUDED.full_text, news_items.full_text),
+                image_url = COALESCE(EXCLUDED.image_url, news_items.image_url),
+                images = COALESCE(EXCLUDED.images, news_items.images),
+                category = EXCLUDED.category,
+                fetched_at = NOW()
+            `;
+            await pool.query(sql, [
+              item.id,
+              item.title,
+              item.summary,
+              item.fullText || null,
+              item.imageUrl,
+              Array.isArray(item.images) ? item.images : (item.imageUrl ? [item.imageUrl] : []),
+              item.createdAt || new Date().toISOString(),
+              item.sourceUrl,
+              item.sourceName,
+              item.category || 'Düziçi',
+              item.isAiGenerated || false,
+              item.isAiOptimized || false,
+            ]);
+          }
+          console.log(`[news] ${filteredSync.length} news items synced to PostgreSQL.`);
+        } catch (upsertError) {
+          console.error('❌ PostgreSQL news upsert error:', upsertError.message);
         }
-        console.log(`[news] ${rows.length} news items synced to Supabase (tam metinler dahil).`);
       }
 
-      // 2. Haberler Supabase'e tam metinleriyle yazıldıktan SONRA push bildirimi gönder
+      // 2. Haberler yazıldıktan SONRA push bildirimi gönder
       if (uniqueNewItems.length > 0) {
         try {
           const fcmService = require('./fcmService');
@@ -1083,24 +1151,20 @@ KURALLAR:
   }
 
   async preFetchFullTexts(items) {
-    const supabase = require('../utils/supabaseClient');
     const urls = items.map(item => item.sourceUrl).filter(Boolean);
     if (urls.length === 0) return;
 
     try {
-      const allData = [];
-      const chunkSize = 20;
-      for (let i = 0; i < urls.length; i += chunkSize) {
-        const chunk = urls.slice(i, i + chunkSize);
-        const { data, error } = await supabase
-          .from('news_items')
-          .select('source_url, full_text, image_url, is_ai_optimized')
-          .in('source_url', chunk);
-        if (error) throw error;
-        if (data) allData.push(...data);
+      const pool = getDbPool();
+      let cachedByUrl = new Map();
+
+      if (pool) {
+        try {
+          const res = await pool.query('SELECT source_url, full_text, image_url, is_ai_optimized FROM news_items WHERE source_url = ANY($1::text[])', [urls]);
+          cachedByUrl = new Map((res.rows || []).map((row) => [row.source_url, row]));
+        } catch (_) {}
       }
 
-      const cachedByUrl = new Map((allData || []).map((row) => [row.source_url, row]));
       const itemsToFetch = items.filter((item) => {
         if (!item.sourceUrl) return false;
         const cached = cachedByUrl.get(item.sourceUrl);
@@ -1182,12 +1246,22 @@ KURALLAR:
             if (details.images && details.images.length > 0) {
               update.images = details.images;
             }
-            if (Object.keys(update).length > 0) {
-              await supabase
-                .from('news_items')
-                .update(update)
-                .eq('source_url', item.sourceUrl);
-              console.log(`[news] Arka planda haber detayi onbellege alindi: ${item.sourceUrl}`);
+            if (Object.keys(update).length > 0 && pool) {
+              try {
+                const setClauses = [];
+                const values = [];
+                let idx = 1;
+                for (const [key, val] of Object.entries(update)) {
+                  setClauses.push(`${key} = $${idx++}`);
+                  values.push(val);
+                }
+                values.push(item.sourceUrl);
+                const sql = `UPDATE news_items SET ${setClauses.join(', ')} WHERE source_url = $${idx}`;
+                await pool.query(sql, values);
+                console.log(`[news] Arka planda haber detayi onbellege alindi: ${item.sourceUrl}`);
+              } catch (updateErr) {
+                console.error('[news] PG update news detail error:', updateErr.message);
+              }
             }
           } catch (e) {
             console.error(`[news] Arka planda haber detayi cekme basarisiz (${item.sourceUrl}):`, e.message);

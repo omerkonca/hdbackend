@@ -1,5 +1,6 @@
 const supabase = require('../utils/supabaseClient');
 const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+const { getDbPool } = require('../utils/dbPool');
 const weatherService = require('./weatherService');
 const outageService = require('./outageService');
 const roadClosureService = require('./roadClosureSyncService');
@@ -776,8 +777,54 @@ class AiReporterService {
       newArticle.id = todayId;
     }
 
-    const { data: saved, error } = await db.from('news_items').upsert(newArticle).select('*').single();
-    if (error) throw new Error(error.message);
+    const pool = getDbPool();
+    let saved = newArticle;
+    if (pool) {
+      try {
+        const sql = `
+          INSERT INTO news_items (
+            id, title, summary, full_text, image_url, images, created_at,
+            source_url, source_name, category, verified, is_ai_generated, is_ai_optimized, fetched_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+          ON CONFLICT (id) DO UPDATE SET
+            title = EXCLUDED.title,
+            summary = EXCLUDED.summary,
+            full_text = EXCLUDED.full_text,
+            image_url = EXCLUDED.image_url,
+            images = EXCLUDED.images,
+            category = EXCLUDED.category,
+            verified = EXCLUDED.verified,
+            is_ai_generated = EXCLUDED.is_ai_generated,
+            is_ai_optimized = EXCLUDED.is_ai_optimized,
+            fetched_at = NOW()
+          RETURNING *
+        `;
+        const res = await pool.query(sql, [
+          newArticle.id,
+          newArticle.title,
+          newArticle.summary,
+          newArticle.full_text || newArticle.fullText || null,
+          newArticle.image_url || newArticle.imageUrl,
+          Array.isArray(newArticle.images) ? newArticle.images : (newArticle.image_url ? [newArticle.image_url] : []),
+          newArticle.created_at || new Date().toISOString(),
+          newArticle.source_url || newArticle.sourceUrl,
+          newArticle.source_name || newArticle.sourceName || 'Şehir Muhabiri (AI)',
+          newArticle.category || 'Düziçi',
+          newArticle.verified === true,
+          newArticle.is_ai_generated === true,
+          newArticle.is_ai_optimized === true,
+        ]);
+        if (res.rows.length > 0) {
+          saved = res.rows[0];
+        }
+      } catch (pgErr) {
+        console.error('[ai-reporter] PG upsert error:', pgErr.message);
+      }
+    } else {
+      const { data: dbSaved, error } = await db.from('news_items').upsert(newArticle).select('*').single();
+      if (error) throw new Error(error.message);
+      if (dbSaved) saved = dbSaved;
+    }
 
     try {
       newsService.prependToCache(newsService.mapDbRowToItem(saved));
