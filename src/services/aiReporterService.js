@@ -241,6 +241,49 @@ function formatOutageLine(o, { finished = false } = {}) {
 class AiReporterService {
   constructor() {
     this._generating = false;
+    this._lastCompletedDate = null;
+  }
+
+  async checkAlreadyReportedToday(targetDate, todayId) {
+    // 1. Direct PG Pool check
+    const pool = getDbPool();
+    if (pool) {
+      try {
+        const res = await pool.query('SELECT id FROM news_items WHERE id = $1 LIMIT 1', [todayId]);
+        if (res.rows && res.rows.length > 0) return true;
+      } catch (e) {
+        console.warn('[ai-reporter] pg check existing error:', e.message);
+      }
+    }
+
+    // 2. Supabase Admin check
+    try {
+      const db = requireSupabaseAdmin();
+      if (db) {
+        const { data: existing, error } = await db.from('news_items').select('id').eq('id', todayId).maybeSingle();
+        if (!error && existing) return true;
+      }
+    } catch (e) {
+      console.warn('[ai-reporter] supabase check existing error:', e.message);
+    }
+
+    // 3. News service cache / memory check
+    try {
+      const cached = (newsService.cache?.items || []).some(
+        (x) => x.id === todayId || (x.id && x.id.startsWith('news-ai-reporter-') && x.createdAt && x.createdAt.startsWith(targetDate))
+      );
+      if (cached) return true;
+    } catch (_) {}
+
+    // 4. City content settings check
+    try {
+      const city = await fileService.readCityContent();
+      if (city?.aiNewsSettings?.lastReporterDate === targetDate && city?.aiNewsSettings?.lastReporterOk === true) {
+        return true;
+      }
+    } catch (_) {}
+
+    return false;
   }
 
   async saveReporterStatus(patch = {}) {
@@ -653,17 +696,18 @@ class AiReporterService {
     const tr = turkeyDateParts();
     const targetDate = tr.date;
     const dateLabel = formatTrDateLabel(targetDate);
-    const db = requireSupabaseAdmin();
 
     const todayHash = crypto.createHash('md5').update(`ai-reporter-${targetDate}`).digest('hex');
     const todayId = `news-ai-reporter-${todayHash}`;
 
     if (!force) {
-      const { data: existing } = await db.from('news_items').select('id').eq('id', todayId).maybeSingle();
-      if (existing) {
+      const alreadyReported = await this.checkAlreadyReportedToday(targetDate, todayId);
+      if (alreadyReported) {
         console.log(`[ai-reporter] Daily report for ${targetDate} already exists. Skipping.`);
+        this._lastCompletedDate = targetDate;
         await this.saveReporterStatus({
           lastReporterOk: true,
+          lastReporterDate: targetDate,
           lastReporterError: null,
           lastReporterTitle: 'Bugünün raporu zaten yayınlı',
           lastReporterSkipped: true,
@@ -739,8 +783,10 @@ class AiReporterService {
     };
 
     if (!publish) {
+      this._lastCompletedDate = targetDate;
       await this.saveReporterStatus({
         lastReporterOk: true,
+        lastReporterDate: targetDate,
         lastReporterError: null,
         lastReporterTitle: title,
         lastReporterScore: score,
@@ -832,21 +878,34 @@ class AiReporterService {
 
     console.log(`[ai-reporter] Published: "${title}" theme=${theme} score=${score} model=${model}`);
 
+    // Push notification gönderimi: Günde en fazla 1 kez bildirim gitmesi garanti edilir
+    let pushSent = false;
     try {
-      const fcmService = require('./fcmService');
-      if (fcmService.isFcmConfigured()) {
-        await fcmService.sendToTopic('news_duzici', {
-          title: 'Düziçi akşam bülteni hazır 📰',
-          body: title,
-          data: { route: String(newArticle.id) },
-        });
+      const cityCheck = await fileService.readCityContent();
+      const pushAlreadySentToday = cityCheck?.aiNewsSettings?.lastReporterPushDate === targetDate;
+      if (pushAlreadySentToday) {
+        console.log(`[ai-reporter] Push notification for ${targetDate} already sent today. Skipping FCM push.`);
+      } else {
+        const fcmService = require('./fcmService');
+        if (fcmService.isFcmConfigured()) {
+          await fcmService.sendToTopic('news_duzici', {
+            title: 'Düziçi akşam bülteni hazır 📰',
+            body: title,
+            data: { route: String(newArticle.id) },
+          });
+          pushSent = true;
+          console.log(`[ai-reporter] FCM push sent successfully for ${targetDate}`);
+        }
       }
     } catch (fcmErr) {
       console.error('[ai-reporter] FCM failed:', fcmErr.message);
     }
 
+    this._lastCompletedDate = targetDate;
     await this.saveReporterStatus({
       lastReporterOk: true,
+      lastReporterDate: targetDate,
+      ...(pushSent ? { lastReporterPushDate: targetDate } : {}),
       lastReporterError: null,
       lastReporterTitle: title,
       lastReporterScore: score,
@@ -875,8 +934,9 @@ class AiReporterService {
     const config = require('../config');
     let reporterEnabled = config.AI_NEWS.REPORTER_ENABLED !== false;
     let requireApproval = false;
+    let cityContent = null;
     try {
-      const cityContent = await fileService.readCityContent();
+      cityContent = await fileService.readCityContent();
       if (cityContent?.aiNewsSettings?.reporterEnabled !== undefined) {
         reporterEnabled = cityContent.aiNewsSettings.reporterEnabled === true;
       }
@@ -888,14 +948,31 @@ class AiReporterService {
     const tr = turkeyDateParts();
     if (tr.hour < config.AI_NEWS.REPORTER_HOUR_TR) return null;
 
+    // Eğer bugün zaten tamamlandıysa doğrudan atla
+    if (this._lastCompletedDate === tr.date || cityContent?.aiNewsSettings?.lastReporterDate === tr.date) {
+      return null;
+    }
+
+    const todayHash = crypto.createHash('md5').update(`ai-reporter-${tr.date}`).digest('hex');
+    const todayId = `news-ai-reporter-${todayHash}`;
+    const alreadyExists = await this.checkAlreadyReportedToday(tr.date, todayId);
+    if (alreadyExists) {
+      this._lastCompletedDate = tr.date;
+      return null;
+    }
+
     if (this._generating) return null;
     this._generating = true;
 
     try {
-      return await this.generateDailyReport({
+      const result = await this.generateDailyReport({
         force: false,
         publish: !requireApproval,
       });
+      if (result) {
+        this._lastCompletedDate = tr.date;
+      }
+      return result;
     } catch (err) {
       console.error('[ai-reporter] Automatic report generation failed:', err.message);
       await this.saveReporterStatus({

@@ -418,19 +418,27 @@ class PharmacyService {
       );
     } catch (_) {}
 
-    const title = 'Bugün Nöbetçi Eczane 🏥';
-    const body = `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir.`;
+    // Hafta sonu (Cumartesi = 6, Pazar = 0) ise HERKESE (news_duzici), hafta içi ise SADECE PLUS (pharmacy_plus)
+    const dayOfWeek = istDate.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    const targetTopic = isWeekend ? 'news_duzici' : 'pharmacy_plus';
+    const title = isWeekend ? '🏥 Hafta Sonu Nöbetçi Eczane' : '👑 Bugün Nöbetçi Eczane (Plus)';
+    const body = isWeekend
+      ? `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir. Sağlıklı hafta sonları dileriz.`
+      : `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir.`;
 
     try {
-      await fcmService.sendToTopic('pharmacy_plus', {
+      await fcmService.sendToTopic(targetTopic, {
         title,
         body,
         data: {
           route: 'screen:pharmacy',
           pharmacyName: todayPharmacy.name,
+          isWeekend: isWeekend ? 'true' : 'false',
         },
       });
-      console.log(`[pharmacy] Plus üyelere nöbetçi eczane push bildirimi gönderildi: ${todayPharmacy.name}`);
+      console.log(`[pharmacy] Nöbetçi eczane push bildirimi gönderildi -> Hedef: ${targetTopic} (${todayPharmacy.name})`);
     } catch (err) {
       console.warn('[pharmacy] push failed:', err.message);
     }

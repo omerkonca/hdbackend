@@ -25,6 +25,12 @@ async function checkNewEarthquakesAndNotify() {
     // Yeni olan depremleri tespit et
     const newQuakes = earthquakes.filter(q => !knownQuakeIds.has(q.id));
 
+    // Bellek temizliği (en fazla 500 ID tut)
+    if (knownQuakeIds.size > 500) {
+      const idsArray = [...knownQuakeIds];
+      knownQuakeIds = new Set(idsArray.slice(-300));
+    }
+
     for (const quake of newQuakes) {
       knownQuakeIds.add(quake.id);
 
