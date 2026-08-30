@@ -61,7 +61,7 @@ async function sendMulticast(tokens, { title, body, data = {} }) {
   return { sent, failed };
 }
 
-async function sendToTopic(topic, { title, body, data = {} }) {
+async function sendToTopic(topic, { title, body, data = {}, collapseKey = null }) {
   if (!ensureFirebase()) {
     return { success: false, error: 'FCM not configured' };
   }
@@ -75,6 +75,13 @@ async function sendToTopic(topic, { title, body, data = {} }) {
     stringData[String(key)] = String(value ?? '');
   }
 
+  const apnsHeaders = {
+    'apns-priority': '10',
+  };
+  if (collapseKey) {
+    apnsHeaders['apns-collapse-id'] = String(collapseKey);
+  }
+
   try {
     const messageId = await admin.messaging().send({
       topic: topicName,
@@ -83,11 +90,12 @@ async function sendToTopic(topic, { title, body, data = {} }) {
         body: String(body || '').trim() || 'Detaylar için uygulamayı açın.',
       },
       data: stringData,
-      android: { priority: 'high' },
+      android: {
+        priority: 'high',
+        ...(collapseKey ? { collapseKey: String(collapseKey) } : {}),
+      },
       apns: {
-        headers: {
-          'apns-priority': '10',
-        },
+        headers: apnsHeaders,
         payload: {
           aps: {
             sound: 'default',
@@ -103,7 +111,7 @@ async function sendToTopic(topic, { title, body, data = {} }) {
   }
 }
 
-async function sendToDevice(token, { title, body, data = {} }) {
+async function sendToDevice(token, { title, body, data = {}, collapseKey = null }) {
   if (!ensureFirebase() || !token) {
     return { success: false, error: 'FCM not configured or no token' };
   }
@@ -111,6 +119,13 @@ async function sendToDevice(token, { title, body, data = {} }) {
   const stringData = {};
   for (const [key, value] of Object.entries(data || {})) {
     stringData[String(key)] = String(value ?? '');
+  }
+
+  const apnsHeaders = {
+    'apns-priority': '10',
+  };
+  if (collapseKey) {
+    apnsHeaders['apns-collapse-id'] = String(collapseKey);
   }
 
   try {
@@ -121,11 +136,12 @@ async function sendToDevice(token, { title, body, data = {} }) {
         body: String(body || '').trim() || 'Detaylar için uygulamayı açın.',
       },
       data: stringData,
-      android: { priority: 'high' },
+      android: {
+        priority: 'high',
+        ...(collapseKey ? { collapseKey: String(collapseKey) } : {}),
+      },
       apns: {
-        headers: {
-          'apns-priority': '10',
-        },
+        headers: apnsHeaders,
         payload: {
           aps: {
             sound: 'default',

@@ -375,6 +375,8 @@ class PharmacyService {
   }
 
   async maybePushDutyPharmacy(pharmacies) {
+    if (this._isPushingPharmacy) return;
+
     // 1. Saat kontrolü (Türkiye saati UTC+3)
     const now = new Date();
     const istanbulOffset = 3 * 60; // UTC+3
@@ -409,29 +411,32 @@ class PharmacyService {
     const todayPharmacy = pharmacies.find((p) => p.dateLabel === 'Bugün') || pharmacies[0];
     if (!todayPharmacy) return;
 
+    this._isPushingPharmacy = true;
     this._lastPushedDateKey = todayKey;
-    try {
-      fs.writeFileSync(
-        PUSH_STATE_FILE,
-        JSON.stringify({ lastPushedDateKey: todayKey, sentAt: new Date().toISOString() }, null, 2),
-        'utf8',
-      );
-    } catch (_) {}
-
-    // Hafta sonu (Cumartesi = 6, Pazar = 0) ise HERKESE (news_duzici), hafta içi ise SADECE PLUS (pharmacy_plus)
-    const dayOfWeek = istDate.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
-    const targetTopic = isWeekend ? 'news_duzici' : 'pharmacy_plus';
-    const title = isWeekend ? '🏥 Hafta Sonu Nöbetçi Eczane' : '👑 Bugün Nöbetçi Eczane (Plus)';
-    const body = isWeekend
-      ? `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir. Sağlıklı hafta sonları dileriz.`
-      : `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir.`;
 
     try {
+      try {
+        fs.writeFileSync(
+          PUSH_STATE_FILE,
+          JSON.stringify({ lastPushedDateKey: todayKey, sentAt: new Date().toISOString() }, null, 2),
+          'utf8',
+        );
+      } catch (_) {}
+
+      // Hafta sonu (Cumartesi = 6, Pazar = 0) ise HERKESE (news_duzici), hafta içi ise SADECE PLUS (pharmacy_plus)
+      const dayOfWeek = istDate.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      const targetTopic = isWeekend ? 'news_duzici' : 'pharmacy_plus';
+      const title = isWeekend ? '🏥 Hafta Sonu Nöbetçi Eczane' : '👑 Bugün Nöbetçi Eczane (Plus)';
+      const body = isWeekend
+        ? `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir. Sağlıklı hafta sonları dileriz.`
+        : `${todayPharmacy.name} (${todayPharmacy.address || 'Düziçi'}) nöbetçidir.`;
+
       await fcmService.sendToTopic(targetTopic, {
         title,
         body,
+        collapseKey: `pharmacy_duty_${todayKey}`,
         data: {
           route: 'screen:pharmacy',
           pharmacyName: todayPharmacy.name,
@@ -441,6 +446,8 @@ class PharmacyService {
       console.log(`[pharmacy] Nöbetçi eczane push bildirimi gönderildi -> Hedef: ${targetTopic} (${todayPharmacy.name})`);
     } catch (err) {
       console.warn('[pharmacy] push failed:', err.message);
+    } finally {
+      this._isPushingPharmacy = false;
     }
   }
 }
