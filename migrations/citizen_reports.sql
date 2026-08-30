@@ -11,8 +11,17 @@ CREATE TABLE IF NOT EXISTS public.citizen_reports (
   is_plus boolean NOT NULL DEFAULT false,
   is_supporter boolean NOT NULL DEFAULT false,
   user_badge text,
+  address text,
+  latitude double precision,
+  longitude double precision,
+  location_url text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS address text;
+ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS latitude double precision;
+ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS longitude double precision;
+ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS location_url text;
 
 CREATE INDEX IF NOT EXISTS idx_citizen_reports_created ON public.citizen_reports(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_citizen_reports_status ON public.citizen_reports(status);

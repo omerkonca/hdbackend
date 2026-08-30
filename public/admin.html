@@ -3321,6 +3321,17 @@
       const closedStyle = isOpenCitizenReport(current)
         ? ''
         : 'opacity:0.78; background:#f8fafc;';
+
+      const locUrl = item.location_url || (item.latitude && item.longitude ? `https://www.google.com/maps/search/?api=1&query=${item.latitude},${item.longitude}` : '');
+      const locationHtml = (item.address || locUrl)
+        ? `<div style="background:#eff6ff; border:1px solid #dbeafe; padding:8px 12px; border-radius:8px; margin:8px 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
+            <div style="font-size:13px; color:#1e40af; font-weight:600">
+              📍 <strong>Olay Yeri:</strong> ${escapeHtml(item.address || `Koordinat: ${item.latitude}, ${item.longitude}`)}
+            </div>
+            ${locUrl ? `<a href="${escapeHtml(locUrl)}" target="_blank" rel="noopener" class="btn" style="background:#2563eb; color:#fff; padding:4px 10px; font-size:12px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:4px">🗺️ Haritada Aç</a>` : ''}
+          </div>`
+        : '';
+
       return `
         <div class="card" style="margin-bottom:12px; padding:16px; ${vipStyle} ${closedStyle}">
           <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px">
@@ -3333,6 +3344,7 @@
               <button type="button" class="btn btn-primary" onclick="updateCitizenReportStatus('${id}')">Kaydet</button>
             </div>
           </div>
+          ${locationHtml}
           <p style="margin:8px 0; white-space:pre-wrap; font-size:14px">${message}</p>
           <div style="font-size:13px; color:var(--text-muted); margin-bottom:8px">${contact}</div>
           ${photos ? `<div style="display:flex; flex-wrap:wrap; margin-bottom:8px">${photos}</div>` : ''}

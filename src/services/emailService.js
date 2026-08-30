@@ -81,6 +81,15 @@ function buildHtml(report) {
     ? `<div style="display:inline-block;background:#FEF3C7;border:1.5px solid #F59E0B;color:#92400E;font-weight:bold;padding:6px 12px;border-radius:8px;font-size:13px;margin-bottom:12px">⭐ ${userBadge} — ÖNCELİKLİ İHBAR</div>`
     : '';
 
+  const locUrl = report.location_url || (report.latitude && report.longitude ? `https://www.google.com/maps/search/?api=1&query=${report.latitude},${report.longitude}` : null);
+  const locationHtml = (report.address || locUrl)
+    ? `<div style="background:#EFF6FF;border:1px solid #BFDBFE;padding:10px 14px;border-radius:8px;margin:12px 0">
+        <p style="margin:0 0 6px 0;font-weight:bold;color:#1E40AF">📍 Olay Yeri / Konum Bilgisi:</p>
+        ${report.address ? `<p style="margin:0 0 6px 0;color:#1E293B"><strong>Açık Adres:</strong> ${report.address}</p>` : ''}
+        ${locUrl ? `<p style="margin:0"><a href="${locUrl}" target="_blank" style="display:inline-block;background:#2563EB;color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:12px">🗺️ Google Haritalarda Aç</a></p>` : ''}
+       </div>`
+    : '';
+
   return `
     <div style="font-family:Arial,sans-serif;max-width:640px">
       <h2 style="color:#0F2744">Yeni İhbar / Öneri</h2>
@@ -88,6 +97,7 @@ function buildHtml(report) {
       <p><strong>Tür:</strong> ${category}</p>
       <p><strong>Tarih:</strong> ${new Date(report.created_at).toLocaleString('tr-TR')}</p>
       <p><strong>Platform:</strong> ${report.platform || '-'} · v${report.app_version || '-'}</p>
+      ${locationHtml}
       <hr/>
       <p style="white-space:pre-wrap;line-height:1.5">${report.message}</p>
       <hr/>
@@ -104,10 +114,13 @@ function buildText(report) {
   const isPlus = report.is_plus === true;
   const isSupporter = report.is_supporter === true;
   const userBadge = report.user_badge || (isPlus && isSupporter ? '👑 Plus & Destekçi' : (isPlus ? '👑 Plus Üye' : (isSupporter ? '🎖️ Destekçi' : '')));
+  const locUrl = report.location_url || (report.latitude && report.longitude ? `https://www.google.com/maps/search/?api=1&query=${report.latitude},${report.longitude}` : '');
 
   return [
     userBadge ? `[⭐ ${userBadge} - ÖNCELİKLİ İHBAR]` : '',
     `Tür: ${category}`,
+    report.address ? `Adres: ${report.address}` : '',
+    locUrl ? `Harita: ${locUrl}` : '',
     `Mesaj: ${report.message}`,
     `İsim: ${report.contact_name || '-'}`,
     `E-posta: ${report.contact_email || '-'}`,

@@ -9,6 +9,10 @@ class CitizenReportService {
     message,
     contactName,
     contactEmail,
+    address,
+    latitude,
+    longitude,
+    locationUrl,
     imageUrls = [],
     platform,
     appVersion,
@@ -27,6 +31,10 @@ class CitizenReportService {
       throw new Error('Mesaj en fazla 2000 karakter olabilir.');
     }
 
+    const cleanLat = (typeof latitude === 'number' && Number.isFinite(latitude)) ? latitude : (latitude ? parseFloat(latitude) : null);
+    const cleanLng = (typeof longitude === 'number' && Number.isFinite(longitude)) ? longitude : (longitude ? parseFloat(longitude) : null);
+    const cleanLocUrl = locationUrl?.trim() || (cleanLat && cleanLng ? `https://www.google.com/maps/search/?api=1&query=${cleanLat},${cleanLng}` : null);
+
     const db = requireSupabaseAdmin();
     const { data, error } = await db
       .from('citizen_reports')
@@ -35,6 +43,10 @@ class CitizenReportService {
         message: trimmed,
         contact_name: contactName?.trim() || null,
         contact_email: contactEmail?.trim() || null,
+        address: address?.trim() || null,
+        latitude: cleanLat,
+        longitude: cleanLng,
+        location_url: cleanLocUrl,
         image_urls: imageUrls.filter(Boolean),
         platform: platform || null,
         app_version: appVersion || null,

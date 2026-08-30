@@ -609,28 +609,6 @@ KURALLAR:
             createdAt: new Date().toISOString(),
           });
         });
-
-        // 2. Metin linklerini tara
-        $('a').each((i, el) => {
-          const href = $(el).attr('href') || '';
-          const text = $(el).text().trim().replace(/\s+/g, ' ');
-          if (text.length >= 20 && !href.startsWith('#') && !href.includes('javascript') && !href.includes('kategori') && !href.includes('yazar')) {
-            if (!href.includes('/roportaj/') && !href.includes('/futbol/') && !text.includes('Puan Durumu') && !text.includes('Nöbetçi Eczane') && !text.includes('Hava Durumu') && !text.includes('Son Dakika') && !text.includes('WhatsApp')) {
-              const fullUrl = href.startsWith('http') ? href : `${src.base}${href.startsWith('/') ? '' : '/'}${href}`;
-              const urlHash = crypto.createHash('md5').update(fullUrl).digest('hex');
-              all.push({
-                id: `news-${urlHash}`,
-                title: text,
-                summary: text,
-                imageUrl: null,
-                sourceUrl: fullUrl,
-                sourceName: src.name,
-                category: this.inferNewsCategory(text, text, src.name, { scope: 'duzici' }),
-                createdAt: new Date().toISOString(),
-              });
-            }
-          }
-        });
       } catch (err) {
         console.warn(`[news] HTML kategori tarama hatası (${src.name}):`, err.message);
       }
@@ -639,10 +617,9 @@ KURALLAR:
     const unique = [];
     const seen = new Set();
     for (const it of all) {
-      if (!seen.has(it.sourceUrl)) {
+      if (it.imageUrl && !seen.has(it.sourceUrl)) {
         seen.add(it.sourceUrl);
-        const withImg = all.find((x) => x.sourceUrl === it.sourceUrl && x.imageUrl);
-        unique.push(withImg || it);
+        unique.push(it);
       }
     }
     return unique;
@@ -678,12 +655,7 @@ KURALLAR:
       }
     }
 
-    // Doğrudan Sabır Gazetesi ve yerel Düziçi kategori sayfalarından tüm güncel haberleri çek
-    const htmlItems = await this.scrapeHtmlCategories().catch(() => []);
-    if (htmlItems.length > 0) {
-      allItems.push(...htmlItems);
-    }
-
+    // Sabır Gazetesi ve diğer kaynaklar gerçek yayın tarihli RSS üzerinden çekilir
     const merged = this.mergeAndDedupeNews(allItems, max);
     if (merged.length === 0) {
       throw new Error('Hicbir kaynaktan haber alinamadi.');
@@ -698,7 +670,12 @@ KURALLAR:
     }));
     // Son güvenlik ağı: sync'e ulusal çöp girmesin
     const cleaned = enriched.filter((item) => !this.isNationalNoise(item.title, item.summary));
-    const merged = this.dedupeNewsList(cleaned);
+    // Yalnızca görselli haberleri tut (resimsiz dış kaynak haberleri elenir)
+    const withImages = cleaned.filter((item) => {
+      if (this.isOwnPublisherItem(item)) return true;
+      return item.imageUrl && String(item.imageUrl).trim().length > 0;
+    });
+    const merged = this.dedupeNewsList(withImages);
     const maxAgeMs = 90 * 24 * 60 * 60 * 1000;
     const cutoff = Date.now() - maxAgeMs;
     const fresh = merged.filter((item) => {
@@ -1283,10 +1260,14 @@ KURALLAR:
         const chunk = itemsToFetch.slice(i, i + limit);
         await Promise.all(chunk.map(async (item) => {
           try {
-            if (/news\.google\.com/i.test(item.sourceUrl || '')) {
+            let targetUrl = item.sourceUrl;
+            if (/news\.google\.com/i.test(targetUrl || '')) {
+              targetUrl = await this.resolveArticleUrl(targetUrl);
+            }
+            if (!targetUrl || /news\.google\.com/i.test(targetUrl)) {
               return;
             }
-            const details = await this.fetchArticleDetails(item.sourceUrl);
+            const details = await this.fetchArticleDetails(targetUrl);
             const update = {};
 
             // AI Beautification

@@ -12,6 +12,7 @@ function normalizeText(input) {
 
 function decodeXmlEntities(input) {
   return String(input || '')
+    .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
@@ -21,14 +22,22 @@ function decodeXmlEntities(input) {
     .replace(/&#0*34;/g, '"')
     .replace(/&#x27;/gi, "'")
     .replace(/&#x22;/gi, '"')
+    .replace(/&hellip;/gi, '...')
+    .replace(/&mdash;/gi, '—')
+    .replace(/&ndash;/gi, '–')
+    .replace(/&rsquo;/gi, "'")
+    .replace(/&lsquo;/gi, "'")
+    .replace(/&rdquo;/gi, '"')
+    .replace(/&ldquo;/gi, '"')
     .replace(/&#(\d+);/g, (_, n) => {
       const code = parseInt(n, 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : '';
+      return (Number.isFinite(code) && code > 0) ? String.fromCodePoint(code) : '';
     })
     .replace(/&#x([0-9a-f]+);/gi, (_, h) => {
       const code = parseInt(h, 16);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : '';
-    });
+      return (Number.isFinite(code) && code > 0) ? String.fromCodePoint(code) : '';
+    })
+    .replace(/&[a-z]+;/gi, ' ');
 }
 
 function slugify(text) {

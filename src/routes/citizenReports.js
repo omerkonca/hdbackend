@@ -82,6 +82,10 @@ router.post('/', (req, res, next) => {
     const isPlus = req.body?.isPlus === true || req.body?.isPlus === 'true';
     const isSupporter = req.body?.isSupporter === true || req.body?.isSupporter === 'true';
     const userBadge = String(req.body?.userBadge || '').trim();
+    const address = String(req.body?.address || '').trim();
+    const latitude = req.body?.latitude ? parseFloat(req.body.latitude) : null;
+    const longitude = req.body?.longitude ? parseFloat(req.body.longitude) : null;
+    const locationUrl = String(req.body?.locationUrl || '').trim();
 
     const imageUrls = [];
     if (useSupabaseStorage && req.files && req.files.length > 0) {
@@ -118,6 +122,10 @@ router.post('/', (req, res, next) => {
       message,
       contactName: contactName || null,
       contactEmail: contactEmail || null,
+      address: address || null,
+      latitude,
+      longitude,
+      locationUrl: locationUrl || null,
       imageUrls,
       platform: platform || null,
       appVersion: appVersion || null,
