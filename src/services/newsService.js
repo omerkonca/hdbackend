@@ -554,6 +554,100 @@ KURALLAR:
     return config.NEWS.SOURCES;
   }
 
+  async scrapeHtmlCategories() {
+    const htmlSources = [
+      {
+        name: 'Sabır Gazetesi Düziçi',
+        url: 'https://www.sabirgazetesi.com/duzici',
+        base: 'https://www.sabirgazetesi.com',
+      },
+    ];
+
+    const all = [];
+    const crypto = require('crypto');
+
+    for (const src of htmlSources) {
+      try {
+        const res = await fetchWithTimeout(
+          src.url,
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            },
+          },
+          15000,
+        );
+        if (res.status !== 200) continue;
+        const html = await res.text();
+        const $ = cheerio.load(html);
+
+        // 1. Manşet ve kart görsellerini tara
+        $('img').each((i, el) => {
+          const imgSrc = $(el).attr('src') || $(el).attr('data-src');
+          const alt = ($(el).attr('alt') || '').trim();
+          const parentA = $(el).closest('a');
+          const href = parentA.attr('href') || $(el).parent().find('a').attr('href') || '';
+          
+          if (!imgSrc || !imgSrc.includes('uploads') || !href || href.startsWith('#') || href.includes('javascript')) return;
+          if (href.includes('/yazarlar') || href.includes('/roportaj') || href.includes('/futbol') || href.includes('logo')) return;
+          if (alt.length < 15 || alt.includes('Süper Lig') || alt.includes('TFF') || alt.includes('Puan')) return;
+
+          const fullUrl = href.startsWith('http') ? href : `${src.base}${href.startsWith('/') ? '' : '/'}${href}`;
+          const fullImg = imgSrc.startsWith('http') ? imgSrc : `${src.base}${imgSrc.startsWith('/') ? '' : '/'}${imgSrc}`;
+          const title = alt.replace(/\s+/g, ' ').trim();
+          const urlHash = crypto.createHash('md5').update(fullUrl).digest('hex');
+
+          all.push({
+            id: `news-${urlHash}`,
+            title,
+            summary: title,
+            imageUrl: fullImg,
+            sourceUrl: fullUrl,
+            sourceName: src.name,
+            category: this.inferNewsCategory(title, title, src.name, { scope: 'duzici' }),
+            createdAt: new Date().toISOString(),
+          });
+        });
+
+        // 2. Metin linklerini tara
+        $('a').each((i, el) => {
+          const href = $(el).attr('href') || '';
+          const text = $(el).text().trim().replace(/\s+/g, ' ');
+          if (text.length >= 20 && !href.startsWith('#') && !href.includes('javascript') && !href.includes('kategori') && !href.includes('yazar')) {
+            if (!href.includes('/roportaj/') && !href.includes('/futbol/') && !text.includes('Puan Durumu') && !text.includes('Nöbetçi Eczane') && !text.includes('Hava Durumu') && !text.includes('Son Dakika') && !text.includes('WhatsApp')) {
+              const fullUrl = href.startsWith('http') ? href : `${src.base}${href.startsWith('/') ? '' : '/'}${href}`;
+              const urlHash = crypto.createHash('md5').update(fullUrl).digest('hex');
+              all.push({
+                id: `news-${urlHash}`,
+                title: text,
+                summary: text,
+                imageUrl: null,
+                sourceUrl: fullUrl,
+                sourceName: src.name,
+                category: this.inferNewsCategory(text, text, src.name, { scope: 'duzici' }),
+                createdAt: new Date().toISOString(),
+              });
+            }
+          }
+        });
+      } catch (err) {
+        console.warn(`[news] HTML kategori tarama hatası (${src.name}):`, err.message);
+      }
+    }
+
+    const unique = [];
+    const seen = new Set();
+    for (const it of all) {
+      if (!seen.has(it.sourceUrl)) {
+        seen.add(it.sourceUrl);
+        const withImg = all.find((x) => x.sourceUrl === it.sourceUrl && x.imageUrl);
+        unique.push(withImg || it);
+      }
+    }
+    return unique;
+  }
+
   async scrapeNews({ max = 100 } = {}) {
     const allItems = [];
     const sources = await this.resolveSources();
@@ -583,6 +677,13 @@ KURALLAR:
         }
       }
     }
+
+    // Doğrudan Sabır Gazetesi ve yerel Düziçi kategori sayfalarından tüm güncel haberleri çek
+    const htmlItems = await this.scrapeHtmlCategories().catch(() => []);
+    if (htmlItems.length > 0) {
+      allItems.push(...htmlItems);
+    }
+
     const merged = this.mergeAndDedupeNews(allItems, max);
     if (merged.length === 0) {
       throw new Error('Hicbir kaynaktan haber alinamadi.');

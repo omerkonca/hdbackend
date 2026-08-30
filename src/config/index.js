@@ -55,11 +55,10 @@ const config = {
     // Bildirim yalnızca bu süre içinde yayınlanmış haberler için gönderilir.
     PUSH_MAX_AGE_HOURS: Number(process.env.NEWS_PUSH_MAX_AGE_HOURS || 36),
     SOURCES: [
-      { url: 'https://www.sabirgazetesi.com/rss/duzici', name: 'Sabir Gazetesi Düziçi', scope: 'duzici', filterDuzici: true },
-      { url: 'https://www.sabirgazetesi.com/rss', name: 'Sabir Gazetesi', scope: 'osmaniye' },
-      { url: 'https://www.hasretgazetesi.com.tr/rss/duzici-haberleri', name: 'Hasret Gazetesi Düziçi', scope: 'duzici', filterDuzici: true },
-      { url: 'https://www.hasretgazetesi.com.tr/rss', name: 'Hasret Gazetesi', scope: 'osmaniye' },
-      { url: 'https://basakgazetesi.com/rss.xml', name: 'Başak Gazetesi', scope: 'osmaniye' },
+      { url: 'https://www.sabirgazetesi.com/rss/duzici', name: 'Sabır Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
+      { url: 'https://www.sabirgazetesi.com/rss', name: 'Sabır Gazetesi', scope: 'osmaniye' },
+      { url: 'https://www.akdenizgazetesi.com/rss/duzici', name: 'Akdeniz Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
+      { url: 'https://www.akdenizgazetesi.com/rss', name: 'Akdeniz Gazetesi', scope: 'osmaniye' },
       {
         url: 'https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr',
         name: 'Google News Düziçi',

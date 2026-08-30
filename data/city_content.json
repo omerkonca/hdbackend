@@ -373,39 +373,39 @@
     "sources": [
       {
         "url": "https://www.sabirgazetesi.com/rss/duzici",
-        "name": "Sabir Gazetesi Düziçi",
+        "name": "Sabır Gazetesi Düziçi",
         "scope": "duzici",
         "isActive": true,
         "filterDuzici": false
       },
       {
         "url": "https://www.sabirgazetesi.com/rss",
-        "name": "Sabir Gazetesi",
+        "name": "Sabır Gazetesi",
         "scope": "osmaniye",
         "isActive": true
       },
       {
-        "url": "https://www.hasretgazetesi.com.tr/rss/duzici",
-        "name": "Hasret Gazetesi Düziçi",
+        "url": "https://www.akdenizgazetesi.com/rss/duzici",
+        "name": "Akdeniz Gazetesi Düziçi",
         "scope": "duzici",
         "isActive": true,
         "filterDuzici": false
       },
       {
-        "url": "https://www.hasretgazetesi.com.tr/rss",
-        "name": "Hasret Gazetesi",
+        "url": "https://www.akdenizgazetesi.com/rss",
+        "name": "Akdeniz Gazetesi",
         "scope": "osmaniye",
         "isActive": true
       },
       {
-        "url": "https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A7d&hl=tr&gl=TR&ceid=TR:tr",
+        "url": "https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
         "name": "Google News Düziçi",
         "scope": "duzici",
         "isActive": true,
         "filterDuzici": true
       },
       {
-        "url": "https://news.google.com/rss/search?q=Osmaniye%20when%3A7d&hl=tr&gl=TR&ceid=TR:tr",
+        "url": "https://news.google.com/rss/search?q=Osmaniye%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",
         "name": "Google News Osmaniye",
         "scope": "osmaniye",
         "isActive": true
