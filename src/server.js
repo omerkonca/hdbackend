@@ -18,7 +18,7 @@ const weatherService = require('./services/weatherService');
 const dailyBriefingService = require('./services/dailyBriefingService');
 const outageService = require('./services/outageService');
 const aiReporterService = require('./services/aiReporterService');
-const { ensureCitizenReportsTable, ensurePopupAnnouncementsTable } = require('./utils/runMigrations');
+const { ensureCitizenReportsTable, ensurePopupAnnouncementsTable, ensureRlsSecurityOnAllTables } = require('./utils/runMigrations');
 const emailService = require('./services/emailService');
 
 const app = express();
@@ -107,6 +107,7 @@ const server = app.listen(config.PORT, () => {
 
   ensureCitizenReportsTable().catch(() => {});
   ensurePopupAnnouncementsTable().catch(() => {});
+  ensureRlsSecurityOnAllTables().catch(() => {});
 
   try {
     const { startEarthquakeCron } = require('./services/earthquakeCronService');
