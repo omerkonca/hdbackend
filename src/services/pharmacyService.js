@@ -186,12 +186,81 @@ class PharmacyService {
     return pharmacies;
   }
 
+  async scrapeDutyPharmaciesEczanelerOrg() {
+    const url = 'https://eczaneler.org/osmaniye-duzici-nobetci-eczaneleri';
+    const res = await fetchWithTimeout(
+      url,
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+          'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+        },
+      },
+      15000,
+    );
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const html = await res.text();
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+
+    const list = [];
+    $('h3').each((i, el) => {
+      const title = $(el).text().trim();
+      if (
+        title.toLowerCase().includes('eczane') &&
+        !title.toLowerCase().includes('diğer') &&
+        !title.toLowerCase().includes('hizmet') &&
+        !title.toLowerCase().includes('nasıl') &&
+        !title.toLowerCase().includes('saatleri') &&
+        !title.toLowerCase().includes('sorular')
+      ) {
+        const parent = $(el).parent();
+        const address = parent.find('.line-clamp-2').text().replace(/\s+/g, ' ').trim() ||
+                        parent.find('span:contains("Mahallesi"), span:contains("Cad"), span:contains("Sok")').text().replace(/\s+/g, ' ').trim() ||
+                        'Düziçi / Osmaniye';
+        const phone = parent.find('a[href^="tel:"]').text().trim() ||
+                      parent.find('a[href^="tel:"]').attr('href')?.replace('tel:', '').trim() || '';
+        let dateRange = '';
+        parent.find('span').each((_, span) => {
+          const t = $(span).text().trim();
+          if (/^\d{2}:\d{2}\s*-\s*\d{2}:\d{2}$/.test(t)) {
+            dateRange = t;
+          }
+        });
+
+        if (title && (phone.length >= 6 || address.length >= 10)) {
+          list.push({
+            name: title.replace(/\s+/g, ' ').trim(),
+            address: address.replace(/\s+/g, ' ').trim(),
+            phone: phone.replace(/\s+/g, ' ').trim(),
+            dateLabel: 'Bugün',
+            dateRange: dateRange || 'Bugün 08:00 - Yarın 08:00',
+          });
+        }
+      }
+    });
+
+    if (list.length === 0) {
+      throw new Error('Eczaneler.org üzerinden eczane verisi parse edilemedi.');
+    }
+    return list;
+  }
+
   async scrapeDutyPharmacies() {
     try {
-      return await this.scrapeDutyPharmaciesHtml();
-    } catch (err) {
-      console.warn('[pharmacy] HTML scrape failed, trying Jina fallback:', err.message);
-      return await this.scrapeDutyPharmaciesViaJina();
+      return await this.scrapeDutyPharmaciesEczanelerOrg();
+    } catch (errOrg) {
+      console.warn('[pharmacy] Eczaneler.org scrape failed, trying legacy HTML:', errOrg.message);
+      try {
+        return await this.scrapeDutyPharmaciesHtml();
+      } catch (err) {
+        console.warn('[pharmacy] HTML scrape failed, trying Jina fallback:', err.message);
+        return await this.scrapeDutyPharmaciesViaJina();
+      }
     }
   }
 
