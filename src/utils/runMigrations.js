@@ -27,6 +27,32 @@ async function ensureCitizenReportsTable() {
   }
 }
 
+async function ensurePopupAnnouncementsTable() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.warn('[migrate] DATABASE_URL yok — popup_announcements tablosu otomatik kurulmadı.');
+    return;
+  }
+
+  const sqlPath = path.resolve(__dirname, '../../migrations/popup_announcements.sql');
+  if (!fs.existsSync(sqlPath)) return;
+  const sql = fs.readFileSync(sqlPath, 'utf8');
+  const client = new Client({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
+
+  try {
+    await client.connect();
+    await client.query(sql);
+    console.log('[migrate] popup_announcements tablosu hazır.');
+  } catch (err) {
+    console.error('[migrate] popup_announcements kurulumu başarısız:', err.message);
+  } finally {
+    await client.end().catch(() => {});
+  }
+}
+
 async function ensureRlsSecurityOnAllTables() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
