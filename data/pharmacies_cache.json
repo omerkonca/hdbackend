@@ -1,0 +1,12 @@
+{
+  "updatedAt": "2026-09-02T04:04:51.001Z",
+  "pharmacies": [
+    {
+      "name": "Murat Eczanesi",
+      "address": "İrfanlı Mahallesi, Hasan Hüseyin Türkoğlu Caddesi No:39/1E Düziçi / Osmaniye",
+      "phone": "0(542)594-27-78",
+      "dateLabel": "Yarın",
+      "dateRange": "02 Eylül Çarşamba akşamından 03 Eylül Perşembe sabahına kadar."
+    }
+  ]
+}

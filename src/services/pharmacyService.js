@@ -250,17 +250,150 @@ class PharmacyService {
     return list;
   }
 
+  async scrapePostaDutyPharmacies() {
+    const urls = [
+      'https://www.posta.com.tr/nobetci-eczaneler/osmaniye/duzici/',
+      'https://www.milliyet.com.tr/nobetci-eczaneler/osmaniye/duzici/',
+      'https://www.gazetevatan.com/nobetci-eczaneler/osmaniye/duzici/',
+    ];
+
+    for (const url of urls) {
+      try {
+        const res = await fetchWithTimeout(
+          url,
+          {
+            headers: {
+              'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+              Accept:
+                'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+              'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+            },
+          },
+          10000,
+        );
+
+        if (!res.ok) continue;
+        const html = await res.text();
+        const cheerio = require('cheerio');
+        const $ = cheerio.load(html);
+
+        const infoText =
+          $('.ecz-module-info-text').text().trim() ||
+          'Bugün akşamdan yarına kadar';
+
+        const pharmacies = [];
+        $('.ecz-module-pharmacy-item').each((i, el) => {
+          const name = $(el)
+            .find('.ecz-module-pharmacy-name')
+            .first()
+            .text()
+            .trim();
+          let address = $(el)
+            .find('.ecz-module-pharmacy-location')
+            .first()
+            .text()
+            .trim();
+          address = address.replace(/^Adres:\s*/i, '').trim();
+
+          let phone = $(el)
+            .find('.ecz-module-pharmacy-contact')
+            .first()
+            .text()
+            .trim();
+          phone = phone.replace(/^Telefon:\s*/i, '').trim();
+
+          if (name && !pharmacies.some((p) => p.name === name)) {
+            pharmacies.push({
+              name,
+              address: address || 'Düziçi / Osmaniye',
+              phone,
+              dateLabel: 'Bugün',
+              dateRange: infoText,
+            });
+          }
+        });
+
+        if (pharmacies.length > 0) {
+          return pharmacies;
+        }
+      } catch (err) {
+        console.warn(`[pharmacy] Scrape failed for ${url}:`, err.message);
+      }
+    }
+
+    throw new Error('Posta/Milliyet eczane verisi parse edilemedi.');
+  }
+
   async scrapeDutyPharmacies() {
     try {
-      return await this.scrapeDutyPharmaciesEczanelerOrg();
-    } catch (errOrg) {
-      console.warn('[pharmacy] Eczaneler.org scrape failed, trying legacy HTML:', errOrg.message);
+      return await this.scrapePostaDutyPharmacies();
+    } catch (errPosta) {
+      console.warn(
+        '[pharmacy] Posta/Milliyet scrape failed, trying Eczaneler.org:',
+        errPosta.message,
+      );
       try {
-        return await this.scrapeDutyPharmaciesHtml();
-      } catch (err) {
-        console.warn('[pharmacy] HTML scrape failed, trying Jina fallback:', err.message);
-        return await this.scrapeDutyPharmaciesViaJina();
+        return await this.scrapeDutyPharmaciesEczanelerOrg();
+      } catch (errOrg) {
+        console.warn(
+          '[pharmacy] Eczaneler.org scrape failed, trying legacy HTML:',
+          errOrg.message,
+        );
+        try {
+          return await this.scrapeDutyPharmaciesHtml();
+        } catch (err) {
+          console.warn(
+            '[pharmacy] HTML scrape failed, trying Jina fallback:',
+            err.message,
+          );
+          return await this.scrapeDutyPharmaciesViaJina();
+        }
       }
+    }
+  }
+
+  loadFromLocalFile() {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const cachePath = path.resolve(
+        __dirname,
+        '../../data/pharmacies_cache.json',
+      );
+      if (fs.existsSync(cachePath)) {
+        const raw = fs.readFileSync(cachePath, 'utf8');
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.pharmacies) && parsed.pharmacies.length > 0) {
+          console.log('[pharmacy] Loaded pharmacies from local file backup.');
+          return parsed.pharmacies;
+        }
+      }
+    } catch (err) {
+      console.error('[pharmacy] Local file cache read failed:', err.message);
+    }
+    return null;
+  }
+
+  saveToLocalFile(pharmacies) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const cachePath = path.resolve(
+        __dirname,
+        '../../data/pharmacies_cache.json',
+      );
+      fs.writeFileSync(
+        cachePath,
+        JSON.stringify(
+          { updatedAt: new Date().toISOString(), pharmacies },
+          null,
+          2,
+        ),
+        'utf8',
+      );
+    } catch (err) {
+      console.error('[pharmacy] Local file cache write failed:', err.message);
     }
   }
 
@@ -412,6 +545,7 @@ class PharmacyService {
         fetchedAt: Date.now(),
         pharmacies: normalized,
       };
+      this.saveToLocalFile(normalized);
       await this.syncToSupabase(normalized);
       this.maybePushDutyPharmacy(normalized).catch(() => {});
       return this.enrichPharmacies(normalized);
@@ -425,6 +559,7 @@ class PharmacyService {
           fetchedAt: Date.now(),
           pharmacies: normalized,
         };
+        this.saveToLocalFile(normalized);
         this.maybePushDutyPharmacy(normalized).catch(() => {});
         return this.enrichPharmacies(normalized);
       }
@@ -437,6 +572,17 @@ class PharmacyService {
         return this.enrichPharmacies(
           normalizePharmacyDateLabels(this.cache.pharmacies),
         );
+      }
+
+      const localFileData = this.loadFromLocalFile();
+      if (localFileData?.length) {
+        console.warn('[pharmacy] using local file fallback after all scrapes failed');
+        const normalized = normalizePharmacyDateLabels(localFileData);
+        this.cache = {
+          fetchedAt: Date.now(),
+          pharmacies: normalized,
+        };
+        return this.enrichPharmacies(normalized);
       }
 
       throw err;
