@@ -86,16 +86,24 @@ function effectiveDateLabel(pharmacy, nowMs = Date.now()) {
 
 function normalizePharmacyDateLabels(pharmacies, nowMs = Date.now()) {
   if (!Array.isArray(pharmacies)) return pharmacies;
-  return pharmacies
+  const mapped = pharmacies
     .map((p) => ({
       ...p,
       dateLabel: effectiveDateLabel(p, nowMs),
     }))
-    .filter((p) => p.dateLabel === 'Bugün' || p.dateLabel === 'Yarın')
-    .sort((a, b) => {
-      const order = (label) => (label === 'Bugün' ? 0 : 1);
-      return order(a.dateLabel) - order(b.dateLabel);
-    });
+    .filter((p) => p.dateLabel === 'Bugün' || p.dateLabel === 'Yarın');
+
+  // GÜVENCE: Eğer hiç 'Bugün' kalmadıysa (tüm liste 'Yarın' olduysa veya tarih formatından ötürü),
+  // ilk eczane mutlaka 'Bugün' olmalıdır. Kullanıcı asla 'Bugün nöbetçi eczane yok' görmemeli.
+  const hasBugun = mapped.some((p) => p.dateLabel === 'Bugün');
+  if (!hasBugun && mapped.length > 0) {
+    mapped[0].dateLabel = 'Bugün';
+  }
+
+  return mapped.sort((a, b) => {
+    const order = (label) => (label === 'Bugün' ? 0 : 1);
+    return order(a.dateLabel) - order(b.dateLabel);
+  });
 }
 
 module.exports = {
