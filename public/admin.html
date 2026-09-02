@@ -1241,16 +1241,17 @@
           </div>
           <div style="margin-left:auto;">
             <div class="filter-btn-group">
-              <button class="filter-btn active" onclick="setDashboardTimeFilter('today', this)">Bugün</button>
-              <button class="filter-btn" onclick="setDashboardTimeFilter('7d', this)">Son 7 Gün</button>
-              <button class="filter-btn" onclick="setDashboardTimeFilter('30d', this)">Son 30 Gün</button>
-              <button class="filter-btn" onclick="setDashboardTimeFilter('all', this)">Tüm Zamanlar</button>
+              <button class="filter-btn" data-time-filter="today" onclick="setDashboardTimeFilter('today', this)">Bugün</button>
+              <button class="filter-btn" data-time-filter="7d" onclick="setDashboardTimeFilter('7d', this)">Son 7 Gün</button>
+              <button class="filter-btn" data-time-filter="30d" onclick="setDashboardTimeFilter('30d', this)">Son 30 Gün</button>
+              <button class="filter-btn active" data-time-filter="all" onclick="setDashboardTimeFilter('all', this)">Tüm Zamanlar</button>
             </div>
           </div>
         </div>
 
         <div class="section-title" style="margin-bottom:8px; margin-top:16px; display:flex; align-items:center; gap:8px;">
           <span>💰</span> Finansal Gelirler & Destek Özeti
+          <span id="revenueActivePeriodBadge" class="stat-install-badge" style="margin-left:auto; font-size:11px; background:rgba(99,102,241,0.12); color:#4f46e5; border:1px solid rgba(99,102,241,0.25);">Tüm Zamanlar</span>
         </div>
         <p class="stats-note">Kartlara tıkla → kişi listesi. Büyük tutarlar yalnızca <b>gerçek</b> tahsilat; test/sandbox ayrı gösterilir.</p>
         
@@ -1263,7 +1264,7 @@
             <div id="liveSoupTotalAmount" class="stat-install-all" style="color:#e65100;">₺0.00</div>
             <div class="stat-install-meta">
               <div><span>Gerçek ikram</span><strong id="liveSoupTotalCount" style="color:#e65100;">0 kişi</strong></div>
-              <div><span>Bu ay</span><strong id="liveSoupMonthAmount" style="color:#e65100;">₺0.00</strong></div>
+              <div><span id="liveSoupPeriodLabel">Bu ay</span><strong id="liveSoupMonthAmount" style="color:#e65100;">₺0.00</strong></div>
             </div>
             <div class="stat-card-hint">Detay listesi →</div>
           </div>
@@ -1276,7 +1277,7 @@
             <div id="liveProTotalAmount" class="stat-install-all" style="color:#7c3aed;">₺0.00</div>
             <div class="stat-install-meta">
               <div><span>Aktif üye</span><strong id="liveProActiveCount" style="color:#7c3aed;">0 kişi</strong></div>
-              <div><span>Bu ay</span><strong id="liveProMonthAmount" style="color:#7c3aed;">₺0.00</strong></div>
+              <div><span id="liveProPeriodLabel">Bu ay</span><strong id="liveProMonthAmount" style="color:#7c3aed;">₺0.00</strong></div>
             </div>
             <div class="stat-card-hint">Kimler abone →</div>
           </div>
@@ -1288,7 +1289,7 @@
             </div>
             <div id="liveGrandTotalAmount" class="stat-install-all" style="color:#10b981;">₺0.00</div>
             <div class="stat-install-meta">
-              <div><span>Bu ay</span><strong id="liveGrandMonthAmount" style="color:#10b981;">₺0.00</strong></div>
+              <div><span id="liveGrandPeriodLabel">Bu ay</span><strong id="liveGrandMonthAmount" style="color:#10b981;">₺0.00</strong></div>
               <div><span>Test işlem</span><strong id="liveGrandSandboxMeta" style="color:#b45309;">0</strong></div>
             </div>
             <div class="stat-card-hint">Tüm işlemler →</div>
@@ -1319,7 +1320,7 @@
             <div id="liveIosAll" class="stat-install-all">—</div>
             <div class="stat-install-meta">
               <div><span>Tüm zamanlar</span><strong id="liveIosAllMeta">—</strong></div>
-              <div><span>Bugün yeni</span><strong id="liveIosToday">—</strong></div>
+              <div><span id="liveIosPeriodLabel">Bugün yeni</span><strong id="liveIosToday">—</strong></div>
             </div>
           </div>
           <div class="stat-install-card android" onclick="switchView('push')" style="cursor:pointer;" title="Android Cihaz ve Bildirim Paneline Git">
@@ -1330,7 +1331,7 @@
             <div id="liveAndroidAll" class="stat-install-all">—</div>
             <div class="stat-install-meta">
               <div><span>Tüm zamanlar</span><strong id="liveAndroidAllMeta">—</strong></div>
-              <div><span>Bugün yeni</span><strong id="liveAndroidToday">—</strong></div>
+              <div><span id="liveAndroidPeriodLabel">Bugün yeni</span><strong id="liveAndroidToday">—</strong></div>
             </div>
           </div>
           <div class="stat-install-card total" onclick="switchView('push')" style="cursor:pointer;" title="Toplam Cihaz ve Bildirim Paneline Git">
@@ -1341,7 +1342,7 @@
             <div id="liveTotalAll" class="stat-install-all">—</div>
             <div class="stat-install-meta">
               <div><span>Tüm zamanlar</span><strong id="liveTotalAllMeta">—</strong></div>
-              <div><span>Bugün yeni</span><strong id="liveTotalToday">—</strong></div>
+              <div><span id="liveTotalPeriodLabel">Bugün yeni</span><strong id="liveTotalToday">—</strong></div>
               <div><span>Aktif 7 gün</span><strong id="liveActive7dMeta">—</strong></div>
             </div>
           </div>
@@ -3803,10 +3804,158 @@
     let windowInstallChart = null;
     let windowContentChart = null;
 
+    let currentDashboardData = null;
+    let currentDashboardFilter = 'all';
+
     function setDashboardTimeFilter(range, btn) {
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      showToast(`Zaman filtresi: ${range.toUpperCase()}`);
+      currentDashboardFilter = range || 'all';
+      document.querySelectorAll('.filter-btn-group .filter-btn').forEach(b => {
+        const bRange = b.getAttribute('data-time-filter') || (b.getAttribute('onclick') || '').match(/'([^']+)'/)?.[1];
+        b.classList.toggle('active', b === btn || bRange === currentDashboardFilter);
+      });
+      const labelMap = { today: 'Bugün', '7d': 'Son 7 Gün', '30d': 'Son 30 Gün', all: 'Tüm Zamanlar' };
+      showToast(`Zaman filtresi: ${labelMap[currentDashboardFilter] || currentDashboardFilter}`);
+      applyDashboardTimeFilter(currentDashboardFilter);
+    }
+
+    function applyDashboardTimeFilter(range) {
+      if (!currentDashboardData) return;
+      const data = currentDashboardData;
+      const r = range || 'all';
+      const labelMap = { today: 'Bugün', '7d': 'Son 7 Gün', '30d': 'Son 30 Gün', all: 'Tüm Zamanlar' };
+      const periodLabelText = labelMap[r] || 'Dönem';
+
+      const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
+      const fmtMoney = (val) => '₺' + (Number(val) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      // Badge in Section Title
+      setText('revenueActivePeriodBadge', periodLabelText);
+
+      // Installs
+      const ios = data.installs?.ios || {};
+      const android = data.installs?.android || {};
+      const total = data.installs?.total || {};
+
+      let iosPeriodVal = 0;
+      let androidPeriodVal = 0;
+      let totalPeriodVal = 0;
+      let badgeText = '';
+
+      if (r === 'today') {
+        iosPeriodVal = ios.today ?? 0;
+        androidPeriodVal = android.today ?? 0;
+        totalPeriodVal = total.today ?? 0;
+        badgeText = (val) => `bugün +${val}`;
+        setText('liveIosPeriodLabel', 'Bugün yeni');
+        setText('liveAndroidPeriodLabel', 'Bugün yeni');
+        setText('liveTotalPeriodLabel', 'Bugün yeni');
+      } else if (r === '7d') {
+        iosPeriodVal = ios.d7 ?? 0;
+        androidPeriodVal = android.d7 ?? 0;
+        totalPeriodVal = total.d7 ?? 0;
+        badgeText = (val) => `son 7 gün +${val}`;
+        setText('liveIosPeriodLabel', 'Son 7 gün yeni');
+        setText('liveAndroidPeriodLabel', 'Son 7 gün yeni');
+        setText('liveTotalPeriodLabel', 'Son 7 gün yeni');
+      } else if (r === '30d') {
+        iosPeriodVal = ios.d30 ?? 0;
+        androidPeriodVal = android.d30 ?? 0;
+        totalPeriodVal = total.d30 ?? 0;
+        badgeText = (val) => `son 30 gün +${val}`;
+        setText('liveIosPeriodLabel', 'Son 30 gün yeni');
+        setText('liveAndroidPeriodLabel', 'Son 30 gün yeni');
+        setText('liveTotalPeriodLabel', 'Son 30 gün yeni');
+      } else {
+        iosPeriodVal = ios.allTime ?? 0;
+        androidPeriodVal = android.allTime ?? 0;
+        totalPeriodVal = total.allTime ?? (data.registeredDevices ?? 0);
+        badgeText = () => 'tüm zamanlar';
+        setText('liveIosPeriodLabel', 'Toplam kayıt');
+        setText('liveAndroidPeriodLabel', 'Toplam kayıt');
+        setText('liveTotalPeriodLabel', 'Toplam kayıt');
+      }
+
+      setText('liveIosAll', ios.allTime ?? 0);
+      setText('liveIosAllMeta', ios.allTime ?? 0);
+      setText('liveIosToday', iosPeriodVal);
+      const iosBadge = document.getElementById('liveIosTodayBadge');
+      if (iosBadge) {
+        iosBadge.textContent = badgeText(iosPeriodVal);
+        iosBadge.classList.toggle('up', Number(iosPeriodVal) > 0);
+      }
+
+      setText('liveAndroidAll', android.allTime ?? 0);
+      setText('liveAndroidAllMeta', android.allTime ?? 0);
+      setText('liveAndroidToday', androidPeriodVal);
+      const androidBadge = document.getElementById('liveAndroidTodayBadge');
+      if (androidBadge) {
+        androidBadge.textContent = badgeText(androidPeriodVal);
+        androidBadge.classList.toggle('up', Number(androidPeriodVal) > 0);
+      }
+
+      setText('liveTotalAll', total.allTime ?? (data.registeredDevices ?? 0));
+      setText('liveTotalAllMeta', total.allTime ?? (data.registeredDevices ?? 0));
+      setText('liveTotalToday', totalPeriodVal);
+      const totalBadge = document.getElementById('liveTotalTodayBadge');
+      if (totalBadge) {
+        totalBadge.textContent = badgeText(totalPeriodVal);
+        totalBadge.classList.toggle('up', Number(totalPeriodVal) > 0);
+      }
+
+      // Financials
+      const supporters = data.supportersStats || {};
+      const pro = data.proStats || {};
+      const grandByPeriod = data.grandByPeriod || {};
+
+      let soupAmount = 0;
+      let soupCount = 0;
+      let proAmount = 0;
+      let proCount = 0;
+      let grandAmount = 0;
+
+      if (r === 'all') {
+        soupAmount = supporters.totalAmount || 0;
+        soupCount = supporters.totalCount || 0;
+        proAmount = pro.totalAmount || 0;
+        proCount = pro.totalCount || 0;
+        grandAmount = data.grandTotalAmount || 0;
+
+        setText('liveSoupPeriodLabel', 'Bu ay');
+        setText('liveSoupMonthAmount', fmtMoney(supporters.monthAmount));
+        setText('liveProPeriodLabel', 'Bu ay');
+        setText('liveProMonthAmount', fmtMoney(pro.monthAmount));
+        setText('liveGrandPeriodLabel', 'Bu ay');
+        setText('liveGrandMonthAmount', fmtMoney(data.grandMonthAmount));
+      } else {
+        const soupPeriod = supporters.periods?.[r] || {};
+        const proPeriod = pro.periods?.[r] || {};
+        const grandPeriod = grandByPeriod[r] || {};
+
+        soupAmount = soupPeriod.amount || 0;
+        soupCount = soupPeriod.count || 0;
+        proAmount = proPeriod.amount || 0;
+        proCount = proPeriod.count || 0;
+        grandAmount = grandPeriod.amount || 0;
+
+        setText('liveSoupPeriodLabel', 'Tüm zamanlar');
+        setText('liveSoupMonthAmount', fmtMoney(supporters.totalAmount));
+        setText('liveProPeriodLabel', 'Tüm zamanlar');
+        setText('liveProMonthAmount', fmtMoney(pro.totalAmount));
+        setText('liveGrandPeriodLabel', 'Tüm zamanlar');
+        setText('liveGrandMonthAmount', fmtMoney(data.grandTotalAmount));
+      }
+
+      setText('liveSoupTotalAmount', fmtMoney(soupAmount));
+      setText('liveSoupTotalCount', `${r === 'all' ? (supporters.totalCount || 0) : soupCount} kişi`);
+
+      setText('liveProTotalAmount', fmtMoney(proAmount));
+      setText('liveProActiveCount', `${pro.activeCount || 0} kişi`);
+
+      setText('liveGrandTotalAmount', fmtMoney(grandAmount));
+      setText('liveGrandSandboxMeta', `${data.grandSandboxCount || 0} adet`);
     }
 
     function initDashboardCharts(trendData, contentDist) {
@@ -3973,12 +4122,6 @@
 
         // Render Supporters Stats
         const supporters = data.supportersStats || {};
-        const fmtMoney = (val) => '₺' + (Number(val) || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        
-        setText('liveSoupTotalAmount', fmtMoney(supporters.totalAmount));
-        setText('liveSoupTotalCount', `${supporters.totalCount || 0} kişi`);
-        setText('liveSoupMonthAmount', fmtMoney(supporters.monthAmount));
-        setText('liveSoupMonthMeta', fmtMoney(supporters.monthAmount));
         const soupBadge = document.getElementById('liveSoupEnvBadge');
         if (soupBadge) {
           soupBadge.textContent = supporters.sandboxCount
@@ -3996,19 +4139,15 @@
           setText('liveSoupLastMessage', '—');
         }
 
-        // Render Pro / Plus Stats & Grand Total
+        // Render Pro / Plus Stats
         const pro = data.proStats || {};
-        setText('liveProTotalAmount', fmtMoney(pro.totalAmount));
-        setText('liveProActiveCount', `${pro.activeCount || 0} kişi`);
-        setText('liveProMonthAmount', fmtMoney(pro.monthAmount));
         const proBadge = document.getElementById('liveProEnvBadge');
         if (proBadge) {
           proBadge.textContent = pro.sandboxCount ? `${pro.sandboxCount} test` : 'gerçek';
         }
 
-        setText('liveGrandTotalAmount', fmtMoney(data.grandTotalAmount));
-        setText('liveGrandMonthAmount', fmtMoney(data.grandMonthAmount));
-        setText('liveGrandSandboxMeta', `${data.grandSandboxCount || 0} adet`);
+        currentDashboardData = data;
+        applyDashboardTimeFilter(currentDashboardFilter);
 
         const applyHealth = (spanId, health) => {
           const el = document.getElementById(spanId);

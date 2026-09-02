@@ -20,19 +20,109 @@ function mapRow(row) {
   };
 }
 
+function outageToAnnouncementRow(outage) {
+  if (!outage || !outage.title) return null;
+  const isWater = String(outage.type || '').toUpperCase() === 'SU';
+  const badgeLabel = isWater ? '💧 SU KESİNTİSİ' : '⚡ ELEKTRİK KESİNTİSİ';
+
+  let timeStr = '';
+  if (outage.startAt) {
+    try {
+      const d = new Date(outage.startAt);
+      const day = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+      const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      let endStr = '';
+      if (outage.endAt) {
+        const dEnd = new Date(outage.endAt);
+        endStr = ` - ${String(dEnd.getHours()).padStart(2, '0')}:${String(dEnd.getMinutes()).padStart(2, '0')}`;
+      }
+      timeStr = `${day} ${time}${endStr}`;
+    } catch (_) {}
+  }
+
+  const title = outage.title;
+  const summary = outage.subtitle || (timeStr ? `${timeStr} saatleri arasında kesinti.` : 'Planlı şebeke kesintisi');
+
+  const bodyLines = [
+    summary,
+    '',
+    outage.area ? `📍 Etkilenen Bölgeler:\n${outage.area}` : '',
+    timeStr ? `⏰ Tarih ve Saat: ${timeStr}` : '',
+    outage.status ? `📌 Durum: ${outage.status}` : '',
+    outage.source ? `🏢 Kaynak: ${outage.source}` : '',
+    '',
+    'Harita ve canlı kesinti takibi için uygulamanın "Kesintiler" bölümünü inceleyebilirsiniz.',
+  ].filter(Boolean).join('\n');
+
+  return {
+    id: `outage_${outage.id}`,
+    title,
+    summary,
+    body: bodyLines,
+    imageUrl: isWater
+      ? 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80'
+      : 'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80',
+    isPinned: outage.isActive !== false,
+    isActive: true,
+    publishedAt: outage.publishedAt || outage.startAt || outage.date || new Date().toISOString(),
+    createdAt: outage.publishedAt || outage.startAt || outage.date || new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    badgeLabel,
+    route: 'screen:outages',
+  };
+}
+
 class PublisherAnnouncementService {
   async listPublic({ limit = 40 } = {}) {
-    const db = requireSupabaseAdmin();
-    const { data, error } = await db
-      .from('publisher_announcements')
-      .select('*')
-      .eq('is_active', true)
-      .order('is_pinned', { ascending: false })
-      .order('published_at', { ascending: false })
-      .limit(Math.min(limit, 100));
+    let manualItems = [];
+    try {
+      const db = requireSupabaseAdmin();
+      const { data, error } = await db
+        .from('publisher_announcements')
+        .select('*')
+        .eq('is_active', true)
+        .order('is_pinned', { ascending: false })
+        .order('published_at', { ascending: false })
+        .limit(Math.min(limit, 100));
 
-    if (error) throw new Error(error.message);
-    return (data || []).map(mapRow);
+      if (!error && Array.isArray(data)) {
+        manualItems = data.map(mapRow);
+      }
+    } catch (err) {
+      console.warn('[announcements] db fetch error:', err.message);
+    }
+
+    // Aktif ve planlı kesintileri duyurular listesine dahil et
+    let outageItems = [];
+    try {
+      const outageService = require('./outageService');
+      const activeOutages = outageService.cache?.data?.length
+        ? outageService.cache.data
+        : await outageService.getOutages().catch(() => []);
+      
+      const recentHistory = (outageService.getHistory() || []).slice(0, 5);
+      const combined = [...(activeOutages || []), ...recentHistory];
+
+      for (const o of combined) {
+        const row = outageToAnnouncementRow(o);
+        if (row) outageItems.push(row);
+      }
+    } catch (oErr) {
+      console.warn('[announcements] outage merge error:', oErr.message);
+    }
+
+    // Manuel yayıncı duyuruları + Kesinti duyurularını birleştir
+    const merged = [...manualItems, ...outageItems];
+
+    // Pinned (sabitlenen) olanlar önde, sonra tarihe göre sırala
+    merged.sort((a, b) => {
+      if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+      const timeA = new Date(a.publishedAt || 0).getTime();
+      const timeB = new Date(b.publishedAt || 0).getTime();
+      return timeB - timeA;
+    });
+
+    return merged.slice(0, Math.min(limit, 100));
   }
 
   async listAdmin({ limit = 60 } = {}) {
@@ -48,6 +138,21 @@ class PublisherAnnouncementService {
   }
 
   async getById(id, { admin = false } = {}) {
+    if (String(id).startsWith('outage_')) {
+      const rawId = String(id).replace(/^outage_/, '');
+      try {
+        const outageService = require('./outageService');
+        const allOutages = [
+          ...(outageService.cache?.data || []),
+          ...(outageService.getHistory() || []),
+        ];
+        const match = allOutages.find((o) => o.id === rawId || `outage_${o.id}` === id);
+        if (match) {
+          return outageToAnnouncementRow(match);
+        }
+      } catch (_) {}
+    }
+
     const db = requireSupabaseAdmin();
     let query = db.from('publisher_announcements').select('*').eq('id', id).maybeSingle();
     const { data, error } = await query;

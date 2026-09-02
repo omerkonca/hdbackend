@@ -1091,6 +1091,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       const citizenReportService = require('../services/citizenReportService');
       const db = requireSupabaseAdmin();
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
       const dayStart = istanbulDayStartIso();
 
       const supabasePingStarted = Date.now();
@@ -1129,6 +1130,10 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         androidAllRes,
         iosTodayRes,
         androidTodayRes,
+        ios7dRes,
+        android7dRes,
+        ios30dRes,
+        android30dRes,
         openReportsRes,
         reports,
         newsItems,
@@ -1145,6 +1150,10 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         countTokens({ platform: 'android' }),
         countTokens({ platform: 'ios', createdSince: dayStart }),
         countTokens({ platform: 'android', createdSince: dayStart }),
+        countTokens({ platform: 'ios', createdSince: weekAgo }),
+        countTokens({ platform: 'android', createdSince: weekAgo }),
+        countTokens({ platform: 'ios', createdSince: monthAgo }),
+        countTokens({ platform: 'android', createdSince: monthAgo }),
         db
           .from('citizen_reports')
           .select('id', { count: 'exact', head: true })
@@ -1180,20 +1189,44 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       const androidAll = androidAllRes.count ?? 0;
       const iosToday = iosTodayRes.count ?? 0;
       const androidToday = androidTodayRes.count ?? 0;
+      const ios7d = ios7dRes.count ?? 0;
+      const android7d = android7dRes.count ?? 0;
+      const ios30d = ios30dRes.count ?? 0;
+      const android30d = android30dRes.count ?? 0;
 
       // Calculate Supporters / Donation Stats — canlı tutarlar test/sandbox hariç
       const supportersStats = summarizeRevenueList(
         supportersRes && !supportersRes.error ? supportersRes.data : [],
+        { dayStart, weekAgo, monthAgo },
       );
       const proStats = summarizeRevenueList(
         proSubscriptionsRes && !proSubscriptionsRes.error ? proSubscriptionsRes.data : [],
-        { plus: true },
+        { plus: true, dayStart, weekAgo, monthAgo },
       );
 
       const grandTotalAmount = supportersStats.totalAmount + proStats.totalAmount;
       const grandMonthAmount = supportersStats.monthAmount + proStats.monthAmount;
       const grandSandboxAmount = (supportersStats.sandboxAmount || 0) + (proStats.sandboxAmount || 0);
       const grandSandboxCount = (supportersStats.sandboxCount || 0) + (proStats.sandboxCount || 0);
+
+      const grandByPeriod = {
+        today: {
+          amount: Math.round(((supportersStats.periods?.today?.amount || 0) + (proStats.periods?.today?.amount || 0)) * 100) / 100,
+          count: (supportersStats.periods?.today?.count || 0) + (proStats.periods?.today?.count || 0),
+        },
+        '7d': {
+          amount: Math.round(((supportersStats.periods?.['7d']?.amount || 0) + (proStats.periods?.['7d']?.amount || 0)) * 100) / 100,
+          count: (supportersStats.periods?.['7d']?.count || 0) + (proStats.periods?.['7d']?.count || 0),
+        },
+        '30d': {
+          amount: Math.round(((supportersStats.periods?.['30d']?.amount || 0) + (proStats.periods?.['30d']?.amount || 0)) * 100) / 100,
+          count: (supportersStats.periods?.['30d']?.count || 0) + (proStats.periods?.['30d']?.count || 0),
+        },
+        all: {
+          amount: grandTotalAmount,
+          count: (supportersStats.totalCount || 0) + (proStats.totalCount || 0),
+        },
+      };
 
       // Generate 7-day trend dataset for Chart.js
       const trend7d = [];
@@ -1288,11 +1321,13 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         installs: {
           note: 'Push kaydı olan kurulumlar (mağaza indirme API değil)',
           dayStart,
-          ios: { allTime: iosAll, today: iosToday },
-          android: { allTime: androidAll, today: androidToday },
+          ios: { allTime: iosAll, today: iosToday, d7: ios7d, d30: ios30d },
+          android: { allTime: androidAll, today: androidToday, d7: android7d, d30: android30d },
           total: {
             allTime: iosAll + androidAll,
             today: iosToday + androidToday,
+            d7: ios7d + android7d,
+            d30: ios30d + android30d,
           },
         },
         trend7d,
@@ -1304,6 +1339,7 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
         grandMonthAmount,
         grandSandboxAmount,
         grandSandboxCount,
+        grandByPeriod,
         contentDistribution: {
           news: Array.isArray(newsItems) ? newsItems.length : 0,
           openReports: openReportsCount,
@@ -1938,14 +1974,21 @@ function isSandboxRecord(row) {
   return String(row.transaction_id || '').startsWith('sandbox_');
 }
 
-function summarizeRevenueList(list, { plus = false } = {}) {
+function summarizeRevenueList(list, { plus = false, dayStart, weekAgo, monthAgo } = {}) {
   const rows = Array.isArray(list) ? list : [];
   const nowIso = new Date().toISOString();
   const monthStartIso = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString();
+  const dStart = dayStart || istanbulDayStartIso();
+  const wAgo = weekAgo || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const mAgo = monthAgo || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
   const live = [];
   const sandbox = [];
   rows.forEach((row) => (isSandboxRecord(row) ? sandbox : live).push(row));
-  const sum = (arr) => arr.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
+  const sum = (arr) => Math.round(arr.reduce((acc, r) => acc + (Number(r.amount) || 0), 0) * 100) / 100;
+  const inToday = (arr) => arr.filter((r) => r.created_at && r.created_at >= dStart);
+  const in7d = (arr) => arr.filter((r) => r.created_at && r.created_at >= wAgo);
+  const in30d = (arr) => arr.filter((r) => r.created_at && r.created_at >= mAgo);
   const inMonth = (arr) => arr.filter((r) => r.created_at && r.created_at >= monthStartIso);
   const activeCount = plus
     ? live.filter((r) => r.is_active !== false && (!r.expires_at || r.expires_at >= nowIso)).length
@@ -1958,6 +2001,12 @@ function summarizeRevenueList(list, { plus = false } = {}) {
     sandboxAmount: sum(sandbox),
     sandboxCount: sandbox.length,
     recent: live.slice(0, 15),
+    periods: {
+      today: { amount: sum(inToday(live)), count: inToday(live).length },
+      '7d': { amount: sum(in7d(live)), count: in7d(live).length },
+      '30d': { amount: sum(in30d(live)), count: in30d(live).length },
+      all: { amount: sum(live), count: live.length },
+    },
   };
 }
 

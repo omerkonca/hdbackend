@@ -201,28 +201,68 @@ function parsePublishedDate(title, summary = '', html = '') {
   return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}T12:00:00.000Z`;
 }
 
-function parseStartDate(title, summary = '') {
-  const text = `${title} ${summary}`;
-  const m = text.match(
-    /(?:başlangıç|baslangic|başlama)\s*(?:tarihi?)?\s*[:\-]?\s*(\d{1,2})[./](\d{1,2})[./](\d{4})/i,
-  );
-  if (!m) return null;
-  const [, d, mo, y] = m;
-  return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}T12:00:00.000Z`;
-}
-function parseEndDate(title, summary = '') {
-  const text = `${title} ${summary}`;
-  if (/trafik komisyon|sayılı karar/i.test(text) && !/bitiş|sona er|kapanış tarih/i.test(text)) {
-    return null;
+const TR_MONTHS = {
+  ocak: '01', subat: '02', şubat: '02', mart: '03', nisan: '04',
+  mayis: '05', mayıs: '05', haziran: '06', temmuz: '07',
+  agustos: '08', ağustos: '08', eylul: '09', eylül: '09',
+  ekim: '10', kasim: '11', kasım: '11', aralik: '12', aralık: '12',
+};
+
+function extractDateFromText(text) {
+  if (!text) return null;
+  // 1. Yazıyla tarih: "3 Eylül (2026)? (Çarşamba)?"
+  const textMatch = text.match(/(\d{1,2})\s+(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)(?:\s+(\d{4}))?/i);
+  if (textMatch) {
+    const d = textMatch[1].padStart(2, '0');
+    const mo = TR_MONTHS[textMatch[2].toLowerCase()] || '01';
+    const y = textMatch[3] || new Date().toLocaleString('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric' });
+    return `${y}-${mo}-${d}`;
   }
-  const endMatch = text.match(
-    /(?:bitiş|sona er|kapanış)\s*(?:tarihi?)?\s*[:\-]?\s*(\d{1,2})[./](\d{1,2})[./](\d{4})/i,
-  );
-  if (endMatch) {
-    const [, d, mo, y] = endMatch;
-    return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+
+  // 2. Sayıyla tarih: "03.09.2026" veya "03/09/2026"
+  const numMatch = text.match(/(\d{1,2})[./](\d{1,2})(?:[./](\d{4}))?/);
+  if (numMatch) {
+    const d = numMatch[1].padStart(2, '0');
+    const mo = numMatch[2].padStart(2, '0');
+    const y = numMatch[3] || new Date().toLocaleString('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric' });
+    return `${y}-${mo}-${d}`;
   }
   return null;
+}
+
+function extractTimeRangeFromText(text) {
+  if (!text) return { start: '09:00', end: '17:00' };
+  const rangeMatch = text.match(/(\d{1,2}[:.]\d{2})\s*(?:-|–|ile|ila)\s*(\d{1,2}[:.]\d{2})/i);
+  if (rangeMatch) {
+    return {
+      start: rangeMatch[1].replace('.', ':').padStart(5, '0'),
+      end: rangeMatch[2].replace('.', ':').padStart(5, '0'),
+    };
+  }
+  const single = text.match(/\b(\d{1,2}[:.]\d{2})\b/);
+  if (single) {
+    return {
+      start: single[1].replace('.', ':').padStart(5, '0'),
+      end: '20:00',
+    };
+  }
+  return { start: '09:00', end: '20:00' };
+}
+
+function parseStartDate(title, summary = '') {
+  const text = `${title} ${summary}`;
+  const baseDate = extractDateFromText(text);
+  if (!baseDate) return null;
+  const times = extractTimeRangeFromText(text);
+  return `${baseDate}T${times.start}:00+03:00`;
+}
+
+function parseEndDate(title, summary = '') {
+  const text = `${title} ${summary}`;
+  const baseDate = extractDateFromText(text);
+  if (!baseDate) return null;
+  const times = extractTimeRangeFromText(text);
+  return `${baseDate}T${times.end}:00+03:00`;
 }
 
 async function fetchHtml(url) {

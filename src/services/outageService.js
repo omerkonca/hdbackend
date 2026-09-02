@@ -433,16 +433,26 @@ class OutageService {
         }
 
         let isExpired = false;
-        if (item.endAt) {
-          const endMs = new Date(item.endAt).getTime();
-          if (!isNaN(endMs) && endMs < nowMs) {
-            isExpired = true;
+        const targetDateRaw = item.endAt || item.startAt || item.date;
+        const targetDateKey = targetDateRaw ? turkeyDateKey(new Date(targetDateRaw).getTime()) : todayKey;
+
+        if (targetDateKey > todayKey) {
+          // Gelecek tarihli planlı kesinti: Asla süresi dolmuş sayma!
+          isExpired = false;
+        } else if (targetDateKey === todayKey) {
+          // Bugün gerçekleşen kesinti: Bitiş saati geçmişse tamamlandı, geçmemişse aktif!
+          if (item.endAt) {
+            const endMs = new Date(item.endAt).getTime();
+            if (!isNaN(endMs) && endMs < nowMs) {
+              isExpired = true;
+            }
+          } else {
+            // Bitiş saati yoksa bugün 23:59'a kadar aktif tut
+            isExpired = false;
           }
-        } else if (item.startAt) {
-          const startMs = new Date(item.startAt).getTime();
-          if (!isNaN(startMs) && startMs + 10 * 60 * 60 * 1000 < nowMs) {
-            isExpired = true;
-          }
+        } else {
+          // Dünden önceki kesinti: Geçmişe taşı
+          isExpired = true;
         }
 
         if (isExpired) {

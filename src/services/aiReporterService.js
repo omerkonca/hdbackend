@@ -948,8 +948,11 @@ class AiReporterService {
     const tr = turkeyDateParts();
     if (tr.hour < config.AI_NEWS.REPORTER_HOUR_TR) return null;
 
-    // Eğer bugün zaten tamamlandıysa doğrudan atla
-    if (this._lastCompletedDate === tr.date || cityContent?.aiNewsSettings?.lastReporterDate === tr.date) {
+    // Eğer bugün zaten başarıyla tamamlandıysa doğrudan atla
+    if (
+      this._lastCompletedDate === tr.date ||
+      (cityContent?.aiNewsSettings?.lastReporterDate === tr.date && cityContent?.aiNewsSettings?.lastReporterOk === true)
+    ) {
       return null;
     }
 

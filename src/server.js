@@ -51,7 +51,18 @@ app.get(['/studio', '/studio.html'], (req, res) => {
 });
 
 app.use(express.static(config.PATHS.PUBLIC_DIR));
-app.use('/assets', express.static(path.join(__dirname, '../../assets')));
+// Akşam AI Muhabir bülteni uyandırma kancası (Render uyku modu sonrasında ilk kullanıcı isteğinde tetikle)
+let lastOnDemandReporterCheck = 0;
+app.use('/api', (req, res, next) => {
+  const now = Date.now();
+  if (now - lastOnDemandReporterCheck > 5 * 60 * 1000) {
+    lastOnDemandReporterCheck = now;
+    setImmediate(() => {
+      aiReporterService.generateIfDue().catch(() => {});
+    });
+  }
+  next();
+});
 
 // Routes
 app.use('/api', apiRoutes);

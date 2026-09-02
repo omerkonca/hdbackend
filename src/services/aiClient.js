@@ -23,20 +23,16 @@ function extractJsonObject(text) {
   }
 }
 
-/** Google'ın kaldırdığı modeller — asla deneme. */
+/** Google'ın tamamen kaldırdığı eski v1 modeller */
 const DEPRECATED_GEMINI_MODELS = new Set([
-  'gemini-2.5-flash-lite',
-  'gemini-2.5-flash',
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-pro',
+  'gemini-1.0-pro',
+  'gemini-pro',
+  'gemini-pro-vision',
 ]);
 
 function geminiModelCandidates() {
-  // Günlük 1 rapor = 1 API çağrısı yeter; çoklu model kota yakar.
-  const primary = String(process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite').trim();
+  const primary = String(process.env.GEMINI_MODEL || 'gemini-2.5-flash').trim();
+  const fallbacks = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash-lite'];
   const ordered = [];
   const pushUnique = (m) => {
     const id = String(m || '').trim();
@@ -44,10 +40,8 @@ function geminiModelCandidates() {
     ordered.push(id);
   };
   pushUnique(primary);
-  if (process.env.GEMINI_FALLBACK_MODELS === 'true') {
-    pushUnique('gemini-3.5-flash');
-  }
-  return ordered.length ? ordered : ['gemini-3.5-flash-lite'];
+  for (const f of fallbacks) pushUnique(f);
+  return ordered.length ? ordered : ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
 }
 
 function isGeminiModelGoneError(err) {

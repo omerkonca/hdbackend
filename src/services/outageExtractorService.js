@@ -250,8 +250,10 @@ class OutageExtractorService {
       const dateText = dateFormattedTr ? `${dateFormattedTr} günü ` : '';
       const subtitle = `${dateText}${timeText} şebeke bakım ve yenileme çalışmaları nedeniyle kesinti uygulanacaktır.`;
 
+      const crypto = require('crypto');
+      const outageHash = crypto.createHash('md5').update(`${title}_${area}_${startAt}`).digest('hex').slice(0, 12);
       outages.push({
-        id: `extracted_outage_${Date.now()}`,
+        id: `extracted_outage_${outageHash}`,
         title,
         subtitle,
         type,
@@ -273,9 +275,11 @@ class OutageExtractorService {
       const title = 'Düziçi Yol ve Asfalt Çalışması';
       const subtitle = `${dateFormattedTr ? `${dateFormattedTr} günü ` : ''}altyapı ve asfalt çalışması nedeniyle kontrollü geçiş sağlanmaktadır.`;
 
+      const crypto = require('crypto');
+      const roadHash = crypto.createHash('md5').update(`${title}_${area}_${startAt}`).digest('hex').slice(0, 12);
       roadClosures.push({
-        id: `extracted_road_${Date.now()}`,
-        fingerprint: `extracted_road_${Date.now()}`,
+        id: `extracted_road_${roadHash}`,
+        fingerprint: `extracted_road_${roadHash}`,
         title,
         subtitle,
         status: 'Devam Ediyor',
