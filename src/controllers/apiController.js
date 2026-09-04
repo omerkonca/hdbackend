@@ -43,11 +43,37 @@ function sanitizeListings(data) {
   return data;
 }
 
+const STORY_REMOTE_URL_MAP = {
+  'assets/images/stories/duzici_selalesi_ue56_0.webp': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/ra5zgqniyujggvoozktr.webp',
+  'assets/images/stories/duzici_selalesi_ue56_1.webp': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/tujfbgptyousdp3prk62.webp',
+  'assets/images/stories/duzici_selalesi_ue56_2.webp': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/yyhrcvghnojfv9rwnhbi.webp',
+  'assets/images/stories/duzici_selalesi_ue56_3.webp': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/jl0vb5jgzbegozzsbcko.webp',
+  'assets/images/stories/duzici_selalesi_ue56_4.webp': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/azq67yoxu7fhg99on4kn.webp',
+  'assets/images/stories/duzici_selalesi_ue56_5.webp': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/jqrsf6rlu2zodgo7lsyr.webp',
+  'assets/images/stories/yesil_selalesi_la1b_6.jpg': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/chxvq3trp9wlvwe2swl1.jpg',
+  'assets/images/stories/duzici_j8ok_7.jpg': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/peqfhcarj7eud1ks74s4.jpg',
+  'assets/images/stories/duzici_j8ok_8.png': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/mjbyr6pcqqp13qvmpsj9.png',
+  'assets/images/stories/berke_baraji_f4w2_9.jpg': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/fxp7vpz0tr2ca8zvmbph.jpg',
+  'assets/images/stories/dumanli_yaylasi_pxkg_10.jpg': 'https://duehxbdlpwvbpqfjyjai.supabase.co/storage/v1/object/public/city-assets/migrated/hepsiduzici-uploads/r0zamoxplknnwwyurjr5.jpg'
+};
+
+function sanitizeAssetUrls(data) {
+  if (!data || typeof data !== 'object') return data;
+  let str = JSON.stringify(data);
+  for (const [assetPath, remoteUrl] of Object.entries(STORY_REMOTE_URL_MAP)) {
+    if (str.includes(assetPath)) {
+      str = str.split(assetPath).join(remoteUrl);
+    }
+  }
+  return JSON.parse(str);
+}
+
 class ApiController {
   async getCityContent(req, res) {
     try {
       let data = await fileService.readCityContent();
       data = sanitizeListings(data);
+      data = sanitizeAssetUrls(data);
       try {
         data = enrichExploreWithCorrections(data);
       } catch (err) {
