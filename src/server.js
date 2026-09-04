@@ -209,6 +209,9 @@ const server = app.listen(config.PORT, () => {
     setInterval(runAiReporterJob, 20 * 60 * 1000);
     // Sunucu uyanır uyanmaz bir kez dene
     setTimeout(runAiReporterJob, 45 * 1000);
+    // Eski haber temizliği (14 günden eski haberler günde bir temizlenir)
+    setTimeout(() => newsService.pruneOldNews({ retentionDays: 14 }).catch(() => {}), 60 * 1000);
+    setInterval(() => newsService.pruneOldNews({ retentionDays: 14 }).catch(() => {}), 12 * 60 * 60 * 1000);
     // Kapalı yollar: bayat KGM/belediye kayıtları için seyrek sync (kota dostu)
     setInterval(() => {
       roadClosureService.sync({ force: true }).catch(() => {});
@@ -217,6 +220,9 @@ const server = app.listen(config.PORT, () => {
       roadClosureService.sync({ force: true }).catch(() => {});
     }, 90 * 1000);
   } else {
+    setTimeout(() => newsService.pruneOldNews({ retentionDays: 14 }).catch(() => {}), 60 * 1000);
+    setInterval(() => newsService.pruneOldNews({ retentionDays: 14 }).catch(() => {}), 12 * 60 * 60 * 1000);
+
     setInterval(() => {
       pharmacyService.getDutyPharmacies({ forceRefresh: true }).catch(() => {});
     }, intervals.pharmacyMs);

@@ -31,8 +31,8 @@ const DEPRECATED_GEMINI_MODELS = new Set([
 ]);
 
 function geminiModelCandidates() {
-  const primary = String(process.env.GEMINI_MODEL || 'gemini-2.5-flash').trim();
-  const fallbacks = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash-lite'];
+  const primary = String(process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim();
+  const fallbacks = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
   const ordered = [];
   const pushUnique = (m) => {
     const id = String(m || '').trim();
@@ -41,7 +41,7 @@ function geminiModelCandidates() {
   };
   pushUnique(primary);
   for (const f of fallbacks) pushUnique(f);
-  return ordered.length ? ordered : ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+  return ordered.length ? ordered : ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
 }
 
 function isGeminiModelGoneError(err) {
@@ -107,8 +107,10 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
     } catch (err) {
       lastError = err;
       if (isGeminiQuotaError(err)) {
-        console.warn(`[ai] ${model} kota/rate limit — Gemini durduruldu, OpenAI denenecek`);
-        return null;
+        console.warn(`[ai] ${model} kota/rate limit — sıradaki Gemini yedek modeline geçiliyor...`);
+        // Kısa bir bekleme vererek burst rate-limit'e takılmayı önle
+        await new Promise((r) => setTimeout(r, 1200));
+        continue;
       }
       const gone = isGeminiModelGoneError(err);
       console.warn(
@@ -116,7 +118,7 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
       );
     }
   }
-  console.warn('[ai] Gemini modelleri başarısız:', lastError?.message || 'bilinmeyen');
+  console.warn('[ai] Tüm Gemini modelleri başarısız oldu:', lastError?.message || 'bilinmeyen');
   return null;
 }
 

@@ -1081,6 +1081,10 @@ KURALLAR:
         }
       }
 
+      // Eski haberleri temizle (14 günden eski kayıtları otomatik sil)
+      this.pruneOldNews({ retentionDays: 14 }).catch(() => {});
+
+
       // 2. Haberler yazıldıktan SONRA push bildirimi gönder
       if (uniqueNewItems.length > 0) {
         try {
@@ -1751,6 +1755,58 @@ KURALLAR:
       return '';
     }
   }
+
+  /**
+   * 14 günden (veya belirtilen günden) eski haberleri veri tabanından ve bellekten temizler.
+   */
+  async pruneOldNews({ retentionDays = 14 } = {}) {
+    const days = Math.max(7, Math.min(30, Number(retentionDays) || 14));
+    let deletedCount = 0;
+
+    const pool = getDbPool();
+    if (pool) {
+      try {
+        const res = await pool.query(
+          `DELETE FROM news_items 
+           WHERE created_at < NOW() - ($1 || ' days')::interval`,
+          [days]
+        );
+        deletedCount = res.rowCount || 0;
+        if (deletedCount > 0) {
+          console.log(`[news] Eski haber temizliği: ${days} günden eski ${deletedCount} haber veritabanından silindi.`);
+        }
+      } catch (e) {
+        console.warn('[news] pruneOldNews direct PG error:', e.message);
+      }
+    } else {
+      try {
+        const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+        const db = requireSupabaseAdmin();
+        const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+        const { count } = await db.from('news_items').delete({ count: 'exact' }).lt('created_at', cutoff);
+        deletedCount = count || 0;
+        if (deletedCount > 0) {
+          console.log(`[news] Eski haber temizliği: Supabase üzerinden ${deletedCount} haber silindi.`);
+        }
+      } catch (e) {
+        console.warn('[news] pruneOldNews Supabase error:', e.message);
+      }
+    }
+
+    // Bellek cache'ini de sınırla (en fazla 150 haber ve 14 günden yeni olanlar)
+    try {
+      const cutoffMs = Date.now() - days * 24 * 60 * 60 * 1000;
+      if (Array.isArray(this.cache.items) && this.cache.items.length > 0) {
+        this.cache.items = this.cache.items.filter((item) => {
+          const t = new Date(item.createdAt || 0).getTime();
+          return !Number.isFinite(t) || t >= cutoffMs;
+        }).slice(0, 150);
+      }
+    } catch (_) {}
+
+    return deletedCount;
+  }
 }
 
 module.exports = new NewsService();
+

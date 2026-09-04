@@ -398,6 +398,41 @@ class PharmacyService {
   }
 
   async loadFromSupabase() {
+    const { getDbPool } = require('../utils/dbPool');
+    const pool = getDbPool();
+    if (pool) {
+      try {
+        const res = await pool.query(`
+          SELECT name, address, phone, date_label, date_range, fetched_at
+          FROM pharmacies
+          ORDER BY fetched_at DESC
+        `);
+        if (res.rows && res.rows.length > 0) {
+          const latestFetchedAt = res.rows[0].fetched_at;
+          const cacheDate = istanbulDateKey(new Date(latestFetchedAt).getTime());
+          const nowDate = istanbulDateKey();
+          const ageMs = Date.now() - new Date(latestFetchedAt).getTime();
+          const maxStaleMs = 36 * 60 * 60 * 1000;
+          if (cacheDate !== nowDate && ageMs > maxStaleMs) {
+            console.log(`[pharmacy] PG cache too old (${cacheDate} vs ${nowDate})`);
+            return null;
+          }
+          const latestBatch = res.rows.filter(
+            (row) => new Date(row.fetched_at).getTime() === new Date(latestFetchedAt).getTime()
+          );
+          return latestBatch.map((row) => ({
+            name: row.name,
+            address: row.address,
+            phone: row.phone,
+            dateLabel: row.date_label || 'Bugün',
+            dateRange: row.date_range || '',
+          }));
+        }
+      } catch (err) {
+        console.warn('[pharmacy] Direct PG loadFromSupabase error:', err.message);
+      }
+    }
+
     try {
       const supabase = require('../utils/supabaseClient');
       const { data, error } = await supabase
@@ -440,6 +475,27 @@ class PharmacyService {
   }
 
   async syncToSupabase(pharmacies) {
+    if (!Array.isArray(pharmacies) || pharmacies.length === 0) return;
+
+    const { getDbPool } = require('../utils/dbPool');
+    const pool = getDbPool();
+    if (pool) {
+      try {
+        await pool.query('DELETE FROM pharmacies');
+        for (const p of pharmacies) {
+          await pool.query(
+            `INSERT INTO pharmacies (name, address, phone, date_label, date_range, fetched_at)
+             VALUES ($1, $2, $3, $4, $5, NOW())`,
+            [p.name, p.address, p.phone, p.dateLabel || 'Bugün', p.dateRange || '']
+          );
+        }
+        console.log(`[pharmacy] ${pharmacies.length} pharmacies synced to PostgreSQL directly.`);
+        return;
+      } catch (err) {
+        console.warn('[pharmacy] Direct PG sync failed, trying Supabase:', err.message);
+      }
+    }
+
     try {
       const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
       const db = requireSupabaseAdmin();
@@ -449,14 +505,12 @@ class PharmacyService {
         name: p.name,
         address: p.address,
         phone: p.phone,
-        date_label: p.dateLabel,
-        date_range: p.dateRange,
+        date_label: p.dateLabel || 'Bugün',
+        date_range: p.dateRange || '',
         fetched_at: new Date().toISOString(),
       }));
-      if (rows.length > 0) {
-        await db.from('pharmacies').insert(rows);
-        console.log(`[pharmacy] ${rows.length} pharmacies synced to Supabase.`);
-      }
+      await db.from('pharmacies').insert(rows);
+      console.log(`[pharmacy] ${rows.length} pharmacies synced to Supabase.`);
     } catch (err) {
       console.error('❌ Supabase pharmacy cache sync failed:', err.message);
     }
