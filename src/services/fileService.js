@@ -54,6 +54,10 @@ class FileService {
             'INSERT INTO city_content_backups (data, description, created_at) VALUES ($1, $2, NOW())',
             [curRes.rows[0].data, `Backup before update on ${new Date().toISOString()}`],
           );
+          // DB şişmesini engelle: Yalnızca son 25 yedeği sakla
+          await pool.query(
+            'DELETE FROM city_content_backups WHERE id NOT IN (SELECT id FROM city_content_backups ORDER BY created_at DESC LIMIT 25)',
+          );
         }
 
         // 2. Upsert city_contents
