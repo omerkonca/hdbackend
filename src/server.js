@@ -51,14 +51,17 @@ app.get(['/studio', '/studio.html'], (req, res) => {
 });
 
 app.use(express.static(config.PATHS.PUBLIC_DIR));
-// Akşam AI Muhabir bülteni uyandırma kancası (Render uyku modu sonrasında ilk kullanıcı isteğinde tetikle)
+// Akşam AI Muhabir & Gündem Yapay Zeka bülteni uyandırma kancası (Render uyku modu sonrasında ilk kullanıcı isteğinde tetikle)
 let lastOnDemandReporterCheck = 0;
 app.use('/api', (req, res, next) => {
   const now = Date.now();
   if (now - lastOnDemandReporterCheck > 5 * 60 * 1000) {
     lastOnDemandReporterCheck = now;
     setImmediate(() => {
+      const aiReporterService = require('./services/aiReporterService');
+      const dailyBriefingService = require('./services/dailyBriefingService');
       aiReporterService.generateIfDue().catch(() => {});
+      dailyBriefingService.generateIfDue().catch(() => {});
     });
   }
   next();
@@ -90,6 +93,7 @@ app.get('/health', async (req, res) => {
       lastGeminiError: aiClient.getLastError(),
     };
 
+    // Light ping test if explicitly requested with admin token or dev
     if (req.query.testAi === '1') {
       try {
         const testRes = await aiClient.generateJson({
@@ -100,45 +104,6 @@ app.get('/health', async (req, res) => {
       } catch (err) {
         ai.testError = err.message;
         ai.lastGeminiError = aiClient.getLastError();
-      }
-    }
-
-    if (req.query.listModels === '1' && process.env.GEMINI_API_KEY) {
-      try {
-        const fetch = require('node-fetch');
-        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`;
-        const lRes = await fetch(listUrl);
-        const lData = await lRes.json();
-        ai.availableModels = lData?.models
-          ?.filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
-          ?.map((m) => m.name.replace('models/', ''));
-        ai.rawListError = lData?.error || null;
-      } catch (err) {
-        ai.listModelsError = err.message;
-      }
-    }
-
-    if (req.query.triggerBriefing === '1') {
-      try {
-        const dailyBriefingService = require('./services/dailyBriefingService');
-        const briefingRes = await dailyBriefingService.generateBriefing({ force: true });
-        ai.briefingResult = {
-          date: briefingRes.briefing_date,
-          title: briefingRes.today_title,
-          model: briefingRes.model,
-        };
-      } catch (err) {
-        ai.briefingError = err.message;
-      }
-    }
-
-    if (req.query.triggerReporter === '1') {
-      try {
-        const aiReporterService = require('./services/aiReporterService');
-        const reporterRes = await aiReporterService.generateDailyReport({ force: true, publish: true });
-        ai.reporterResult = reporterRes;
-      } catch (err) {
-        ai.reporterError = err.message;
       }
     }
 
