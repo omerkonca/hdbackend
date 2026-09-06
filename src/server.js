@@ -87,6 +87,7 @@ app.get('/health', async (req, res) => {
       isConfigured: aiClient.isConfigured(),
       hasGeminiKey: Boolean(process.env.GEMINI_API_KEY),
       hasOpenAiKey: Boolean(process.env.OPENAI_API_KEY),
+      lastGeminiError: aiClient.getLastError(),
     };
 
     if (req.query.testAi === '1') {
@@ -98,6 +99,7 @@ app.get('/health', async (req, res) => {
         ai.testResult = testRes;
       } catch (err) {
         ai.testError = err.message;
+        ai.lastGeminiError = aiClient.getLastError();
       }
     }
 

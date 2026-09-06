@@ -96,6 +96,8 @@ async function generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt
   return { text, model: `gemini:${model}` };
 }
 
+let _lastGeminiError = null;
+
 async function generateWithGemini({ systemPrompt, userPrompt }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
@@ -103,9 +105,12 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
   let lastError = null;
   for (const model of geminiModelCandidates()) {
     try {
-      return await generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt });
+      const res = await generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt });
+      _lastGeminiError = null;
+      return res;
     } catch (err) {
       lastError = err;
+      _lastGeminiError = err.message;
       if (isGeminiQuotaError(err)) {
         console.warn(`[ai] ${model} kota/rate limit — sıradaki Gemini yedek modeline geçiliyor...`);
         // Kısa bir bekleme vererek burst rate-limit'e takılmayı önle
@@ -119,6 +124,12 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
     }
   }
   console.warn('[ai] Tüm Gemini modelleri başarısız oldu:', lastError?.message || 'bilinmeyen');
+  if (lastError) {
+    _lastGeminiError = lastError.message;
+    if (!process.env.OPENAI_API_KEY) {
+      throw lastError;
+    }
+  }
   return null;
 }
 
@@ -191,6 +202,7 @@ function isConfigured() {
 module.exports = {
   generateJson,
   isConfigured,
+  getLastError: () => _lastGeminiError,
   getGeminiModelCandidates: geminiModelCandidates,
   DEPRECATED_GEMINI_MODELS: [...DEPRECATED_GEMINI_MODELS],
 };
