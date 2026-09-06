@@ -90,16 +90,18 @@ app.get('/health', async (req, res) => {
       lastGeminiError: aiClient.getLastError(),
     };
 
-    if (req.query.testAi === '1') {
+    if (req.query.listModels === '1' && process.env.GEMINI_API_KEY) {
       try {
-        const testRes = await aiClient.generateJson({
-          systemPrompt: 'Yanıtın yalnızca geçerli bir JSON objesi olsun: {"status":"ok"}',
-          userPrompt: 'Test ping',
-        });
-        ai.testResult = testRes;
+        const fetch = require('node-fetch');
+        const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${process.env.GEMINI_API_KEY}`;
+        const lRes = await fetch(listUrl);
+        const lData = await lRes.json();
+        ai.availableModels = lData?.models
+          ?.filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+          ?.map((m) => m.name.replace('models/', ''));
+        ai.rawListError = lData?.error || null;
       } catch (err) {
-        ai.testError = err.message;
-        ai.lastGeminiError = aiClient.getLastError();
+        ai.listModelsError = err.message;
       }
     }
 
