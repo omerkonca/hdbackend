@@ -75,8 +75,8 @@ app.use('/api/earthquakes', require('./routes/earthquakeRoutes'));
 app.use('/api/radiation', require('./routes/radiationRoutes'));
 app.use('/api/app-version', require('./routes/appVersionRoutes'));
 
-// Health check
-app.get('/health', (req, res) => {
+// Health check & AI diagnostics
+app.get('/health', async (req, res) => {
   let ai = null;
   try {
     const pkg = require('../package.json');
@@ -84,7 +84,47 @@ app.get('/health', (req, res) => {
     ai = {
       geminiEnv: process.env.GEMINI_MODEL || null,
       geminiCandidates: aiClient.getGeminiModelCandidates(),
+      isConfigured: aiClient.isConfigured(),
+      hasGeminiKey: Boolean(process.env.GEMINI_API_KEY),
+      hasOpenAiKey: Boolean(process.env.OPENAI_API_KEY),
     };
+
+    if (req.query.testAi === '1') {
+      try {
+        const testRes = await aiClient.generateJson({
+          systemPrompt: 'Yanıtın yalnızca geçerli bir JSON objesi olsun: {"status":"ok"}',
+          userPrompt: 'Test ping',
+        });
+        ai.testResult = testRes;
+      } catch (err) {
+        ai.testError = err.message;
+      }
+    }
+
+    if (req.query.triggerBriefing === '1') {
+      try {
+        const dailyBriefingService = require('./services/dailyBriefingService');
+        const briefingRes = await dailyBriefingService.generateBriefing({ force: true });
+        ai.briefingResult = {
+          date: briefingRes.briefing_date,
+          title: briefingRes.today_title,
+          model: briefingRes.model,
+        };
+      } catch (err) {
+        ai.briefingError = err.message;
+      }
+    }
+
+    if (req.query.triggerReporter === '1') {
+      try {
+        const aiReporterService = require('./services/aiReporterService');
+        const reporterRes = await aiReporterService.generateDailyReport({ force: true, publish: true });
+        ai.reporterResult = reporterRes;
+      } catch (err) {
+        ai.reporterError = err.message;
+      }
+    }
+
     return res.json({
       ok: true,
       service: 'hepsi-duzici-city-content-api',
@@ -92,8 +132,8 @@ app.get('/health', (req, res) => {
       ai,
       timestamp: new Date().toISOString(),
     });
-  } catch (_) {
-    return res.json({ ok: true, service: 'hepsi-duzici-city-content-api', timestamp: new Date().toISOString() });
+  } catch (err) {
+    return res.json({ ok: true, service: 'hepsi-duzici-city-content-api', error: err.message, timestamp: new Date().toISOString() });
   }
 });
 
