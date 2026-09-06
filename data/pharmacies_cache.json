@@ -1,12 +1,15 @@
 {
-  "updatedAt": "2026-09-04T21:36:49.199Z",
+  "updatedAt": "2026-09-06T19:25:59.653Z",
   "pharmacies": [
     {
-      "name": "Umut Eczanesi",
-      "address": "Üzümlü Mahallesi, Refık Cesur Bulvarı No:45 Düziçi / Osmaniye",
-      "phone": "0(328)876-55-15",
+      "name": "YILMAZ ECZANESİ",
+      "address": "YEŞİLOVA MAH. AYDINLAR CAD. NO:38/B 2 nolu sağlık ocağıkarşısı OSMANİYE /DÜZİÇİ",
+      "phone": "03288760001",
+      "lat": 37.244706,
+      "lng": 36.454012,
+      "googleMapsUrl": "https://www.google.com/maps?q=37.244706,36.454012",
       "dateLabel": "Bugün",
-      "dateRange": "04 Eylül Cuma akşamından 05 Eylül Cumartesi sabahına kadar."
+      "dateRange": "06 Eylül 2026 Bugün Nöbetçi Eczaneler"
     }
   ]
 }

@@ -250,6 +250,102 @@ class PharmacyService {
     return list;
   }
 
+  async scrapeOsmaniyeEczaciOdasi() {
+    const url = 'http://www.osmaniyeeczaciodasi.org.tr/nobetci-eczaneler';
+    const res = await fetchWithTimeout(
+      url,
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+          Accept:
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+          'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+        },
+      },
+      10000,
+    );
+
+    if (!res.ok) {
+      throw new Error(`Chamber HTTP error: ${res.status}`);
+    }
+
+    const html = await res.text();
+    const cheerio = require('cheerio');
+    const $ = cheerio.load(html);
+
+    const rawText = $('body').text();
+    const dateMatch = rawText.match(/(\d{1,2}\s+[A-Za-zÇĞİÖŞÜçğıöşü]+\s+\d{4}[^\n<]*Nöbetçi\s+Eczaneler)/i);
+    const dateRange = dateMatch ? dateMatch[1].trim() : 'Bugün';
+
+    const pharmacies = [];
+    $('.nobet-kart').each((i, el) => {
+      const cardText = $(el).text();
+      if (!cardText.toUpperCase().includes('DÜZİÇİ') && !cardText.toUpperCase().includes('DUZICI')) {
+        return;
+      }
+
+      const titleEl = $(el).find('h4');
+      let name = titleEl.find('strong').text().trim();
+      if (!name) {
+        name = titleEl.text().split('-')[0].trim();
+      }
+      name = name.replace(/ECZANES[İI]$/i, '').trim() + ' ECZANESİ';
+
+      let address = '';
+      const pHtml = $(el).find('p').html() || '';
+      const firstLine = pHtml.split(/<br\s*\/?>/i)[0];
+      if (firstLine) {
+        address = cheerio.load(firstLine).text().replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+      }
+      if (!address) {
+        address = 'Düziçi / Osmaniye';
+      }
+
+      let phone = '';
+      const telLink = $(el).find('a[href^="tel:"]').attr('href');
+      if (telLink) {
+        phone = telLink.replace('tel:', '').trim();
+      } else {
+        const telMatch = cardText.match(/0\s*328\s*[\d\s]{7,10}/);
+        if (telMatch) phone = telMatch[0].replace(/\s+/g, '');
+      }
+
+      let lat = null;
+      let lng = null;
+      let googleMapsUrl = '';
+      const mapLink = $(el).find('a[href*="google.com/maps"]').attr('href');
+      if (mapLink) {
+        googleMapsUrl = mapLink;
+        const coordsMatch = mapLink.match(/q=([0-9.]+),([0-9.]+)/);
+        if (coordsMatch) {
+          lat = parseFloat(coordsMatch[1]);
+          lng = parseFloat(coordsMatch[2]);
+        }
+      }
+
+      if (name && !pharmacies.some((p) => p.name === name)) {
+        pharmacies.push({
+          name,
+          address,
+          phone,
+          lat,
+          lng,
+          googleMapsUrl,
+          dateLabel: 'Bugün',
+          dateRange,
+        });
+      }
+    });
+
+    if (pharmacies.length > 0) {
+      console.log(`[pharmacy] Osmaniye Eczacı Odası scraped ${pharmacies.length} pharmacy successfully.`);
+      return pharmacies;
+    }
+
+    throw new Error('Osmaniye Eczacı Odası Düziçi eczanesi bulunamadı.');
+  }
+
   async scrapePostaDutyPharmacies() {
     const urls = [
       'https://www.posta.com.tr/nobetci-eczaneler/osmaniye/duzici/',
@@ -327,27 +423,35 @@ class PharmacyService {
 
   async scrapeDutyPharmacies() {
     try {
-      return await this.scrapePostaDutyPharmacies();
-    } catch (errPosta) {
+      return await this.scrapeOsmaniyeEczaciOdasi();
+    } catch (errOdasi) {
       console.warn(
-        '[pharmacy] Posta/Milliyet scrape failed, trying Eczaneler.org:',
-        errPosta.message,
+        '[pharmacy] Osmaniye Eczacı Odası scrape failed, trying Posta:',
+        errOdasi.message,
       );
       try {
-        return await this.scrapeDutyPharmaciesEczanelerOrg();
-      } catch (errOrg) {
+        return await this.scrapePostaDutyPharmacies();
+      } catch (errPosta) {
         console.warn(
-          '[pharmacy] Eczaneler.org scrape failed, trying legacy HTML:',
-          errOrg.message,
+          '[pharmacy] Posta/Milliyet scrape failed, trying Eczaneler.org:',
+          errPosta.message,
         );
         try {
-          return await this.scrapeDutyPharmaciesHtml();
-        } catch (err) {
+          return await this.scrapeDutyPharmaciesEczanelerOrg();
+        } catch (errOrg) {
           console.warn(
-            '[pharmacy] HTML scrape failed, trying Jina fallback:',
-            err.message,
+            '[pharmacy] Eczaneler.org scrape failed, trying legacy HTML:',
+            errOrg.message,
           );
-          return await this.scrapeDutyPharmaciesViaJina();
+          try {
+            return await this.scrapeDutyPharmaciesHtml();
+          } catch (err) {
+            console.warn(
+              '[pharmacy] HTML scrape failed, trying Jina fallback:',
+              err.message,
+            );
+            return await this.scrapeDutyPharmaciesViaJina();
+          }
         }
       }
     }
@@ -412,9 +516,10 @@ class PharmacyService {
           const cacheDate = istanbulDateKey(new Date(latestFetchedAt).getTime());
           const nowDate = istanbulDateKey();
           const ageMs = Date.now() - new Date(latestFetchedAt).getTime();
-          const maxStaleMs = 36 * 60 * 60 * 1000;
-          if (cacheDate !== nowDate && ageMs > maxStaleMs) {
-            console.log(`[pharmacy] PG cache too old (${cacheDate} vs ${nowDate})`);
+          // Nöbetçi eczane günlük değişir. 18 saatten eski veya dünden kalan veri kesinlikle KULLANILAMAZ!
+          const maxStaleMs = 18 * 60 * 60 * 1000;
+          if (cacheDate !== nowDate || ageMs > maxStaleMs) {
+            console.log(`[pharmacy] PG cache expired (${cacheDate} vs ${nowDate}, age: ${Math.round(ageMs/3600000)}h)`);
             return null;
           }
           const latestBatch = res.rows.filter(
@@ -448,13 +553,10 @@ class PharmacyService {
       const cacheDate = istanbulDateKey(new Date(latestFetchedAt).getTime());
       const nowDate = istanbulDateKey();
       const ageMs = Date.now() - new Date(latestFetchedAt).getTime();
-      const maxStaleMs = 36 * 60 * 60 * 1000;
-      if (cacheDate !== nowDate) {
-        if (ageMs > maxStaleMs) {
-          console.log(`[pharmacy] Supabase cache too old (${cacheDate} vs ${nowDate})`);
-          return null;
-        }
-        console.warn(`[pharmacy] Supabase cache farklı gün ama yedek olarak kullanılıyor (${cacheDate})`);
+      const maxStaleMs = 18 * 60 * 60 * 1000;
+      if (cacheDate !== nowDate || ageMs > maxStaleMs) {
+        console.log(`[pharmacy] Supabase cache expired (${cacheDate} vs ${nowDate}, age: ${Math.round(ageMs/3600000)}h)`);
+        return null;
       }
 
       const latestBatch = data.filter(
