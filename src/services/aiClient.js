@@ -23,25 +23,66 @@ function extractJsonObject(text) {
   }
 }
 
-/** Google'ın tamamen kaldırdığı eski v1 modeller */
+/** Google'ın tamamen kaldırdığı eski modeller */
 const DEPRECATED_GEMINI_MODELS = new Set([
   'gemini-1.0-pro',
   'gemini-pro',
   'gemini-pro-vision',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+  'gemini-1.5-pro',
+  'gemini-2.0-flash',
 ]);
 
+let _discoveredGeminiModels = null;
+
+async function discoverActiveGeminiModels(apiKey) {
+  if (_discoveredGeminiModels && _discoveredGeminiModels.length > 0) {
+    return _discoveredGeminiModels;
+  }
+  try {
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    const res = await fetch(listUrl, { timeout: 8000 });
+    if (res.ok) {
+      const data = await res.json();
+      const models = data?.models
+        ?.filter((m) => m.supportedGenerationMethods?.includes('generateContent'))
+        ?.map((m) => m.name.replace('models/', ''))
+        ?.filter((name) => !DEPRECATED_GEMINI_MODELS.has(name) && !name.includes('image') && !name.includes('tts') && !name.includes('robotics') && !name.includes('computer-use')) || [];
+      if (models.length > 0) {
+        _discoveredGeminiModels = models;
+        return models;
+      }
+    }
+  } catch (_) {}
+  return [];
+}
+
 function geminiModelCandidates() {
-  const primary = String(process.env.GEMINI_MODEL || 'gemini-2.0-flash').trim();
-  const fallbacks = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
+  const preferred = [
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-flash-latest',
+    'gemini-flash-lite-latest',
+    'gemini-3.5-flash-lite',
+    'gemini-3.5-flash',
+    'gemini-2.5-pro',
+  ];
+
+  const primary = String(process.env.GEMINI_MODEL || '').trim();
   const ordered = [];
   const pushUnique = (m) => {
     const id = String(m || '').trim();
     if (!id || DEPRECATED_GEMINI_MODELS.has(id) || ordered.includes(id)) return;
     ordered.push(id);
   };
-  pushUnique(primary);
-  for (const f of fallbacks) pushUnique(f);
-  return ordered.length ? ordered : ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'];
+
+  if (primary && !DEPRECATED_GEMINI_MODELS.has(primary)) pushUnique(primary);
+  for (const f of preferred) pushUnique(f);
+  if (_discoveredGeminiModels) {
+    for (const d of _discoveredGeminiModels) pushUnique(d);
+  }
+  return ordered.length ? ordered : ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
 }
 
 function isGeminiModelGoneError(err) {
@@ -102,27 +143,42 @@ async function generateWithGemini({ systemPrompt, userPrompt }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
+  let candidates = geminiModelCandidates();
   let lastError = null;
-  for (const model of geminiModelCandidates()) {
-    try {
-      const res = await generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt });
-      _lastGeminiError = null;
-      return res;
-    } catch (err) {
-      lastError = err;
-      _lastGeminiError = err.message;
-      if (isGeminiQuotaError(err)) {
-        console.warn(`[ai] ${model} kota/rate limit — sıradaki Gemini yedek modeline geçiliyor...`);
-        // Kısa bir bekleme vererek burst rate-limit'e takılmayı önle
-        await new Promise((r) => setTimeout(r, 1200));
+
+  for (let round = 0; round < 2; round++) {
+    for (const model of candidates) {
+      try {
+        const res = await generateWithGeminiModel({ apiKey, model, systemPrompt, userPrompt });
+        _lastGeminiError = null;
+        return res;
+      } catch (err) {
+        lastError = err;
+        _lastGeminiError = err.message;
+        if (isGeminiQuotaError(err)) {
+          console.warn(`[ai] ${model} kota/rate limit — sıradaki Gemini yedek modeline geçiliyor...`);
+          await new Promise((r) => setTimeout(r, 1200));
+          continue;
+        }
+        const gone = isGeminiModelGoneError(err);
+        console.warn(
+          `[ai] ${model} başarısız${gone ? ' (model kalkmış)' : ''}: ${err.message}`,
+        );
+      }
+    }
+
+    // İlk turda modeller başarısız olduysa Google API'den canlı modelleri keşfet
+    if (round === 0) {
+      const discovered = await discoverActiveGeminiModels(apiKey);
+      const newModels = discovered.filter((m) => !candidates.includes(m));
+      if (newModels.length > 0) {
+        candidates = newModels;
         continue;
       }
-      const gone = isGeminiModelGoneError(err);
-      console.warn(
-        `[ai] ${model} başarısız${gone ? ' (model kalkmış)' : ''}: ${err.message}`,
-      );
     }
+    break;
   }
+
   console.warn('[ai] Tüm Gemini modelleri başarısız oldu:', lastError?.message || 'bilinmeyen');
   if (lastError) {
     _lastGeminiError = lastError.message;

@@ -90,6 +90,19 @@ app.get('/health', async (req, res) => {
       lastGeminiError: aiClient.getLastError(),
     };
 
+    if (req.query.testAi === '1') {
+      try {
+        const testRes = await aiClient.generateJson({
+          systemPrompt: 'Yanıtın yalnızca geçerli bir JSON objesi olsun: {"status":"ok"}',
+          userPrompt: 'Test ping',
+        });
+        ai.testResult = testRes;
+      } catch (err) {
+        ai.testError = err.message;
+        ai.lastGeminiError = aiClient.getLastError();
+      }
+    }
+
     if (req.query.listModels === '1' && process.env.GEMINI_API_KEY) {
       try {
         const fetch = require('node-fetch');
