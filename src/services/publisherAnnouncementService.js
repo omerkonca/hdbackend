@@ -20,56 +20,149 @@ function mapRow(row) {
   };
 }
 
-function outageToAnnouncementRow(outage) {
-  if (!outage || !outage.title) return null;
-  const isWater = String(outage.type || '').toUpperCase() === 'SU';
-  const badgeLabel = isWater ? '💧 SU KESİNTİSİ' : '⚡ ELEKTRİK KESİNTİSİ';
+function buildConsolidatedOutageAnnouncements(outages = []) {
+  if (!Array.isArray(outages) || outages.length === 0) return [];
 
-  let timeStr = '';
-  if (outage.startAt) {
-    try {
-      const d = new Date(outage.startAt);
-      const day = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
-      const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-      let endStr = '';
-      if (outage.endAt) {
-        const dEnd = new Date(outage.endAt);
-        endStr = ` - ${String(dEnd.getHours()).padStart(2, '0')}:${String(dEnd.getMinutes()).padStart(2, '0')}`;
-      }
-      timeStr = `${day} ${time}${endStr}`;
-    } catch (_) {}
+  const now = Date.now();
+  // 1. Sadece aktif ve gelecekteki / devam eden kesintileri al (Geçmiş veya bitmişleri kesinlikle duyuruya atma!)
+  const validOutages = outages.filter((o) => {
+    if (!o || !o.title) return false;
+    if (o.status === 'Tamamlandı' || o.isActive === false) return false;
+    if (o.endAt && new Date(o.endAt).getTime() < now) return false;
+    const target = o.endAt || o.startAt || o.date;
+    if (target && new Date(target).getTime() < now - 60 * 60 * 1000) return false;
+    return true;
+  });
+
+  if (validOutages.length === 0) return [];
+
+  // 2. Türüne (ELEKTRİK / SU) ve Tarihine göre grupla (Aynı günkü 5 kesinti için 5 ayrı duyuru basma!)
+  const groups = new Map();
+  for (const o of validOutages) {
+    const isWater = String(o.type || '').toUpperCase() === 'SU';
+    const typeKey = isWater ? 'SU' : 'ELEKTRIK';
+    const dateStr = o.startAt ? o.startAt.split('T')[0] : 'genel';
+    const groupKey = `${typeKey}_${dateStr}`;
+
+    if (!groups.has(groupKey)) {
+      groups.set(groupKey, []);
+    }
+    groups.get(groupKey).push(o);
   }
 
-  const title = outage.title;
-  const summary = outage.subtitle || (timeStr ? `${timeStr} saatleri arasında kesinti.` : 'Planlı şebeke kesintisi');
+  const result = [];
 
-  const bodyLines = [
-    summary,
-    '',
-    outage.area ? `📍 Etkilenen Bölgeler:\n${outage.area}` : '',
-    timeStr ? `⏰ Tarih ve Saat: ${timeStr}` : '',
-    outage.status ? `📌 Durum: ${outage.status}` : '',
-    outage.source ? `🏢 Kaynak: ${outage.source}` : '',
-    '',
-    'Harita ve canlı kesinti takibi için uygulamanın "Kesintiler" bölümünü inceleyebilirsiniz.',
-  ].filter(Boolean).join('\n');
+  for (const [groupKey, items] of groups.entries()) {
+    const isWater = groupKey.startsWith('SU');
+    const badgeLabel = isWater ? '💧 SU KESİNTİSİ' : '⚡ ELEKTRİK KESİNTİSİ';
 
-  return {
-    id: `outage_${outage.id}`,
-    title,
-    summary,
-    body: bodyLines,
-    imageUrl: isWater
-      ? 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80'
-      : 'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80',
-    isPinned: outage.isActive !== false,
-    isActive: true,
-    publishedAt: outage.publishedAt || outage.startAt || outage.date || new Date().toISOString(),
-    createdAt: outage.publishedAt || outage.startAt || outage.date || new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    badgeLabel,
-    route: 'screen:outages',
-  };
+    if (items.length === 1) {
+      // Tekil kesinti kartı
+      const o = items[0];
+      let timeStr = '';
+      if (o.startAt) {
+        try {
+          const d = new Date(o.startAt);
+          const day = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+          const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+          let endStr = '';
+          if (o.endAt) {
+            const dEnd = new Date(o.endAt);
+            endStr = ` - ${String(dEnd.getHours()).padStart(2, '0')}:${String(dEnd.getMinutes()).padStart(2, '0')}`;
+          }
+          timeStr = `${day} ${time}${endStr}`;
+        } catch (_) {}
+      }
+
+      const title = o.title;
+      const summary = o.subtitle || (timeStr ? `${timeStr} arasında şebeke çalışması.` : 'Planlı şebeke kesintisi');
+
+      const bodyLines = [
+        summary,
+        '',
+        o.area ? `📍 Etkilenen Bölgeler:\n${o.area}` : '',
+        timeStr ? `⏰ Tarih ve Saat: ${timeStr}` : '',
+        o.status ? `📌 Durum: ${o.status}` : '',
+        o.source ? `🏢 Kurum: ${o.source}` : '',
+        '',
+        'Harita ve sokak bazlı canlı takip için uygulamanın "Kesintiler" bölümünü inceleyebilirsiniz.',
+      ].filter(Boolean).join('\n');
+
+      result.push({
+        id: `outage_${o.id || groupKey}`,
+        title,
+        summary,
+        body: bodyLines,
+        imageUrl: isWater
+          ? 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80'
+          : 'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80',
+        isPinned: false,
+        isActive: true,
+        publishedAt: o.publishedAt || o.startAt || o.date || new Date().toISOString(),
+        createdAt: o.publishedAt || o.startAt || o.date || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        badgeLabel,
+        route: 'screen:outages',
+      });
+    } else {
+      // Çoklu mahalle kesintisi — Tek bir temiz konsolide duyuruda birleştir
+      const first = items[0];
+      let dayStr = 'Yakın Tarihli';
+      if (first.startAt) {
+        try {
+          dayStr = new Date(first.startAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
+        } catch (_) {}
+      }
+
+      const title = isWater
+        ? `Düziçi'de ${dayStr} Su Kesintisi (${items.length} Bölge)`
+        : `Düziçi'de ${dayStr} Planlı Elektrik Kesintisi (${items.length} Bölge)`;
+
+      const summary = `${dayStr} günü Düziçi genelinde ${items.length} farklı bölgede şebeke bakım ve iyileştirme çalışmaları yapılacaktır.`;
+
+      const areaList = items.map((it, idx) => {
+        let tStr = '';
+        if (it.startAt) {
+          try {
+            const sH = new Date(it.startAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            const eH = it.endAt ? new Date(it.endAt).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }) : '';
+            tStr = ` (${sH}${eH ? ` - ${eH}` : ''})`;
+          } catch (_) {}
+        }
+        return `• ${it.area || it.title}${tStr}`;
+      }).join('\n');
+
+      const bodyLines = [
+        summary,
+        '',
+        '📍 Etkilenen Bölgeler ve Saatler:',
+        areaList,
+        '',
+        `🏢 Kurum: ${first.source || (isWater ? 'Düziçi Belediyesi' : 'Toroslar EDAŞ')}`,
+        '',
+        'Detaylı mahalle ve sokak listesi için "Kesintiler" ekranını ziyaret edebilirsiniz.',
+      ].join('\n');
+
+      result.push({
+        id: `outage_group_${groupKey}`,
+        title,
+        summary,
+        body: bodyLines,
+        imageUrl: isWater
+          ? 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80'
+          : 'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80',
+        isPinned: false,
+        isActive: true,
+        publishedAt: first.publishedAt || first.startAt || new Date().toISOString(),
+        createdAt: first.publishedAt || first.startAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        badgeLabel,
+        route: 'screen:outages',
+      });
+    }
+  }
+
+  return result;
 }
 
 class PublisherAnnouncementService {
@@ -92,21 +185,15 @@ class PublisherAnnouncementService {
       console.warn('[announcements] db fetch error:', err.message);
     }
 
-    // Aktif ve planlı kesintileri duyurular listesine dahil et
+    // Yalnızca geçerli, güncel ve planlı kesintileri duyurular listesine dahil et (Geçmişleri ASLA ekleme!)
     let outageItems = [];
     try {
       const outageService = require('./outageService');
       const activeOutages = outageService.cache?.data?.length
         ? outageService.cache.data
         : await outageService.getOutages().catch(() => []);
-      
-      const recentHistory = (outageService.getHistory() || []).slice(0, 5);
-      const combined = [...(activeOutages || []), ...recentHistory];
 
-      for (const o of combined) {
-        const row = outageToAnnouncementRow(o);
-        if (row) outageItems.push(row);
-      }
+      outageItems = buildConsolidatedOutageAnnouncements(activeOutages);
     } catch (oErr) {
       console.warn('[announcements] outage merge error:', oErr.message);
     }

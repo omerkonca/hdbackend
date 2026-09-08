@@ -91,7 +91,7 @@ function extractLocationTokens(str = '') {
     .filter(
       (w) =>
         w.length > 2 &&
-        !/^(ve|veya|ile|nolu|mah|mahallesi|sokak|sokagi|sokağı|caddesi|cad|mevkii|mevkileri|civarı|çevreleri|merkez|düziçi|duzici|kesintisi|elektrik|kesinti)$/i.test(
+        !/^(ve|veya|ile|nolu|mah|mahallesi|sokak|sokagi|sokağı|caddesi|cad|mevkii|mevkileri|civarı|çevreleri|merkez|düziçi|duzici|kesintisi|elektrik|kesinti|şebeke|sebeke|iyilestirme|iyileştirme|calismalari|çalışmaları|bakim|bakım|ariza|arıza|onarim|onarım|planlanan|planli|planlı|saatleri|arasinda|arasında|nedeniyle|uygulanacaktir|uygulanacaktır|bilgimiz|dahilinde|devam|ediyor|tarihinde|gunu|günü)$/i.test(
           w,
         ),
     );
@@ -118,9 +118,9 @@ function areOutagesSame(a, b) {
     }
   }
 
-  // 3. Etkilenen Bölge / Mahalle / Cadde Benzerliği
-  const tokensA = new Set(extractLocationTokens(`${a.title} ${a.area || ''} ${a.subtitle || ''}`));
-  const tokensB = new Set(extractLocationTokens(`${b.title} ${b.area || ''} ${b.subtitle || ''}`));
+  // 3. Etkilenen Bölge / Mahalle / Cadde Benzerliği (Yalnızca area ve title üzerinden)
+  const tokensA = new Set(extractLocationTokens(`${a.area || a.title || ''}`));
+  const tokensB = new Set(extractLocationTokens(`${b.area || b.title || ''}`));
 
   let sharedCount = 0;
   for (const t of tokensA) {
@@ -128,7 +128,7 @@ function areOutagesSame(a, b) {
   }
 
   const minSize = Math.min(tokensA.size, tokensB.size);
-  if (minSize > 0 && (sharedCount >= 3 || sharedCount / minSize >= 0.35)) {
+  if (minSize > 0 && (sharedCount >= 3 || sharedCount / minSize >= 0.45)) {
     return true;
   }
 
@@ -381,6 +381,67 @@ class OutageService {
       const newsService = require('./newsService');
       const outageExtractorService = require('./outageExtractorService');
 
+      let dbOutages = [];
+      try {
+        const { getDbPool } = require('../utils/dbPool');
+        const pool = getDbPool();
+        if (pool) {
+          const res = await pool.query('SELECT * FROM outages WHERE is_active = true ORDER BY start_at ASC');
+          if (res.rows && res.rows.length > 0) {
+            dbOutages = res.rows.map((row) => ({
+              id: row.id,
+              title: row.title,
+              subtitle: row.subtitle,
+              type: row.type || 'ELEKTRİK',
+              status: row.status || 'Planlandı',
+              source: row.source || 'Toroslar EDAŞ',
+              sourceKind: row.source_kind || 'toroslar',
+              url: row.url || '',
+              area: row.area || '',
+              lat: row.lat != null ? Number(row.lat) : 37.244,
+              lng: row.lng != null ? Number(row.lng) : 36.451,
+              startAt: row.start_at,
+              endAt: row.end_at,
+              isActive: row.is_active !== false,
+            }));
+          }
+        }
+      } catch (poolErr) {
+        console.warn('[outage-service] DB pool outages okuma hatası:', poolErr.message);
+      }
+
+      if (dbOutages.length === 0) {
+        try {
+          const supabase = require('../utils/supabaseClient');
+          if (supabase) {
+            const { data, error } = await supabase
+              .from('outages')
+              .select('*')
+              .order('start_at', { ascending: true });
+            if (!error && Array.isArray(data)) {
+              dbOutages = data.map((row) => ({
+                id: row.id,
+                title: row.title,
+                subtitle: row.subtitle,
+                type: row.type || 'ELEKTRİK',
+                status: row.status || 'Planlandı',
+                source: row.source || 'Toroslar EDAŞ',
+                sourceKind: row.source_kind || 'manual',
+                url: row.url || '',
+                area: row.area || '',
+                lat: row.lat != null ? Number(row.lat) : 37.244,
+                lng: row.lng != null ? Number(row.lng) : 36.451,
+                startAt: row.start_at,
+                endAt: row.end_at,
+                isActive: row.is_active !== false,
+              }));
+            }
+          }
+        } catch (err) {
+          console.warn('[outage-service] Supabase outages okuma hatası:', err.message);
+        }
+      }
+
       const [belediye, toroslar, cityData, recentNews] = await Promise.all([
         municipalityAnnouncementScraper.fetchOutageAnnouncements({ max: 40 }),
         toroslarOutageScraper.fetchDuziciOutages(),
@@ -410,7 +471,7 @@ class OutageService {
       }
 
       const manualOutages = Array.isArray(cityData?.outages) ? cityData.outages : [];
-      const merged = mergeOutages([manualOutages, belediye, toroslar, newsExtractedOutages]);
+      const merged = mergeOutages([dbOutages, manualOutages, belediye, toroslar, newsExtractedOutages]);
       const now = new Date();
       const nowMs = now.getTime();
       const todayKey = turkeyDateKey();
@@ -436,19 +497,31 @@ class OutageService {
         const targetDateRaw = item.endAt || item.startAt || item.date;
         const targetDateKey = targetDateRaw ? turkeyDateKey(new Date(targetDateRaw).getTime()) : todayKey;
 
+        const startMs = item.startAt ? new Date(item.startAt).getTime() : NaN;
+        const endMs = item.endAt ? new Date(item.endAt).getTime() : NaN;
+
         if (targetDateKey > todayKey) {
           // Gelecek tarihli planlı kesinti: Asla süresi dolmuş sayma!
           isExpired = false;
+          if (item.status !== 'İptal Edildi') {
+            item.status = 'Planlandı';
+          }
         } else if (targetDateKey === todayKey) {
           // Bugün gerçekleşen kesinti: Bitiş saati geçmişse tamamlandı, geçmemişse aktif!
-          if (item.endAt) {
-            const endMs = new Date(item.endAt).getTime();
-            if (!isNaN(endMs) && endMs < nowMs) {
-              isExpired = true;
-            }
+          if (!isNaN(endMs) && endMs < nowMs) {
+            isExpired = true;
           } else {
-            // Bitiş saati yoksa bugün 23:59'a kadar aktif tut
             isExpired = false;
+            // Bugün ama saat henüz gelmediyse Planlandı, saat içindeyse Devam Ediyor
+            if (!isNaN(startMs) && startMs > nowMs) {
+              if (item.status !== 'İptal Edildi') {
+                item.status = 'Planlandı';
+              }
+            } else {
+              if (item.status !== 'İptal Edildi') {
+                item.status = 'Devam Ediyor';
+              }
+            }
           }
         } else {
           // Dünden önceki kesinti: Geçmişe taşı

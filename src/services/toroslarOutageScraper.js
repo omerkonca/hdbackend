@@ -176,8 +176,8 @@ class ToroslarOutageScraper {
       });
 
       await page.goto(OUTAGE_PAGE, {
-        waitUntil: 'networkidle2',
-        timeout: 30000
+        waitUntil: 'domcontentloaded',
+        timeout: 12000
       });
 
       // Farklı bir adres seç

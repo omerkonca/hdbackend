@@ -1670,7 +1670,24 @@ KURALLAR:
       if (!images.includes(src)) images.push(src);
       if (images.length >= 8) break;
     }
-    return { imageUrl: images[0] || imageUrl, images };
+
+    const sortedImages = this.sortImagesByQuality(images);
+    return { imageUrl: sortedImages[0] || imageUrl, images: sortedImages };
+  }
+
+  sortImagesByQuality(list = []) {
+    const score = (u) => {
+      const s = String(u || '').toLowerCase();
+      let pts = 100;
+      if (s.includes('1280x720') || s.includes('crop/1280') || s.includes('1920x1080')) pts += 300;
+      if (s.includes('crop') || s.includes('large') || s.includes('full')) pts += 100;
+      if (s.endsWith('.png') || s.endsWith('.webp')) pts += 20;
+      if (/-1\.(jpg|jpeg|png|webp)$/i.test(s)) pts -= 200;
+      if (/-\d{2,3}x\d{2,3}\./i.test(s)) pts -= 200;
+      if (/image-160|thumb|avatar|logo/i.test(s)) pts -= 300;
+      return pts;
+    };
+    return [...list].sort((a, b) => score(b) - score(a));
   }
 
   async fetchArticleDetails(articleUrl) {
@@ -1692,7 +1709,8 @@ KURALLAR:
       if (images.length >= 8) break;
     }
     
-    return { fullText, imageUrl: images[0] || imageUrl, images };
+    const sortedImages = this.sortImagesByQuality(images);
+    return { fullText, imageUrl: sortedImages[0] || imageUrl, images: sortedImages };
   }
 
   async fetchArticleFullText(articleUrl) {
