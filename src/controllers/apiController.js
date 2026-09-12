@@ -61,8 +61,9 @@ function sanitizeAssetUrls(data) {
   if (!data || typeof data !== 'object') return data;
   let str = JSON.stringify(data);
   for (const [assetPath, remoteUrl] of Object.entries(STORY_REMOTE_URL_MAP)) {
-    if (str.includes(assetPath)) {
-      str = str.split(assetPath).join(remoteUrl);
+    // Supabase Storage kotasını ve kısıtlamasını baypas etmek için yerel paket asset'lerine çevir
+    if (str.includes(remoteUrl)) {
+      str = str.split(remoteUrl).join(assetPath);
     }
   }
   return JSON.parse(str);

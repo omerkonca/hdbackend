@@ -36,11 +36,12 @@ function buildConsolidatedOutageAnnouncements(outages = []) {
 
   if (validOutages.length === 0) return [];
 
-  // 2. Türüne (ELEKTRİK / SU) ve Tarihine göre grupla (Aynı günkü 5 kesinti için 5 ayrı duyuru basma!)
+  // 2. Türüne (ELEKTRİK / SU / DOĞALGAZ) ve Tarihine göre grupla (Aynı günkü 5 kesinti için 5 ayrı duyuru basma!)
   const groups = new Map();
   for (const o of validOutages) {
-    const isWater = String(o.type || '').toUpperCase() === 'SU';
-    const typeKey = isWater ? 'SU' : 'ELEKTRIK';
+    const isGas = String(o.type || '').toUpperCase().includes('GAZ');
+    const isWater = !isGas && String(o.type || '').toUpperCase() === 'SU';
+    const typeKey = isGas ? 'DOGALGAZ' : (isWater ? 'SU' : 'ELEKTRIK');
     const dateStr = o.startAt ? o.startAt.split('T')[0] : 'genel';
     const groupKey = `${typeKey}_${dateStr}`;
 
@@ -53,8 +54,16 @@ function buildConsolidatedOutageAnnouncements(outages = []) {
   const result = [];
 
   for (const [groupKey, items] of groups.entries()) {
+    const isGas = groupKey.startsWith('DOGALGAZ');
     const isWater = groupKey.startsWith('SU');
-    const badgeLabel = isWater ? '💧 SU KESİNTİSİ' : '⚡ ELEKTRİK KESİNTİSİ';
+    const badgeLabel = isGas
+      ? '🔥 DOĞALGAZ KESİNTİSİ'
+      : (isWater ? '💧 SU KESİNTİSİ' : '⚡ ELEKTRİK KESİNTİSİ');
+    const defaultImage = isGas
+      ? 'https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=1200&q=80'
+      : (isWater
+        ? 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80'
+        : 'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80');
 
     if (items.length === 1) {
       // Tekil kesinti kartı
@@ -93,9 +102,7 @@ function buildConsolidatedOutageAnnouncements(outages = []) {
         title,
         summary,
         body: bodyLines,
-        imageUrl: isWater
-          ? 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80'
-          : 'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80',
+        imageUrl: defaultImage,
         isPinned: false,
         isActive: true,
         publishedAt: o.publishedAt || o.startAt || o.date || new Date().toISOString(),
@@ -114,9 +121,11 @@ function buildConsolidatedOutageAnnouncements(outages = []) {
         } catch (_) {}
       }
 
-      const title = isWater
-        ? `Düziçi'de ${dayStr} Su Kesintisi (${items.length} Bölge)`
-        : `Düziçi'de ${dayStr} Planlı Elektrik Kesintisi (${items.length} Bölge)`;
+      const title = isGas
+        ? `Düziçi'de ${dayStr} Doğalgaz Kesintisi (${items.length} Bölge)`
+        : (isWater
+          ? `Düziçi'de ${dayStr} Su Kesintisi (${items.length} Bölge)`
+          : `Düziçi'de ${dayStr} Planlı Elektrik Kesintisi (${items.length} Bölge)`);
 
       const summary = `${dayStr} günü Düziçi genelinde ${items.length} farklı bölgede şebeke bakım ve iyileştirme çalışmaları yapılacaktır.`;
 
@@ -132,13 +141,14 @@ function buildConsolidatedOutageAnnouncements(outages = []) {
         return `• ${it.area || it.title}${tStr}`;
       }).join('\n');
 
+      const defaultSource = isGas ? 'Aksa Çukurova Doğal Gaz' : (isWater ? 'Düziçi Belediyesi' : 'Toroslar EDAŞ');
       const bodyLines = [
         summary,
         '',
         '📍 Etkilenen Bölgeler ve Saatler:',
         areaList,
         '',
-        `🏢 Kurum: ${first.source || (isWater ? 'Düziçi Belediyesi' : 'Toroslar EDAŞ')}`,
+        `🏢 Kurum: ${first.source || defaultSource}`,
         '',
         'Detaylı mahalle ve sokak listesi için "Kesintiler" ekranını ziyaret edebilirsiniz.',
       ].join('\n');
@@ -148,9 +158,7 @@ function buildConsolidatedOutageAnnouncements(outages = []) {
         title,
         summary,
         body: bodyLines,
-        imageUrl: isWater
-          ? 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=1200&q=80'
-          : 'https://images.unsplash.com/photo-1473346882829-8bf0c4e0e8e4?w=1200&q=80',
+        imageUrl: defaultImage,
         isPinned: false,
         isActive: true,
         publishedAt: first.publishedAt || first.startAt || new Date().toISOString(),

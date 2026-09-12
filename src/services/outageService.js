@@ -91,7 +91,7 @@ function extractLocationTokens(str = '') {
     .filter(
       (w) =>
         w.length > 2 &&
-        !/^(ve|veya|ile|nolu|mah|mahallesi|sokak|sokagi|sokağı|caddesi|cad|mevkii|mevkileri|civarı|çevreleri|merkez|düziçi|duzici|kesintisi|elektrik|kesinti|şebeke|sebeke|iyilestirme|iyileştirme|calismalari|çalışmaları|bakim|bakım|ariza|arıza|onarim|onarım|planlanan|planli|planlı|saatleri|arasinda|arasında|nedeniyle|uygulanacaktir|uygulanacaktır|bilgimiz|dahilinde|devam|ediyor|tarihinde|gunu|günü)$/i.test(
+        !/^(ve|veya|ile|nolu|mah|mahallesi|sokak|sokagi|sokağı|caddesi|cad|mevkii|mevkileri|civarı|çevreleri|merkez|düziçi|duzici|kesintisi|elektrik|kesinti|şebeke|sebeke|iyilestirme|iyileştirme|calismalari|çalışmaları|bakim|bakım|ariza|arıza|onarim|onarım|planlanan|planli|planlı|saatleri|arasinda|arasında|nedeniyle|uygulanacaktir|uygulanacaktır|bilgimiz|dahilinde|devam|ediyor|tarihinde|gunu|günü|dogalgaz|doğalgaz|aksa|gaz)$/i.test(
           w,
         ),
     );
@@ -240,8 +240,9 @@ class OutageService {
         const outageId = outage.id || `outage_${outage.title}`;
         const affectedMahalleler = extractAffectedMahalleler(outage);
         const outageBlob = normalizeTr(`${outage.title || ''} ${outage.area || ''} ${outage.subtitle || ''}`);
+        const isGas = String(outage.type).toUpperCase().includes('GAZ');
         const isWater = String(outage.type).toUpperCase() === 'SU';
-        const icon = isWater ? '💧' : '⚡';
+        const icon = isGas ? '🔥' : (isWater ? '💧' : '⚡');
 
         // Tarih formatı (ör: 26 Ağustos 09:00 - 17:00)
         let timeLabel = '';
@@ -351,8 +352,11 @@ class OutageService {
       const id = item.id || `outage_${item.title}`;
       if (await outagePushLog.wasPushed(id)) continue;
 
+      const isGas = String(item.type).toUpperCase().includes('GAZ');
       const isWater = String(item.type).toUpperCase() === 'SU';
-      const title = isWater ? 'Düziçi\'de su kesintisi ⚠️' : 'Düziçi\'de elektrik kesintisi ⚡';
+      const title = isGas
+        ? 'Düziçi\'de doğal gaz kesintisi 🔥'
+        : (isWater ? 'Düziçi\'de su kesintisi ⚠️' : 'Düziçi\'de elektrik kesintisi ⚡');
       const body = item.area ? `${item.area}: ${item.title}` : item.title;
 
       const result = await fcmService.sendToTopic('outages_duzici', {
@@ -453,7 +457,7 @@ class OutageService {
       if (Array.isArray(recentNews)) {
         for (const item of recentNews) {
           const text = `${item.title || ''}\n${item.summary || ''}\n${item.fullText || ''}`;
-          if (/kesinti|su kesint|elektrik kesint|şebeke bakım|su hattı|ana boru|arıza onarım|sular akmıyor|sular kesilecek|elektrikler kesilecek|toroslar edaş|aski/i.test(text)) {
+          if (/kesinti|su kesint|elektrik kesint|doğalgaz|dogalgaz|aksa gaz|şebeke bakım|su hattı|ana boru|arıza onarım|sular akmıyor|sular kesilecek|elektrikler kesilecek|toroslar edaş|aski/i.test(text)) {
             try {
               const ext = await outageExtractorService.extractFromText(text);
               if (ext.outages && ext.outages.length > 0) {

@@ -41,8 +41,8 @@ class OutageExtractorService {
           `1. Başlık (title): Kısa, vurucu ve lokasyonu içermeli. Asla haberin ilk cümlesini kopyalama! (Örn: "Soğulcak Yaylası & Çoban Elektrik Kesintisi" veya "Kurtuluş Mahallesi Su Kesintisi")\n` +
           `2. Açıklama (subtitle): Tarih, saat ve nedeni özetleyen tek/iki temiz Türkçe cümle olmalı. (Örn: "22 Ağustos Cumartesi günü 09:00 - 17:00 saatleri arasında şebeke bakım çalışması nedeniyle elektrik kesintisi uygulanacaktır.")\n` +
           `3. Etkilenen Bölgeler (area): Etkilenecek tüm mahalle, yayla, sokak ve mevkileri açıkça listele. (Örn: "Soğulcak Yaylası (1, 3, 5, 7 Nolu sokaklar), Çoban (1 Nolu dahil), İlgiliç, Tikenli")\n` +
-          `4. Tür (type): Yalnızca "ELEKTRİK" veya "SU"\n` +
-          `5. Kaynak (source): "Toroslar EDAŞ", "Düziçi Belediyesi", "ASKİ" vb.\n` +
+          `4. Tür (type): "ELEKTRİK", "SU" veya "DOĞALGAZ"\n` +
+          `5. Kaynak (source): "Toroslar EDAŞ", "Düziçi Belediyesi", "Aksa Çukurova Doğal Gaz" vb.\n` +
           `6. Tarih/Saat (startAt, endAt): Metinde geçen tarih ve saatleri Türkiye saatine göre tam ISO-8601 (Örn: "2026-08-22T09:00:00+03:00") olarak üret.\n` +
           `7. Yol Çalışmaları için (roadClosures): Başlık, etkilenen cadde/bulvar (address), neden (reason), durum (severity: "full" veya "partial") ve tarihleri çıkar.\n` +
           `8. Yanıtı SADECE geçerli bir JSON nesnesi olarak ver.`;
@@ -84,13 +84,23 @@ class OutageExtractorService {
   _normalizeExtracted(parsed) {
     const outages = (parsed.outages || []).map((item) => {
       const id = `extracted_outage_${slugify(`${item.title}_${item.startAt || Date.now()}`)}`;
+      let type = 'ELEKTRİK';
+      const rawType = String(item.type || '').toUpperCase();
+      if (rawType.includes('GAZ')) {
+        type = 'DOĞALGAZ';
+      } else if (rawType === 'SU') {
+        type = 'SU';
+      }
+      const defaultSource = type === 'DOĞALGAZ'
+        ? 'Aksa Çukurova Doğal Gaz'
+        : (type === 'SU' ? 'Düziçi Belediyesi Su İşleri' : 'Toroslar EDAŞ');
       return {
         id,
         title: item.title || 'Planlı Kesinti',
         subtitle: item.subtitle || item.reason || 'Düziçi kesinti duyurusu',
-        type: item.type === 'SU' ? 'SU' : 'ELEKTRİK',
+        type,
         status: item.status || 'Planlandı',
-        source: item.source || (item.type === 'SU' ? 'Düziçi Belediyesi Su İşleri' : 'Toroslar EDAŞ'),
+        source: item.source || defaultSource,
         sourceKind: 'extracted',
         area: item.area || 'Düziçi geneli',
         lat: 37.244,
@@ -137,10 +147,11 @@ class OutageExtractorService {
     const roadClosures = [];
     const normalized = text.replace(/\r\n/g, '\n');
 
-    const isWater = /su kesint|aski|askı|su arıza|şebeke boru|içme suyu|su kesil/i.test(normalized);
+    const isGas = /doğalgaz|dogalgaz|aksa gaz|aksa doğalgaz|doğal gaz/i.test(normalized);
+    const isWater = !isGas && /su kesint|aski|askı|su arıza|şebeke boru|içme suyu|su kesil/i.test(normalized);
     const isRoad = /yol.*çalış|asfalt|trafiğe kapat|şerit daral|menfez|köprü yapım|kilit parke|yol yapım/i.test(normalized);
-    const isAnyOutage = /kesint|bakım|şebeke|arıza|onarım|toroslar|edaş|enerjisa|elektrik|trafo|etkilenecek/i.test(normalized);
-    const isElectric = !isWater && (isAnyOutage || /elektrik|toroslar|edaş|enerjisa|trafo/i.test(normalized));
+    const isAnyOutage = /kesint|bakım|şebeke|arıza|onarım|toroslar|edaş|enerjisa|elektrik|trafo|etkilenecek|aksa|doğalgaz|gaz hattı/i.test(normalized);
+    const isElectric = !isWater && !isGas && (isAnyOutage || /elektrik|toroslar|edaş|enerjisa|trafo/i.test(normalized));
 
     // 1. Saat aralığını bul (Örn: "09:00 - 17:00", "09:00'da başlayıp 17:00'ye kadar", "09.00 - 17.00")
     let startTimeStr = '';
@@ -225,8 +236,11 @@ class OutageExtractorService {
     area = this._enrichDuziciArea(area, normalized);
 
     // 4. Profesyonel Başlık ve Açıklama Oluştur
-    if (isElectric || isWater) {
-      const type = isWater ? 'SU' : 'ELEKTRİK';
+    if (isElectric || isWater || isGas) {
+      const type = isGas ? 'DOĞALGAZ' : (isWater ? 'SU' : 'ELEKTRİK');
+      const defaultSource = isGas
+        ? 'Aksa Çukurova Doğal Gaz'
+        : (isWater ? 'Düziçi Belediyesi Su İşleri' : 'Toroslar EDAŞ');
       
       // Başlık için ana lokasyonları derle
       const locCandidates = area
@@ -242,9 +256,10 @@ class OutageExtractorService {
         locSummary = locCandidates[0];
       }
 
+      const typeLabel = isGas ? 'Doğalgaz' : (isWater ? 'Su' : 'Elektrik');
       const title = locSummary && locSummary !== 'Düziçi İlçe Geneli'
-        ? (isWater ? `Düziçi Su Kesintisi (${locSummary})` : `Düziçi Elektrik Kesintisi (${locSummary})`)
-        : (isWater ? 'Düziçi Planlı Su Kesintisi' : 'Düziçi Planlı Elektrik Kesintisi');
+        ? `Düziçi ${typeLabel} Kesintisi (${locSummary})`
+        : `Düziçi Planlı ${typeLabel} Kesintisi`;
 
       const timeText = (startTimeStr && endTimeStr) ? `${startTimeStr} - ${endTimeStr} saatleri arasında` : 'gün boyunca';
       const dateText = dateFormattedTr ? `${dateFormattedTr} günü ` : '';
@@ -258,7 +273,7 @@ class OutageExtractorService {
         subtitle,
         type,
         status: 'Planlandı',
-        source: isWater ? 'Düziçi Belediyesi Su İşleri' : 'Toroslar EDAŞ',
+        source: defaultSource,
         sourceKind: 'extracted',
         area: area || 'Düziçi',
         lat: 37.244,

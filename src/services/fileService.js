@@ -6,21 +6,67 @@ const supabase = require('../utils/supabaseClient');
 const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
 
 class FileService {
-  async readCityContent() {
-    // 1. Önce Direct PostgreSQL Pool Dene
+  constructor() {
+    this._cachedContent = null;
+    this._lastRead = 0;
+    // 5 dakikalık RAM önbelleği (Supabase egress'i ve disk G/Ç'yi sıfıra indirmek için)
+    this._cacheTtlMs = 5 * 60 * 1000;
+  }
+
+  /**
+   * Bellek önbelleğini temizler (admin güncellemesi sonrasında çağrılır).
+   */
+  invalidateCache() {
+    this._cachedContent = null;
+    this._lastRead = 0;
+  }
+
+  /**
+   * Şehir içeriğini okur.
+   * 1. Öncelik: RAM önbelleği (0ms, sıfır network/egress)
+   * 2. Öncelik: Yerel diskteki city_content.json (~1ms, yerel dosya)
+   * 3. Yedek (Fallback): Supabase / Postgres (yalnızca yerel dosya okunamazsa)
+   */
+  async readCityContent(options = {}) {
+    const forceRefresh = Boolean(options.forceRefresh);
+    const now = Date.now();
+
+    // 1. RAM Önbelleği Kontrolü
+    if (!forceRefresh && this._cachedContent && (now - this._lastRead < this._cacheTtlMs)) {
+      return this._cachedContent;
+    }
+
+    // 2. Birincil Kaynak: Yerel JSON Dosyası
+    try {
+      const raw = await fs.readFile(config.PATHS.CITY_CONTENT, 'utf8');
+      if (raw && raw.trim().length > 10) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          this._cachedContent = parsed;
+          this._lastRead = now;
+          return this._cachedContent;
+        }
+      }
+    } catch (fsErr) {
+      console.warn('⚠️ [fileService] Yerel city_content.json okunamadı, veritabanına bakılıyor:', fsErr.message);
+    }
+
+    // 3. Fallback: Direct PostgreSQL Pool
     const pool = getDbPool();
     if (pool) {
       try {
         const res = await pool.query('SELECT data FROM city_contents WHERE id = 1 LIMIT 1');
         if (res.rows.length > 0 && res.rows[0].data) {
-          return res.rows[0].data;
+          this._cachedContent = res.rows[0].data;
+          this._lastRead = now;
+          return this._cachedContent;
         }
       } catch (pgErr) {
-        console.error('❌ PG readCityContent error:', pgErr.message);
+        console.error('❌ [fileService] PG readCityContent fallback hatası:', pgErr.message);
       }
     }
 
-    // 2. Supabase Fallback
+    // 4. Fallback: Supabase REST
     try {
       const { data, error } = await supabase
         .from('city_contents')
@@ -28,72 +74,83 @@ class FileService {
         .eq('id', 1)
         .maybeSingle();
       
-      if (error) throw error;
-      if (data?.data) return data.data;
+      if (!error && data?.data) {
+        this._cachedContent = data.data;
+        this._lastRead = now;
+        return this._cachedContent;
+      }
     } catch (error) {
-      console.error('❌ Veri okuma hatası:', error.message);
+      console.error('❌ [fileService] Supabase fallback okuma hatası:', error.message);
     }
 
-    // 3. Yerel Dosya Fallback
-    try {
-      const raw = await fs.readFile(config.PATHS.CITY_CONTENT, 'utf8');
-      return JSON.parse(raw);
-    } catch (e) {
-      return {};
-    }
+    // 5. Son Çare: Bellekteki eski içerik veya boş obje
+    return this._cachedContent || {};
   }
 
+  /**
+   * Şehir içeriğini yazar.
+   * Birincil olarak yerel dosyaya yazar, RAM'i günceller ve yerel yedek alır.
+   * Veritabanı (Supabase/Postgres) eşitlemesini arka planda (non-blocking) dener,
+   * böylece Supabase kotası dolsa bile admin paneli ve uygulama ASLA kilitlenmez.
+   */
   async writeCityContent(content) {
-    const pool = getDbPool();
-    if (pool) {
-      try {
-        // 1. Get current content to backup
-        const curRes = await pool.query('SELECT data FROM city_contents WHERE id = 1 LIMIT 1');
-        if (curRes.rows.length > 0 && curRes.rows[0].data) {
+    if (!this.isValidCityContent(content)) {
+      throw new Error('Geçersiz şehir içeriği verisi.');
+    }
+
+    // 1. Önce mevcut halini yerel yedek klasörüne kaydet
+    await this.createBackupBeforeWrite().catch((e) => {
+      console.warn('[fileService] Yerel yedek alınırken hata oluştu (yazmaya devam ediliyor):', e.message);
+    });
+
+    // 2. Birincil Kaynak: Yerel JSON dosyasına yaz
+    const pretty = `${JSON.stringify(content, null, 2)}\n`;
+    await fs.writeFile(config.PATHS.CITY_CONTENT, pretty, 'utf8');
+
+    // 3. RAM Önbelleğini anında güncelle
+    this._cachedContent = content;
+    this._lastRead = Date.now();
+
+    // 4. Arka planda Supabase/PostgreSQL senkronizasyonu (Asenkron & Hata durumunda ana işlemi durdurmaz)
+    setImmediate(async () => {
+      const pool = getDbPool();
+      if (pool) {
+        try {
+          const sql = `
+            INSERT INTO city_contents (id, data, updated_at)
+            VALUES (1, $1, NOW())
+            ON CONFLICT (id) DO UPDATE SET
+              data = EXCLUDED.data,
+              updated_at = NOW()
+          `;
+          await pool.query(sql, [content]);
+
+          // DB yedeği (Son 25 adet)
           await pool.query(
             'INSERT INTO city_content_backups (data, description, created_at) VALUES ($1, $2, NOW())',
-            [curRes.rows[0].data, `Backup before update on ${new Date().toISOString()}`],
-          );
-          // DB şişmesini engelle: Yalnızca son 25 yedeği sakla
+            [content, `Backup on ${new Date().toISOString()}`]
+          ).catch(() => {});
           await pool.query(
-            'DELETE FROM city_content_backups WHERE id NOT IN (SELECT id FROM city_content_backups ORDER BY created_at DESC LIMIT 25)',
-          );
+            'DELETE FROM city_content_backups WHERE id NOT IN (SELECT id FROM city_content_backups ORDER BY created_at DESC LIMIT 25)'
+          ).catch(() => {});
+          return;
+        } catch (pgErr) {
+          console.warn('⚠️ [fileService] Arka plan PG senkronizasyonu başarısız (yerel dosya korundu):', pgErr.message);
         }
-
-        // 2. Upsert city_contents
-        const sql = `
-          INSERT INTO city_contents (id, data, updated_at)
-          VALUES (1, $1, NOW())
-          ON CONFLICT (id) DO UPDATE SET
-            data = EXCLUDED.data,
-            updated_at = NOW()
-        `;
-        await pool.query(sql, [content]);
-
-        // 3. Yerel dosyaya da yaz
-        const pretty = `${JSON.stringify(content, null, 2)}\n`;
-        await fs.writeFile(config.PATHS.CITY_CONTENT, pretty, 'utf8');
-        return;
-      } catch (pgErr) {
-        console.error('❌ PG writeCityContent error:', pgErr.message);
       }
-    }
 
-    // Fallback: Supabase Admin
-    try {
-      const db = requireSupabaseAdmin();
-      const { error } = await db
-        .from('city_contents')
-        .upsert({ id: 1, data: content, updated_at: new Date().toISOString() });
-
-      if (error) throw error;
-
-      const pretty = `${JSON.stringify(content, null, 2)}\n`;
-      await fs.writeFile(config.PATHS.CITY_CONTENT, pretty, 'utf8');
-    } catch (error) {
-      console.error('❌ Veri yazma hatası:', error.message);
-      throw error;
-    }
+      // Supabase REST fallback senkronizasyonu
+      try {
+        const db = requireSupabaseAdmin();
+        if (db) {
+          await db
+            .from('city_contents')
+            .upsert({ id: 1, data: content, updated_at: new Date().toISOString() });
+        }
+      } catch (supaErr) {
+        console.warn('⚠️ [fileService] Arka plan Supabase senkronizasyonu başarısız (yerel dosya korundu):', supaErr.message);
+      }
+    });
   }
 
   async ensureBackupsDir() {
@@ -107,6 +164,17 @@ class FileService {
       const stamp = new Date().toISOString().replace(/[:.]/g, '-');
       const backupPath = path.join(config.PATHS.BACKUPS_DIR, `city_content.${stamp}.json`);
       await fs.writeFile(backupPath, JSON.stringify(content, null, 2), 'utf8');
+
+      // Yerel yedek klasöründe yalnızca en son 25 yedeği sakla (disk şişmesini engelle)
+      const files = await fs.readdir(config.PATHS.BACKUPS_DIR);
+      const jsonBackups = files.filter((f) => f.startsWith('city_content.') && f.endsWith('.json')).sort();
+      if (jsonBackups.length > 25) {
+        const toDelete = jsonBackups.slice(0, jsonBackups.length - 25);
+        for (const oldFile of toDelete) {
+          await fs.unlink(path.join(config.PATHS.BACKUPS_DIR, oldFile)).catch(() => {});
+        }
+      }
+
       return backupPath;
     } catch (e) {
       return 'backup-failed';

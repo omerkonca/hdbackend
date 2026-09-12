@@ -200,10 +200,10 @@ function scrubFalseNoOutageClaims(text, hasOutages) {
   if (!hasOutages || !text) return text;
   let out = String(text);
   const patterns = [
-    /planlı\s+(elektrik|su)(\s+veya\s+(elektrik|su))?\s+kesintisi\s+(bulunmuyor|yok|rapor\s+edilmedi)[^.!\n]*/gi,
+    /planlı\s+(elektrik|su|doğalgaz|dogalgaz)(\s+veya\s+(elektrik|su|doğalgaz|dogalgaz))?\s+kesintisi\s+(bulunmuyor|yok|rapor\s+edilmedi)[^.!\n]*/gi,
     /gün\s+boyunca\s+planlı\s+[^.!\n]*kesinti[^.!\n]*(bulunmuyor|yok|rapor\s+edilmedi)[^.!\n]*/gi,
     /kesinti\s+(kaydı\s+)?(bulunmuyor|yok|rapor\s+edilmedi)[^.!\n]*/gi,
-    /elektrik\s+veya\s+su\s+kesintisi\s+(bulunmuyor|yaşanmıyor|rapor\s+edilmedi)[^.!\n]*/gi,
+    /(elektrik|su|doğalgaz|dogalgaz)(\s+veya\s+(elektrik|su|doğalgaz|dogalgaz))*\s+kesintisi\s+(bulunmuyor|yaşanmıyor|rapor\s+edilmedi)[^.!\n]*/gi,
   ];
   for (const re of patterns) {
     out = out.replace(re, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
@@ -212,7 +212,8 @@ function scrubFalseNoOutageClaims(text, hasOutages) {
 }
 
 function formatOutageLine(o, { finished = false } = {}) {
-  const type = o.type || (normalizeTr(o.title || '').includes('su') ? 'Su' : 'Elektrik');
+  const isGas = String(o.type || '').toUpperCase().includes('GAZ') || normalizeTr(o.title || '').includes('dogalgaz') || normalizeTr(o.title || '').includes('gaz');
+  const type = isGas ? 'Doğalgaz' : (o.type || (normalizeTr(o.title || '').includes('su') ? 'Su' : 'Elektrik'));
   const area = String(o.area || '').trim();
   const title = String(o.title || 'Kesinti').trim();
   const start = formatTrClock(o.startAt);
@@ -400,7 +401,7 @@ class AiReporterService {
         snapshot.signals.push('outage');
       } else {
         snapshot.outagesText =
-          'Bugün için aktif veya tamamlanmış elektrik/su kesintisi kaydı YOK (kaynaklar tarandı).';
+          'Bugün için aktif veya tamamlanmış elektrik/su/doğalgaz kesintisi kaydı YOK (kaynaklar tarandı).';
       }
     } catch (err) {
       console.warn('[ai-reporter] Outages fetch failed:', err.message);
@@ -608,7 +609,7 @@ class AiReporterService {
     if (/yagmur|saganak|firtina|yagis/.test(blob) || snapshot.signals.includes('rain')) return 'rain';
     if (/sicak|kavurucu|sicaktan/.test(blob) || snapshot.signals.includes('hot')) return 'hot';
     if (/soguk|don|kar/.test(blob) || snapshot.signals.includes('cold')) return 'cold';
-    if (/kesinti|elektrik|su kes/.test(blob) || snapshot.outageCount > 0) return 'outage';
+    if (/kesinti|elektrik|su kes|dogalgaz|doğalgaz/.test(blob) || snapshot.outageCount > 0) return 'outage';
     if (/yol|asfalt|kapali|calisma/.test(blob) || snapshot.closureCount > 0) return 'road';
     if (/etkinlik|konser|tiyatro|festival/.test(blob) || snapshot.eventCount > 0) return 'event';
     if (/eczane|nobetci/.test(blob) || snapshot.pharmacyCount > 0) return 'pharmacy';
