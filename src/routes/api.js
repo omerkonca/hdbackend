@@ -8,6 +8,8 @@ const { requireAdminToken } = require('../middlewares/auth');
 router.get('/city-content', apiController.getCityContent);
 router.get('/pharmacies/duty', apiController.getDutyPharmacies);
 router.get('/news', apiController.getNews);
+router.get('/news/item', apiController.getSingleNewsItem);
+router.get('/news/single', apiController.getSingleNewsItem);
 router.get('/news/full-text', apiController.getNewsFullText);
 router.get('/finance', apiController.getFinance);
 router.get('/fuel', apiController.getFuel);

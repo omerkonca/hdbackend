@@ -627,6 +627,18 @@ KURALLAR:
 
   async scrapeNews({ max = 100 } = {}) {
     const allItems = [];
+
+    // 1. Doğrudan HTML kategorilerini tara (Sabır Gazetesi Düziçi sayfası vb. - en taze yerel haberler)
+    try {
+      const htmlNews = await this.scrapeHtmlCategories();
+      if (Array.isArray(htmlNews) && htmlNews.length > 0) {
+        allItems.push(...htmlNews);
+        console.log(`[news] Sabır Gazetesi HTML kategorisinden ${htmlNews.length} adet güncel Düziçi haberi eklendi.`);
+      }
+    } catch (htmlErr) {
+      console.warn('[news] HTML kategori tarama hatası:', htmlErr.message);
+    }
+
     const sources = await this.resolveSources();
     const batchSize = 3;
     for (let offset = 0; offset < sources.length; offset += batchSize) {

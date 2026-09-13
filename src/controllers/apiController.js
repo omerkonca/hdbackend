@@ -189,7 +189,80 @@ class ApiController {
         (id && (id.startsWith('custom-') || id.startsWith('news-')))
       );
       
-      // 1. Check if cached in Supabase news_items table
+      // 1. Önce Direct PostgreSQL Pool Dene (0ms Supabase Egress, Hızlı)
+      const { getDbPool } = require('../utils/dbPool');
+      const pool = getDbPool();
+      if (pool) {
+        try {
+          let sql = 'SELECT id, full_text, image_url, images, video_url, verified, is_ai_generated, is_ai_optimized, source_name, title, summary, category, created_at, source_url FROM news_items WHERE ';
+          let params = [];
+          if (id && url) {
+            sql += '(id = $1 OR source_url = $2) ORDER BY created_at DESC LIMIT 1';
+            params = [id, url];
+          } else if (id) {
+            sql += 'id = $1 ORDER BY created_at DESC LIMIT 1';
+            params = [id];
+          } else {
+            sql += 'source_url = $1 ORDER BY created_at DESC LIMIT 1';
+            params = [url];
+          }
+          const resDb = await pool.query(sql, params);
+          if (resDb.rows.length > 0) {
+            const cached = resDb.rows[0];
+            const hasText = cached.full_text && cached.full_text.trim().length > 0;
+            const cachedImages = Array.isArray(cached.images)
+              ? cached.images.filter(Boolean)
+              : (cached.image_url ? [cached.image_url] : []);
+            if (hasText) {
+              return res.json({
+                ok: true,
+                fullText: cached.full_text,
+                imageUrl: cached.image_url || cachedImages[0] || null,
+                images: cachedImages,
+                videoUrl: cached.video_url || null,
+                verified: cached.verified === true,
+                isAiGenerated: cached.is_ai_generated === true,
+                isAiOptimized: cached.is_ai_optimized === true,
+                sourceName: cached.source_name || null,
+                title: cached.title || null,
+                summary: cached.summary || null,
+                category: cached.category || null,
+                createdAt: cached.created_at || null,
+                sourceUrl: cached.source_url || null,
+                id: cached.id || null,
+              });
+            }
+          }
+        } catch (dbErr) {
+          console.warn('[news-full-text] Direct PG read failed:', dbErr.message);
+        }
+      }
+
+      // 2. In-memory cache kontrolü
+      const inMemoryItem = (newsService.cache.items || []).find(
+        (x) => (id && x.id === id) || (url && x.sourceUrl === url)
+      );
+      if (inMemoryItem && inMemoryItem.fullText && inMemoryItem.fullText.trim().length > 0) {
+        return res.json({
+          ok: true,
+          fullText: inMemoryItem.fullText,
+          imageUrl: inMemoryItem.imageUrl || null,
+          images: inMemoryItem.images || [],
+          videoUrl: inMemoryItem.videoUrl || null,
+          verified: inMemoryItem.verified === true,
+          isAiGenerated: inMemoryItem.isAiGenerated === true,
+          isAiOptimized: inMemoryItem.isAiOptimized === true,
+          sourceName: inMemoryItem.sourceName || null,
+          title: inMemoryItem.title || null,
+          summary: inMemoryItem.summary || null,
+          category: inMemoryItem.category || null,
+          createdAt: inMemoryItem.createdAt || null,
+          sourceUrl: inMemoryItem.sourceUrl || null,
+          id: inMemoryItem.id || null,
+        });
+      }
+
+      // 3. Supabase REST Fallback (yalnızca kota açıksa çalışır)
       const supabase = require('../utils/supabaseClient');
       try {
         let queryBuilder = supabase
@@ -214,39 +287,10 @@ class ApiController {
             ? cached.images.filter(Boolean)
             : (cached.image_url ? [cached.image_url] : []);
           if (hasText) {
-            const body = cached.full_text;
-            if (skipLiveImages || cachedImages.length > 0 || isOwnPublisher) {
-              return res.json({
-                ok: true,
-                fullText: body,
-                imageUrl: cached.image_url || cachedImages[0] || null,
-                images: cachedImages,
-                videoUrl: cached.video_url || null,
-                verified: cached.verified === true,
-                isAiGenerated: cached.is_ai_generated === true,
-                isAiOptimized: cached.is_ai_optimized === true,
-                sourceName: cached.source_name || null,
-              });
-            }
-
-            // Gorsel cache bos: metni hemen don, gorselleri arka planda yenile
-            newsService.fetchArticleImages(url)
-              .then((imageDetails) => {
-                const images = imageDetails.images || [];
-                const imageUrl = imageDetails.imageUrl || cached.image_url || null;
-                if (images.length === 0) return;
-                return supabase
-                  .from('news_items')
-                  .update({ images, image_url: imageUrl })
-                  .eq('source_url', url);
-              })
-              .then(() => console.log(`[news] Images refreshed in background for: ${url}`))
-              .catch((err) => console.error('[news] Background image refresh failed:', err.message));
-
             return res.json({
               ok: true,
-              fullText: body,
-              imageUrl: cached.image_url || null,
+              fullText: cached.full_text,
+              imageUrl: cached.image_url || cachedImages[0] || null,
               images: cachedImages,
               videoUrl: cached.video_url || null,
               verified: cached.verified === true,
@@ -257,7 +301,7 @@ class ApiController {
           }
         }
       } catch (err) {
-        console.error('❌ Supabase news read failed:', err.message);
+        // Supabase kotalı veya kapalı, sessizce web scraping fallback'ine geç
       }
 
       // 2. Fetch and parse on-the-fly from the source website
@@ -283,6 +327,50 @@ class ApiController {
       res.json({ ok: true, fullText, imageUrl: imageUrl || null, images });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Haber metni alinamadi.', detail: error.message });
+    }
+  }
+
+  async getSingleNewsItem(req, res) {
+    try {
+      const id = String(req.query.id || '').trim();
+      const url = String(req.query.url || '').trim();
+      if (!id && !url) {
+        return res.status(400).json({ ok: false, message: 'id veya url parametresi gerekli.' });
+      }
+
+      // 1. In-memory cache
+      const cached = (newsService.cache.items || []).find(
+        (x) => (id && x.id === id) || (url && x.sourceUrl === url)
+      );
+      if (cached) {
+        return res.json({ ok: true, item: cached });
+      }
+
+      // 2. Direct PostgreSQL Pool
+      const { getDbPool } = require('../utils/dbPool');
+      const pool = getDbPool();
+      if (pool) {
+        try {
+          const sql = 'SELECT * FROM news_items WHERE id = $1 OR source_url = $2 ORDER BY created_at DESC LIMIT 1';
+          const r = await pool.query(sql, [id || 'none', url || 'none']);
+          if (r.rows.length > 0) {
+            return res.json({ ok: true, item: newsService.mapDbRowToItem(r.rows[0]) });
+          }
+        } catch (_) {}
+      }
+
+      // 3. Fallback: Son haberleri çek ve eşleşeni bul
+      try {
+        const fresh = await newsService.getNews({ max: 60 });
+        const found = fresh.find((x) => (id && x.id === id) || (url && x.sourceUrl === url));
+        if (found) {
+          return res.json({ ok: true, item: found });
+        }
+      } catch (_) {}
+
+      return res.status(404).json({ ok: false, message: 'Haber bulunamadı.' });
+    } catch (e) {
+      return res.status(500).json({ ok: false, message: e.message });
     }
   }
 

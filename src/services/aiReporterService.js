@@ -357,9 +357,9 @@ class AiReporterService {
       const activeRaw = (await outageService.getOutages()) || [];
       const historyRaw = outageService.getHistory() || [];
 
-      // Aktif kesintiler her zaman bugünkü bültene girer (tarih filtresi yok)
+      // Yalnızca hedef günle (bugünle) doğrudan ilgili aktif veya planlı kesintiler
       const active = activeRaw.filter(
-        (o) => o && o.isActive !== false && normalizeTr(o.status || '') !== 'tamamlandi',
+        (o) => o && o.isActive !== false && normalizeTr(o.status || '') !== 'tamamlandi' && outageTouchesTargetDate(o, targetDate),
       );
 
       const finishedToday = historyRaw.filter((o) => o && outageTouchesTargetDate(o, targetDate));
@@ -633,10 +633,8 @@ class AiReporterService {
       'Yanıtını yalnızca geçerli JSON olarak ver.';
 
     const outageRule = hasOutages
-      ? `KRİTİK KESİNTİ KURALI: Aşağıda ${snapshot.outageCount} kesinti kaydı VAR (aktif: ${snapshot.activeOutageCount || 0}, bugün biten: ${snapshot.finishedOutageCount || 0}). ` +
-        `"Kesinti yok / rapor edilmedi / planlı kesinti bulunmuyor" YAZMAN KESİNLİKLE YASAK. ` +
-        `Her kesintiyi mahalle/alan, saat aralığı ve (varsa) kaynakla anlat. Bugün bitenleri de "bugün yaşandı" diye belirt.`
-      : `Kesinti bloğunda kayıt yoksa yalnızca o zaman "bugün için kayıtlı planlı kesinti bulunmuyor" diyebilirsin. Veri alınamadıysa bunu açıkça söyle; yokmuş gibi yazma.`;
+      ? `KESİNTİ KURALI: Aşağıda ${snapshot.outageCount} adet teyitli kesinti kaydı listelendi. Bunları Altyapı bölümünde mahalle ve saat belirterek aktar. İlçe genelini vuran çok büyük ve olağanüstü bir kesinti değilse manşeti (title) kesintiye boğma; günün asıl yerel haberini veya bülten temasını manşet yap.`
+      : `KESİNTİ KURALI: Bugün Düziçi genelinde kayıtlı planlı bir elektrik veya su kesintisi bulunmuyor. Altyapı bölümünde dürüstçe "İlçemizde bugün için planlı bir elektrik veya su kesintisi bulunmuyor." şeklinde sade ve net olarak belirt. Asla kesinti uydurma veya başlığa kesinti yazma.`;
 
     const quietNote = quietDay
       ? `\nNot: Bugün veri skoru düşük (sakin gün). Abartma; kısa ama profesyonel bir bülten yaz. Boşluğu uydurma haberle doldurma.\n`
@@ -659,8 +657,8 @@ class AiReporterService {
       `1. title: Profesyonel yerel gazete manşeti (max 90 karakter).\n` +
       `   - Günün asıl Düziçi gelişmesini veya "Düziçi akşam bülteni" çerçevesini yansıt.\n` +
       `   - Zorunlu klişe kalıplara mahkum olma; ama tek bir uzak Osmaniye haberini manşet yapma.\n` +
-      `   - Kesinti varsa başlıkta veya spotta mutlaka geçsin.\n\n` +
-      `2. summary: 2-3 cümle, max 220 karakter. Düziçi odaklı; kesinti varsa belirt.\n\n` +
+      `   - Kesinti yoksa başlıkta asla kesintiden bahsetme. Kesinti varsa sadece büyük/genel bir kesintiyse başlığa taşıyabilirsin.\n\n` +
+      `2. summary: 2-3 cümle, max 220 karakter. Düziçi odaklı; günün özeti.\n\n` +
       `3. fullText: Paragraflar arasında boş satır. Markdown/HTML yok. Akış:\n` +
       `   - Giriş: Kısa selamlama + günün Düziçi atmosferi (abartısız).\n` +
       `   - Yerel gelişmeler: [DÜZİÇİ] etiketli haberleri önce, ayrıntılı ve tarafsız anlat.\n` +

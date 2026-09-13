@@ -388,7 +388,7 @@
         "url": "https://www.akdenizgazetesi.com/rss/duzici",
         "name": "Akdeniz Gazetesi Düziçi",
         "scope": "duzici",
-        "isActive": true,
+        "isActive": false,
         "filterDuzici": false
       },
       {

@@ -461,7 +461,12 @@ class OutageService {
             try {
               const ext = await outageExtractorService.extractFromText(text);
               if (ext.outages && ext.outages.length > 0) {
+                const todayKeyStr = turkeyDateKey();
                 for (const o of ext.outages) {
+                  const oDate = o.startAt || o.date;
+                  if (!oDate) continue;
+                  const oDateKey = turkeyDateKey(new Date(oDate).getTime());
+                  if (oDateKey < todayKeyStr) continue; // Eski haber kesintilerini asla bugüne alma
                   o.source = o.source || item.sourceName || 'Düziçi Yerel Haber';
                   o.announcementUrl = item.sourceUrl || '';
                   newsExtractedOutages.push(o);
