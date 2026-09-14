@@ -554,90 +554,8 @@ KURALLAR:
     return config.NEWS.SOURCES;
   }
 
-  async scrapeHtmlCategories() {
-    const htmlSources = [
-      {
-        name: 'Sabır Gazetesi Düziçi',
-        url: 'https://www.sabirgazetesi.com/duzici',
-        base: 'https://www.sabirgazetesi.com',
-      },
-    ];
-
-    const all = [];
-    const crypto = require('crypto');
-
-    for (const src of htmlSources) {
-      try {
-        const res = await fetchWithTimeout(
-          src.url,
-          {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            },
-          },
-          15000,
-        );
-        if (res.status !== 200) continue;
-        const html = await res.text();
-        const $ = cheerio.load(html);
-
-        // 1. Manşet ve kart görsellerini tara
-        $('img').each((i, el) => {
-          const imgSrc = $(el).attr('src') || $(el).attr('data-src');
-          const alt = ($(el).attr('alt') || '').trim();
-          const parentA = $(el).closest('a');
-          const href = parentA.attr('href') || $(el).parent().find('a').attr('href') || '';
-          
-          if (!imgSrc || !imgSrc.includes('uploads') || !href || href.startsWith('#') || href.includes('javascript')) return;
-          if (href.includes('/yazarlar') || href.includes('/roportaj') || href.includes('/futbol') || href.includes('logo')) return;
-          if (alt.length < 15 || alt.includes('Süper Lig') || alt.includes('TFF') || alt.includes('Puan')) return;
-
-          const fullUrl = href.startsWith('http') ? href : `${src.base}${href.startsWith('/') ? '' : '/'}${href}`;
-          const fullImg = imgSrc.startsWith('http') ? imgSrc : `${src.base}${imgSrc.startsWith('/') ? '' : '/'}${imgSrc}`;
-          const title = alt.replace(/\s+/g, ' ').trim();
-          const urlHash = crypto.createHash('md5').update(fullUrl).digest('hex');
-
-          all.push({
-            id: `news-${urlHash}`,
-            title,
-            summary: title,
-            imageUrl: fullImg,
-            sourceUrl: fullUrl,
-            sourceName: src.name,
-            category: this.inferNewsCategory(title, title, src.name, { scope: 'duzici' }),
-            createdAt: new Date().toISOString(),
-          });
-        });
-      } catch (err) {
-        console.warn(`[news] HTML kategori tarama hatası (${src.name}):`, err.message);
-      }
-    }
-
-    const unique = [];
-    const seen = new Set();
-    for (const it of all) {
-      if (it.imageUrl && !seen.has(it.sourceUrl)) {
-        seen.add(it.sourceUrl);
-        unique.push(it);
-      }
-    }
-    return unique;
-  }
-
   async scrapeNews({ max = 100 } = {}) {
     const allItems = [];
-
-    // 1. Doğrudan HTML kategorilerini tara (Sabır Gazetesi Düziçi sayfası vb. - en taze yerel haberler)
-    try {
-      const htmlNews = await this.scrapeHtmlCategories();
-      if (Array.isArray(htmlNews) && htmlNews.length > 0) {
-        allItems.push(...htmlNews);
-        console.log(`[news] Sabır Gazetesi HTML kategorisinden ${htmlNews.length} adet güncel Düziçi haberi eklendi.`);
-      }
-    } catch (htmlErr) {
-      console.warn('[news] HTML kategori tarama hatası:', htmlErr.message);
-    }
 
     const sources = await this.resolveSources();
     const batchSize = 3;
@@ -1185,9 +1103,30 @@ KURALLAR:
       }
       this._lastCleanupAt = now;
 
-      const supabase = require('../utils/supabaseClient');
       const cutoff = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000).toISOString();
+      const pool = getDbPool();
 
+      if (pool) {
+        try {
+          const sql = `
+            DELETE FROM news_items
+            WHERE created_at < $1
+              AND verified = false
+              AND is_ai_generated = false
+              AND id NOT LIKE 'news-custom-%'
+              AND id NOT LIKE 'news-ai-reporter-%'
+          `;
+          const res = await pool.query(sql, [cutoff]);
+          if (res.rowCount > 0) {
+            console.log(`🧹 [news] Auto-cleaned ${res.rowCount} scraped news items older than ${retentionDays} days via PG.`);
+          }
+          return;
+        } catch (pgErr) {
+          console.error('❌ PG Old news auto-cleanup error:', pgErr.message);
+        }
+      }
+
+      const supabase = require('../utils/supabaseClient');
       const { data, error } = await supabase
         .from('news_items')
         .delete()
