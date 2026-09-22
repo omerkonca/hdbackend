@@ -899,26 +899,26 @@ KURALLAR:
         } catch (_) {}
       }
 
-      const existingIds = new Set([
+        const existingIds = new Set([
         ...existing.map((row) => row.id),
-        ...existingByUrl.map((row) => row.id),
-      ]);
-      const existingUrls = new Set(existingByUrl.map((row) => row.source_url).filter(Boolean));
-      const existingTitleKeys = new Set(
+          ...existingByUrl.map((row) => row.id),
+        ]);
+        const existingUrls = new Set(existingByUrl.map((row) => row.source_url).filter(Boolean));
+        const existingTitleKeys = new Set(
         [...existing, ...existingByUrl]
-          .map((row) => this.normalizeNewsTitleKey(row.title))
-          .filter(Boolean),
-      );
+            .map((row) => this.normalizeNewsTitleKey(row.title))
+            .filter(Boolean),
+        );
       const existingRows = [...existing, ...existingByUrl];
 
       const newItems = syncItems.filter((item) => {
-        if (existingIds.has(item.id)) return false;
-        if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
-        const titleKey = this.normalizeNewsTitleKey(item.title);
-        if (titleKey && existingTitleKeys.has(titleKey)) return false;
-        if (existingRows.some((row) => this.areDuplicateNews(row, item))) return false;
-        return true;
-      });
+          if (existingIds.has(item.id)) return false;
+          if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
+          const titleKey = this.normalizeNewsTitleKey(item.title);
+          if (titleKey && existingTitleKeys.has(titleKey)) return false;
+          if (existingRows.some((row) => this.areDuplicateNews(row, item))) return false;
+          return true;
+        });
 
       // Aynı sync turunda Sabır+Hasret gibi kopyaları tekilleştir (ilk kalan)
       const uniqueNewItems = [];
@@ -1017,18 +1017,18 @@ KURALLAR:
 
       // 2. Haberler yazıldıktan SONRA push bildirimi gönder
       if (uniqueNewItems.length > 0) {
-        try {
-          const fcmService = require('./fcmService');
-          if (!fcmService.isFcmConfigured()) {
-            console.warn('[news] FCM yapılandırılmamış (FIREBASE_SERVICE_ACCOUNT_JSON). Push atlanıyor.');
-          } else {
-            let pushCount = 0;
+          try {
+            const fcmService = require('./fcmService');
+            if (!fcmService.isFcmConfigured()) {
+              console.warn('[news] FCM yapılandırılmamış (FIREBASE_SERVICE_ACCOUNT_JSON). Push atlanıyor.');
+            } else {
+              let pushCount = 0;
             const pushedKeysThisRun = new Set();
 
             for (const item of uniqueNewItems.slice(0, 5)) {
-              if (!this.isEligibleForPush(item)) {
-                continue;
-              }
+                if (!this.isEligibleForPush(item)) {
+                  continue;
+                }
               const titleKey = this.normalizeNewsTitleKey(item.title);
               if (await newsPushLog.wasPushed(item.id, titleKey)) {
                 console.log(`[news] push atlandı (daha önce gönderildi / aynı konu): "${item.title}"`);
@@ -1046,38 +1046,38 @@ KURALLAR:
                     this.areDuplicateNews(other, item),
                 )
               ) {
-                continue;
-              }
+                  continue;
+                }
 
               const isDuzici = this.isDuziciNewsItem(item.title, item.summary);
 
-              const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
-              const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
+                const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
+                const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
 
-              console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
-              const result = await fcmService.sendToTopic(topic, {
-                title: pushTitle,
-                body: item.title,
-                data: {
-                  route: String(item.id),
-                },
-              });
+                console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
+                const result = await fcmService.sendToTopic(topic, {
+                  title: pushTitle,
+                  body: item.title,
+                  data: {
+                    route: String(item.id),
+                  },
+                });
 
-              if (result.success) {
+                if (result.success) {
                 await newsPushLog.markPushed(item.id, titleKey);
                 if (titleKey) pushedKeysThisRun.add(titleKey);
-                pushCount += 1;
-              } else {
-                console.error(`[news] FCM başarısız (${item.id}):`, result.error);
+                  pushCount += 1;
+                } else {
+                  console.error(`[news] FCM başarısız (${item.id}):`, result.error);
+                }
+              }
+
+              if (pushCount > 0) {
+                console.log(`[news] ${pushCount} haber bildirimi gönderildi.`);
               }
             }
-
-            if (pushCount > 0) {
-              console.log(`[news] ${pushCount} haber bildirimi gönderildi.`);
-            }
-          }
-        } catch (pushErr) {
-          console.error('[news] Push bildirimleri gönderilemedi:', pushErr.message);
+          } catch (pushErr) {
+            console.error('[news] Push bildirimleri gönderilemedi:', pushErr.message);
         }
       }
 
@@ -1247,11 +1247,11 @@ KURALLAR:
                 }
                 const alreadyOptimized = cachedByUrl.get(item.sourceUrl)?.is_ai_optimized === true;
                 if (!alreadyOptimized && (dailyLimit <= 0 || countToday < dailyLimit)) {
-                  console.log(`[news-ai] Optimizing scraped article with AI: ${item.sourceUrl}`);
-                  optimized = await this.optimizeNewsWithAI({
-                    title: item.title,
-                    fullText: details.fullText
-                  });
+                console.log(`[news-ai] Optimizing scraped article with AI: ${item.sourceUrl}`);
+                optimized = await this.optimizeNewsWithAI({
+                  title: item.title,
+                  fullText: details.fullText
+                });
                   if (optimized && cityContent) {
                     settings.beautifyCountDate = today;
                     settings.beautifyCountToday = countToday + 1;
@@ -1295,7 +1295,7 @@ KURALLAR:
                 values.push(item.sourceUrl);
                 const sql = `UPDATE news_items SET ${setClauses.join(', ')} WHERE source_url = $${idx}`;
                 await pool.query(sql, values);
-                console.log(`[news] Arka planda haber detayi onbellege alindi: ${item.sourceUrl}`);
+              console.log(`[news] Arka planda haber detayi onbellege alindi: ${item.sourceUrl}`);
               } catch (updateErr) {
                 console.error('[news] PG update news detail error:', updateErr.message);
               }

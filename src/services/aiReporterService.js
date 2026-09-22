@@ -459,11 +459,18 @@ class AiReporterService {
       console.warn('[ai-reporter] Obituaries fetch failed:', err.message);
     }
 
-    // 5. Local news — Düziçi öncelikli; Osmaniye çevresi ikincil
+    // 5. Local news — pencere içindeki TÜM Düziçi haberleri; Osmaniye kısa bağlam
     try {
-      const news = await newsService.getNews({ max: 150 });
+      const news = await newsService.getNews({ max: 300 });
       const targetTime = targetDate ? new Date(`${targetDate}T23:59:59+03:00`).getTime() : Date.now();
       const maxAgeMs = 24 * 60 * 60 * 1000;
+      const excerptOf = (n, maxLen = 520) => {
+        const raw = String(n.fullText || n.summary || '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (!raw) return '';
+        return raw.length > maxLen ? `${raw.slice(0, maxLen)}…` : raw;
+      };
 
       const scored = [];
       for (const n of news || []) {
@@ -499,19 +506,26 @@ class AiReporterService {
 
         if (!isDuzici && !isOsmaniye) continue;
 
+        const excerpt = excerptOf(n);
         scored.push({
           n,
           rank: isDuzici ? 0 : 1,
           text: `- [${isDuzici ? 'DÜZİÇİ' : 'OSMANİYE'} | ${n.sourceName || 'Kaynak'}] ${n.title}${
-            n.summary ? `: ${String(n.summary).slice(0, 220)}` : ''
+            excerpt ? `: ${excerpt}` : ''
           }`,
         });
       }
 
       scored.sort((a, b) => a.rank - b.rank);
-      const pick = scored.slice(0, 18);
-      snapshot.newsCount = pick.filter((x) => x.rank === 0).length;
-      snapshot.osmaniyeNewsCount = pick.filter((x) => x.rank === 1).length;
+      // Düziçi: limit yok (pencere + filtre sonrası hepsi). Osmaniye: kısa bağlam için en fazla 8.
+      const duziciPick = scored.filter((x) => x.rank === 0);
+      const osmaniyePick = scored.filter((x) => x.rank === 1).slice(0, 8);
+      const pick = [...duziciPick, ...osmaniyePick];
+      snapshot.newsCount = duziciPick.length;
+      snapshot.osmaniyeNewsCount = osmaniyePick.length;
+      console.log(
+        `[ai-reporter] News for AI: ${duziciPick.length} Düziçi (tümü) + ${osmaniyePick.length} Osmaniye`,
+      );
       if (pick.length > 0) {
         snapshot.newsText = pick.map((x) => x.text).join('\n');
         if (snapshot.newsCount > 0) snapshot.signals.push('news');
@@ -625,26 +639,34 @@ class AiReporterService {
 
   buildPrompts({ targetDate, dateLabel, snapshot, quietDay }) {
     const hasOutages = (snapshot.outageCount || 0) > 0;
+    const newsCount = snapshot.newsCount || 0;
     const systemPrompt =
-      'Sen Düziçi (Osmaniye) ilçesinin deneyimli yerel muhabiri ve akşam bülteni editörüsün. ' +
-      'Görevin: Son 24 saatte DÜZİÇİ\'de yaşananları profesyonel, net ve güvenilir gazeteci diliyle anlatmak. ' +
-      'Öncelik her zaman Düziçi ilçesidir; Osmaniye geneli haberler yalnızca kısa bağlam olarak geçebilir. ' +
-      'Verilmeyen bilgiyi uydurma. Özellikle kesinti, yol, eczane ve hava için yalnızca verilen veri bloğunu kullan. ' +
+      'Sen Düziçi (Osmaniye) ilçesinin deneyimli yerel haber editörü ve akşam bülteni muhabirisin. ' +
+      'Görevin: Son 24 saatte DÜZİÇİ\'de yaşananları tarafsız, net, güvenilir ve profesyonel gazeteci diliyle derlemek. ' +
+      'Clickbait, abartı, spekülasyon ve uydurma yasaktır. Verilmeyen bilgiyi ASLA ekleme. ' +
+      'Öncelik her zaman Düziçi ilçesidir; Osmaniye geneli yalnızca kısa bağlam olabilir. ' +
+      'Kesinti, yol, eczane ve hava için yalnızca verilen veri bloğunu kullan. ' +
       'Yanıtını yalnızca geçerli JSON olarak ver.';
 
     const outageRule = hasOutages
-      ? `KESİNTİ KURALI: Aşağıda ${snapshot.outageCount} adet teyitli kesinti kaydı listelendi. Bunları Altyapı bölümünde mahalle ve saat belirterek aktar. İlçe genelini vuran çok büyük ve olağanüstü bir kesinti değilse manşeti (title) kesintiye boğma; günün asıl yerel haberini veya bülten temasını manşet yap.`
-      : `KESİNTİ KURALI: Bugün Düziçi genelinde kayıtlı planlı bir elektrik veya su kesintisi bulunmuyor. Altyapı bölümünde dürüstçe "İlçemizde bugün için planlı bir elektrik veya su kesintisi bulunmuyor." şeklinde sade ve net olarak belirt. Asla kesinti uydurma veya başlığa kesinti yazma.`;
+      ? `KESİNTİ KURALI: Aşağıda ${snapshot.outageCount} adet teyitli kesinti kaydı listelendi. Bunları ⚡ ELEKTRİK & ALTYAPI bölümünde mahalle ve saat belirterek net aktar. İlçe genelini vuran olağanüstü bir kesinti değilse manşeti kesintiye boğma; günün asıl yerel haberini veya genel bülten kurgusunu manşet yap.`
+      : `KESİNTİ KURALI: Bugün Düziçi genelinde kayıtlı planlı bir elektrik veya su kesintisi bulunmuyor. İlgili bölümde dürüstçe "İlçemizde bugün için kayıtlı planlı bir elektrik veya su kesintisi bulunmuyor." şeklinde sade ve net olarak belirt. Asla kesinti uydurma veya başlığa kesinti yazma.`;
 
     const quietNote = quietDay
-      ? `\nNot: Bugün veri skoru düşük (sakin gün). Abartma; kısa ama profesyonel bir bülten yaz. Boşluğu uydurma haberle doldurma.\n`
+      ? `\nNot: Bugün veri skoru düşük (sakin gün). Kısa, ölçülü ve profesyonel bir bülten yaz. Boşluğu uydurma haberle doldurma.\n`
       : '';
+
+    const coverageRule =
+      newsCount > 0
+        ? `KAPSAM KURALI: Haber listesinde ${newsCount} adet DÜZİÇİ haberi var. Bunların hepsini bültende ele al; önemli bir başlığı atlama. ` +
+          `Benzer/tekrarlayan haberleri birleştirerek anlatabilirsin ama konuyu yok sayma. Önce en kritik gelişmeleri yaz, sonra diğerlerini kısa paragraflarla tamamla.`
+        : `KAPSAM KURALI: Bugün listede sınırlı yerel haber var. Abartma; mevcut veriyle dürüst bir özet yaz.`;
 
     const userPrompt =
       `Tarih: ${dateLabel} (${targetDate})\n` +
       `Konum odağı: Düziçi, Osmaniye (önce ilçe, sonra gerekirse il)\n` +
       quietNote +
-      `\n=== DÜZİÇİ / YEREL HABERLER (son 24 saat) ===\n${snapshot.newsText || 'Sınırlı'}\n\n` +
+      `\n=== DÜZİÇİ / YEREL HABERLER (son 24 saat — ${newsCount} Düziçi + ${snapshot.osmaniyeNewsCount || 0} Osmaniye) ===\n${snapshot.newsText || 'Sınırlı'}\n\n` +
       `=== ELEKTRİK & SU KESİNTİLERİ (aktif + bugün tamamlanan) ===\n${snapshot.outagesText || 'Veri yok'}\n\n` +
       `=== YOL VE TRAFİK ===\n${snapshot.closuresText || 'Veri yok'}\n\n` +
       `=== HAVA (yarın odaklı) ===\n${snapshot.weatherText || 'Veri yok'}\n\n` +
@@ -652,25 +674,29 @@ class AiReporterService {
       `=== ETKİNLİKLER ===\n${snapshot.eventsText || 'Veri yok'}\n\n` +
       `=== VEFAT İLANLARI ===\n${snapshot.obituariesText || 'Veri yok'}\n\n` +
       `=== AKARYAKIT ===\n${snapshot.fuelText || 'Veri yok'}\n\n` +
-      `${outageRule}\n\n` +
-      `YAZIM KURALLARI:\n` +
-      `1. title: Profesyonel yerel gazete manşeti (max 90 karakter).\n` +
-      `   - Günün asıl Düziçi gelişmesini veya "Düziçi akşam bülteni" çerçevesini yansıt.\n` +
-      `   - Zorunlu klişe kalıplara mahkum olma; ama tek bir uzak Osmaniye haberini manşet yapma.\n` +
-      `   - Kesinti yoksa başlıkta asla kesintiden bahsetme. Kesinti varsa sadece büyük/genel bir kesintiyse başlığa taşıyabilirsin.\n\n` +
-      `2. summary: 2-3 cümle, max 220 karakter. Düziçi odaklı; günün özeti.\n\n` +
-      `3. fullText: Paragraflar arasında boş satır. Markdown/HTML yok. Akış:\n` +
-      `   - Giriş: Kısa selamlama + günün Düziçi atmosferi (abartısız).\n` +
-      `   - Yerel gelişmeler: [DÜZİÇİ] etiketli haberleri önce, ayrıntılı ve tarafsız anlat.\n` +
-      `     [OSMANİYE] etiketlileri en fazla 1 kısa paragrafta özetle; ilçe bültenini ele geçirmesin.\n` +
-      `   - Altyapı: Kesintileri saat/mahalle ile yaz. Yol çalışmalarını net söyle.\n` +
-      `   - Hava: Yarın için sıcaklık + kısa pratik uyarı.\n` +
-      `   - Nöbetçi eczane: Ad, adres, telefon.\n` +
-      `   - Vefat (varsa saygıyla; yoksa atla).\n` +
-      `   - Kısa kapanış.\n\n` +
-      `4. themeHint: news|city|outage|rain|hot|cold|event|pharmacy|memorial|calm\n\n` +
+      `${outageRule}\n` +
+      `${coverageRule}\n\n` +
+      `YAZIM VE FORMAT KURALLARI (PROFESYONEL YEREL BÜLTEN):\n` +
+      `1. title: Net, bilgilendirici yerel manşet (max 90 karakter). Clickbait ve abartılı emoji yağmuru yok.\n` +
+      `   - Örnek: "Düziçi Akşam Bülteni: [günün asıl gelişmeleri kısa]"\n` +
+      `   - Kesinti yoksa başlıkta kesintiden bahsetme. Büyük/genel kesinti varsa başlığa taşıyabilirsin.\n\n` +
+      `2. summary: 2-3 cümle, max 220 karakter. Günün ne olduğunu tarafsız ve anlaşılır özetle.\n\n` +
+      `3. fullText: Mobilde rahat okunan, editöryel akış. Markdown (#) yerine sade emoji + BÜYÜK HARFLİ bölüm başlıkları. Paragraflar arasında birer boş satır bırak:\n` +
+      `   - GİRİŞ: Bir cümleyle günün çerçevesini çiz (ne oldu, neden önemli).\n` +
+      `   - GÜNÜN GELİŞMELERİ: Listedeki Düziçi haberlerini profesyonel ve eksiksiz derle. Kim, ne, nerede, ne zaman net olsun. Osmaniye varsa en fazla 1-2 kısa cümle.\n` +
+      `   - ŞEHİR REHBERİ:\n` +
+      `     ⚡ ELEKTRİK & ALTYAPI: Varsa mahalle/saat; yoksa "İlçemizde bugün için kayıtlı planlı bir kesinti bulunmuyor."\n` +
+      `     💊 NÖBETÇİ ECZANE: Ad, mahalle, adres, telefon.\n` +
+      `     ☀️ HAVA DURUMU: Yarın sıcaklık + kısa, pratik uyarı.\n` +
+      `     🚧 YOL & TRAFİK: Varsa yaz; yoksa bölümü kısalt veya atla.\n` +
+      `     🕊️ VEFAT İLANLARI: Varsa saygıyla; yoksa bölümü tamamen atla.\n` +
+      `   - KAPANIŞ: Kısa, sakin imza — "Hepsi Düziçi · Akşam Bülteni". Etkileşim avı / agresif CTA yok.\n` +
+      `   - İsteğe bağlı: Günün konusuyla ilgili tek, saygılı bir soru (zorunlu değil).\n\n` +
+      `4. questionOfTheDay: Varsa tek cümle; yoksa boş string "" yaz.\n` +
+      `5. keyHighlights: 3-5 kısa hap madde (günün asıl başlıkları + gerekirse eczane/hava).\n` +
+      `6. themeHint: news|city|outage|rain|hot|cold|event|pharmacy|memorial|calm\n\n` +
       `JSON:\n` +
-      `{"title":"...","summary":"...","fullText":"...","themeHint":"news"}`;
+      `{"title":"...","summary":"...","fullText":"...","questionOfTheDay":"...","keyHighlights":["...","...","..."],"themeHint":"news"}`;
 
     return { systemPrompt, userPrompt };
   }
@@ -756,8 +782,20 @@ class AiReporterService {
     summary = scrubFalseNoOutageClaims(summary, hasOutages).slice(0, 250);
     fullText = scrubFalseNoOutageClaims(fullText, hasOutages);
     if (hasOutages && !/kesinti/i.test(fullText)) {
-      fullText = `${fullText}\n\nAltyapı: ${snapshot.outagesText}`.trim();
+      fullText = `${fullText}\n\n⚡ ELEKTRİK & ALTYAPI:\n${snapshot.outagesText}`.trim();
     }
+
+    // Günün sorusu üretildiyse ama fullText içinde geçmiyorsa metne ekle
+    const questionOfTheDay = String(data.questionOfTheDay || '').trim();
+    if (questionOfTheDay && !fullText.includes(questionOfTheDay)) {
+      if (!/GÜNÜN SORUSU/i.test(fullText)) {
+        fullText = `${fullText}\n\n🗣️ GÜNÜN SORUSU: ${questionOfTheDay} Yorumlarda buluşalım!`.trim();
+      }
+    }
+
+    const keyHighlights = Array.isArray(data.keyHighlights)
+      ? data.keyHighlights.map((x) => String(x || '').trim()).filter(Boolean)
+      : [];
 
     const theme =
       String(data.themeHint || '').trim().toLowerCase() ||
@@ -802,6 +840,8 @@ class AiReporterService {
           model,
           score,
           date: targetDate,
+          questionOfTheDay,
+          keyHighlights,
         },
       });
       return {
@@ -813,6 +853,8 @@ class AiReporterService {
         theme,
         model,
         score,
+        questionOfTheDay,
+        keyHighlights,
         item: newArticle,
       };
     }

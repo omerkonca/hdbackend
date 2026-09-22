@@ -6092,8 +6092,8 @@
   "aiNewsSettings": {
     "lastBeautifyAt": "2026-08-22T13:24:05.522Z",
     "lastBeautifyOk": true,
-    "lastReporterAt": "2026-08-21T20:53:01.260Z",
-    "lastReporterOk": true,
+    "lastReporterAt": "2026-09-22T18:37:48.620Z",
+    "lastReporterOk": false,
     "beautifyScraped": true,
     "reporterEnabled": true,
     "beautifyCountDate": "2026-08-22",
@@ -6109,14 +6109,14 @@
       "imageUrl": "assets/images/ai_reporter_cover.jpg",
       "published": true
     },
-    "lastReporterError": null,
+    "lastReporterError": "AI anahtarı yapılandırılmamış",
     "lastReporterModel": "gemini:gemini-3.5-flash-lite",
     "lastReporterScore": 9,
     "lastReporterTheme": "event",
     "lastReporterTitle": "Bugünün raporu zaten yayınlı",
     "beautifyCountToday": 25,
     "beautifyDailyLimit": 25,
-    "lastReporterSkipped": true,
+    "lastReporterSkipped": false,
     "lastReporterDraftOnly": false,
     "reporterRequireApproval": false
   },

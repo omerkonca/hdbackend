@@ -92,3 +92,11 @@ CREATE POLICY "device_tokens_update_anon" ON public.device_tokens
   WITH CHECK (length(token) >= 10 AND platform IN ('ios', 'android', 'web'));
 
 ALTER TABLE IF EXISTS public.push_logs ENABLE ROW LEVEL SECURITY;
+
+-- 12. Outages (Power & Water Outages)
+ALTER TABLE IF EXISTS public.outages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public Read Access for outages" ON public.outages;
+DROP POLICY IF EXISTS "Public read outages" ON public.outages;
+CREATE POLICY "Public Read Access for outages" ON public.outages
+  FOR SELECT TO anon, authenticated USING (true);
+
