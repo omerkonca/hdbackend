@@ -605,8 +605,11 @@ KURALLAR:
       ...raw,
       category: raw.category || this.inferNewsCategory(raw.title, raw.summary, raw.sourceName),
     }));
-    // Son güvenlik ağı: sync'e ulusal çöp girmesin
-    const cleaned = enriched.filter((item) => !this.isNationalNoise(item.title, item.summary));
+    // Son güvenlik ağı: sync'e yerel kaynaklardan gelen ulusal çöp girmesin (ancak Türkiye kategorisindeki haberler filtrelenmez)
+    const cleaned = enriched.filter((item) => {
+      if (item.category === 'Türkiye' || item.scope === 'turkey') return true;
+      return !this.isNationalNoise(item.title, item.summary);
+    });
     // Yalnızca görselli haberleri tut (resimsiz dış kaynak haberleri elenir)
     const withImages = cleaned.filter((item) => {
       if (this.isOwnPublisherItem(item)) return true;
@@ -648,9 +651,9 @@ KURALLAR:
       return tb - ta;
     });
 
-    const targetD = Math.min(duzici.length, Math.max(20, Math.ceil(max * 0.5)));
-    const targetO = Math.min(osmaniye.length, Math.max(10, Math.floor(max * 0.25)));
-    const targetT = Math.min(turkey.length, Math.max(10, Math.floor(max * 0.25)));
+    const targetD = Math.min(duzici.length, Math.max(25, Math.ceil(max * 0.4)));
+    const targetO = Math.min(osmaniye.length, Math.max(15, Math.floor(max * 0.25)));
+    const targetT = Math.min(turkey.length, Math.max(30, Math.floor(max * 0.35)));
     const picked = [...duzici.slice(0, targetD), ...osmaniye.slice(0, targetO), ...turkey.slice(0, targetT)];
     picked.sort((a, b) => {
       const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;

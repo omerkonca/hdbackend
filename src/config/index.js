@@ -71,23 +71,28 @@ const config = {
         scope: 'osmaniye',
       },
       {
-        url: 'https://www.trthaber.com/manset_articles.rss',
-        name: 'TRT Haber Gündem',
+        url: 'https://www.ensonhaber.com/rss/mansetler.xml',
+        name: 'Ensonhaber Manşet',
         scope: 'turkey',
       },
       {
-        url: 'https://www.trthaber.com/yasam_articles.rss',
-        name: 'TRT Haber Yaşam',
+        url: 'https://www.ensonhaber.com/rss/yasam.xml',
+        name: 'Ensonhaber Yaşam',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://www.ensonhaber.com/rss/magazin.xml',
+        name: 'Ensonhaber Magazin',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://onedio.com/support/rss.xml',
+        name: 'Onedio Viral',
         scope: 'turkey',
       },
       {
         url: 'https://www.webtekno.com/rss.xml',
         name: 'Webtekno Trend',
-        scope: 'turkey',
-      },
-      {
-        url: 'https://www.ensonhaber.com/rss/mansetler.xml',
-        name: 'Ensonhaber Gündem',
         scope: 'turkey',
       },
       {
