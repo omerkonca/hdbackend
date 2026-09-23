@@ -813,9 +813,16 @@ KURALLAR:
 
   async withPublisherNews(items, max) {
     try {
+      const specialCalendarService = require('./specialCalendarService');
+      const todaySpecial = specialCalendarService.getTodaySpecialNews();
       const publisherItems = await this.getPublisherNewsFromDb(30);
-      if (!publisherItems.length) return items.slice(0, max);
-      return this.mergeAndDedupeNews([...publisherItems, ...items], max);
+      const combined = [
+        ...(todaySpecial ? [todaySpecial] : []),
+        ...publisherItems,
+        ...items,
+      ];
+      if (!combined.length) return items.slice(0, max);
+      return this.mergeAndDedupeNews(combined, max);
     } catch (err) {
       console.warn('[news] withPublisherNews failed:', err.message);
       return items.slice(0, max);

@@ -76,6 +76,21 @@ const config = {
         scope: 'turkey',
       },
       {
+        url: 'https://www.trthaber.com/yasam_articles.rss',
+        name: 'TRT Haber Yaşam',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://www.webtekno.com/rss.xml',
+        name: 'Webtekno Trend',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://www.ensonhaber.com/rss/mansetler.xml',
+        name: 'Ensonhaber Gündem',
+        scope: 'turkey',
+      },
+      {
         url: 'https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr',
         name: 'Google News Türkiye',
         scope: 'turkey',
