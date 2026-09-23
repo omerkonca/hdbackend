@@ -156,6 +156,9 @@ class NewsService {
   }
 
   isEligibleForPush(item) {
+    if (item?.category === 'Türkiye' || item?.scope === 'turkey') {
+      return false; // Türkiye haberlerine ASLA push bildirim gönderilmez
+    }
     const maxAgeMs = (config.NEWS.PUSH_MAX_AGE_HOURS || 36) * 60 * 60 * 1000;
     const publishedAt = item?.createdAt ? new Date(item.createdAt).getTime() : NaN;
     if (!Number.isFinite(publishedAt) || publishedAt <= 0) {
@@ -376,6 +379,7 @@ KURALLAR:
   }
 
   inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
+    if (scope === 'turkey') return 'Türkiye';
     if (this.isDuziciRelated(title, summary)) return 'Düziçi';
     if (this.isOsmaniyeRelated(title, summary)) return 'Osmaniye';
     if (scope === 'osmaniye') return 'Osmaniye';
@@ -397,6 +401,9 @@ KURALLAR:
    */
   applyScopeRelevanceFilter(items, { scope = 'auto', filterDuzici = false } = {}) {
     const rawList = Array.isArray(items) ? items : [];
+    if (scope === 'turkey') {
+      return rawList;
+    }
     const list = rawList.filter((x) => !this.isAkdenizNews(x));
     if (scope === 'duzici' && !filterDuzici) {
       return list.filter((x) => {
@@ -618,18 +625,33 @@ KURALLAR:
       return tb - ta;
     });
 
-    // Düziçi ve Osmaniye dengeli gelsin (biri diğerini boğmasın)
-    const isDuziciCat = (item) => this.isDuziciNewsItem(item.title, item.summary);
+    // Düziçi, Osmaniye ve Türkiye dengeli gelsin (biri diğerini boğmasın)
+    const isTurkeyCat = (item) => item.category === 'Türkiye' || item.scope === 'turkey';
+    const isDuziciCat = (item) => !isTurkeyCat(item) && this.isDuziciNewsItem(item.title, item.summary);
     const duzici = fresh.filter(isDuziciCat);
-    const osmaniye = fresh.filter((item) => !isDuziciCat(item));
+    const osmaniye = fresh.filter((item) => !isTurkeyCat(item) && !isDuziciCat(item));
+    const turkey = fresh.filter(isTurkeyCat);
+
     duzici.sort((a, b) => {
       const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return tb - ta;
     });
-    const targetD = Math.min(duzici.length, Math.max(20, Math.ceil(max * 0.55)));
-    const targetO = Math.min(osmaniye.length, Math.max(max - targetD, Math.floor(max * 0.4)));
-    const picked = [...duzici.slice(0, targetD), ...osmaniye.slice(0, targetO)];
+    osmaniye.sort((a, b) => {
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return tb - ta;
+    });
+    turkey.sort((a, b) => {
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return tb - ta;
+    });
+
+    const targetD = Math.min(duzici.length, Math.max(20, Math.ceil(max * 0.5)));
+    const targetO = Math.min(osmaniye.length, Math.max(10, Math.floor(max * 0.25)));
+    const targetT = Math.min(turkey.length, Math.max(10, Math.floor(max * 0.25)));
+    const picked = [...duzici.slice(0, targetD), ...osmaniye.slice(0, targetO), ...turkey.slice(0, targetT)];
     picked.sort((a, b) => {
       const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -1744,6 +1766,15 @@ KURALLAR:
         if (deletedCount > 0) {
           console.log(`[news] Eski haber temizliği: ${days} günden eski ${deletedCount} haber veritabanından silindi.`);
         }
+
+        // Türkiye haberleri yalnızca 30 saat kalır (günlük taze kalır)
+        const trRes = await pool.query(
+          `DELETE FROM news_items 
+           WHERE category = 'Türkiye' AND created_at < NOW() - INTERVAL '30 hours'`
+        );
+        if (trRes.rowCount > 0) {
+          console.log(`[news] Eski Türkiye haber temizliği: 30 saatten eski ${trRes.rowCount} ulusal haber veritabanından silindi.`);
+        }
       } catch (e) {
         console.warn('[news] pruneOldNews direct PG error:', e.message);
       }
@@ -1756,6 +1787,13 @@ KURALLAR:
         deletedCount = count || 0;
         if (deletedCount > 0) {
           console.log(`[news] Eski haber temizliği: Supabase üzerinden ${deletedCount} haber silindi.`);
+        }
+
+        // Supabase yedek temizlik: 30 saatten eski Türkiye haberleri
+        const turkeyCutoff = new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString();
+        const { count: trCount } = await db.from('news_items').delete({ count: 'exact' }).eq('category', 'Türkiye').lt('created_at', turkeyCutoff);
+        if (trCount > 0) {
+          console.log(`[news] Eski Türkiye haber temizliği: Supabase üzerinden ${trCount} ulusal haber silindi.`);
         }
       } catch (e) {
         console.warn('[news] pruneOldNews Supabase error:', e.message);

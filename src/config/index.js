@@ -70,6 +70,16 @@ const config = {
         name: 'Google News Osmaniye',
         scope: 'osmaniye',
       },
+      {
+        url: 'https://www.trthaber.com/manset_articles.rss',
+        name: 'TRT Haber Gündem',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://news.google.com/rss?hl=tr&gl=TR&ceid=TR:tr',
+        name: 'Google News Türkiye',
+        scope: 'turkey',
+      },
     ],
   },
 
