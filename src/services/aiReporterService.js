@@ -461,8 +461,47 @@ class AiReporterService {
 
     // 5. Local news — pencere içindeki TÜM Düziçi haberleri; Osmaniye kısa bağlam
     try {
-      const news = await newsService.getNews({ max: 300 });
       const targetTime = targetDate ? new Date(`${targetDate}T23:59:59+03:00`).getTime() : Date.now();
+      const startTime = targetTime - 24 * 60 * 60 * 1000;
+      const startIso = new Date(startTime).toISOString();
+      const endIso = new Date(targetTime).toISOString();
+
+      // Önce doğrudan veritabanından hedef 24 saate ait TÜM Düziçi haberlerini çek (hiçbir Düziçi haberi kaçmasın)
+      let directDbDuzici = [];
+      const pool = getDbPool();
+      if (pool) {
+        try {
+          const res = await pool.query(
+            `SELECT id, title, summary, image_url, images, created_at, source_url, source_name, category, video_url, verified, is_ai_generated, is_ai_optimized, full_text
+             FROM news_items
+             WHERE created_at BETWEEN $1 AND $2
+               AND (
+                 category ILIKE '%düziçi%' OR category ILIKE '%duzici%'
+                 OR title ~* '\\m(düziçi|duzici|yarbaşı|yarbasi|ellek|atalan|böcekli|haruniye)\\M'
+               )
+               AND (category IS NULL OR category NOT ILIKE '%türkiye%')
+             ORDER BY created_at DESC`,
+            [startIso, endIso]
+          );
+          if (res.rows && res.rows.length > 0) {
+            directDbDuzici = res.rows.map((row) => newsService.mapDbRowToItem(row));
+          }
+        } catch (dbErr) {
+          console.warn('[ai-reporter] Direct DB Düziçi news query failed:', dbErr.message);
+        }
+      }
+
+      const news = await newsService.getNews({ max: 300 });
+      // Direct Düziçi kayıtlarını news ile birleştir (tekilleştirerek)
+      const allCandidateNews = [...directDbDuzici];
+      const seenIds = new Set(directDbDuzici.map((i) => i.id));
+      for (const n of news || []) {
+        if (!seenIds.has(n.id)) {
+          allCandidateNews.push(n);
+          seenIds.add(n.id);
+        }
+      }
+
       const maxAgeMs = 24 * 60 * 60 * 1000;
       const excerptOf = (n, maxLen = 520) => {
         const raw = String(n.fullText || n.summary || '')
@@ -472,8 +511,22 @@ class AiReporterService {
         return raw.length > maxLen ? `${raw.slice(0, maxLen)}…` : raw;
       };
 
+      const isFoodOrRecipe = (title = '', summary = '') => {
+        const text = `${title} ${summary}`.toLowerCase();
+        return /\b(pasta|pastası|bisküvi|kek|börek|yemek|tarif|tarifi|kiş|baklava|limon|çorba|tatlı|püf noktaları)\b/i.test(text);
+      };
+
+      const isNonDuziciMicroIncident = (title = '', summary = '') => {
+        const text = `${title} ${summary}`.toLowerCase();
+        const hasIncident = /\b(kaza|asayiş|yangın|cinayet|yaralandı|çarpıştı|hırsızlık|bıçaklı|tutuklandı|devrildi)\b/i.test(text);
+        if (!hasIncident) return false;
+        if (newsService.isDuziciRelated(title, summary)) return false;
+        // Osmaniye merkez veya diğer ilçelerin mahallelerindeki kazalar Düziçi bültenine GİREMEZ
+        return /\b(osmaniye merkez|vatan mah|yedi ocak|fakıuşağı|raufbey|kadirli|bahçe|toprakkale|sumbas|hasanbeyli|cebelibereket)\b/i.test(text);
+      };
+
       const scored = [];
-      for (const n of news || []) {
+      for (const n of allCandidateNews) {
         const id = String(n.id || '');
         if (id.startsWith('news-ai-reporter-')) continue;
 
@@ -484,19 +537,30 @@ class AiReporterService {
           }
         }
 
+        const cat = normalizeTr(n.category || '');
+        const src = normalizeTr(n.sourceName || '');
+
+        // Ulusal / viral / teknoloji haberleri (Webtekno, TRT, BPT vb.) Düziçi yerel bültenine GİREMEZ
+        if (cat.includes('turkiye') || cat.includes('gundem') || src.includes('webtekno') || src.includes('trt') || src.includes('bpt')) {
+          continue;
+        }
+
         if (newsService.isNationalNoise?.(n.title, n.summary)) continue;
         if (newsService.isNonDuziciRegionalFocus?.(n.title, `${n.summary || ''} ${n.fullText || ''}`)) {
           continue;
         }
 
-        const cat = normalizeTr(n.category || '');
-        const src = normalizeTr(n.sourceName || '');
+        // Yemek tariflerini ve pasta gibi bültenle alakasız içerikleri tamamen ele
+        if (isFoodOrRecipe(n.title, n.summary)) continue;
+
+        // Osmaniye merkezdeki mahalle kazalarını Düziçi bültenine sokma
+        if (isNonDuziciMicroIncident(n.title, n.summary)) continue;
+
         const isOwn = id.startsWith('news-custom-') || src.includes('hepsi');
-        const isDuziciSource = src.includes('duzici') || src.includes('sabir') || src.includes('hasret');
         const isDuziciCat = cat.includes('duzici');
+        // DİKKAT: Sabır Gazetesi il genelidir; yalnızca başlık/özet Düziçi ile ilgiliyse Düziçi kabul edilir
         const isDuzici =
           isDuziciCat ||
-          isDuziciSource ||
           isOwn ||
           newsService.isDuziciRelated(n.title, `${n.summary || ''} ${n.fullText || ''}`);
         const isOsmaniye =
@@ -510,28 +574,34 @@ class AiReporterService {
         scored.push({
           n,
           rank: isDuzici ? 0 : 1,
-          text: `- [${isDuzici ? 'DÜZİÇİ' : 'OSMANİYE'} | ${n.sourceName || 'Kaynak'}] ${n.title}${
+          text: `- [${isDuzici ? 'DÜZİÇİ' : 'OSMANİYE GENELİ'} | ${n.sourceName || 'Kaynak'}] ${n.title}${
             excerpt ? `: ${excerpt}` : ''
           }`,
         });
       }
 
       scored.sort((a, b) => a.rank - b.rank);
-      // Düziçi: limit yok (pencere + filtre sonrası hepsi). Osmaniye: kısa bağlam için en fazla 8.
+      // Düziçi: limit yok (pencere + filtre sonrası hepsi). Osmaniye: kısa bağlam için en fazla 4 seçkin madde.
       const duziciPick = scored.filter((x) => x.rank === 0);
-      const osmaniyePick = scored.filter((x) => x.rank === 1).slice(0, 8);
-      const pick = [...duziciPick, ...osmaniyePick];
+      const osmaniyePick = scored.filter((x) => x.rank === 1).slice(0, 4);
       snapshot.newsCount = duziciPick.length;
       snapshot.osmaniyeNewsCount = osmaniyePick.length;
       console.log(
         `[ai-reporter] News for AI: ${duziciPick.length} Düziçi (tümü) + ${osmaniyePick.length} Osmaniye`,
       );
-      if (pick.length > 0) {
-        snapshot.newsText = pick.map((x) => x.text).join('\n');
-        if (snapshot.newsCount > 0) snapshot.signals.push('news');
+
+      const newsBlocks = [];
+      if (duziciPick.length > 0) {
+        newsBlocks.push(`=== 1. DÜZİÇİ YEREL GELİŞMELERİ (MUTLAKA BÜLTENDE EKSİKSİZ VE DETAYLI İŞLENECEK): ===\n` + duziciPick.map((x) => x.text).join('\n'));
       } else {
-        snapshot.newsText = 'Son 24 saatte öne çıkan Düziçi yerel haberi sınırlı.';
+        newsBlocks.push(`=== 1. DÜZİÇİ YEREL GELİŞMELERİ ===\n(Bugün kayıtlı özel Düziçi haberi sınırlı; olanları dürüstçe aktar.)`);
       }
+      if (osmaniyePick.length > 0) {
+        newsBlocks.push(`\n=== 2. OSMANİYE İL GENELİ BİLGİLENDİRME (YALNIZCA KISA ARKA PLAN BİLGİSİ - DÜZİÇİ İLE KARIŞTIRMA): ===\n` + osmaniyePick.map((x) => x.text).join('\n'));
+      }
+
+      snapshot.newsText = newsBlocks.join('\n');
+      if (snapshot.newsCount > 0) snapshot.signals.push('news');
     } catch (err) {
       console.warn('[ai-reporter] News fetch failed:', err.message);
     }
@@ -641,11 +711,12 @@ class AiReporterService {
     const hasOutages = (snapshot.outageCount || 0) > 0;
     const newsCount = snapshot.newsCount || 0;
     const systemPrompt =
-      'Sen Düziçi (Osmaniye) ilçesinin deneyimli yerel haber editörü ve akşam bülteni muhabirisin. ' +
-      'Görevin: Son 24 saatte DÜZİÇİ\'de yaşananları tarafsız, net, güvenilir ve profesyonel gazeteci diliyle derlemek. ' +
-      'Clickbait, abartı, spekülasyon ve uydurma yasaktır. Verilmeyen bilgiyi ASLA ekleme. ' +
-      'Öncelik her zaman Düziçi ilçesidir; Osmaniye geneli yalnızca kısa bağlam olabilir. ' +
-      'Kesinti, yol, eczane ve hava için yalnızca verilen veri bloğunu kullan. ' +
+      'Sen Düziçi (Osmaniye) ilçesinin resmi ve güvenilir akşam bülteni baş editörüsün. ' +
+      'Görevin: Son 24 saatte DÜZİÇİ ilçesinde ve beldelerinde (Yarbaşı, Ellek, Böcekli, Atalan) yaşanan tüm yerel gelişmeleri eksiksiz, net ve tarafsız gazeteci diliyle derlemek. ' +
+      'KRİTİK KURALLAR:\n' +
+      '1. KONUM AYRIMI: Osmaniye il merkezinde veya başka ilçelerde yaşanan olayları ASLA "İlçemizde kaza oldu", "İlçemizde şu yaşandı" diye Düziçi\'ne mal etme! Osmaniye il genelini ilgilendiren maddeleri mutlaka "Osmaniye genelinde..." diye ayrı bir arka plan bilgisi olarak sun. Düziçi dışındaki mahalle veya caddeleri Düziçi\'ne aitmiş gibi göstermek KESİNLİKLE YASAKTIR.\n' +
+      '2. DÜZİÇİ EKSİKSİZ AKTARIMI: "1. DÜZİÇİ YEREL GELİŞMELERİ" başlığı altında verilen TÜM haberleri (yol çalışmaları, belediye ve kurum ziyaretleri, teknoloji/altyapı yatırımları, taziye vb.) bültende mutlaka yer ver. Önemli bir Düziçi konusunu atlayıp yerine dış haber doldurma.\n' +
+      '3. UYDURMA, SPEKÜLASYON VE DOLGU YASAKTIR: Verilmeyen bilgileri, yemek tariflerini veya asılsız iddiaları bültene sokma.\n' +
       'Yanıtını yalnızca geçerli JSON olarak ver.';
 
     const outageRule = hasOutages
@@ -683,7 +754,7 @@ class AiReporterService {
       `2. summary: 2-3 cümle, max 220 karakter. Günün ne olduğunu tarafsız ve anlaşılır özetle.\n\n` +
       `3. fullText: Mobilde rahat okunan, editöryel akış. Markdown (#) yerine sade emoji + BÜYÜK HARFLİ bölüm başlıkları. Paragraflar arasında birer boş satır bırak:\n` +
       `   - GİRİŞ: Bir cümleyle günün çerçevesini çiz (ne oldu, neden önemli).\n` +
-      `   - GÜNÜN GELİŞMELERİ: Listedeki Düziçi haberlerini profesyonel ve eksiksiz derle. Kim, ne, nerede, ne zaman net olsun. Osmaniye varsa en fazla 1-2 kısa cümle.\n` +
+      `   - GÜNÜN GELİŞMELERİ: "1. DÜZİÇİ YEREL GELİŞMELERİ" altındaki TÜM maddeleri paragraflar halinde eksiksiz aktar. Yol çalışmaları, altyapı yatırımları ve belediye temasları gibi tüm yerel konuları atlamadan anlat. Varsa Osmaniye il geneli maddelerini en sonda 1-2 cümlelik genel bilgi olarak geç.\n` +
       `   - ŞEHİR REHBERİ:\n` +
       `     ⚡ ELEKTRİK & ALTYAPI: Varsa mahalle/saat; yoksa "İlçemizde bugün için kayıtlı planlı bir kesinti bulunmuyor."\n` +
       `     💊 NÖBETÇİ ECZANE: Ad, mahalle, adres, telefon.\n` +

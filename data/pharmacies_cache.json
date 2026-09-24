@@ -1,15 +1,15 @@
 {
-  "updatedAt": "2026-09-06T19:25:59.653Z",
+  "updatedAt": "2026-09-24T20:10:41.039Z",
   "pharmacies": [
     {
-      "name": "YILMAZ ECZANESİ",
-      "address": "YEŞİLOVA MAH. AYDINLAR CAD. NO:38/B 2 nolu sağlık ocağıkarşısı OSMANİYE /DÜZİÇİ",
-      "phone": "03288760001",
-      "lat": 37.244706,
-      "lng": 36.454012,
-      "googleMapsUrl": "https://www.google.com/maps?q=37.244706,36.454012",
+      "name": "METLIOGLU ECZANESİ",
+      "address": "REFIK CESUR BUL.NO.380 DÜZIÇI/OSMANIYE",
+      "phone": "03288762220",
+      "lat": 37.240696,
+      "lng": 36.454032,
+      "googleMapsUrl": "https://www.google.com/maps?q=37.240696,36.454032",
       "dateLabel": "Bugün",
-      "dateRange": "06 Eylül 2026 Bugün Nöbetçi Eczaneler"
+      "dateRange": "24 Eylül 2026 Bugün Nöbetçi Eczaneler"
     }
   ]
 }

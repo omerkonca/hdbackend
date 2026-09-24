@@ -142,6 +142,34 @@ class NewsService {
       .slice(0, 120);
   }
 
+  cleanBptTitle(rawTitle = '') {
+    let clean = String(rawTitle || '').replace(/\s+/g, ' ').trim();
+    clean = clean.replace(/\s*[-–|]\s*(En Son Haber|Ensonhaber|TRT Haber|TRT|Webtekno|Onedio|NTV|Haberler\.com|Sabah|Hürriyet).*$/i, '');
+    clean = clean.replace(/^[“"']+|[”"']+$/g, '').trim();
+    clean = clean.replace(/^(SON DAKİKA|FLAŞ|SICAK GELİŞME|DİKKAT|DUYURULDU|AÇIKLANDI|RESMİ GAZETE)\s*[:!-]\s*/i, '');
+    return clean.trim();
+  }
+
+  isJunkTurkeyNews(title = '', summary = '') {
+    const text = `${title || ''} ${summary || ''}`.toLowerCase();
+    if (/\b(magazin|bikinili|bikini|dekolte|frikik|sevgilisiyle|sevgilisi|aşk yaşadığı|evlendi|boşandı|sosyal medyayı salladı|sosyal medyada gündem oldu|pişti|ifşa|ünlü oyuncu|eski eşi|sevgilisinden|aldattı)\b/i.test(text)) {
+      return true;
+    }
+    if (/\b(burç|burçlar|astroloji|tarot|fal|yükselen burç|günlük burç|dolunay etkisi|yeniay)\b/i.test(text)) {
+      return true;
+    }
+    if (/\b(kırışıklık|zayıflama|kilo verdiren|diyet|selülit|saç dökülmesi|gençleştiren)\b/i.test(text)) {
+      return true;
+    }
+    if (/\b(fiyat\/performans|karşılaştırdık|çamaşır makine|bulaşık makine|otonom fırın|alınabilecek en sorunsuz|en ucuz arabalar|vs nirvana)\b/i.test(text)) {
+      return true;
+    }
+    if (/\b(öyle bir şey yaptı ki|ağızları açık bıraktı|görenler inanamadı|bakın kime ne dedi|bakın ne oldu|şaşkına çevirdi)\b/i.test(text)) {
+      return true;
+    }
+    return false;
+  }
+
   extractPubDate(itemBlock) {
     const tags = ['pubDate', 'dc:date', 'published', 'updated', 'date'];
     for (const tag of tags) {
@@ -327,11 +355,12 @@ KURALLAR:
 
   duziciKeywordRe() {
     // İlçe + mahalle/köy/yaygın yerel yer adları ve kurumlar
-    return /duzici|d[uü]zi[cç]i|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal mah|[cç]iftlik mah|pe[cç]enek|kara[cç]arl[iı]/;
+    // DİKKAT: \b kelime sınırı zorunludur; aksi halde "bellek" -> "ellek" veya "kapatılan" -> "atalan" eşleşir!
+    return /\b(duzici|d[uü]zi[cç]i|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal mah|[cç]iftlik mah|pe[cç]enek|kara[cç]arl[iı])\b/;
   }
 
   osmaniyeKeywordRe() {
-    return /osmaniye|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|yarbasi|ellek|atalan|haruniye|ceyhan|erzin/;
+    return /\b(osmaniye|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|yarbasi|ellek|atalan|haruniye|ceyhan|erzin)\b/;
   }
 
   nationalNoiseRe() {
@@ -402,7 +431,12 @@ KURALLAR:
   applyScopeRelevanceFilter(items, { scope = 'auto', filterDuzici = false } = {}) {
     const rawList = Array.isArray(items) ? items : [];
     if (scope === 'turkey') {
-      return rawList;
+      return rawList
+        .filter((x) => !this.isJunkTurkeyNews(x.title, x.summary))
+        .map((x) => ({
+          ...x,
+          title: this.cleanBptTitle(x.title),
+        }));
     }
     const list = rawList.filter((x) => !this.isAkdenizNews(x));
     if (scope === 'duzici' && !filterDuzici) {
@@ -605,9 +639,11 @@ KURALLAR:
       ...raw,
       category: raw.category || this.inferNewsCategory(raw.title, raw.summary, raw.sourceName),
     }));
-    // Son güvenlik ağı: sync'e yerel kaynaklardan gelen ulusal çöp girmesin (ancak Türkiye kategorisindeki haberler filtrelenmez)
+    // Son güvenlik ağı: sync'e yerel kaynaklardan gelen ulusal çöp girmesin (ancak Türkiye kategorisindeki haberler BPT kurallarıyla süzülür)
     const cleaned = enriched.filter((item) => {
-      if (item.category === 'Türkiye' || item.scope === 'turkey') return true;
+      if (item.category === 'Türkiye' || item.scope === 'turkey') {
+        return !this.isJunkTurkeyNews(item.title, item.summary);
+      }
       return !this.isNationalNoise(item.title, item.summary);
     });
     // Yalnızca görselli haberleri tut (resimsiz dış kaynak haberleri elenir)
