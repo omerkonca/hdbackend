@@ -283,10 +283,15 @@ class ApiController {
         if (!error && data && data.length > 0) {
           const cached = data[0];
           const hasText = cached.full_text && cached.full_text.trim().length > 0;
+          const isJunkText = hasText && (
+            cached.full_text.includes('SICAK GÜNDEM TÜRKİYE DÜNYA') ||
+            cached.full_text.startsWith('Ana Sayfa') ||
+            cached.full_text.startsWith('GÜNDEM TÜRKİYE')
+          );
           const cachedImages = Array.isArray(cached.images)
             ? cached.images.filter(Boolean)
             : (cached.image_url ? [cached.image_url] : []);
-          if (hasText) {
+          if (hasText && !isJunkText) {
             return res.json({
               ok: true,
               fullText: cached.full_text,

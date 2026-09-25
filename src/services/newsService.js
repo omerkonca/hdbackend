@@ -1741,14 +1741,25 @@ KURALLAR:
     try {
       const $ = cheerio.load(html);
 
-      // 1. Gürültü ve reklam elementlerini kaldır
-      $('script, style, noscript, nav, header, footer, aside, form, iframe, svg, button, figcaption, .post-flash, .article-source, [id^="ad_"], [class*="advert"], [class*="banner"], [class*="share"], [class*="sosyal"], [class*="related"]').remove();
+      // 1. Gürültü, reklam, menü ve navigasyon elementlerini kaldır
+      $(
+        'script, style, noscript, nav, header, footer, aside, form, iframe, svg, button, figcaption, ' +
+        '.post-flash, .article-source, [id^="ad_"], [class*="advert"], [class*="banner"], ' +
+        '[class*="share"], [class*="sosyal"], [class*="social"], [class*="related"], [class*="ilgili"], ' +
+        '.breadcrumb, .breadcrumbs, .news-tag, .tags, .etiketler, .social-share, .share-box, .paylas, ' +
+        '.one-cikanlar, .trending, .author, .yazar, .comments, .yorumlar, [class*="popular"], ' +
+        '[class*="widget"], ul.menu, .nav-menu, [class*="tag-cloud"], [class*="tags-list"], [class*="banner-container"]'
+      ).remove();
 
       // 2. Makale gövde kapsayıcısını bul
       const selectors = [
+        '.news-content',                  // TRT Haber
+        '.detail-content-body',           // Webtekno
+        '[class*="detail-content-body"]',
+        '.nd-body',                       // Ensonhaber vb.
         '[property="articleBody"]',
         '[itemprop="articleBody"]',
-        '.article-text',
+        '.article-text',                  // Sabır Gazetesi vb.
         '.article-body',
         '.entry-content',
         '.post-content',
@@ -1773,11 +1784,19 @@ KURALLAR:
       }
 
       // 3. Paragrafları ve alt başlıkları temiz bir şekilde topla
+      const pElements = $container.find('p');
+      const targetElements = pElements.length >= 2 ? pElements : $container.find('p, h2, h3, h4, blockquote');
+
       const blocks = [];
-      $container.find('p, h1, h2, h3, h4, h5, h6, li, blockquote').each((_, el) => {
+      const noiseLineRe = /^(paylaş|paylas|tweet|linkedin|pinterest|telegram|whatsapp|yazdır|yazdir|kopyala|facebook|reddit|önceki|sonraki|paylaşım|yorum|haber merkezi|editör|yayınlanma|güncelleme|reklam|sponsor|abone ol|kategori|etiket|etiketler|tüm hakları saklıdır|copyright|©.*|kaynak\s*:.*|muhabir\s*:.*|içeriği görüntüle.*|https?:\/\/\S+)$/i;
+
+      targetElements.each((_, el) => {
         const text = $(el).text().replace(/\s+/g, ' ').trim();
-        const noiseLineRe = /^(paylaş|paylas|tweet|linkedin|pinterest|telegram|whatsapp|yazdır|yazdir|kopyala|facebook|reddit|önceki|sonraki|paylaşım|yorum|haber merkezi|editör|yayınlanma|güncelleme|reklam|sponsor|abone ol|kategori|etiket|tüm hakları saklıdır|copyright|©.*|kaynak\s*:.*|muhabir\s*:.*|içeriği görüntüle.*|https?:\/\/\S+)$/i;
         if (text.length > 20 && !noiseLineRe.test(text) && !blocks.includes(text)) {
+          // Navigasyon veya menü listesi başlıklarını engelle
+          if (/^(GÜNDEM|TÜRKİYE|DÜNYA|EKONOMİ|SPOR|YAŞAM|SAĞLIK|KÜLTÜR|SANAT|BİLİM|TEKNOLOJİ|EĞİTİM|SICAK GÜNDEM)\b/i.test(text) && text.length < 60) {
+            return;
+          }
           blocks.push(text);
         }
       });
