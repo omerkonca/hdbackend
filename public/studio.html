@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hepsi Düziçi - Medya & Video Stüdyosu</title>
+  <title>Hepsi Düziçi - Medya &amp; Video Stüdyosu (BPT + Instagram)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     :root {
       --bg: #090D16;
@@ -17,6 +16,8 @@
       --border: rgba(255, 255, 255, 0.12);
       --text: #FFFFFF;
       --muted: #94A3B8;
+      --accent-blue: #38BDF8;
+      --success: #16A34A;
     }
 
     * {
@@ -39,19 +40,20 @@
     /* Üst Minimal Başlık */
     header {
       width: 100%;
-      max-width: 900px;
+      max-width: 960px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 18px;
+      gap: 10px;
+      font-size: 19px;
       font-weight: 900;
+      letter-spacing: -0.3px;
     }
 
     .badge {
@@ -61,53 +63,140 @@
       font-weight: 900;
       padding: 3px 8px;
       border-radius: 6px;
+      letter-spacing: 0.3px;
     }
 
-    /* Ana Çalışma Alanı: Sade 2 Sütun */
+    .badge-hd {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #38BDF8;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Ana Çalışma Alanı */
     .studio-container {
       width: 100%;
-      max-width: 900px;
+      max-width: 960px;
       display: flex;
       flex-direction: row;
-      gap: 24px;
+      gap: 28px;
       align-items: flex-start;
       justify-content: center;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 840px) {
       .studio-container {
         flex-direction: column;
         align-items: center;
       }
     }
 
-    /* Sol / Orta: Canva Canlı Kart */
+    /* Sol: Kart Önizleme Alanı */
     .card-preview-area {
       display: flex;
       flex-direction: column;
       align-items: center;
+      width: 380px;
+      max-width: 100%;
+    }
+
+    /* Format ve Alt Başlık Seçici Buton Grubu */
+    .format-toolbar {
+      width: 100%;
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .format-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.8);
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .format-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    .format-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #000;
+      font-weight: 900;
+      box-shadow: 0 4px 14px rgba(234, 179, 8, 0.35);
+    }
+
+    .subtitle-toggle-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .subtitle-toggle-btn.active {
+      background: rgba(2, 132, 199, 0.25);
+      border-color: #38BDF8;
+      color: #FFFFFF;
+      font-weight: 800;
     }
 
     .drag-hint {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       color: var(--primary);
       margin-bottom: 8px;
       text-align: center;
     }
 
-    /* 4:5 Birebir Kart */
+    /* BPT / Instagram Canlı Kart */
     .bpt-card {
       width: 380px;
-      height: 475px; /* 4:5 Tam Oran */
+      height: 475px; /* Varsayılan 4:5 Oranı */
       border-radius: 20px;
       position: relative;
       overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255, 255, 255, 0.12);
       user-select: none;
       cursor: grab;
       background: #0F172A;
       touch-action: none;
+      transition: height 0.25s ease, width 0.25s ease;
+    }
+
+    /* 9:16 Hikaye Formatı Boyutlandırması */
+    .bpt-card.format-9x16 {
+      width: 330px;
+      height: 586px; /* 9:16 Tam Oran */
     }
 
     .bpt-card:active {
@@ -124,6 +213,7 @@
       pointer-events: none;
     }
 
+    /* Sinematik Degrade Katmanı (Flutter İle Birebir) */
     .card-gradient {
       position: absolute;
       top: 0;
@@ -133,40 +223,48 @@
       pointer-events: none;
       background: linear-gradient(
         to bottom,
-        rgba(0, 0, 0, 0.35) 0%,
-        transparent 20%,
-        transparent 40%,
-        rgba(15, 23, 42, 0.70) 62%,
-        rgba(15, 23, 42, 0.92) 82%,
+        rgba(0, 0, 0, 0.25) 0%,
+        transparent 14%,
+        transparent 48%,
+        rgba(15, 23, 42, 0.45) 68%,
+        rgba(15, 23, 42, 0.88) 84%,
         rgba(2, 6, 23, 0.98) 100%
       );
     }
 
-    /* Sol Dikey Şerit (Birebir BPT Tasarımı) */
+    /* Sol Dikey Şerit (Mobille Birebir Aynı Lüks Tasarım) */
     .strip-wrapper {
       position: absolute;
-      left: 14px;
-      top: 36px;
-      bottom: 36px;
+      left: 12px;
+      top: 32px;
+      bottom: 58px;
       width: 44px;
       pointer-events: none;
       z-index: 10;
+      transition: bottom 0.25s ease;
+    }
+
+    .bpt-card.format-9x16 .strip-wrapper {
+      bottom: 72px;
     }
 
     .white-strip {
       position: absolute;
-      top: 18px;
+      top: 22px;
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 22px;
+      width: 25px;
       background: #FFFFFF;
-      border-radius: 11px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+      border-radius: 12px;
+      border: 0.8px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
       z-index: 1;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-end;
+      padding-bottom: 14px;
     }
 
     .logo-badge {
@@ -174,42 +272,47 @@
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      background-color: #EAB308;
+      background-color: #0F172A;
       background-image: url('/app_icon.png');
       background-size: 100% 100%;
       background-position: center center;
       background-repeat: no-repeat;
-      border: 2.5px solid #FFFFFF;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.45);
+      border: 2.2px solid #FFFFFF;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
       z-index: 10;
     }
 
-    .strip-text {
+    .strip-rotator {
       transform: rotate(-90deg);
       transform-origin: center center;
       white-space: nowrap;
       color: #0F172A;
-      font-size: 8px;
+      font-size: 8.8px;
       font-weight: 800;
       letter-spacing: 0.5px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      position: absolute;
-      bottom: 125px;
-    }
-
-    .strip-item {
-      display: inline-flex;
-      align-items: center;
       gap: 5px;
     }
 
-    .strip-item svg {
-      flex-shrink: 0;
+    .strip-dot {
+      width: 3.5px;
+      height: 3.5px;
+      background-color: #475569;
+      border-radius: 50%;
+      margin: 0 2px;
+    }
+
+    .strip-brand {
+      font-weight: 700;
+      color: #0F172A;
+    }
+
+    .strip-brand b {
+      font-weight: 800;
     }
 
     /* Metin Katmanı */
@@ -217,54 +320,89 @@
       position: absolute;
       left: 64px;
       right: 18px;
-      bottom: 48px;
+      bottom: 52px;
       z-index: 2;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      transition: bottom 0.25s ease;
+    }
+
+    .bpt-card.format-9x16 .text-layer {
+      bottom: 66px;
+    }
+
+    /* Sadece Başlık Modu için Ferah Yerleşim */
+    .bpt-card.only-headline .text-layer {
+      bottom: 84px;
+      gap: 0;
+    }
+
+    .bpt-card.format-9x16.only-headline .text-layer {
+      bottom: 108px;
     }
 
     .headline {
-      font-weight: 900;
-      font-size: 18px;
+      font-weight: 800;
+      font-size: 17px;
       line-height: 1.22;
-      letter-spacing: -0.4px;
+      letter-spacing: -0.35px;
       color: #FFFFFF;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
       outline: none;
       border-radius: 4px;
       padding: 2px;
+      transition: font-size 0.2s ease;
+    }
+
+    .bpt-card.format-9x16 .headline {
+      font-size: 18px;
+    }
+
+    .bpt-card.only-headline .headline {
+      font-size: 19.5px;
+      line-height: 1.25;
     }
 
     .headline:focus, .quote:focus {
       background: rgba(255, 255, 255, 0.15);
     }
 
+    /* Flutter Birebir Spot / Alıntı: Inter w400 Regular */
     .quote {
-      font-weight: 600;
-      font-size: 13.5px;
-      line-height: 1.38;
-      letter-spacing: -0.15px;
-      color: rgba(255, 255, 255, 0.95);
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+      font-weight: 400;
+      font-size: 12.8px;
+      line-height: 1.35;
+      letter-spacing: -0.2px;
+      color: #F1F5F9;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.75);
       outline: none;
       border-radius: 4px;
       padding: 2px;
+      transition: opacity 0.2s ease;
     }
 
-    /* Renk Seçici Palet */
+    .bpt-card.format-9x16 .quote {
+      font-size: 13.5px;
+    }
+
+    .bpt-card.only-headline .quote {
+      display: none !important;
+    }
+
+    /* Renk Seçici Palet (Flutter ile 1-e-1 5 Renk) */
     .color-palette {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 12px;
       margin-top: 14px;
     }
 
     .color-dot {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      border: 2px solid transparent;
+      border: 2.5px solid transparent;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -272,17 +410,17 @@
     .color-dot.active {
       border-color: #FFFFFF;
       transform: scale(1.15);
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+      box-shadow: 0 0 14px rgba(234, 179, 8, 0.45);
     }
 
-    /* Sağ: Sade Kontrol Paneli */
+    /* Sağ: Kontrol Paneli */
     .controls-panel {
       flex: 1;
       width: 100%;
-      max-width: 440px;
+      max-width: 460px;
       background: var(--card-bg);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 18px;
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -290,11 +428,14 @@
     }
 
     .panel-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     .btn-group {
@@ -304,8 +445,8 @@
 
     .btn {
       flex: 1;
-      padding: 10px 14px;
-      border-radius: 10px;
+      padding: 11px 14px;
+      border-radius: 11px;
       font-weight: 700;
       font-size: 13px;
       border: none;
@@ -314,22 +455,42 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: all 0.2s;
+      transition: all 0.18s;
+      user-select: none;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
     }
 
     .btn-ai {
-      background: linear-gradient(135deg, #6366F1, #A855F7);
+      background: linear-gradient(135deg, #6366F1, #8B5CF6);
       color: #fff;
     }
 
     .btn-primary {
       background: var(--primary);
       color: #000;
+      font-weight: 900;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
     }
 
     .btn-video {
       background: linear-gradient(135deg, #EF4444, #DC2626);
       color: #fff;
+    }
+
+    .btn-copy {
+      background: rgba(22, 163, 74, 0.18);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #4ADE80;
+    }
+
+    .btn-copy:hover {
+      background: rgba(22, 163, 74, 0.28);
     }
 
     .btn-secondary {
@@ -340,11 +501,11 @@
 
     .input-box {
       width: 100%;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.35);
       border: 1px solid var(--border);
       color: #fff;
       padding: 10px 12px;
-      border-radius: 8px;
+      border-radius: 9px;
       font-size: 13px;
       outline: none;
     }
@@ -355,7 +516,7 @@
 
     textarea.input-box {
       resize: vertical;
-      min-height: 60px;
+      min-height: 65px;
     }
 
     .custom-file-upload {
@@ -372,94 +533,138 @@
       font-weight: 600;
       color: #CBD5E1;
       text-align: center;
+      transition: all 0.2s;
     }
 
     .custom-file-upload:hover {
       border-color: var(--primary);
       color: var(--primary);
+      background: rgba(234, 179, 8, 0.05);
     }
 
-    .badge-free {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #10B981;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 11.5px;
+    /* Toast Bildirim Kutusu */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      background: #0F172A;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      font-size: 13px;
       font-weight: 700;
-      text-align: center;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
 
+  <!-- Toast Bildirim -->
+  <div id="toast">✅ Bildirim</div>
+
   <header>
     <div class="brand">
       <span>🎨 Hepsi Düziçi</span>
-      <span class="badge">BPT Stüdyo</span>
+      <span class="badge">Medya &amp; BPT Stüdyosu</span>
     </div>
-    <div class="badge-free">🔒 %100 Cihazda Render (0 DB / 0 Kota)</div>
+    <div class="badge-hd">✨ Full HD 1080p Kayıpsız • Cihazda Render</div>
   </header>
 
   <div class="studio-container">
-    <!-- Sol: Kart Önizleme (Canva Canlı) -->
+    <!-- Sol: Kart Önizleme Alanı -->
     <div class="card-preview-area">
-      <div class="drag-hint">👆 Fotoğrafı sürükleyerek kadrajlayabilir, yazılara tıklayıp düzenleyebilirsin!</div>
 
+      <!-- 1. Format ve Alt Başlık Seçici Butonları (Mobille Birebir Aynı) -->
+      <div class="format-toolbar">
+        <div class="format-btn active" id="btnFmt4x5" onclick="setFormat('4x5')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+          <span>4:5 Gönderi</span>
+        </div>
+        <div class="format-btn" id="btnFmt9x16" onclick="setFormat('9x16')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
+          <span>9:16 Hikaye</span>
+        </div>
+        <div class="subtitle-toggle-btn active" id="btnSubtitleToggle" onclick="toggleSubtitle()">
+          <span id="subtitleToggleIcon">💬</span>
+          <span id="subtitleToggleText">Alt Başlık</span>
+        </div>
+      </div>
+
+      <div class="drag-hint">👆 Fotoğrafı sürükleyerek kadrajlayabilir, yazılara tıklayıp doğrudan düzenleyebilirsin!</div>
+
+      <!-- Canlı BPT Kartı -->
       <div class="bpt-card" id="bptCard">
         <!-- Arka Plan Görseli / Videosu -->
         <img id="cardBgImg" class="card-media" src="/images/duzici_aerial_header.jpg" alt="Background" onerror="this.src='https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&q=80'">
         <video id="cardBgVideo" class="card-media" style="display:none;" loop muted playsinline autoplay></video>
 
-        <!-- Sinematik Degrade -->
+        <!-- Sinematik Degrade Katmanı -->
         <div class="card-gradient" id="cardOverlay"></div>
 
-        <!-- Sol Dikey Şerit (Mobille Birebir Aynı) -->
+        <!-- Sol Dikey Şerit (Mobille 1-e-1 Birebir) -->
         <div class="strip-wrapper">
           <div class="white-strip">
-            <div class="strip-text">
-              <span class="strip-item">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="#0F172A"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                <span id="stripLocText">DÜZİÇİ</span>
-              </span>
-              <span class="strip-item">
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="#0F172A"><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/></svg>
-                <span id="stripBrandText">HEPSİ DÜZİÇİ MOBİL UYGULAMASI</span>
-              </span>
+            <div class="strip-rotator">
+              <!-- Amber Renk Konum İğnesi -->
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="#D97706"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              <span id="stripLocText">DÜZİÇİ</span>
+              <span class="strip-dot"></span>
+              <span class="strip-brand"><b>Hepsi Düziçi</b> • Mobil Uygulaması</span>
             </div>
           </div>
           <div class="logo-badge"></div>
         </div>
 
-        <!-- Yazı Alanı -->
-        <div class="text-layer">
+        <!-- Yazı Katmanı -->
+        <div class="text-layer" id="textLayer">
           <div class="headline" id="cardHeadline" contenteditable="true" oninput="syncToForm()">
             Düziçi'nde Karayolu Genişletme Çalışması İncelendi
           </div>
           <div class="quote" id="cardQuote" contenteditable="true" oninput="syncToForm()">
-            “Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik çalışmalar yerinde incelenerek yatırım süreci değerlendirildi.”
+            Kanlıgeçit ile Yarbaşı arasındaki karayolunun genişletilmesine yönelik çalışmalar yerinde incelenerek yatırım süreci değerlendirildi.
           </div>
         </div>
       </div>
 
-      <!-- Renk Seçici Palet -->
+      <!-- Renk Seçici Palet (Flutter Mobil ile Birebir 5 Tema) -->
       <div class="color-palette">
         <div class="color-dot active" style="background: linear-gradient(#0F172A, #020617);" onclick="setTheme(0, this)" title="Derin Gece"></div>
         <div class="color-dot" style="background: linear-gradient(#EAB308, #78350F);" onclick="setTheme(1, this)" title="Düziçi Altın Sarısı"></div>
         <div class="color-dot" style="background: linear-gradient(#6366F1, #1E1B4B);" onclick="setTheme(2, this)" title="Kraliyet Moru"></div>
         <div class="color-dot" style="background: linear-gradient(#10B981, #064E3B);" onclick="setTheme(3, this)" title="Zümrüt Yeşili"></div>
-        <div class="color-dot" style="background: linear-gradient(#EF4444, #991B1B);" onclick="setTheme(4, this)" title="Haber Kırmızısı"></div>
+        <div class="color-dot" style="background: linear-gradient(#EF4444, #991B1B);" onclick="setTheme(4, this)" title="Haber Kırmızısı / Son Dakika"></div>
       </div>
     </div>
 
     <!-- Sağ: Sade Kontrol Paneli -->
     <div class="controls-panel">
-      <div class="panel-title">⚡ Hızlı İşlemler</div>
+      <!-- Son Haberlerden Seçici Dropdown -->
+      <div>
+        <div class="panel-title" style="margin-bottom:6px;">
+          <span>📰 Son Haberlerden Yükle</span>
+          <span style="font-size:10px; color:#38BDF8; cursor:pointer;" onclick="loadRecentNews()">Yenile ↻</span>
+        </div>
+        <select id="recentNewsSelect" class="input-box" onchange="onSelectNews(this.value)">
+          <option value="">-- Haber Seçerek Otomatik Doldur --</option>
+        </select>
+      </div>
 
+      <!-- AI Butonu -->
       <button class="btn btn-ai" id="btnAi" onclick="autoAiFormat()">
         <span>🤖 AI ile Başlık &amp; Spot Üret</span>
       </button>
 
+      <!-- Fotoğraf / Video Yükleme -->
       <div>
         <label class="custom-file-upload" id="uploadLabel">
           <span id="uploadLabelText">📁 Fotoğraf veya Video Seç</span>
@@ -477,29 +682,39 @@
         </div>
       </div>
 
-      <!-- Sütun Yazıları Düzenleme -->
+      <!-- Sütun Konumu ve Kadraj -->
       <div style="background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:10px; padding:10px;">
-        <div class="panel-title" style="margin-bottom:6px; font-size:11.5px;">⚪ Beyaz Sütun Yazıları</div>
-        <div style="display:flex; gap:6px; margin-bottom:6px;">
-          <input type="text" id="inputStripTop" class="input-box" value="DÜZİÇİ" placeholder="Üst Yazı (Örn: DÜZİÇİ)" oninput="document.getElementById('stripLocText').innerText=this.value">
-          <button class="btn btn-secondary" style="padding:4px 10px; font-size:11px;" onclick="resetKadraj()">🔄 Kadraj</button>
+        <div class="panel-title" style="margin-bottom:6px; font-size:11px;">📍 Konum &amp; Kadraj</div>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="inputStripTop" class="input-box" value="DÜZİÇİ" placeholder="Örn: DÜZİÇİ, OSMANİYE" oninput="updateLocation(this.value)">
+          <button class="btn btn-secondary" style="padding:4px 12px; font-size:11.5px; flex:none;" onclick="resetKadraj()">🔄 Kadrajı Sıfırla</button>
         </div>
-        <input type="text" id="inputStripBottom" class="input-box" value="HEPSİ DÜZİÇİ MOBİL UYGULAMASI" placeholder="Alt Yazı (Örn: HEPSİ DÜZİÇİ MOBİL UYGULAMASI)" oninput="document.getElementById('stripBrandText').innerText=this.value">
       </div>
 
+      <!-- Manşet Başlığı -->
       <div>
         <div class="panel-title" style="margin-bottom:6px;">Manşet Başlığı</div>
         <input type="text" id="formHeadline" class="input-box" placeholder="Haber Başlığı" oninput="document.getElementById('cardHeadline').innerText=this.value">
       </div>
 
-      <div>
-        <div class="panel-title" style="margin-bottom:6px;">Haber Spotu / Alıntı</div>
-        <textarea id="formQuote" class="input-box" placeholder="Haber Spotu..." oninput="document.getElementById('cardQuote').innerText='“'+this.value.replace(/^“|”$/g,'')+'”'"></textarea>
+      <!-- Alt Başlık (Spot) -->
+      <div id="quoteInputContainer">
+        <div class="panel-title" style="margin-bottom:6px;">
+          <span>Haber Spotu / Alt Başlık</span>
+          <span style="font-size:10px; color:var(--primary); cursor:pointer;" onclick="toggleSubtitle()">Alt Başlığı Gizle</span>
+        </div>
+        <textarea id="formQuote" class="input-box" placeholder="Haber Spotu..." oninput="document.getElementById('cardQuote').innerText=this.value"></textarea>
       </div>
 
-      <div class="btn-group" style="margin-top:4px;">
+      <!-- Instagram Açıklama Kopyalama Butonu -->
+      <button class="btn btn-copy" onclick="copyInstagramCaption()">
+        <span>📋 Instagram Açıklamasını Kopyala</span>
+      </button>
+
+      <!-- İndirme Butonları -->
+      <div class="btn-group" style="margin-top:6px;">
         <button class="btn btn-primary" onclick="downloadImage()">
-          <span>📸 1080x1350 Foto İndir</span>
+          <span id="downloadBtnText">📸 1080x1350 Foto İndir</span>
         </button>
         <button class="btn btn-video" id="btnVid" onclick="downloadVideo()">
           <span>🎥 Video İndir</span>
@@ -509,23 +724,82 @@
   </div>
 
   <script>
+    // Mobil Uygulama Temaları (Birebir Eşleşme)
     const themes = [
-      { first: '#0F172A', last: '#020617' },
-      { first: '#854F0B', last: '#1E1303' },
-      { first: '#1E1B4B', last: '#0F0E2A' },
-      { first: '#064E3B', last: '#022C22' },
-      { first: '#7F1D1D', last: '#1C0808' }
+      { first: '#0F172A', last: '#020617', name: 'Derin Gece' },
+      { first: '#854F0B', last: '#1E1303', name: 'Düziçi Altın Sarısı' },
+      { first: '#1E1B4B', last: '#0F0E2A', name: 'Kraliyet Moru' },
+      { first: '#064E3B', last: '#022C22', name: 'Zümrüt Yeşili' },
+      { first: '#7F1D1D', last: '#1C0808', name: 'Haber Kırmızısı' }
     ];
 
     let currentThemeIndex = 0;
+    let currentFormat = '4x5'; // '4x5' veya '9x16'
+    let showSubtitle = true;
     let isVideoMode = false;
     let imgPosX = 50, imgPosY = 30;
     let isDragging = false, startX, startY;
+    let loadedNewsList = [];
 
     document.addEventListener('DOMContentLoaded', () => {
       setupDrag();
       syncToForm();
+      loadRecentNews();
     });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.style.display = 'flex';
+      setTimeout(() => { t.style.display = 'none'; }, 3000);
+    }
+
+    // Format Değiştir (4:5 Gönderi vs 9:16 Hikaye)
+    function setFormat(fmt) {
+      currentFormat = fmt;
+      const card = document.getElementById('bptCard');
+      const btn4x5 = document.getElementById('btnFmt4x5');
+      const btn9x16 = document.getElementById('btnFmt9x16');
+      const dlBtnText = document.getElementById('downloadBtnText');
+
+      if (fmt === '9x16') {
+        card.classList.add('format-9x16');
+        btn9x16.classList.add('active');
+        btn4x5.classList.remove('active');
+        dlBtnText.innerText = '📸 1080x1920 Hikaye İndir';
+      } else {
+        card.classList.remove('format-9x16');
+        btn4x5.classList.add('active');
+        btn9x16.classList.remove('active');
+        dlBtnText.innerText = '📸 1080x1350 Foto İndir';
+      }
+    }
+
+    // Alt Başlık / Sadece Başlık Toggle
+    function toggleSubtitle() {
+      showSubtitle = !showSubtitle;
+      const card = document.getElementById('bptCard');
+      const btn = document.getElementById('btnSubtitleToggle');
+      const icon = document.getElementById('subtitleToggleIcon');
+      const text = document.getElementById('subtitleToggleText');
+      const quoteContainer = document.getElementById('quoteInputContainer');
+
+      if (showSubtitle) {
+        card.classList.remove('only-headline');
+        btn.classList.add('active');
+        icon.innerText = '💬';
+        text.innerText = 'Alt Başlık';
+        quoteContainer.style.display = 'block';
+        showToast('💬 Alt başlık gösteriliyor.');
+      } else {
+        card.classList.add('only-headline');
+        btn.classList.remove('active');
+        icon.innerText = '📝';
+        text.innerText = 'Sadece Başlık';
+        quoteContainer.style.display = 'none';
+        showToast('📝 Sadece başlık modu aktif!');
+      }
+    }
 
     function setTheme(idx, el) {
       currentThemeIndex = idx;
@@ -535,13 +809,18 @@
       const t = themes[idx];
       document.getElementById('cardOverlay').style.background = `linear-gradient(
         to bottom,
-        rgba(0, 0, 0, 0.35) 0%,
-        transparent 20%,
-        transparent 40%,
-        ${t.first}B3 62%,
-        ${t.first}EB 82%,
+        rgba(0, 0, 0, 0.25) 0%,
+        transparent 14%,
+        transparent 48%,
+        ${t.first}73 68%,
+        ${t.first}E0 84%,
         ${t.last}FA 100%
       )`;
+    }
+
+    function updateLocation(val) {
+      const clean = val.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase() || 'DÜZİÇİ';
+      document.getElementById('stripLocText').innerText = clean;
     }
 
     function setupDrag() {
@@ -571,11 +850,66 @@
       imgPosX = 50; imgPosY = 30;
       document.getElementById('cardBgImg').style.objectPosition = '50% 30%';
       document.getElementById('cardBgVideo').style.objectPosition = '50% 30%';
+      showToast('🔄 Kadraj sıfırlandı.');
     }
 
     function syncToForm() {
-      document.getElementById('formHeadline').value = document.getElementById('cardHeadline').innerText;
-      document.getElementById('formQuote').value = document.getElementById('cardQuote').innerText.replace(/^“|”$/g, '');
+      document.getElementById('formHeadline').value = document.getElementById('cardHeadline').innerText.trim();
+      document.getElementById('formQuote').value = document.getElementById('cardQuote').innerText.trim();
+    }
+
+    // Son Haberleri Yükle
+    async function loadRecentNews() {
+      const select = document.getElementById('recentNewsSelect');
+      try {
+        const res = await fetch('/api/studio/recent-news?limit=30');
+        const json = await res.json();
+        if (json.ok && Array.isArray(json.data)) {
+          loadedNewsList = json.data;
+          select.innerHTML = '<option value="">-- Haber Seçerek Otomatik Doldur --</option>';
+          json.data.forEach((item, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.innerText = `[${item.category || 'Düziçi'}] ${item.title.slice(0, 50)}...`;
+            select.appendChild(opt);
+          });
+        }
+      } catch (e) {
+        console.warn('Son haberler çekilemedi:', e);
+      }
+    }
+
+    function onSelectNews(idx) {
+      if (idx === '' || !loadedNewsList[idx]) return;
+      const item = loadedNewsList[idx];
+
+      document.getElementById('cardHeadline').innerText = item.title;
+      document.getElementById('formHeadline').value = item.title;
+
+      // Temiz spot cümlesi al
+      const lead = (item.summary || item.content || '').replace(/\s+/g, ' ').trim();
+      document.getElementById('cardQuote').innerText = lead.slice(0, 160) + (lead.length > 160 ? '...' : '');
+      document.getElementById('formQuote').value = document.getElementById('cardQuote').innerText;
+
+      // Konum belirle
+      const cat = (item.category || '').toLowerCase();
+      let loc = 'DÜZİÇİ';
+      if (cat.includes('osmaniye')) loc = 'OSMANİYE';
+      else if (cat.includes('türkiye')) loc = 'TÜRKİYE';
+      document.getElementById('inputStripTop').value = loc;
+      updateLocation(loc);
+
+      // Fotoğrafı uygula
+      if (item.image_url) {
+        isVideoMode = false;
+        document.getElementById('cardBgVideo').style.display = 'none';
+        const img = document.getElementById('cardBgImg');
+        img.style.display = 'block';
+        img.src = item.image_url;
+        resetKadraj();
+      }
+
+      showToast(`✅ "${item.title.slice(0, 25)}..." yüklendi!`);
     }
 
     function handleFile(e) {
@@ -607,8 +941,6 @@
         vidEl.muted = true;
         vidEl.defaultMuted = true;
         vidEl.playsInline = true;
-        vidEl.setAttribute('muted', '');
-        vidEl.setAttribute('playsinline', '');
         vidEl.autoplay = true;
         vidEl.loop = true;
 
@@ -620,22 +952,12 @@
           progPercent.innerText = '100%';
           progStatus.innerText = `✅ Video Hazır (${fileSizeMB} MB)`;
           labelText.innerText = `🎥 ${file.name.slice(0, 20)}... (${fileSizeMB} MB)`;
-
-          try {
-            await vidEl.play();
-          } catch (err) {
-            console.log('Autoplay play retry:', err);
-          }
-
+          try { await vidEl.play(); } catch (_) {}
           setTimeout(() => { progCont.style.display = 'none'; }, 1000);
         }
 
-        // Dinleyicileri src atamadan önce bağla
         vidEl.onloadedmetadata = onVideoReady;
         vidEl.oncanplay = onVideoReady;
-        vidEl.onloadeddata = onVideoReady;
-        vidEl.onplay = onVideoReady;
-
         vidEl.onerror = () => {
           if (finished) return;
           finished = true;
@@ -645,27 +967,9 @@
           labelText.innerText = '📁 Başka Video Seç';
         };
 
-        // İlerlemeyi akıcı şekilde %100'e doldur
-        let p = 30;
-        const pInt = setInterval(() => {
-          if (p < 95 && !finished) {
-            p += 25;
-            if (p > 95) p = 95;
-            progBar.style.width = `${p}%`;
-            progPercent.innerText = `${p}%`;
-          } else {
-            clearInterval(pInt);
-          }
-        }, 60);
-
         vidEl.src = url;
         vidEl.load();
-
-        // 200ms içinde kesinlikle tamamla
-        setTimeout(() => {
-          clearInterval(pInt);
-          onVideoReady();
-        }, 200);
+        setTimeout(onVideoReady, 300);
 
       } else {
         isVideoMode = false;
@@ -680,7 +984,6 @@
           labelText.innerText = `🖼️ ${file.name.slice(0, 20)}...`;
           setTimeout(() => { progCont.style.display = 'none'; }, 1200);
         };
-
         imgEl.src = url;
       }
 
@@ -705,16 +1008,18 @@
         const data = await res.json();
         if (data.ok) {
           document.getElementById('cardHeadline').innerText = data.headline;
-          document.getElementById('cardQuote').innerText = `“${data.quote}”`;
+          document.getElementById('cardQuote').innerText = data.quote;
           document.getElementById('formHeadline').value = data.headline;
           document.getElementById('formQuote').value = data.quote;
           document.getElementById('inputStripTop').value = data.location;
-          document.getElementById('stripLocText').innerText = data.location;
-          if (data.suggestedTheme === 'ruby') {
-            setTheme(4, document.querySelectorAll('.color-dot')[4]);
-          } else if (data.suggestedTheme === 'gold') {
-            setTheme(1, document.querySelectorAll('.color-dot')[1]);
-          }
+          updateLocation(data.location);
+
+          if (data.suggestedTheme === 'ruby') setTheme(4, document.querySelectorAll('.color-dot')[4]);
+          else if (data.suggestedTheme === 'gold') setTheme(1, document.querySelectorAll('.color-dot')[1]);
+          else if (data.suggestedTheme === 'emerald') setTheme(3, document.querySelectorAll('.color-dot')[3]);
+          else if (data.suggestedTheme === 'purple') setTheme(2, document.querySelectorAll('.color-dot')[2]);
+
+          showToast('🤖 AI Başlık ve Spot Başarıyla Düzenlendi!');
         }
       } catch (err) {
         console.error(err);
@@ -724,6 +1029,32 @@
       }
     }
 
+    // Instagram Açıklamasını Kopyala
+    function copyInstagramCaption() {
+      const headline = document.getElementById('cardHeadline').innerText.trim();
+      const quote = document.getElementById('cardQuote').innerText.trim();
+      const loc = (document.getElementById('inputStripTop').value || 'DÜZİÇİ').trim().toLowerCase();
+
+      let text = `📢 ${headline}\n\n`;
+      if (showSubtitle && quote) {
+        text += `${quote}\n\n`;
+      }
+      text += `------------------------------\n`;
+      text += `📱 Düziçi ve Osmaniye son dakika gelişmeleri Hepsi Düziçi mobil uygulamasında!\n`;
+      text += `📲 Ücretsiz İndir: https://onelink.to/umpezj\n`;
+      text += `------------------------------\n\n`;
+      text += `#hepsiduzici #düziçi #osmaniye #sondakika #${loc}`;
+
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 Instagram açıklaması panoya kopyalandı!');
+      }).catch(() => {
+        alert(text);
+      });
+    }
+
+    // ==========================================
+    // 📸 HD GÖRSEL İNDİRME MOTORU (1080p Crystal Clear)
+    // ==========================================
     async function downloadImage() {
       const btn = document.querySelector('.btn-primary');
       const originalText = btn.innerHTML;
@@ -731,24 +1062,28 @@
       btn.disabled = true;
 
       try {
+        const isStory = (currentFormat === '9x16');
+        const canvasW = 1080;
+        const canvasH = isStory ? 1920 : 1350;
+
         const canvas = document.createElement('canvas');
-        canvas.width = 1080;
-        canvas.height = 1350;
+        canvas.width = canvasW;
+        canvas.height = canvasH;
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
-        // 1. Arka plan görseli
+        // 1. Arka Plan Görseli
         const isVid = isVideoMode;
         const mediaEl = isVid ? document.getElementById('cardBgVideo') : document.getElementById('cardBgImg');
 
         const sx = (imgPosX / 100);
         const sy = (imgPosY / 100);
 
-        const mw = mediaEl.naturalWidth || mediaEl.videoWidth || mediaEl.width || 1080;
-        const mh = mediaEl.naturalHeight || mediaEl.videoHeight || mediaEl.height || 1350;
+        const mw = mediaEl.naturalWidth || mediaEl.videoWidth || mediaEl.width || canvasW;
+        const mh = mediaEl.naturalHeight || mediaEl.videoHeight || mediaEl.height || canvasH;
 
-        const targetAspect = 1080 / 1350;
+        const targetAspect = canvasW / canvasH;
         const mediaAspect = mw / mh;
 
         let renderW, renderH, offsetX, offsetY;
@@ -764,30 +1099,31 @@
           offsetY = (mh - renderH) * sy;
         }
 
-        ctx.drawImage(mediaEl, offsetX, offsetY, renderW, renderH, 0, 0, 1080, 1350);
+        ctx.drawImage(mediaEl, offsetX, offsetY, renderW, renderH, 0, 0, canvasW, canvasH);
 
-        // 2. Sinematik Degrade
+        // 2. Sinematik Degrade Katmanı
         const t = themes[currentThemeIndex];
-        const grad = ctx.createLinearGradient(0, 0, 0, 1350);
-        grad.addColorStop(0, 'rgba(0, 0, 0, 0.35)');
-        grad.addColorStop(0.20, 'transparent');
-        grad.addColorStop(0.40, 'transparent');
-        grad.addColorStop(0.62, t.first + 'B3');
-        grad.addColorStop(0.82, t.first + 'EB');
+        const grad = ctx.createLinearGradient(0, 0, 0, canvasH);
+        grad.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
+        grad.addColorStop(0.14, 'transparent');
+        grad.addColorStop(0.48, 'transparent');
+        grad.addColorStop(0.68, t.first + '73');
+        grad.addColorStop(0.84, t.first + 'E0');
         grad.addColorStop(1.0, t.last + 'FA');
         ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, 1080, 1350);
+        ctx.fillRect(0, 0, canvasW, canvasH);
 
-        // 3. Beyaz Dikey Sütun (CSS ile 1:1 Birebir Oran)
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+        // 3. Beyaz Dikey Şerit
+        const stripHeight = isStory ? 1660 : 1094;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
         ctx.shadowBlur = 20;
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
-        ctx.roundRect(71, 154, 62.5, 1094, 31);
+        ctx.roundRect(71, 154, 62.5, stripHeight, 31);
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // 4. Hepsi Düziçi Logo Rozeti
+        // 4. Logo Rozeti
         const logoImg = new Image();
         logoImg.crossOrigin = 'anonymous';
         logoImg.src = '/app_icon.png';
@@ -797,36 +1133,35 @@
         });
 
         ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
         ctx.shadowBlur = 18;
         ctx.beginPath();
         ctx.arc(102.3, 162, 60, 0, Math.PI * 2);
-        ctx.fillStyle = '#EAB308';
+        ctx.fillStyle = '#0F172A';
         ctx.fill();
-        ctx.lineWidth = 7;
+        ctx.lineWidth = 6;
         ctx.strokeStyle = '#FFFFFF';
         ctx.stroke();
         ctx.clip();
         ctx.drawImage(logoImg, 42.3, 102, 120, 120);
         ctx.restore();
 
-        // 5. Dikey Metin (Sütun İçi - Tam Merkez Vektör İkonlar + İnce Zarif Font)
+        // 5. Şerit İçi Dikey Yazı & Vektör İkonlar
         const rawTop = document.getElementById('stripLocText').innerText || 'DÜZİÇİ';
-        const rawBottom = document.getElementById('stripBrandText').innerText || 'HEPSİ DÜZİÇİ MOBİL UYGULAMASI';
         const locText = rawTop.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
-        const brandText = rawBottom.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
+        const brandText = 'HEPSİ DÜZİÇİ • MOBİL UYGULAMASI';
 
         ctx.save();
-        ctx.translate(102.3, 1350 - 220);
+        ctx.translate(102.3, canvasH - 220);
         ctx.rotate(-Math.PI / 2);
         ctx.fillStyle = '#0F172A';
-        ctx.font = '700 20px Inter, sans-serif';
+        ctx.font = '800 21px Inter, sans-serif';
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
 
-        // Konum İkonu (Vektör Pin - Tam Merkez)
+        // Konum İğnesi (Amber Vektör Pin)
         ctx.save();
-        ctx.fillStyle = '#0F172A';
+        ctx.fillStyle = '#D97706';
         ctx.beginPath();
         ctx.arc(7, -2, 5, 0, Math.PI * 2);
         ctx.fill();
@@ -845,33 +1180,29 @@
         ctx.fillText(locText, 20, 0);
         const locW = ctx.measureText(locText).width;
 
-        // Telefon İkonu (Vektör Mobil - Tam Merkez)
-        const phoneX = 20 + locW + 28;
+        // Nokta Ayırıcı
+        const dotX = 20 + locW + 10;
         ctx.save();
-        ctx.fillStyle = '#0F172A';
+        ctx.fillStyle = '#475569';
         ctx.beginPath();
-        ctx.roundRect(phoneX, -8, 12, 17, 2.5);
-        ctx.fill();
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(phoneX + 2, -6, 8, 10);
-        ctx.beginPath();
-        ctx.arc(phoneX + 6, 6, 0.9, 0, Math.PI * 2);
+        ctx.arc(dotX, 0, 3.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        ctx.fillStyle = '#0F172A';
-        ctx.fillText(brandText, phoneX + 20, 0);
+        // Uygulama Adı
+        ctx.font = '700 20px Inter, sans-serif';
+        ctx.fillText(brandText, dotX + 12, 0);
         ctx.restore();
 
-        // 6 & 7. Manşet Başlığı & Alıntı (Birebir CSS Oranlarıyla Alttan Yukarı)
-        const headline = document.getElementById('cardHeadline').innerText;
-        const quote = document.getElementById('cardQuote').innerText;
-
+        // 6. Başlık & Spot Metni Çizimi
+        const headline = document.getElementById('cardHeadline').innerText.trim();
+        const quote = document.getElementById('cardQuote').innerText.trim();
         const textLeft = 182;
-        const maxTextW = 1028 - textLeft;
+        const maxTextW = canvasW - textLeft - 50;
 
-        // Manşet satırları
-        ctx.font = '900 50px Inter, sans-serif';
+        // Başlık Font & Satır Bölme
+        const headlineFontSize = (!showSubtitle || !quote) ? 54 : (isStory ? 50 : 48);
+        ctx.font = `800 ${headlineFontSize}px Inter, sans-serif`;
         const hWords = headline.split(' ');
         const hLines = [];
         let hLine = '';
@@ -886,52 +1217,65 @@
         }
         if (hLine) hLines.push(hLine.trim());
 
-        // Alıntı satırları
-        ctx.font = '600 36px Inter, sans-serif';
-        const qWords = quote.split(' ');
+        // Alıntı Font & Satır Bölme
         const qLines = [];
-        let qLine = '';
-        for (let n = 0; n < qWords.length; n++) {
-          let testLine = qLine + qWords[n] + ' ';
-          if (ctx.measureText(testLine).width > maxTextW && n > 0) {
-            qLines.push(qLine.trim());
-            qLine = qWords[n] + ' ';
-          } else {
-            qLine = testLine;
+        const quoteFontSize = isStory ? 37 : 35;
+        if (showSubtitle && quote) {
+          ctx.font = `400 ${quoteFontSize}px Inter, sans-serif`;
+          const qWords = quote.split(' ');
+          let qLine = '';
+          for (let n = 0; n < qWords.length; n++) {
+            let testLine = qLine + qWords[n] + ' ';
+            if (ctx.measureText(testLine).width > maxTextW && n > 0) {
+              qLines.push(qLine.trim());
+              qLine = qWords[n] + ' ';
+            } else {
+              qLine = testLine;
+            }
           }
+          if (qLine) qLines.push(qLine.trim());
         }
-        if (qLine) qLines.push(qLine.trim());
 
-        // Alttan yukarı dinamik Y hesabı (Dengeli ve Ferah Konumlandırma)
-        const hLineH = 62;
-        const qLineH = 48;
-        const baselineGap = 84; // Headline son satırı ile Alıntı ilk satırı arası ferah 84px taban çizgisi
-        const bottomMargin = 135;
+        // Dinamik Y Konumlandırma
+        const hLineH = headlineFontSize * 1.25;
+        const qLineH = quoteFontSize * 1.35;
+        let headlineStartY = 0;
+        let quoteStartY = 0;
 
-        const quoteStartY = 1350 - bottomMargin - ((qLines.length - 1) * qLineH);
-        const lastHeadlineY = quoteStartY - baselineGap;
-        const headlineStartY = lastHeadlineY - ((hLines.length - 1) * hLineH);
+        if (!showSubtitle || qLines.length === 0) {
+          // Sadece Başlık Modu: Kartın altında dengeli ve ferah yerleşim
+          const bottomMargin = isStory ? 240 : 160;
+          headlineStartY = canvasH - bottomMargin - ((hLines.length - 1) * hLineH);
+        } else {
+          // Başlık + Alt Başlık Modu
+          const bottomMargin = isStory ? 180 : 135;
+          const baselineGap = 80;
+          quoteStartY = canvasH - bottomMargin - ((qLines.length - 1) * qLineH);
+          const lastHeadlineY = quoteStartY - baselineGap;
+          headlineStartY = lastHeadlineY - ((hLines.length - 1) * hLineH);
+        }
 
-        // Manşet Çizimi
+        // Başlık Çiz
         ctx.fillStyle = '#FFFFFF';
-        ctx.font = '900 50px Inter, sans-serif';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+        ctx.font = `800 ${headlineFontSize}px Inter, sans-serif`;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
         ctx.shadowBlur = 24;
         ctx.shadowOffsetY = 4;
-
         hLines.forEach((l, idx) => {
           ctx.fillText(l, textLeft, headlineStartY + (idx * hLineH));
         });
 
-        // Alıntı Çizimi
-        ctx.font = '600 36px Inter, sans-serif';
-        ctx.shadowBlur = 18;
+        // Spot Çiz (Sadece Alt Başlık Modunda)
+        if (showSubtitle && qLines.length > 0) {
+          ctx.fillStyle = '#F1F5F9';
+          ctx.font = `400 ${quoteFontSize}px Inter, sans-serif`;
+          ctx.shadowBlur = 18;
+          qLines.forEach((l, idx) => {
+            ctx.fillText(l, textLeft, quoteStartY + (idx * qLineH));
+          });
+        }
 
-        qLines.forEach((l, idx) => {
-          ctx.fillText(l, textLeft, quoteStartY + (idx * qLineH));
-        });
-
-        // 100% Mobil & Masaüstü Uyumlu İndirme Motoru
+        // İndir / Paylaş
         canvas.toBlob(async (blob) => {
           if (!blob) {
             alert('Görsel oluşturulamadı.');
@@ -940,18 +1284,17 @@
             return;
           }
 
-          const fileName = `hepsi_duzici_post_${Date.now()}.png`;
+          const fileName = `hepsi_duzici_${isStory ? 'hikaye_9x16' : 'gonderi_4x5'}_1080p_${Date.now()}.png`;
           const file = new File([blob], fileName, { type: 'image/png' });
 
-          // 1. Mobil Cihazlar İçin Yerel Paylaş / Galeriye Kaydet (iOS & Android)
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             try {
               await navigator.share({
                 files: [file],
                 title: 'Hepsi Düziçi',
-                text: 'Hepsi Düziçi BPT Gönderisi'
+                text: 'Hepsi Düziçi Gönderisi'
               });
-              btn.innerText = '✅ Kaydedildi / Paylaşıldı!';
+              btn.innerText = '✅ Paylaşıldı / Kaydedildi!';
               setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
               return;
             } catch (shareErr) {
@@ -963,7 +1306,6 @@
             }
           }
 
-          // 2. Masaüstü & Standart Tarayıcı İndirmesi
           const blobUrl = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.download = fileName;
@@ -975,7 +1317,8 @@
             URL.revokeObjectURL(blobUrl);
           }, 1000);
 
-          btn.innerText = '✅ İndirildi!';
+          btn.innerText = '✅ Full HD İndirildi!';
+          showToast(`✨ ${isStory ? '1080x1920 Hikaye' : '1080x1350 Gönderi'} indirildi!`);
           setTimeout(() => { btn.innerHTML = originalText; btn.disabled = false; }, 2000);
         }, 'image/png');
 
@@ -986,6 +1329,9 @@
       }
     }
 
+    // ==========================================
+    // 🎥 VİDEO İNDİRME MOTORU
+    // ==========================================
     async function downloadVideo() {
       const vid = document.getElementById('cardBgVideo');
       const btn = document.getElementById('btnVid');
@@ -1000,29 +1346,32 @@
       btn.disabled = true;
 
       try {
+        const isStory = (currentFormat === '9x16');
+        const canvasW = 1080;
+        const canvasH = isStory ? 1920 : 1350;
+
         const canvas = document.createElement('canvas');
-        canvas.width = 1080;
-        canvas.height = 1350;
+        canvas.width = canvasW;
+        canvas.height = canvasH;
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = 'high';
 
         const stream = canvas.captureStream(30);
-        let mimeType = 'video/webm;codecs=vp9';
-        let ext = 'webm';
+        let mimeType = 'video/mp4;codecs=avc1';
+        let ext = 'mp4';
 
-        if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1')) {
-          mimeType = 'video/mp4;codecs=avc1';
-          ext = 'mp4';
-        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
-          mimeType = 'video/mp4';
-          ext = 'mp4';
-        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
-          mimeType = 'video/webm;codecs=h264';
-          ext = 'mp4';
-        } else if (MediaRecorder.isTypeSupported('video/webm')) {
-          mimeType = 'video/webm';
-          ext = 'webm';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          if (MediaRecorder.isTypeSupported('video/mp4')) {
+            mimeType = 'video/mp4';
+            ext = 'mp4';
+          } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+            mimeType = 'video/webm;codecs=vp9';
+            ext = 'webm';
+          } else {
+            mimeType = 'video/webm';
+            ext = 'webm';
+          }
         }
 
         const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8000000 });
@@ -1034,7 +1383,7 @@
 
         recorder.onstop = async () => {
           const blob = new Blob(chunks, { type: mimeType });
-          const fileName = `hepsi_duzici_video_${Date.now()}.${ext}`;
+          const fileName = `hepsi_duzici_video_${isStory ? '9x16' : '4x5'}_${Date.now()}.${ext}`;
           const file = new File([blob], fileName, { type: mimeType });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1044,7 +1393,7 @@
                 title: 'Hepsi Düziçi Video',
                 text: 'Hepsi Düziçi Video Gönderisi'
               });
-              btn.innerText = '✅ Video Paylaşıldı / Kaydedildi!';
+              btn.innerText = '✅ Video Paylaşıldı!';
               setTimeout(() => { btn.innerText = '🎥 Video İndir'; btn.disabled = false; }, 2000);
               return;
             } catch (err) {
@@ -1067,6 +1416,7 @@
           }, 1000);
 
           btn.innerText = '✅ Video İndirildi!';
+          showToast('🎥 Full HD Video İndirildi!');
           setTimeout(() => {
             btn.innerText = '🎥 Video İndir';
             btn.disabled = false;
@@ -1086,12 +1436,11 @@
           }
         }, 1000);
 
-        const headline = document.getElementById('cardHeadline').innerText;
-        const quote = document.getElementById('cardQuote').innerText;
+        const headline = document.getElementById('cardHeadline').innerText.trim();
+        const quote = document.getElementById('cardQuote').innerText.trim();
         const rawTop = document.getElementById('stripLocText').innerText || 'DÜZİÇİ';
-        const rawBottom = document.getElementById('stripBrandText').innerText || 'HEPSİ DÜZİÇİ MOBİL UYGULAMASI';
         const locText = rawTop.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
-        const brandText = rawBottom.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
+        const brandText = 'HEPSİ DÜZİÇİ • MOBİL UYGULAMASI';
         const t = themes[currentThemeIndex];
 
         const logoImg = new Image();
@@ -1099,10 +1448,10 @@
         logoImg.src = '/app_icon.png';
 
         const textLeft = 182;
-        const maxTextW = 1028 - textLeft;
+        const maxTextW = canvasW - textLeft - 50;
 
-        // Manşet satırları
-        ctx.font = '900 50px Inter, sans-serif';
+        const headlineFontSize = (!showSubtitle || !quote) ? 54 : (isStory ? 50 : 48);
+        ctx.font = `800 ${headlineFontSize}px Inter, sans-serif`;
         const hWords = headline.split(' ');
         const hLines = [];
         let hLine = '';
@@ -1117,38 +1466,46 @@
         }
         if (hLine) hLines.push(hLine.trim());
 
-        // Alıntı satırları
-        ctx.font = '600 36px Inter, sans-serif';
-        const qWords = quote.split(' ');
         const qLines = [];
-        let qLine = '';
-        for (let n = 0; n < qWords.length; n++) {
-          let testLine = qLine + qWords[n] + ' ';
-          if (ctx.measureText(testLine).width > maxTextW && n > 0) {
-            qLines.push(qLine.trim());
-            qLine = qWords[n] + ' ';
-          } else {
-            qLine = testLine;
+        const quoteFontSize = isStory ? 37 : 35;
+        if (showSubtitle && quote) {
+          ctx.font = `400 ${quoteFontSize}px Inter, sans-serif`;
+          const qWords = quote.split(' ');
+          let qLine = '';
+          for (let n = 0; n < qWords.length; n++) {
+            let testLine = qLine + qWords[n] + ' ';
+            if (ctx.measureText(testLine).width > maxTextW && n > 0) {
+              qLines.push(qLine.trim());
+              qLine = qWords[n] + ' ';
+            } else {
+              qLine = testLine;
+            }
           }
+          if (qLine) qLines.push(qLine.trim());
         }
-        if (qLine) qLines.push(qLine.trim());
 
-        const hLineH = 62;
-        const qLineH = 48;
-        const baselineGap = 84;
-        const bottomMargin = 135;
+        const hLineH = headlineFontSize * 1.25;
+        const qLineH = quoteFontSize * 1.35;
+        let headlineStartY = 0;
+        let quoteStartY = 0;
 
-        const quoteStartY = 1350 - bottomMargin - ((qLines.length - 1) * qLineH);
-        const lastHeadlineY = quoteStartY - baselineGap;
-        const headlineStartY = lastHeadlineY - ((hLines.length - 1) * hLineH);
+        if (!showSubtitle || qLines.length === 0) {
+          const bottomMargin = isStory ? 240 : 160;
+          headlineStartY = canvasH - bottomMargin - ((hLines.length - 1) * hLineH);
+        } else {
+          const bottomMargin = isStory ? 180 : 135;
+          const baselineGap = 80;
+          quoteStartY = canvasH - bottomMargin - ((qLines.length - 1) * qLineH);
+          const lastHeadlineY = quoteStartY - baselineGap;
+          headlineStartY = lastHeadlineY - ((hLines.length - 1) * hLineH);
+        }
 
         const loop = setInterval(() => {
-          // Video Kadrajı (Cover)
           const sx = (imgPosX / 100);
           const sy = (imgPosY / 100);
-          const mw = vid.videoWidth || 1080;
-          const mh = vid.videoHeight || 1350;
-          const targetAspect = 1080 / 1350;
+          const mw = vid.videoWidth || canvasW;
+          const mh = vid.videoHeight || canvasH;
+          const targetAspect = canvasW / canvasH;
           const mediaAspect = mw / mh;
 
           let renderW, renderH, offsetX, offsetY;
@@ -1164,36 +1521,38 @@
             offsetY = (mh - renderH) * sy;
           }
 
-          ctx.drawImage(vid, offsetX, offsetY, renderW, renderH, 0, 0, 1080, 1350);
+          ctx.drawImage(vid, offsetX, offsetY, renderW, renderH, 0, 0, canvasW, canvasH);
 
-          const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-          grad.addColorStop(0, 'rgba(0, 0, 0, 0.35)');
-          grad.addColorStop(0.20, 'transparent');
-          grad.addColorStop(0.40, 'transparent');
-          grad.addColorStop(0.62, t.first + 'B3');
-          grad.addColorStop(0.82, t.first + 'EB');
+          // Degrade
+          const grad = ctx.createLinearGradient(0, 0, 0, canvasH);
+          grad.addColorStop(0, 'rgba(0, 0, 0, 0.25)');
+          grad.addColorStop(0.14, 'transparent');
+          grad.addColorStop(0.48, 'transparent');
+          grad.addColorStop(0.68, t.first + '73');
+          grad.addColorStop(0.84, t.first + 'E0');
           grad.addColorStop(1.0, t.last + 'FA');
           ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillRect(0, 0, canvasW, canvasH);
 
           // Şerit
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.4)';
+          const stripHeight = isStory ? 1660 : 1094;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
           ctx.shadowBlur = 20;
           ctx.fillStyle = '#FFFFFF';
           ctx.beginPath();
-          ctx.roundRect(71, 154, 62.5, 1094, 31);
+          ctx.roundRect(71, 154, 62.5, stripHeight, 31);
           ctx.fill();
           ctx.shadowBlur = 0;
 
           // Logo Yuvarlağı
           ctx.save();
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
           ctx.shadowBlur = 18;
           ctx.beginPath();
           ctx.arc(102.3, 162, 60, 0, Math.PI * 2);
-          ctx.fillStyle = '#EAB308';
+          ctx.fillStyle = '#0F172A';
           ctx.fill();
-          ctx.lineWidth = 7;
+          ctx.lineWidth = 6;
           ctx.strokeStyle = '#FFFFFF';
           ctx.stroke();
           ctx.clip();
@@ -1202,18 +1561,18 @@
           }
           ctx.restore();
 
-          // Dikey Metin (Tam Merkez Vektör İkonlar)
+          // Dikey Metin & İkonlar
           ctx.save();
-          ctx.translate(102.3, 1350 - 220);
+          ctx.translate(102.3, canvasH - 220);
           ctx.rotate(-Math.PI / 2);
           ctx.fillStyle = '#0F172A';
-          ctx.font = '700 20px Inter, sans-serif';
+          ctx.font = '800 21px Inter, sans-serif';
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
 
-          // Konum İğnesi
+          // İğne
           ctx.save();
-          ctx.fillStyle = '#0F172A';
+          ctx.fillStyle = '#D97706';
           ctx.beginPath();
           ctx.arc(7, -2, 5, 0, Math.PI * 2);
           ctx.fill();
@@ -1232,46 +1591,40 @@
           ctx.fillText(locText, 20, 0);
           const locW = ctx.measureText(locText).width;
 
-          // Telefon
-          const phoneX = 20 + locW + 28;
+          const dotX = 20 + locW + 10;
           ctx.save();
-          ctx.fillStyle = '#0F172A';
+          ctx.fillStyle = '#475569';
           ctx.beginPath();
-          ctx.roundRect(phoneX, -8, 12, 17, 2.5);
-          ctx.fill();
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(phoneX + 2, -6, 8, 10);
-          ctx.beginPath();
-          ctx.arc(phoneX + 6, 6, 0.9, 0, Math.PI * 2);
+          ctx.arc(dotX, 0, 3.5, 0, Math.PI * 2);
           ctx.fill();
           ctx.restore();
 
-          ctx.fillStyle = '#0F172A';
-          ctx.fillText(brandText, phoneX + 20, 0);
+          ctx.font = '700 20px Inter, sans-serif';
+          ctx.fillText(brandText, dotX + 12, 0);
           ctx.restore();
 
-          // Manşet Çizimi
+          // Başlık
           ctx.fillStyle = '#FFFFFF';
-          ctx.font = '900 50px Inter, sans-serif';
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+          ctx.font = `800 ${headlineFontSize}px Inter, sans-serif`;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
           ctx.shadowBlur = 24;
           ctx.shadowOffsetY = 4;
-
           hLines.forEach((l, idx) => {
             ctx.fillText(l, textLeft, headlineStartY + (idx * hLineH));
           });
 
-          // Alıntı Çizimi
-          ctx.font = '600 36px Inter, sans-serif';
-          ctx.shadowBlur = 18;
-
-          qLines.forEach((l, idx) => {
-            ctx.fillText(l, textLeft, quoteStartY + (idx * qLineH));
-          });
+          // Spot
+          if (showSubtitle && qLines.length > 0) {
+            ctx.fillStyle = '#F1F5F9';
+            ctx.font = `400 ${quoteFontSize}px Inter, sans-serif`;
+            ctx.shadowBlur = 18;
+            qLines.forEach((l, idx) => {
+              ctx.fillText(l, textLeft, quoteStartY + (idx * qLineH));
+            });
+          }
 
         }, 1000 / 30);
 
-        // 6 saniye sonra kaydı bitirip indir
         setTimeout(() => {
           clearInterval(loop);
           clearInterval(countdownInterval);

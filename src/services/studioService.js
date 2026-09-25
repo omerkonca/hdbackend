@@ -120,18 +120,48 @@ Varsayılan Konum: ${location || 'DÜZİÇİ'}`;
 /**
  * Son eklenen haberleri stüdyo için listeler.
  */
-async function getRecentNews(limit = 20) {
+async function getRecentNews(limit = 25) {
+  try {
+    const newsService = require('./newsService');
+    const items = await newsService.getNews({ max: limit });
+    if (items && items.length > 0) {
+      return items.map(item => ({
+        id: item.id,
+        title: item.title,
+        summary: item.summary || item.fullText || '',
+        content: item.fullText || item.summary || '',
+        image_url: item.imageUrl || (item.images && item.images[0]) || '',
+        category: item.category || 'Düziçi',
+        source_url: item.sourceUrl || '',
+        created_at: item.createdAt || new Date().toISOString(),
+      }));
+    }
+  } catch (err) {
+    console.warn('[studioService] newsService üzerinden haber getirme hatası:', err.message);
+  }
+
   try {
     const { data, error } = await supabase
-      .from('news')
-      .select('id, title, summary, content, image_url, source_url, created_at, category')
+      .from('news_items')
+      .select('id, title, summary, full_text, image_url, source_url, created_at, category')
       .order('created_at', { ascending: false })
       .limit(limit);
 
-    if (error) throw error;
-    return data || [];
+    if (!error && data) {
+      return data.map(item => ({
+        id: item.id,
+        title: item.title,
+        summary: item.summary || item.full_text || '',
+        content: item.full_text || item.summary || '',
+        image_url: item.image_url || '',
+        category: item.category || 'Düziçi',
+        source_url: item.source_url || '',
+        created_at: item.created_at || new Date().toISOString(),
+      }));
+    }
+    return [];
   } catch (err) {
-    console.warn('[studioService] getRecentNews hatası:', err.message);
+    console.warn('[studioService] getRecentNews fallback hatası:', err.message);
     return [];
   }
 }
