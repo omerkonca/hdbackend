@@ -60,24 +60,34 @@ const config = {
       { url: 'https://www.akdenizgazetesi.com/rss/duzici', name: 'Akdeniz Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
       { url: 'https://www.akdenizgazetesi.com/rss', name: 'Akdeniz Gazetesi', scope: 'osmaniye' },
       {
-        url: 'https://news.google.com/rss/search?q=D%C3%BCzi%C3%A7i%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr',
+        url: 'https://news.google.com/rss/search?q=(D%C3%BCzi%C3%A7i%20OR%20Haruniye%20OR%20Yarba%C5%9F%C4%B1%20OR%20Ellek%20OR%20B%C3%B6cekli%20OR%20Atalan)%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr',
         name: 'Google News Düziçi',
         scope: 'duzici',
         filterDuzici: true,
       },
       {
-        url: 'https://news.google.com/rss/search?q=Osmaniye%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr',
+        url: 'https://news.google.com/rss/search?q=(Osmaniye%20OR%20Kadirli%20OR%20Bah%C3%A7e%20OR%20Toprakkale)%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr',
         name: 'Google News Osmaniye',
         scope: 'osmaniye',
       },
       {
-        url: 'https://www.trthaber.com/sondakika_articles.rss',
-        name: 'TRT Son Dakika',
+        url: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFZxYUdjU0FtVnVHZ0pWVXlnQVAB?hl=tr&gl=TR&ceid=TR:tr',
+        name: 'Gündem & Trendler',
         scope: 'turkey',
       },
       {
-        url: 'https://www.trthaber.com/gundem_articles.rss',
-        name: 'TRT Gündem',
+        url: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=tr&gl=TR&ceid=TR:tr',
+        name: 'Spor & Futbol Gündemi',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://onedio.com/support/rss.xml',
+        name: 'Onedio Viral & Gündem',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://www.webtekno.com/rss.xml',
+        name: 'Webtekno Viral & Trend',
         scope: 'turkey',
       },
       {
@@ -86,8 +96,8 @@ const config = {
         scope: 'turkey',
       },
       {
-        url: 'https://www.webtekno.com/rss.xml',
-        name: 'Webtekno Viral & Trend',
+        url: 'https://www.ensonhaber.com/rss/kralspor.xml',
+        name: 'Popüler Spor Gündemi',
         scope: 'turkey',
       },
     ],

@@ -144,7 +144,10 @@ class NewsService {
 
   cleanBptTitle(rawTitle = '') {
     let clean = String(rawTitle || '').replace(/\s+/g, ' ').trim();
-    clean = clean.replace(/\s*[-–|]\s*(En Son Haber|Ensonhaber|TRT Haber|TRT|Webtekno|Onedio|NTV|Haberler\.com|Sabah|Hürriyet).*$/i, '');
+    clean = clean.replace(
+      /\s*[-–|]\s*(En Son Haber|Ensonhaber|TRT Haber|TRT|Webtekno|Onedio|NTV Haber|NTV Spor|NTVSpor|NTV|Haberler\.com|Sabah|Hürriyet|Sözcü|sozcu\.com\.tr|Milliyet|Fanatik|Cumhuriyet|T24|Goal\.com|TRTSpor|BirGün|OdaTV).*$/i,
+      '',
+    );
     clean = clean.replace(/^[“"']+|[”"']+$/g, '').trim();
     clean = clean.replace(/^(SON DAKİKA|FLAŞ|SICAK GELİŞME|DİKKAT|DUYURULDU|AÇIKLANDI|RESMİ GAZETE)\s*[:!-]\s*/i, '');
     return clean.trim();
@@ -152,18 +155,27 @@ class NewsService {
 
   isJunkTurkeyNews(title = '', summary = '') {
     const text = `${title || ''} ${summary || ''}`.toLowerCase();
-    if (/\b(magazin|bikinili|bikini|dekolte|frikik|sevgilisiyle|sevgilisi|aşk yaşadığı|evlendi|boşandı|sosyal medyayı salladı|sosyal medyada gündem oldu|pişti|ifşa|ünlü oyuncu|eski eşi|sevgilisinden|aldattı)\b/i.test(text)) {
+    // Test, anket, kişilik testi
+    if (/\b(testi çöz|senin para yönetim|hangi karakter|testini çöz)\b/i.test(text)) {
       return true;
     }
+    // Ucuz magazin / pornografik clickbait
+    if (/\b(bikinili|bikini|dekolte|frikik|pişti|ifşa|aldattı)\b/i.test(text)) {
+      return true;
+    }
+    // Astroloji, burç, tarot, fal
     if (/\b(burç|burçlar|astroloji|tarot|fal|yükselen burç|günlük burç|dolunay etkisi|yeniay)\b/i.test(text)) {
       return true;
     }
-    if (/\b(kırışıklık|zayıflama|kilo verdiren|diyet|selülit|saç dökülmesi|gençleştiren)\b/i.test(text)) {
+    // Diyet, zayıflama, kozmetik clickbait
+    if (/\b(kırışıklık|zayıflama|kilo verdiren|selülit|saç dökülmesi|gençleştiren)\b/i.test(text)) {
       return true;
     }
-    if (/\b(fiyat\/performans|karşılaştırdık|çamaşır makine|bulaşık makine|otonom fırın|alınabilecek en sorunsuz|en ucuz arabalar|vs nirvana)\b/i.test(text)) {
+    // Beyaz eşya / sponsorlu ürün karşılaştırmaları
+    if (/\b(çamaşır makine|bulaşık makine|otonom fırın|vs nirvana)\b/i.test(text)) {
       return true;
     }
+    // Boş clickbait soru kalıpları
     if (/\b(öyle bir şey yaptı ki|ağızları açık bıraktı|görenler inanamadı|bakın kime ne dedi|bakın ne oldu|şaşkına çevirdi)\b/i.test(text)) {
       return true;
     }
@@ -356,7 +368,7 @@ KURALLAR:
   duziciKeywordRe() {
     // İlçe + mahalle/köy/yaygın yerel yer adları ve kurumlar
     // DİKKAT: \b kelime sınırı zorunludur; aksi halde "bellek" -> "ellek" veya "kapatılan" -> "atalan" eşleşir!
-    return /\b(duzici|d[uü]zi[cç]i|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal mah|[cç]iftlik mah|pe[cç]enek|kara[cç]arl[iı])\b/;
+    return /\b(duzici|d[uü]zi[cç]i|duzicide|duziciye|duzicinin|d[uü]zi[cç]i('?nde|'?ne|'?nin|'?li)?|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal mah|[cç]iftlik mah|pe[cç]enek|kara[cç]arl[iı]|sabir gazetesi)\b/;
   }
 
   osmaniyeKeywordRe() {
@@ -410,10 +422,11 @@ KURALLAR:
   inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
     if (scope === 'turkey') return 'Türkiye';
     if (this.isDuziciRelated(title, summary)) return 'Düziçi';
+    if (scope === 'duzici') return 'Düziçi';
     if (this.isOsmaniyeRelated(title, summary)) return 'Osmaniye';
     if (scope === 'osmaniye') return 'Osmaniye';
     const source = normalizeForCompare(sourceName || '');
-    if (/hepsi/.test(source)) return 'Düziçi';
+    if (/hepsi|duzici|haruniye/.test(source)) return 'Düziçi';
     return 'Osmaniye';
   }
 

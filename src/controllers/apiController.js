@@ -339,13 +339,17 @@ class ApiController {
     try {
       const id = String(req.query.id || '').trim();
       const url = String(req.query.url || '').trim();
-      if (!id && !url) {
-        return res.status(400).json({ ok: false, message: 'id veya url parametresi gerekli.' });
+      const title = String(req.query.title || '').trim();
+      if (!id && !url && !title) {
+        return res.status(400).json({ ok: false, message: 'id, url veya title parametresi gerekli.' });
       }
 
       // 1. In-memory cache
       const cached = (newsService.cache.items || []).find(
-        (x) => (id && x.id === id) || (url && x.sourceUrl === url)
+        (x) =>
+          (id && x.id === id) ||
+          (url && x.sourceUrl === url) ||
+          (title && (x.title === title || x.title.toLowerCase().includes(title.toLowerCase())))
       );
       if (cached) {
         return res.json({ ok: true, item: cached });
@@ -356,8 +360,15 @@ class ApiController {
       const pool = getDbPool();
       if (pool) {
         try {
-          const sql = 'SELECT * FROM news_items WHERE id = $1 OR source_url = $2 ORDER BY created_at DESC LIMIT 1';
-          const r = await pool.query(sql, [id || 'none', url || 'none']);
+          const sql = `
+            SELECT * FROM news_items 
+            WHERE id = $1 
+               OR (source_url != 'none' AND source_url = $2) 
+               OR (title != 'none' AND (title = $3 OR title ILIKE $4))
+            ORDER BY created_at DESC LIMIT 1
+          `;
+          const titlePattern = title ? `%${title.slice(0, 50)}%` : 'none';
+          const r = await pool.query(sql, [id || 'none', url || 'none', title || 'none', titlePattern]);
           if (r.rows.length > 0) {
             return res.json({ ok: true, item: newsService.mapDbRowToItem(r.rows[0]) });
           }
@@ -367,7 +378,12 @@ class ApiController {
       // 3. Fallback: Son haberleri çek ve eşleşeni bul
       try {
         const fresh = await newsService.getNews({ max: 60 });
-        const found = fresh.find((x) => (id && x.id === id) || (url && x.sourceUrl === url));
+        const found = fresh.find(
+          (x) =>
+            (id && x.id === id) ||
+            (url && x.sourceUrl === url) ||
+            (title && (x.title === title || x.title.toLowerCase().includes(title.toLowerCase())))
+        );
         if (found) {
           return res.json({ ok: true, item: found });
         }
