@@ -71,18 +71,28 @@ const config = {
         scope: 'osmaniye',
       },
       {
-        url: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFZxYUdjU0FtVnVHZ0pWVXlnQVAB?hl=tr&gl=TR&ceid=TR:tr',
-        name: 'Gündem & Trendler',
+        url: 'https://www.trthaber.com/sondakika_articles.rss',
+        name: 'TRT Haber Son Dakika',
         scope: 'turkey',
       },
       {
-        url: 'https://news.google.com/rss/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFp1ZEdvU0FtVnVHZ0pWVXlnQVAB?hl=tr&gl=TR&ceid=TR:tr',
-        name: 'Spor & Futbol Gündemi',
+        url: 'https://www.trthaber.com/gundem_articles.rss',
+        name: 'TRT Haber Gündem',
         scope: 'turkey',
       },
       {
-        url: 'https://onedio.com/support/rss.xml',
-        name: 'Onedio Viral & Gündem',
+        url: 'https://www.haberturk.com/rss/gundem.xml',
+        name: 'Habertürk Gündem',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://www.sozcu.com.tr/feeds-son-dakika',
+        name: 'Sözcü',
+        scope: 'turkey',
+      },
+      {
+        url: 'https://www.trthaber.com/spor_articles.rss',
+        name: 'TRT Spor',
         scope: 'turkey',
       },
       {
@@ -91,13 +101,8 @@ const config = {
         scope: 'turkey',
       },
       {
-        url: 'https://www.ensonhaber.com/rss/gundem.xml',
-        name: 'Ensonhaber Gündem',
-        scope: 'turkey',
-      },
-      {
-        url: 'https://www.ensonhaber.com/rss/kralspor.xml',
-        name: 'Popüler Spor Gündemi',
+        url: 'https://onedio.com/support/rss.xml',
+        name: 'Onedio Viral & Gündem',
         scope: 'turkey',
       },
     ],
