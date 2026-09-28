@@ -55,7 +55,8 @@ class EventService {
   }
 
   parseBubiletDate(dateText) {
-    const parts = String(dateText || '').trim().split(/\s+/).filter(Boolean);
+    if (!dateText) return null;
+    const parts = String(dateText).trim().split(/\s+/).filter(Boolean);
     if (parts.length < 2) return null;
 
     const day = parseInt(parts[0], 10);
@@ -63,6 +64,7 @@ class EventService {
 
     const monthKey = parts[1]
       .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
       .replace(/ı/g, 'i')
       .replace(/ğ/g, 'g')
       .replace(/ü/g, 'u')
@@ -124,57 +126,97 @@ class EventService {
       .replace(/ş/g, 's')
       .replace(/ö/g, 'o')
       .replace(/ç/g, 'c');
-    
-    const url = `https://www.bubilet.com.tr/${slug}`;
-    
-    try {
-      const response = await fetchWithTimeout(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        }
-      });
-      if (!response.ok) return [];
 
-      const html = await response.text();
-      const $ = cheerio.load(html);
-      const events = [];
+    const urls = [
+      `https://www.bubilet.com.tr/${slug}`,
+      `https://www.bubilet.com.tr/${slug}/etiket/konser`,
+      `https://www.bubilet.com.tr/${slug}/etiket/tiyatro`,
+      `https://www.bubilet.com.tr/${slug}/etiket/stand-up`
+    ];
 
-      $('a.group.flex.h-full.flex-col').each((i, el) => {
-        const title = $(el).find('h3').text().trim();
-        const location = $(el).find('p').first().text().trim();
-        const dateText = $(el).find('p').eq(1).text().trim(); // örn: 01 Mayıs Paz 22:00
-        const price = $(el).find('span').text().trim() || 'Biletli';
-        const imageUrl = this.extractBubiletImageUrl($(el));
-        const link = 'https://www.bubilet.com.tr' + $(el).attr('href');
+    const allEvents = [];
+    const seenUrls = new Set();
 
-        if (title && dateText) {
+    for (const url of urls) {
+      try {
+        const response = await fetchWithTimeout(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+          }
+        });
+        if (!response.ok) continue;
+
+        const html = await response.text();
+        const $ = cheerio.load(html);
+
+        $('div[data-event-card-kind="grid"], div.relative.flex.flex-col.h-full.w-full, a.group.flex.h-full.flex-col').each((i, card) => {
+          const title = $(card).find('h3').first().text().trim();
+          const linkEl = $(card).find('a[href*="/etkinlik/"]').first();
+          const href = linkEl.attr('href') || (card.name === 'a' ? $(card).attr('href') : '');
+          if (!title || !href || seenUrls.has(href)) return;
+
+          let location = $(card).find('a[href*="/mekan/"]').first().text().trim();
+          if (!location) {
+            location = $(card).find('p').first().text().trim();
+          }
+
+          let dateText = $(card).find('.date-price-trigger p').first().text().trim();
+          if (!dateText) {
+            $(card).find('p').each((_, p) => {
+              const txt = $(p).text().trim();
+              if (/(ocak|şubat|subat|mart|nisan|mayıs|mayis|haziran|temmuz|ağustos|agustos|eylül|eylul|ekim|kasım|kasim|aralık|aralik)/i.test(txt)) {
+                dateText = txt;
+              }
+            });
+          }
+
           const eventDate = this.parseBubiletDate(dateText);
           if (!eventDate) return;
 
-          const href = String($(el).attr('href') || '');
-          const hrefSlug = href.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').slice(0, 48) || `evt-${i}`;
+          let imageUrl = '';
+          const img = $(card).find('img').first();
+          const src = img.attr('src') || img.attr('data-src') || '';
+          if (src && src.startsWith('http')) {
+            imageUrl = src;
+          } else {
+            const srcset = img.attr('srcset') || '';
+            const matches = srcset.match(/https?:\/\/[^\s,]+/g);
+            if (matches && matches.length > 0) {
+              imageUrl = matches[matches.length - 1];
+            }
+          }
+          if (!imageUrl && src) {
+            imageUrl = src.startsWith('//') ? 'https:' + src : (src.startsWith('/') ? 'https://www.bubilet.com.tr' + src : src);
+          }
 
-          events.push({
+          const priceText = $(card).find('.date-price-trigger, span').text().trim();
+          const priceMatch = priceText.match(/(\d+[\d.,]*\s*₺)/);
+          const price = priceMatch ? priceMatch[1] : (priceText.includes('TL') ? priceText : 'Biletli');
+
+          const hrefSlug = href.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').slice(0, 48) || `evt-${Date.now()}-${i}`;
+
+          seenUrls.add(href);
+          allEvents.push({
             id: `bubilet-${slug}-${hrefSlug}`,
             title,
             category: this.inferCategory(title),
             city: cityName,
-            district: location.split(',')[0].trim(),
-            location: location,
+            district: location.split(',')[0].trim() || 'Merkez',
+            location: location || cityName,
             date: eventDate.toISOString(),
-            imageUrl: imageUrl || this.getImageForCategory(this.inferCategory(title)),
-            price: price.includes('TL') ? price : 'Biletli',
-            link,
+            imageUrl: this.normalizeEventImageUrl(imageUrl || this.getImageForCategory(this.inferCategory(title))),
+            price: price.includes('₺') || price.includes('TL') ? price : 'Biletli',
+            link: href.startsWith('http') ? href : 'https://www.bubilet.com.tr' + href,
             source: 'Bubilet'
           });
-        }
-      });
-
-      return events;
-    } catch (error) {
-      console.error(`[EventService] Bubilet error for ${cityName}:`, error.message);
-      return [];
+        });
+      } catch (error) {
+        console.warn(`[EventService] Error fetching ${url}:`, error.message);
+      }
     }
+
+    return allEvents;
   }
 
   async scrapeGoogleNewsEvents(cityName) {

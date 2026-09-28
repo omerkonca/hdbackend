@@ -1,6 +1,6 @@
 const { Client } = require('pg');
 const eventService = require('./src/services/eventService');
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 
 async function run() {
   console.log('🔄 Scraping events from Bubilet...');
