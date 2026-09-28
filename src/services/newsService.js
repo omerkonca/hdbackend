@@ -149,37 +149,134 @@ class NewsService {
       '',
     );
     clean = clean.replace(/^[“"']+|[”"']+$/g, '').trim();
-    clean = clean.replace(/^(SON DAKİKA|FLAŞ|SICAK GELİŞME|DİKKAT|DUYURULDU|AÇIKLANDI|RESMİ GAZETE)\s*[:!-]\s*/i, '');
+    // SON DAKİKA / FLAŞ kalsın — BPT viral manşet hissi için
+    clean = clean.replace(/\b(hakkında|ile ilgili|konusunda)\b/gi, '').replace(/\s{2,}/g, ' ').trim();
+    if (clean.length > 0) clean = clean.charAt(0).toUpperCase() + clean.slice(1);
+    if (clean.length > 110) {
+      const cut = clean.slice(0, 110);
+      const lastSpace = cut.lastIndexOf(' ');
+      clean = `${(lastSpace > 60 ? cut.slice(0, lastSpace) : cut).trim()}…`;
+    }
     return clean.trim();
   }
 
-  isJunkTurkeyNews(title = '', summary = '') {
-    const text = `${title || ''} ${summary || ''}`.toLowerCase();
-    // Test, anket, kişilik testi
-    if (/\b(testi çöz|senin para yönetim|hangi karakter|testini çöz)\b/i.test(text)) {
+  isJunkContent(title = '', summary = '') {
+    const raw = `${title || ''} ${summary || ''}`;
+    const text = normalizeForCompare(raw);
+
+    // 1. Yemek, hamur işi, tatlı, turşu, konserve, pasta, börek tarifleri ve mutfak spam'i
+    const hasFoodContext =
+      /\b(hamur|hamuru|hamur isi|tatli|borek|corek|kek|pasta|kurabiye|corba|yemek|kofte|tursu|konserve|salata|recel|menemen|kahvalti|lezzet|puf noktasi|puf noktalari|pisir|firin|tava|tencere|kislik|sofra|biber|fasulye|domates|patates|tavuk|sarma|baklava|mihlama|kombe|kahve|ikram)\b/.test(
+        text,
+      );
+
+    const hasRecipePattern =
+      /\b(tarif|tarifi|tarifler|tarifleri|pratik tarif|lezzetli tarif|enfes tarif|nefis tarif|kolay tarif|citir tarif)\b/.test(
+        text,
+      );
+
+    if (hasFoodContext && hasRecipePattern && !/\b(kamera|yapay zeka|algoritma|yazilim)\b/.test(text)) {
       return true;
     }
-    // Ucuz magazin / pornografik clickbait
-    if (/\b(bikinili|bikini|dekolte|frikik|pişti|ifşa|aldattı)\b/i.test(text)) {
+
+    if (
+      /\b(hamur|hamuru|hamur isi|ev baklavasi|biskuvi pasta|irmikli borek|ispanakli kis|kapya biber konservesi|tursu hazirlayacaklara|sarma sevenlere|sogan tursusu|el acmasi|havuc toplari|et kofte|kislik menemen|ev yapimi menemen|kislik hazirlik.*konserve)\b/.test(
+        text,
+      )
+    ) {
       return true;
     }
-    // Astroloji, burç, tarot, fal
-    if (/\b(burç|burçlar|astroloji|tarot|fal|yükselen burç|günlük burç|dolunay etkisi|yeniay)\b/i.test(text)) {
+
+    if (
+      /\b(kahvalti sofralarina|sofralara yakisacak|sofralari senlendiren|cay saatlerinin vazgecilmezi|cay saatine|cayin yanina \d+ malzemeli|sofralarin klasigi|ne ikram edilir)\b/.test(
+        text,
+      )
+    ) {
       return true;
     }
-    // Diyet, zayıflama, kozmetik clickbait
-    if (/\b(kırışıklık|zayıflama|kilo verdiren|selülit|saç dökülmesi|gençleştiren)\b/i.test(text)) {
+
+    if (
+      /\b(nasil pisirilir|yapmanin puf noktalari|dagilmayan sarmanin|taze fasulye kislik nasil|kislik domates boyle|kislik saksuka boyle|cayi yeniden isitmak|kavruluyor)\b/.test(
+        text,
+      )
+    ) {
       return true;
     }
-    // Beyaz eşya / sponsorlu ürün karşılaştırmaları
-    if (/\b(çamaşır makine|bulaşık makine|otonom fırın|vs nirvana)\b/i.test(text)) {
+
+    // 2. Aktüel market indirim / katalog spam'i (A101, BİM, ŞOK, Migros vb.)
+    if (
+      /\b(a101|bim|sok|migros)\b.*\b(aktuel|katalog|katalogu|indirim|raflarda|raflarina|kacta kapaniyor|kacta aciliyor|urunleri belli oldu|urunleri neler)\b/.test(
+        text,
+      ) ||
+      /\b(aktuel urunler|aktuel urunleri|aktuel katalogu|indirimli urunler|aktuel raflarda)\b/.test(
+        text,
+      )
+    ) {
       return true;
     }
-    // Boş clickbait soru kalıpları
-    if (/\b(öyle bir şey yaptı ki|ağızları açık bıraktı|görenler inanamadı|bakın kime ne dedi|bakın ne oldu|şaşkına çevirdi)\b/i.test(text)) {
+
+    // 3. Bitkisel kür / vitamin / şifalı ot / gıda ve sağlık clickbait'i
+    if (
+      /\b(biotin|avokado yagi|sari kantaron|kantaron yagi|biberiye hangi etlerle|toz zencefil|taze mi toz zencefil|lor peyniri tuketenler|ahududu tuketenler|cay tuketenleri ilgilendiriyor|kekik cayi faydalari|ihlamur cayi faydalari|kalsiyumun faydalari|soguk sikim zeytinyagi nedir)\b/.test(
+        text,
+      ) ||
+      /\b(ne ise yarar|faydalari ve riskleri|faydalari ve zararlari|neye iyi gelir|faydalari nelerdir|faydalari neler|zararli mi|zararlari neler|bagisiklik zayifligina dikkat)\b/.test(
+        text,
+      )
+    ) {
       return true;
     }
+
+    // 4. Ev temizliği, leke çıkarma ve dekorasyon clickbait'i
+    if (
+      /\b(halidan yag lekesi|leke nasil cikar|yesil koltukla hangi hali|koltukla hangi hali|evde temizlik yapanlara|limonlari degerlendirmenin pratik)\b/.test(
+        text,
+      )
+    ) {
+      return true;
+    }
+
+    // 5. Astroloji, burç, tarot, fal
+    if (
+      /\b(burc|burclar|burclari|astroloji|tarot|fal|yukselen burc|gunluk burc|dolunay etkisi|yeniay)\b/.test(
+        text,
+      )
+    ) {
+      return true;
+    }
+
+    // 6. Test, anket, ucuz magazin clickbait
+    if (
+      /\b(testi coz|senin para yonetim|hangi karakter|testini coz|bikinili|bikini|dekolte|frikik|pisti|ifsa|aldatti)\b/.test(
+        text,
+      )
+    ) {
+      return true;
+    }
+
+    // 7. Sahte yerelleştirilmiş ulusal SEO spam'i (iPhone satışta mı, saatler geri alınacak mı, banka promosyonu)
+    if (
+      /\b(iphone \d+ satisa cikti|saatler geri alinacak mi|akbank promosyonu \d+|en ucuz isinma hangisi|butun kedileri.*nereyi secerdi)\b/.test(
+        text,
+      )
+    ) {
+      return true;
+    }
+
+    // 8. Boş clickbait soru kalıpları
+    if (
+      /\b(oyle bir sey yapti ki|agizlari acik birakti|gorenler inanamadi|bakin kime ne dedi|bakin ne oldu|saskina cevirdi)\b/.test(
+        text,
+      )
+    ) {
+      return true;
+    }
+
     return false;
+  }
+
+  isJunkTurkeyNews(title = '', summary = '') {
+    return this.isJunkContent(title, summary);
   }
 
   extractPubDate(itemBlock) {
@@ -196,6 +293,10 @@ class NewsService {
   }
 
   isEligibleForPush(item) {
+    if (this.isJunkContent(item?.title, item?.summary)) {
+      console.log(`[news] push atlandı (spam/tarif/aktüel içerik): "${item?.title || ''}"`);
+      return false;
+    }
     if (item?.category === 'Türkiye' || item?.scope === 'turkey') {
       return false; // Türkiye haberlerine ASLA push bildirim gönderilmez
     }
@@ -410,6 +511,7 @@ KURALLAR:
   }
 
   isNationalNoise(title, summary) {
+    if (this.isJunkContent(title, summary)) return true;
     const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
     if (this.nationalNoiseRe().test(text)) return true;
     // Uzak şehir + yerel sinyal yoksa çöp
@@ -605,7 +707,7 @@ KURALLAR:
     } catch (_) {
       // JSON okunamazsa config'e dus.
     }
-    return config.NEWS.SOURCES;
+    return config.NEWS.SOURCES.filter((s) => s && s.url && s.isActive !== false);
   }
 
   async scrapeNews({ max = 100 } = {}) {
@@ -818,7 +920,9 @@ KURALLAR:
           `;
           const res = await pool.query(sql);
           if (res.rows && res.rows.length > 0) {
-            const dbItems = res.rows.map(row => this.mapDbRowToItem(row));
+            const dbItems = res.rows
+              .map(row => this.mapDbRowToItem(row))
+              .filter(item => !this.isJunkContent(item.title, item.summary));
             this.cache = {
               fetchedAt: 0,
               items: dbItems,
@@ -842,7 +946,9 @@ KURALLAR:
           .limit(100);
 
         if (!error && data && data.length > 0) {
-          const dbItems = data.map(row => this.mapDbRowToItem(row));
+          const dbItems = data
+            .map(row => this.mapDbRowToItem(row))
+            .filter(item => !this.isJunkContent(item.title, item.summary));
 
           // Populate memory cache (mark fetchedAt as old so background refresh triggers)
           this.cache = {

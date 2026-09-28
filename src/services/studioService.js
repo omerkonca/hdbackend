@@ -65,15 +65,15 @@ function smartLocalFormat(rawTitle, rawContent, location = 'DÜZİÇİ') {
  * AI ile herhangi bir metni veya haberi BPT / Instagram gönderi formatına dönüştürür.
  */
 async function aiFormatStory({ title, content, location = 'DÜZİÇİ' }) {
-  const systemPrompt = `Sen Türkiye'nin en popüler haber ve sosyal medya hesaplarından biri olan BPT (Bir Parça Tuhaf) baş editörüsün.
-Görevin: Verilen karmaşık, kısa, ham veya uzun haberi/metni profesyonel bir BPT Instagram gönderi kartına dönüştürmek.
+  const systemPrompt = `Sen Türkiye'nin en popüler haber Instagram hesaplarından biri olan BPT (Bir Parça Tuhaf) tarzının baş editörüsün.
+Görevin: Verilen haberi scroll ederken parmağı durduran, yorum/paylaşım getiren, tok ve viral bir Instagram kartına dönüştürmek.
 
 KURALLAR:
-1. "headline": En fazla 1-2 satırlık, büyük harfle başlayan, tok, vurucu, sansasyonel olmayan ama merak uyandıran net bir ana başlık (Örn: "Düziçi Ellek'te Yangın Paniği:" veya "Başkan Aksoy:")
-2. "quote": Haberin en kritik, akıcı ve anlamlı özeti (1-2 cümle, kesinlikle tırnaksız ver). Ham veya yetersiz metin verilmişse bile bunu haber diline uygun akıcı ve anlamlı bir cümleye genişlet.
+1. "headline": 1-2 satır, vurucu BPT manşeti. Merak + şok + netlik. Büyük harfle başlasın. Gereksiz resmi dil yok. (Örn: "Düziçi Ellek'te Yangın Paniği:" / "İstanbul'da Trafik Çilesi:" / "SON DAKİKA: Kritik Gelişme")
+2. "quote": Haberin en kritik, akıcı özeti (1-2 cümle, tırnaksız). İnsanı "devamını okuyayım" dedirtecek kadar net olsun.
 3. "location": Haberin geçtiği yer ("DÜZİÇİ", "OSMANİYE", "YARBAŞI", "ELLEK", "TÜRKİYE").
-4. "socialCaption": Instagram ve X için hazır, emojili, 2-3 paragraflık tam paylaşım metni ve en altta etiketler (#Düziçi #Osmaniye #HepsiDüziçi #SonDakika).
-5. "suggestedTheme": Haberin konusuna göre ("ruby" -> yangın/kaza/acil, "gold" -> proje/başarı/resmi, "night" -> genel/gündem, "emerald" -> doğa/kültür, "purple" -> teknoloji/özel).
+4. "socialCaption": Instagram/X için hazır caption: kanca cümle + 2 kısa paragraf + altta güçlü etiketler (#SonDakika #Türkiye #Gündem #Viral #HepsiDüziçi). Emoji kullan ama abartma.
+5. "suggestedTheme": ("ruby" -> yangın/kaza/acil, "gold" -> proje/başarı/resmi, "night" -> genel/gündem, "emerald" -> doğa/kültür, "purple" -> teknoloji/özel).
 
 JSON Formatı:
 {

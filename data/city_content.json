@@ -379,8 +379,21 @@
         "filterDuzici": false
       },
       {
+        "url": "https://www.hasretgazetesi.com.tr/rss/duzici",
+        "name": "Hasret Gazetesi Düziçi",
+        "scope": "duzici",
+        "isActive": true,
+        "filterDuzici": false
+      },
+      {
         "url": "https://www.sabirgazetesi.com/rss",
         "name": "Sabır Gazetesi",
+        "scope": "osmaniye",
+        "isActive": true
+      },
+      {
+        "url": "https://www.hasretgazetesi.com.tr/rss",
+        "name": "Hasret Gazetesi",
         "scope": "osmaniye",
         "isActive": true
       },
@@ -395,7 +408,7 @@
         "url": "https://www.akdenizgazetesi.com/rss",
         "name": "Akdeniz Gazetesi",
         "scope": "osmaniye",
-        "isActive": true
+        "isActive": false
       },
       {
         "url": "https://news.google.com/rss/search?q=(D%C3%BCzi%C3%A7i%20OR%20Haruniye%20OR%20Yarba%C5%9F%C4%B1%20OR%20Ellek%20OR%20B%C3%B6cekli%20OR%20Atalan)%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr",

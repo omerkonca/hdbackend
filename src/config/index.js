@@ -56,9 +56,11 @@ const config = {
     PUSH_MAX_AGE_HOURS: Number(process.env.NEWS_PUSH_MAX_AGE_HOURS || 36),
     SOURCES: [
       { url: 'https://www.sabirgazetesi.com/rss/duzici', name: 'Sabır Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
+      { url: 'https://www.hasretgazetesi.com.tr/rss/duzici', name: 'Hasret Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
       { url: 'https://www.sabirgazetesi.com/rss', name: 'Sabır Gazetesi', scope: 'osmaniye' },
-      { url: 'https://www.akdenizgazetesi.com/rss/duzici', name: 'Akdeniz Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
-      { url: 'https://www.akdenizgazetesi.com/rss', name: 'Akdeniz Gazetesi', scope: 'osmaniye' },
+      { url: 'https://www.hasretgazetesi.com.tr/rss', name: 'Hasret Gazetesi', scope: 'osmaniye' },
+      { url: 'https://www.akdenizgazetesi.com/rss/duzici', name: 'Akdeniz Gazetesi Düziçi', scope: 'duzici', filterDuzici: false, isActive: false },
+      { url: 'https://www.akdenizgazetesi.com/rss', name: 'Akdeniz Gazetesi', scope: 'osmaniye', isActive: false },
       {
         url: 'https://news.google.com/rss/search?q=(D%C3%BCzi%C3%A7i%20OR%20Haruniye%20OR%20Yarba%C5%9F%C4%B1%20OR%20Ellek%20OR%20B%C3%B6cekli%20OR%20Atalan)%20when%3A30d&hl=tr&gl=TR&ceid=TR:tr',
         name: 'Google News Düziçi',
