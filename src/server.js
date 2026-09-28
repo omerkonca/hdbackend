@@ -5,6 +5,7 @@ if (dns.setDefaultResultOrder) {
 }
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const path = require('path');
 const config = require('./config');
 const supabase = require('./utils/supabaseClient');
@@ -26,7 +27,8 @@ const app = express();
 // Database connection check
 console.log('✅ Supabase initialized: URL =', config.SUPABASE_URL);
 
-// Middlewares
+// Middlewares - Gzip/Brotli sıkıştırmasıyla bant genişliği tüketimini %85-90 azalt
+app.use(compression());
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

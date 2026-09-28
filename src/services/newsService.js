@@ -469,19 +469,28 @@ KURALLAR:
   duziciKeywordRe() {
     // İlçe + mahalle/köy/yaygın yerel yer adları ve kurumlar
     // DİKKAT: \b kelime sınırı zorunludur; aksi halde "bellek" -> "ellek" veya "kapatılan" -> "atalan" eşleşir!
-    return /\b(duzici|d[uü]zi[cç]i|duzicide|duziciye|duzicinin|d[uü]zi[cç]i('?nde|'?ne|'?nin|'?li)?|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal mah|[cç]iftlik mah|pe[cç]enek|kara[cç]arl[iı]|sabir gazetesi)\b/;
+    return /\b(duzici|d[uü]zi[cç]i|duzicide|duziciye|duzicinin|d[uü]zi[cç]i('?nde|'?ne|'?nin|'?li)?|yarbasi|yarba[sş]i|ellek|atalan|duldul|d[uü]ld[uü]l|bocekli|b[oö]cekli|uzunban|irfanl|haruniye|ku[sş][cç]u|bostanlar|[uü]z[uü]ml[uü]|cesmeli|[cç]e[sş]meli|g[oö]kd[uü]z[uü]|karaca[oö]ren|a[gğ]izhan|bo[gğ]azi[cç]i|cumhuriyet mah|h[uü]rriyet mah|kurtulu[sş]|karl[iı]k|[cç]ami[cç]i|alibozlu|bay[iı]nd[iı]rl[iı]|[cç]er[cç]io[gğ]lu|g[uü]m[uü][sş]|yenifarsak|p[iı]narba[sş][iı]|ye[sş]ilyurt|ye[sş]ildere|[cç]itli|deveboynu|g[oö]k[cç]ay[iı]r|olukba[sş][iı]|yazlamaz[iı]|selverler|karaguz|karagedik|parsge[cç]it|i[sş]tiklal mah|[cç]iftlik mah|pe[cç]enek|kara[cç]arl[iı])\b/;
   }
 
   osmaniyeKeywordRe() {
-    return /\b(osmaniye|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|yarbasi|ellek|atalan|haruniye|ceyhan|erzin)\b/;
+    return /\b(osmaniye|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|yarbasi|ellek|atalan|haruniye|cevdetiye|zorkun|karacay|kastabala|aslantas|camici|cebelibereket|yedi ocak|korkut ata|erdinc yilmaz|serdengecti|osmaniyespor|fistikcilar|yer fistigi|karatepe)\b/;
   }
 
   nationalNoiseRe() {
-    return /nas[iı]l yap[iı]l[iı]r|i[sş]te tam [oö]l[cç][uü]|tarifi|kabak tatl[iı]|i?neg[oö]l k[oö]fte|manda kaymak|egzama neden|dijital kart nereden|kademeli emeklilik|emekli (maa[sş]|zam|promosyon)|fenerbah[cç]e|galatasaray|be[sş]ikta[sş]|trabzonspor|super lig|s[uü]per lig|transfer iddia|o[gğ]uz ayd[iı]n|okullara g[uü]venlik g[oö]revlisi|2026 kademeli|yks tercih|milyon aday|tercihleri sona/;
+    return /nas[iı]l yap[iı]l[iı]r|i[sş]te tam [oö]l[cç][uü]|tarifi|kabak tatl[iı]|i?neg[oö]l k[oö]fte|manda kaymak|egzama neden|dijital kart nereden|kademeli emeklilik|emekli (maa[sş]|zam|promosyon)|fenerbah[cç]e|galatasaray|be[sş]ikta[sş]|trabzonspor|super lig|s[uü]per lig|transfer iddia|o[gğ]uz ayd[iı]n|okullara g[uü]venlik g[oö]revlisi|2026 kademeli|yks tercih|milyon aday|tercihleri sona|b[oö]l[uü]m|sezon|fragman|dizisi|dizisinde|dizide|youtube('?da)? neden yok|neden yok|ne zaman yay[iı]nlanacak|hangi kanalda|saat ka[cç]ta|canl[iı] izle|reyting|masterchef|survivor|k[iı]z[iı]lc[iı]k [sş]erbeti|yal[iı] [cç]apk[iı]n[iı]|in[sş]aat demiri|hurda demir/;
   }
 
   farAreaNoiseRe() {
-    return /\b(istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri|zonguldak|samsun|trabzon|eski[sş]ehir|denizli|mu[gğ]la|ayd[iı]n|manisa|balıkesir|tekirda[gğ]|sakarya|kocaeli)\b/;
+    return /\b(istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri|zonguldak|samsun|trabzon|eski[sş]ehir|denizli|mu[gğ]la|ayd[iı]n|manisa|balıkesir|tekirda[gğ]|sakarya|kocaeli|erzin|kirikhan|iskenderun|antakya|dortyol|payas|hassa|reyhanli|samandag|kumluca|serik|aksu|alanya|manavgat|finike|kas|kemer|islahiye|nizip|maras|kahramanmaras|elbistan|afsin|tarsus|silifke|anamur|ceyhan|kozan)\b/;
+  }
+
+  isJunkContent(title, summary) {
+    const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
+    return this.nationalNoiseRe().test(text);
+  }
+
+  isJunkTurkeyNews(title, summary) {
+    return this.isJunkContent(title, summary);
   }
 
   isDuziciRelated(title, summary) {
@@ -664,7 +673,7 @@ KURALLAR:
           category: this.inferNewsCategory(title, summary || title, resolvedSourceName, { scope }),
         };
       })
-      .filter((x) => x.title && x.sourceUrl);
+      .filter((x) => x.title && x.sourceUrl && !/google news/i.test(x.sourceName) && !/news\.google\.com/i.test(x.sourceUrl) && !/akdeniz/i.test(x.sourceName));
     parsed = this.applyScopeRelevanceFilter(parsed, { scope, filterDuzici });
     return parsed.slice(0, max);
   }

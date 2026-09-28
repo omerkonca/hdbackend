@@ -84,7 +84,7 @@ class ApiController {
       const body = JSON.stringify(data);
       const etag = '"' + crypto.createHash('sha1').update(body).digest('hex') + '"';
       res.setHeader('ETag', etag);
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=86400');
       if (req.headers['if-none-match'] === etag) {
         return res.status(304).end();
       }

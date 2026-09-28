@@ -27,10 +27,10 @@ class PlacesController {
         return res.status(404).json({ ok: false, message: 'Bu mekan için fotoğraf bulunamadı.' });
       }
 
-      const { buf, contentType } = await placesService.fetchPhotoBytes(resolved.photoSourceUrl);
-      res.setHeader('Content-Type', contentType);
+      // Render bant genişliğini (bandwidth) korumak için resmi Render üzerinden indirtmek yerine
+      // istemciyi doğrudan kaynak CDN URL'ine (Wikimedia / Unsplash vb.) yönlendir (302 Redirect).
       res.setHeader('Cache-Control', 'public, max-age=86400');
-      return res.send(buf);
+      return res.redirect(302, resolved.photoSourceUrl);
     } catch (error) {
       return res.status(500).json({ ok: false, message: error.message });
     }
