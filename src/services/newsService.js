@@ -481,7 +481,7 @@ KURALLAR:
   }
 
   farAreaNoiseRe() {
-    return /\b(istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri|zonguldak|samsun|trabzon|eski[sş]ehir|denizli|mu[gğ]la|ayd[iı]n|manisa|balıkesir|tekirda[gğ]|sakarya|kocaeli|erzin|kirikhan|iskenderun|antakya|dortyol|payas|hassa|reyhanli|samandag|kumluca|serik|aksu|alanya|manavgat|finike|kas|kemer|islahiye|nizip|maras|kahramanmaras|elbistan|afsin|tarsus|silifke|anamur|ceyhan|kozan)\b/;
+    return /\b(canakkale|[cç]anakkale|istanbul|ankara|izmir|bursa|antalya|adana|mersin|hatay|gaziantep|diyarbak[iı]r|konya|kayseri|zonguldak|samsun|trabzon|eski[sş]ehir|denizli|mu[gğ]la|ayd[iı]n|manisa|bal[iı]kesir|tekirda[gğ]|sakarya|kocaeli|edirne|[cç]orum|tokat|kastamonu|isparta|burdur|afyon|k[uü]tahya|bolu|d[uü]zce|yalova|bilecik|erzin|kirikhan|iskenderun|antakya|dortyol|payas|hassa|reyhanli|samandag|kumluca|serik|aksu|alanya|manavgat|finike|kas|kemer|islahiye|nizip|maras|kahramanmaras|elbistan|afsin|tarsus|silifke|anamur|ceyhan|kozan)\b/;
   }
 
   isJunkContent(title, summary) {
@@ -495,6 +495,11 @@ KURALLAR:
 
   isDuziciRelated(title, summary) {
     const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
+    const hasOtherCity = this.farAreaNoiseRe().test(text);
+    const hasExplicitDuzici = /\b(duzici|d[uü]zi[cç]i|haruniye|yarbasi|yarba[sş]i|ellek|atalan|bocekli|b[oö]cekli)\b/.test(text);
+    if (hasOtherCity && !hasExplicitDuzici) {
+      return false;
+    }
     return this.duziciKeywordRe().test(text);
   }
 
@@ -516,6 +521,11 @@ KURALLAR:
 
   isOsmaniyeRelated(title, summary) {
     const text = normalizeForCompare(`${title || ''} ${summary || ''}`);
+    const hasOtherCity = this.farAreaNoiseRe().test(text);
+    const hasExplicitOsmaniye = /\b(osmaniye|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|haruniye)\b/.test(text);
+    if (hasOtherCity && !hasExplicitOsmaniye) {
+      return false;
+    }
     return this.osmaniyeKeywordRe().test(text);
   }
 

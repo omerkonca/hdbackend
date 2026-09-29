@@ -20,6 +20,7 @@ function normalize(text) {
 
 /** Açıkça uzak / alakasız bölgeler — her zaman ele. */
 const FAR_AREA_DENY = [
+  'canakkale',
   'tepekoy',
   'tepe koy',
   'mersin',
