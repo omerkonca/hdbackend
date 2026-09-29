@@ -62,6 +62,11 @@ const config = {
       { url: 'https://www.akdenizgazetesi.com/rss/duzici', name: 'Akdeniz Gazetesi Düziçi', scope: 'duzici', filterDuzici: false, isActive: false },
       { url: 'https://www.akdenizgazetesi.com/rss', name: 'Akdeniz Gazetesi', scope: 'osmaniye', isActive: false },
       {
+        url: 'https://www.aa.com.tr/tr/rss/default?cat=guncel',
+        name: 'Anadolu Ajansı',
+        scope: 'turkey',
+      },
+      {
         url: 'https://www.trthaber.com/sondakika_articles.rss',
         name: 'TRT Haber Son Dakika',
         scope: 'turkey',

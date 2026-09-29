@@ -411,6 +411,12 @@
         "isActive": false
       },
       {
+        "url": "https://www.aa.com.tr/tr/rss/default?cat=guncel",
+        "name": "Anadolu Ajansı",
+        "scope": "turkey",
+        "isActive": true
+      },
+      {
         "url": "https://www.trthaber.com/sondakika_articles.rss",
         "name": "TRT Haber Son Dakika",
         "scope": "turkey",
