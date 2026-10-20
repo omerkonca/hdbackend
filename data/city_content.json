@@ -2,6 +2,38 @@
   "home": {
     "headerMedia": [
       {
+        "id": "story_duldul_dagi_1",
+        "url": "assets/images/stories/duldul_dagi_1.jpg",
+        "type": "image",
+        "title": "Düldül Dağı",
+        "bubbleId": "duldul_dagi",
+        "isActive": true
+      },
+      {
+        "id": "story_duldul_dagi_2",
+        "url": "assets/images/stories/duldul_dagi_2.jpg",
+        "type": "image",
+        "title": "Düldül Dağı",
+        "bubbleId": "duldul_dagi",
+        "isActive": true
+      },
+      {
+        "id": "story_duldul_dagi_3",
+        "url": "assets/images/stories/duldul_dagi_3.jpg",
+        "type": "image",
+        "title": "Düldül Dağı",
+        "bubbleId": "duldul_dagi",
+        "isActive": true
+      },
+      {
+        "id": "story_duldul_dagi_4",
+        "url": "assets/images/stories/duldul_dagi_4.jpg",
+        "type": "image",
+        "title": "Düldül Dağı",
+        "bubbleId": "duldul_dagi",
+        "isActive": true
+      },
+      {
         "id": "story_1782033356952_bvoyb",
         "url": "assets/images/selalesi_1.jpg",
         "type": "image",
@@ -6136,6 +6168,45 @@
     }
   ],
   "customEvents": [
+    {
+      "id": "osmaniye-fistikfest-ahmet-selcuk-ilkan-2026",
+      "title": "Ahmet Selçuk İlkan - Ferdi Tayfur Şarkıları (Fıstık Fest)",
+      "category": "Konser",
+      "city": "Osmaniye",
+      "district": "Merkez",
+      "location": "Atatürk Caddesi (İş Bankası Önü)",
+      "date": "2026-10-24T17:00:00.000Z",
+      "imageUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80",
+      "price": "Ücretsiz",
+      "link": "https://www.osmaniye.bel.tr",
+      "source": "Osmaniye Belediyesi (Fıstık Fest)"
+    },
+    {
+      "id": "osmaniye-fistikfest-semicenk-2026",
+      "title": "Semicenk Konseri (Fıstık Fest 2026)",
+      "category": "Konser",
+      "city": "Osmaniye",
+      "district": "Merkez",
+      "location": "Korkut Ata Üniversitesi (OKÜ) Stadyumu",
+      "date": "2026-10-25T17:00:00.000Z",
+      "imageUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80",
+      "price": "Ücretsiz",
+      "link": "https://www.osmaniye.bel.tr",
+      "source": "Osmaniye Belediyesi (Fıstık Fest)"
+    },
+    {
+      "id": "kadirli-cumhuriyet-ceza-2026",
+      "title": "Ceza Konseri (Cumhuriyet Bayramı)",
+      "category": "Konser",
+      "city": "Osmaniye",
+      "district": "Kadirli",
+      "location": "Kadirli Öğretmenevi Önü Meydanı",
+      "date": "2026-10-30T17:00:00.000Z",
+      "imageUrl": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&q=80",
+      "price": "Ücretsiz",
+      "link": "https://www.kadirli.bel.tr",
+      "source": "Kadirli Belediyesi"
+    },
     {
       "id": "bubilet-hatay-hatay-etkinlik-simyaci",
       "title": "Simyacı",

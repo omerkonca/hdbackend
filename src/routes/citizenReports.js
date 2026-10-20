@@ -86,6 +86,7 @@ router.post('/', (req, res, next) => {
     const latitude = req.body?.latitude ? parseFloat(req.body.latitude) : null;
     const longitude = req.body?.longitude ? parseFloat(req.body.longitude) : null;
     const locationUrl = String(req.body?.locationUrl || '').trim();
+    const fcmToken = String(req.body?.fcmToken || req.body?.fcm_token || '').trim();
 
     const imageUrls = [];
     if (useSupabaseStorage && req.files && req.files.length > 0) {
@@ -132,6 +133,7 @@ router.post('/', (req, res, next) => {
       isPlus,
       isSupporter,
       userBadge: userBadge || null,
+      fcmToken: fcmToken || null,
     });
 
     const emailResult = await emailService.sendCitizenReportEmail(row);
@@ -165,7 +167,7 @@ router.get('/', requireAdminToken, async (req, res) => {
   }
 });
 
-router.patch('/:id/status', requireAdminToken, async (req, res) => {
+const handleUpdateStatus = async (req, res) => {
   try {
     const status = String(req.body?.status || '').trim();
     const hasResolution =
@@ -183,6 +185,9 @@ router.patch('/:id/status', requireAdminToken, async (req, res) => {
   } catch (e) {
     return res.status(400).json({ ok: false, message: e.message });
   }
-});
+};
+
+router.patch('/:id/status', requireAdminToken, handleUpdateStatus);
+router.patch('/:id', requireAdminToken, handleUpdateStatus);
 
 module.exports = router;

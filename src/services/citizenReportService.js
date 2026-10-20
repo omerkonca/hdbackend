@@ -19,6 +19,7 @@ class CitizenReportService {
     isPlus = false,
     isSupporter = false,
     userBadge = null,
+    fcmToken = null,
   }) {
     if (!VALID_CATEGORIES.has(category)) {
       throw new Error('Geçersiz kategori.');
@@ -54,6 +55,7 @@ class CitizenReportService {
         is_plus: isPlus === true || isPlus === 'true',
         is_supporter: isSupporter === true || isSupporter === 'true',
         user_badge: userBadge?.trim() || null,
+        fcm_token: fcmToken?.trim() || null,
       })
       .select('*')
       .single();
@@ -105,12 +107,63 @@ class CitizenReportService {
       .update(patch)
       .eq('id', id)
       .select(
-        'id, status, category, message, resolution_message, contact_name, contact_email, image_urls, platform, app_version, created_at',
+        'id, status, category, message, resolution_message, contact_name, contact_email, image_urls, platform, app_version, created_at, fcm_token',
       )
       .single();
 
     if (error) throw new Error(error.message);
+
+    // Durum güncellendiğinde sadece ihbarı gönderen cihaza push bildirimi gönder
+    if (data && data.fcm_token) {
+      this._sendStatusNotification(data).catch((err) => {
+        console.error('[citizen-reports] Push bildirim gönderim hatası:', err.message);
+      });
+    }
+
     return data;
+  }
+
+  async _sendStatusNotification(report) {
+    if (!report?.fcm_token) return;
+    try {
+      const fcmService = require('./fcmService');
+      const statusTitles = {
+        reviewing: 'İhbarınız İnceleniyor 🔍',
+        resolved: 'İhbarınız Çözüldü ✅',
+        dismissed: 'İhbarınız Sonuçlandırıldı 📋',
+        new: 'İhbarınız Alındı 📥',
+      };
+
+      const statusBodies = {
+        reviewing: 'İlettiğiniz ihbar yetkililer tarafından incelemeye alındı.',
+        resolved: 'İlettiğiniz konu başarıyla çözüme kavuşturuldu. Katkınız için teşekkür ederiz!',
+        dismissed: 'İhbarınız incelendi ve süreç tamamlandı.',
+        new: 'İhbarınız sisteme ulaştı.',
+      };
+
+      const title = statusTitles[report.status] || 'İhbar Durumu Güncellendi 📢';
+      const resolutionNote = report.resolution_message?.trim();
+      const baseBody = statusBodies[report.status] || 'İhbarınızın durumu güncellendi.';
+      const body = resolutionNote
+        ? `${baseBody}\nYanıt: ${resolutionNote}`
+        : `${baseBody} Detaylar için dokunun.`;
+
+      const result = await fcmService.sendToDevice(report.fcm_token, {
+        title,
+        body,
+        data: {
+          type: 'citizen_report',
+          route: 'screen:citizen_report_tracking',
+          target: 'screen:citizen_report_tracking',
+          report_id: String(report.id || ''),
+          status: String(report.status || ''),
+        },
+      });
+
+      console.log(`[citizen-reports] Push notification sent for report ${report.id}:`, result);
+    } catch (err) {
+      console.error('[citizen-reports] Push notification error:', err.message);
+    }
   }
 }
 

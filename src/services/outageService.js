@@ -233,8 +233,8 @@ class OutageService {
     if (plannedItems.length === 0) return;
 
     try {
-      const plusDevices = await pushTokenService.fetchPlusDeviceTokens();
-      if (!plusDevices || plusDevices.length === 0) return;
+      const targetedDevices = await pushTokenService.fetchLocationTargetedTokens();
+      if (!targetedDevices || targetedDevices.length === 0) return;
 
       for (const outage of plannedItems) {
         const outageId = outage.id || `outage_${outage.title}`;
@@ -259,7 +259,7 @@ class OutageService {
           } catch (_) {}
         }
 
-        for (const device of plusDevices) {
+        for (const device of targetedDevices) {
           const token = device.token;
           if (!token) continue;
 
@@ -308,12 +308,12 @@ class OutageService {
           }
 
           if (matched) {
-            const pushTitle = `${icon} ${matchedLabel || 'Mahallenizde'}: Planlı Kesinti (Plus)`;
+            const pushTitle = `${icon} ${matchedLabel || 'Mahallenizde'}: Planlı Kesinti Alarmı`;
             const pushBody = timeLabel
-              ? `📍 ${timeLabel} arasında planlanan bakım kesintisi bildirildi. Önleminizi almayı unutmayın!`
+              ? `📍 ${timeLabel} arasında planlanan çalışma var. Önleminizi almayı unutmayın!`
               : `📍 ${outage.title || outage.area}. Planlanan kesinti için önleminizi almayı unutmayın!`;
 
-            console.log(`[outages-plus] Plus üyeye özel kesinti bildirimi gönderiliyor: ${matchedLabel} -> ${token.slice(-8)}`);
+            console.log(`[outages-targeted] Mahalleye özel kesinti bildirimi gönderiliyor: ${matchedLabel} -> ${token.slice(-8)}`);
 
             const res = await fcmService.sendToDevice(token, {
               title: pushTitle,
@@ -322,7 +322,7 @@ class OutageService {
                 route: 'screen:outages',
                 outageId: String(outageId),
                 area: String(outage.area || ''),
-                isPlus: 'true',
+                isTargeted: 'true',
               },
             });
 
@@ -333,7 +333,7 @@ class OutageService {
         }
       }
     } catch (err) {
-      console.warn('[outages-plus] Plus özel bildirim hatası:', err.message);
+      console.warn('[outages-targeted] Mahalleye özel bildirim hatası:', err.message);
     }
   }
 

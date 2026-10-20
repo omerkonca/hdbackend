@@ -131,6 +131,36 @@ async function fetchPlusDeviceTokens() {
   }
 }
 
+async function fetchLocationTargetedTokens() {
+  const pool = getDbPool();
+  if (pool) {
+    try {
+      const res = await pool.query(
+        "SELECT token, is_plus, mahalle, sokak, lat, lng, platform FROM device_tokens WHERE (mahalle IS NOT NULL AND TRIM(mahalle) != '') OR (sokak IS NOT NULL AND TRIM(sokak) != '') OR lat IS NOT NULL"
+      );
+      return res.rows;
+    } catch (e) {
+      console.error('[PushTokenService] fetchLocationTargetedTokens direct PG error:', e.message);
+    }
+  }
+
+  try {
+    const db = requireSupabaseAdmin();
+    const { data, error } = await db
+      .from('device_tokens')
+      .select('token, is_plus, mahalle, sokak, lat, lng, platform')
+      .not('mahalle', 'is', null);
+
+    if (error) {
+      console.error('[Push] fetch location tokens:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (_) {
+    return [];
+  }
+}
+
 async function logPush({ title, body, target, sent, failed }) {
   const pool = getDbPool();
   if (pool) {
@@ -172,5 +202,6 @@ module.exports = {
   upsertDeviceToken,
   fetchMarketingTokens,
   fetchPlusDeviceTokens,
+  fetchLocationTargetedTokens,
   logPush,
 };
