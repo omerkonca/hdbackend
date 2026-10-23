@@ -167,7 +167,11 @@ class ApiController {
       res.json({
         ok: true,
         fetchedAt: new Date(newsService.cache.fetchedAt).toISOString(),
-        items,
+        items: items.map((item) => {
+          if (!item || typeof item !== 'object') return item;
+          const { fullText, full_text, ...card } = item;
+          return card;
+        }),
       });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'Haberler alinamadi.', detail: error.message });

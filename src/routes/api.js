@@ -20,6 +20,15 @@ router.get('/weather', apiController.getWeather);
 router.get('/prayers', apiController.getPrayerTimes);
 router.get('/obituaries', apiController.getObituaries);
 router.get('/daily-briefing', apiController.getDailyBriefing);
+router.get('/instagram', async (req, res) => {
+  try {
+    const instagramFeedService = require('../services/instagramFeedService');
+    const feed = await instagramFeedService.getFeed();
+    return res.json(feed);
+  } catch (err) {
+    return res.status(500).json({ ok: false, message: err.message });
+  }
+});
 router.use('/citizen-reports', require('./citizenReports'));
 router.use('/discover', require('./discoverRoutes'));
 router.use('/places', require('./placesRoutes'));

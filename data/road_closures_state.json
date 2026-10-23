@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastSyncAt": "2026-09-24T20:10:12.817Z",
+  "lastSyncAt": "2026-10-23T20:16:02.698Z",
   "items": {
     "belediye_trafik_2025_27": {
       "id": "belediye_trafik_2025_27",
@@ -73,8 +73,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 511,
-      "closedAt": "2026-09-24T20:10:12.817Z",
+      "missedScans": 525,
+      "closedAt": "2026-10-23T20:16:02.698Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberlerrecep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -98,8 +98,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 511,
-      "closedAt": "2026-09-24T20:10:12.817Z",
+      "missedScans": 525,
+      "closedAt": "2026-10-23T20:16:02.698Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_recep-tayyip-erdogan-bulvari-yenileniyor": {
@@ -123,8 +123,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-05-25T11:18:39.408Z",
       "lastSeenAt": "2026-05-25T11:18:39.408Z",
-      "missedScans": 511,
-      "closedAt": "2026-09-24T20:10:12.817Z",
+      "missedScans": 525,
+      "closedAt": "2026-10-23T20:16:02.698Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_uzunbani-mahallelerinde-asfaltlama-calismalari-bas": {
@@ -148,8 +148,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:44:28.809Z",
       "lastSeenAt": "2026-06-24T20:44:28.809Z",
-      "missedScans": 16,
-      "closedAt": "2026-09-24T20:10:12.817Z",
+      "missedScans": 30,
+      "closedAt": "2026-10-23T20:16:02.698Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "kgm_31-78-osmaniye-organize-sanayi-bolgesi-botas-tesisleri-31-76-iya-0-4": {
@@ -174,10 +174,10 @@
       "kgmMeta": {
         "branch": "HATAY (53. Şube)",
         "kkNo": "31-78",
-        "updatedAt": "24.09.2026 21:46:35"
+        "updatedAt": "22.10.2026 21:47:19"
       },
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-09-24T20:10:12.817Z",
+      "lastSeenAt": "2026-10-23T20:16:02.698Z",
       "missedScans": 0
     },
     "osmaniye_bel_httpsosmaniye-bldgovtrkemal-satir-caddesi-modern-yol-gorunumune-kavusuyorhtml": {
@@ -200,9 +200,9 @@
       "kind": "municipality",
       "autoManaged": true,
       "firstSeenAt": "2026-06-24T20:45:37.719Z",
-      "lastSeenAt": "2026-09-24T20:10:12.817Z",
+      "lastSeenAt": "2026-10-23T20:16:02.698Z",
       "missedScans": 0,
-      "closedAt": "2026-09-24T20:10:12.817Z",
+      "closedAt": "2026-10-23T20:16:02.698Z",
       "closeReason": "Asfaltlama duyurusu max yaş aşımı"
     },
     "belediye_duyurular": {
@@ -226,8 +226,8 @@
       "autoManaged": true,
       "firstSeenAt": "2026-07-14T12:20:54.294Z",
       "lastSeenAt": "2026-07-14T12:20:54.294Z",
-      "missedScans": 14,
-      "closedAt": "2026-09-24T20:10:12.817Z",
+      "missedScans": 28,
+      "closedAt": "2026-10-23T20:16:02.698Z",
       "closeReason": "Duyuru artık yayında değil"
     },
     "belediye_haberleruzunbani-mahallelerinde-asfaltlama-calismalari-basladi": {
@@ -250,9 +250,9 @@
       "kind": "municipality",
       "autoManaged": true,
       "firstSeenAt": "2026-08-13T13:44:09.498Z",
-      "lastSeenAt": "2026-09-24T20:10:12.817Z",
+      "lastSeenAt": "2026-10-23T20:16:02.698Z",
       "missedScans": 0,
-      "closedAt": "2026-09-24T20:10:12.817Z",
+      "closedAt": "2026-10-23T20:16:02.698Z",
       "closeReason": "Uzunbanı asfaltlama duyurusu süresi doldu"
     },
     "osmaniye_bel_httpsosmaniye-bldgovtrakyar-caddesi-yenilenen-yuzuyle-hizmete-acildihtml": {
@@ -275,7 +275,35 @@
       "kind": "municipality",
       "autoManaged": true,
       "firstSeenAt": "2026-09-24T19:52:42.256Z",
-      "lastSeenAt": "2026-09-24T20:10:12.817Z",
+      "lastSeenAt": "2026-10-23T20:16:02.698Z",
+      "missedScans": 0
+    },
+    "kgm_80-03-kaypak-80-02-iya-osmaniye-gaziantep-il-sn-5-11": {
+      "id": "kgm_80-03-kaypak-80-02-iya-osmaniye-gaziantep-il-sn-5-11",
+      "fingerprint": "kgm_80-03-kaypak-80-02-iya-osmaniye-gaziantep-il-sn-5-11",
+      "title": "KAYPAK (80-02) İYA - (OSMANİYE - GAZİANTEP) İL SN.",
+      "subtitle": "OSMANİYE (59. Şube) · K.K.80-03 · km 5–11 · Yol Çalışması",
+      "status": "Devam Ediyor",
+      "reason": "Yol Çalışması",
+      "roadCode": "Toprakkale",
+      "address": "Toprakkale, Osmaniye / Adana koridoru",
+      "lat": 37.04,
+      "lng": 36.15,
+      "alternativeRoute": "(Toprakkale-Nurdağı) Ayrım- Hasanbeyli il yolunda yapım çalışmaları nedeniyle trafik alternatif güzergahtan sağlanacaktır.",
+      "severity": "partial",
+      "startAt": "2026-10-08",
+      "endAt": null,
+      "source": "KARAYOLLARI (KGM)",
+      "announcementUrl": "https://www.kgm.gov.tr/Sayfalar/KGM/SiteTr/YolDanisma/TrafigeKapaliYollar.aspx",
+      "kind": "kgm",
+      "autoManaged": true,
+      "kgmMeta": {
+        "branch": "OSMANİYE (59. Şube)",
+        "kkNo": "80-03",
+        "updatedAt": "22.10.2026 21:47:19"
+      },
+      "firstSeenAt": "2026-10-23T19:20:14.863Z",
+      "lastSeenAt": "2026-10-23T20:16:02.698Z",
       "missedScans": 0
     }
   }
