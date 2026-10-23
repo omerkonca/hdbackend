@@ -113,11 +113,13 @@ class CitizenReportService {
 
     if (error) throw new Error(error.message);
 
-    // Durum güncellendiğinde sadece ihbarı gönderen cihaza push bildirimi gönder
-    if (data && data.fcm_token) {
+    // Yalnızca bu ihbarı gönderen cihaza gider; konu/genel push yok.
+    if (data?.fcm_token) {
       this._sendStatusNotification(data).catch((err) => {
         console.error('[citizen-reports] Push bildirim gönderim hatası:', err.message);
       });
+    } else if (data) {
+      console.warn(`[citizen-reports] Push atlandı, fcm_token yok: ${data.id}`);
     }
 
     return data;
@@ -141,21 +143,35 @@ class CitizenReportService {
         new: 'İhbarınız sisteme ulaştı.',
       };
 
-      const title = statusTitles[report.status] || 'İhbar Durumu Güncellendi 📢';
-      const resolutionNote = report.resolution_message?.trim();
-      const baseBody = statusBodies[report.status] || 'İhbarınızın durumu güncellendi.';
-      const body = resolutionNote
-        ? `${baseBody}\nYanıt: ${resolutionNote}`
-        : `${baseBody} Detaylar için dokunun.`;
+      const statusLabel = {
+        reviewing: 'İnceleniyor',
+        resolved: 'Çözüldü',
+        dismissed: 'Kapatıldı',
+        new: 'Alındı',
+      }[report.status] || 'Güncellendi';
+      const resolutionNote = report.resolution_message?.trim() || '';
+      const shortReply = resolutionNote.length > 140
+        ? `${resolutionNote.slice(0, 137)}…`
+        : resolutionNote;
 
+      const title = shortReply
+        ? 'İhbarınıza yanıt geldi'
+        : (statusTitles[report.status] || 'İhbarınızın durumu güncellendi');
+      const body = shortReply
+        ? `${statusLabel}: ${shortReply}`
+        : (statusBodies[report.status] || 'İhbarınızın durumu güncellendi. Takip için dokunun.');
+
+      const reportId = String(report.id || '');
+      const route = `screen:citizen_report_tracking?id=${encodeURIComponent(reportId)}`;
       const result = await fcmService.sendToDevice(report.fcm_token, {
         title,
         body,
+        collapseKey: `citizen-report-${reportId}`,
         data: {
           type: 'citizen_report',
-          route: 'screen:citizen_report_tracking',
-          target: 'screen:citizen_report_tracking',
-          report_id: String(report.id || ''),
+          route,
+          target: route,
+          report_id: reportId,
           status: String(report.status || ''),
         },
       });
