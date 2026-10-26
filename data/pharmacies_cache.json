@@ -1,15 +1,15 @@
 {
-  "updatedAt": "2026-10-23T20:20:00.368Z",
+  "updatedAt": "2026-10-26T20:01:41.494Z",
   "pharmacies": [
     {
-      "name": "METLIOGLU ECZANESİ",
-      "address": "REFIK CESUR BUL.NO.380 DÜZIÇI/OSMANIYE",
-      "phone": "03288762220",
-      "lat": 37.240696,
-      "lng": 36.454032,
-      "googleMapsUrl": "https://www.google.com/maps?q=37.240696,36.454032",
+      "name": "ÖZKAN ECZANESİ",
+      "address": "BOĞAZİÇİ MAHALLESİ HASTANE SOKAK NO:12/A DÜZIÇI/OSMANIYE",
+      "phone": "03288767878",
+      "lat": 37.244083,
+      "lng": 36.461624,
+      "googleMapsUrl": "https://www.google.com/maps?q=37.244083,36.461624",
       "dateLabel": "Bugün",
-      "dateRange": "23 Ekim 2026 Bugün Nöbetçi Eczaneler"
+      "dateRange": "26 Ekim 2026 Bugün Nöbetçi Eczaneler"
     }
   ]
 }

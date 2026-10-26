@@ -128,7 +128,7 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-const server = app.listen(config.PORT, () => {
+const server = app.listen(config.PORT, '0.0.0.0', () => {
   const pkg = require('../package.json');
   console.log(`\n🚀 [city-content-api] v${pkg.version} running on http://localhost:${config.PORT}`);
   try {
