@@ -3,6 +3,8 @@ const { isFcmConfigured, sendToTopic } = require('./fcmService');
 const { logPush } = require('./pushTokenService');
 const { wasEarthquakeAlerted, markEarthquakeAlerted } = require('../utils/earthquakePushLog');
 
+const config = require('../config');
+
 let isFirstRun = true;
 let cronTimer = null;
 
@@ -11,16 +13,12 @@ let cronTimer = null;
 const MAX_ALERT_AGE_MS = 15 * 60 * 1000;
 
 /**
- * 15 saniyelik Döngü: Yeni Deprem Kontrolü ve Otomatik FCM Push Bildirimi.
- *
- * Güvenlik ve Doğruluk Önlemleri:
- * 1. ZAMAN SINIRI: Deprem oluş saati 15 dakikadan eskiyse KESİNLİKLE bildirim atılmaz (gece veya saatler sonra bildirim düşmesini %100 engeller).
- * 2. UZAMSAL-ZAMANSAL TEKİLLEŞTİRME (Revizyon Koruması): Kandilli revizyon yaptığında veya AFAD/Kandilli aynı depremi bildirdiğinde (farklı ID ile gelse dahi) koordinat ve zaman kontrolüyle aynı sarsıntı olduğu anlaşılır ve mükerrer bildirim engellenir.
- * 3. KALICI DİSK KAYDI (earthquake_push_log.json): Render sunucusu uyusa veya yeniden başlasa bile önceki bildirimler diske yazıldığı için hiçbir zaman hafıza kaybı yaşanmaz.
+ * Yeni Deprem Kontrolü ve Otomatik FCM Push Bildirimi (Bant Genişliği Optimize Edilmiş).
  */
 async function checkNewEarthquakesAndNotify() {
   try {
-    const earthquakes = await fetchEarthquakes(true);
+    // Kota tasarrufu: Bildirim kontrolü için sadece en son 10 kayıt yeterlidir
+    const earthquakes = await fetchEarthquakes(true, { fetchLimit: 10 });
     if (!earthquakes || earthquakes.length === 0) return;
 
     if (isFirstRun) {
@@ -116,10 +114,13 @@ async function checkNewEarthquakesAndNotify() {
 
 function startEarthquakeCron() {
   if (cronTimer) return;
-  // İlk kontrol 5 sn sonra, ardından 15 saniyede bir
-  setTimeout(checkNewEarthquakesAndNotify, 5000);
-  cronTimer = setInterval(checkNewEarthquakesAndNotify, 15000);
-  console.log('⚡ [earthquakeCron] Anlık Deprem Taraması (15 sn - AFAD + Kandilli Hibrit) aktif.');
+  const isLightOrRender = config.RUNTIME.LIGHT_BACKGROUND_JOBS || process.env.RENDER === 'true';
+  const intervalMs = isLightOrRender ? 90 * 1000 : 60 * 1000;
+
+  // İlk kontrol 10 sn sonra, ardından belirlenen aralıkla
+  setTimeout(checkNewEarthquakesAndNotify, 10000);
+  cronTimer = setInterval(checkNewEarthquakesAndNotify, intervalMs);
+  console.log(`⚡ [earthquakeCron] Anlık Deprem Taraması (${intervalMs / 1000} sn - AFAD + Kandilli Hibrit, kota korumalı) aktif.`);
 }
 
 function stopEarthquakeCron() {

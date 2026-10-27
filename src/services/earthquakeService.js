@@ -7,7 +7,7 @@ const DUZICI_LNG = 36.4552;
 // In-Memory Önbellek & Oylar
 let cachedEarthquakes = [];
 let lastFetchTime = 0;
-const CACHE_TTL_MS = 20 * 1000; // 20 saniye önbellek
+const CACHE_TTL_MS = 60 * 1000; // 60 saniye önbellek (kota tasarrufu)
 const feltVotes = new Map(); // earthquake_id -> { total: number, feltCounts: { soft: number, strong: number } }
 
 /**
@@ -218,7 +218,8 @@ async function fetchFromEmscLive() {
  * Canlı Deprem Verilerini AFAD + Kandilli (ve EMSC) Servislerinden Çeker ve Tekilleştirir.
  * AFAD sayesinde ilk 30-90 saniye içinde deprem anında algılanır.
  */
-async function fetchEarthquakes(forceRefresh = false) {
+async function fetchEarthquakes(forceRefresh = false, options = {}) {
+  const fetchLimit = Number(options.fetchLimit || 30);
   const now = Date.now();
   if (!forceRefresh && cachedEarthquakes.length > 0 && now - lastFetchTime < CACHE_TTL_MS) {
     return cachedEarthquakes;
@@ -226,8 +227,8 @@ async function fetchEarthquakes(forceRefresh = false) {
 
   // AFAD ve Kandilli'yi paralel olarak çek (en hızlı yanıt veren anında listeye girer)
   const results = await Promise.allSettled([
-    fetchFromAfadDirect(60),
-    fetchFromKandilliLive(60),
+    fetchFromAfadDirect(fetchLimit),
+    fetchFromKandilliLive(fetchLimit),
   ]);
 
   let allItems = [];

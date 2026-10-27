@@ -1,6 +1,11 @@
+const fs = require('fs');
+const path = require('path');
 const cheerio = require('cheerio');
 const supabase = require('../utils/supabaseClient');
+const { getDbPool } = require('../utils/dbPool');
 const { fetchWithTimeout, fetchPage, buildBrowserHeaders } = require('../utils/helpers');
+
+const CACHE_FILE = path.join(__dirname, '../../data/obituaries_cache.json');
 
 const FETCH_HEADERS = buildBrowserHeaders('https://www.akdenizgazetesi.com/');
 
@@ -387,9 +392,47 @@ class ObituaryService {
   }
 
   async readFromSupabase() {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - this.MAX_AGE_DAYS);
+
+    // 1. Direct Postgres Pool dene (REST kotası ve 402 etkilemez)
     try {
-      const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - this.MAX_AGE_DAYS);
+      const pool = getDbPool();
+      if (pool) {
+        const res = await pool.query(
+          `SELECT id, full_name, death_date, scope, detail, district, neighborhood,
+                  condolence_address, burial_place, age, source, source_url, detail_url, fetched_at
+           FROM obituary_items
+           WHERE death_date >= $1
+           ORDER BY death_date DESC
+           LIMIT 200`,
+          [cutoff.toISOString()]
+        );
+        if (res && res.rows && res.rows.length > 0) {
+          return res.rows.map((row) => ({
+            id: row.id,
+            fullName: row.full_name,
+            deathDate: row.death_date,
+            scope: row.scope,
+            detail: row.detail || '',
+            district: row.district || '',
+            neighborhood: row.neighborhood || '',
+            condolenceAddress: row.condolence_address || '',
+            burialPlace: row.burial_place || '',
+            age: row.age,
+            source: row.source || '',
+            sourceUrl: row.source_url || '',
+            detailUrl: row.detail_url || '',
+            fetchedAt: row.fetched_at,
+          }));
+        }
+      }
+    } catch (poolErr) {
+      console.warn('[obituaries] Direct Postgres read failed:', poolErr.message);
+    }
+
+    // 2. Supabase REST API Fallback
+    try {
       const { data, error } = await supabase
         .from('obituary_items')
         .select('*')
@@ -397,30 +440,50 @@ class ObituaryService {
         .order('death_date', { ascending: false })
         .limit(200);
       if (error) throw error;
-      return (data || []).map((row) => ({
-        id: row.id,
-        fullName: row.full_name,
-        deathDate: row.death_date,
-        scope: row.scope,
-        detail: row.detail || '',
-        district: row.district || '',
-        neighborhood: row.neighborhood || '',
-        condolenceAddress: row.condolence_address || '',
-        burialPlace: row.burial_place || '',
-        age: row.age,
-        source: row.source || '',
-        sourceUrl: row.source_url || '',
-        detailUrl: row.detail_url || '',
-        fetchedAt: row.fetched_at,
-      }));
+      if (data && data.length > 0) {
+        return data.map((row) => ({
+          id: row.id,
+          fullName: row.full_name,
+          deathDate: row.death_date,
+          scope: row.scope,
+          detail: row.detail || '',
+          district: row.district || '',
+          neighborhood: row.neighborhood || '',
+          condolenceAddress: row.condolence_address || '',
+          burialPlace: row.burial_place || '',
+          age: row.age,
+          source: row.source || '',
+          sourceUrl: row.source_url || '',
+          detailUrl: row.detail_url || '',
+          fetchedAt: row.fetched_at,
+        }));
+      }
     } catch (err) {
-      console.warn('[obituaries] Supabase read failed:', err.message);
-      return [];
+      console.warn('[obituaries] Supabase REST read failed:', err.message);
     }
+
+    // 3. Disk JSON önbellek yedeği (Tamamen offline / kota aşımında bile veri döner)
+    try {
+      if (fs.existsSync(CACHE_FILE)) {
+        const raw = fs.readFileSync(CACHE_FILE, 'utf8');
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (_) {}
+
+    return [];
   }
 
   async saveToSupabase(items) {
     if (!items.length) return;
+
+    // Diske JSON önbelleğe al
+    try {
+      fs.writeFileSync(CACHE_FILE, JSON.stringify(items, null, 2), 'utf8');
+    } catch (_) {}
+
     try {
       const rows = items.map((item) => ({
         id: item.id,

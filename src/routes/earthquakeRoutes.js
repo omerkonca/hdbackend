@@ -7,11 +7,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const forceRefresh = req.query.refresh === 'true';
-    const limit = parseInt(req.query.limit || '100', 10);
+    const limit = Math.min(parseInt(req.query.limit || '35', 10), 100);
     const minMagnitude = parseFloat(req.query.minMag || '0');
     const maxDistanceKm = parseFloat(req.query.maxDist || '99999');
 
-    let list = await fetchEarthquakes(forceRefresh);
+    let list = await fetchEarthquakes(forceRefresh, { fetchLimit: Math.max(limit, 30) });
 
     if (minMagnitude > 0) {
       list = list.filter(q => q.magnitude >= minMagnitude);

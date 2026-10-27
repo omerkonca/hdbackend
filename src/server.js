@@ -3,6 +3,14 @@ const dns = require('dns');
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder('ipv4first');
 }
+
+// Beklenmeyen hata / asenkron çökme koruması
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ [UncaughtException] Güvenli yakalandı (sunucu ayakta tutuldu):', err.message);
+});
+process.on('unhandledRejection', (reason) => {
+  console.warn('⚠️ [UnhandledRejection] Güvenli yakalandı (sunucu ayakta tutuldu):', reason?.message || reason);
+});
 const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
@@ -28,19 +36,25 @@ const app = express();
 console.log('✅ Supabase initialized: URL =', config.SUPABASE_URL);
 
 // Middlewares - Gzip/Brotli sıkıştırmasıyla bant genişliği tüketimini %85-90 azalt
-app.use(compression());
+app.use(compression({
+  threshold: 256,
+  level: 6,
+}));
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
 
 // Yasal / admin sayfaları (static'ten önce — Play Store URL'leri korunur)
 app.get(['/gizlilik-politikasi', '/gizlilik-politikasi.html', '/privacy-policy'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=86400');
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'gizlilik-politikasi.html'));
 });
 app.get(['/iletisim', '/iletisim.html', '/contact'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=86400');
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'iletisim.html'));
 });
 app.get(['/kullanim-kosullari', '/kullanim-kosullari.html', '/terms'], (req, res) => {
+  res.setHeader('Cache-Control', 'public, max-age=86400');
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'kullanim-kosullari.html'));
 });
 app.get(['/admin', '/admin.html'], (req, res) => {
@@ -52,7 +66,49 @@ app.get(['/studio', '/studio.html'], (req, res) => {
   res.sendFile(path.join(config.PATHS.PUBLIC_DIR, 'studio.html'));
 });
 
-app.use(express.static(config.PATHS.PUBLIC_DIR));
+// Statik Dosyalar (Bant Genişliği Koruma: Görseller ve Fontlar 30 Gün Önbelleklenir)
+app.use(express.static(config.PATHS.PUBLIC_DIR, {
+  maxAge: '14d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'public, max-age=600');
+    } else if (filePath.match(/\.(jpg|jpeg|png|gif|webp|svg|ico|woff|woff2|ttf|mp4|webm)$/i)) {
+      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+    } else if (filePath.match(/\.(css|js)$/i)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
+  },
+}));
+
+// Genel Bant Genişliği & API Önbellekleme Middleware'i
+app.use('/api', (req, res, next) => {
+  if (req.method === 'GET') {
+    const p = req.path;
+    // Admin, Studio ve anlık canlı kontrol rotaları önbelleklenmez
+    if (p.startsWith('/admin') || p.startsWith('/studio') || p.includes('felt')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+    } else if (p.includes('prayers')) {
+      res.setHeader('Cache-Control', 'public, max-age=21600, stale-while-revalidate=86400'); // 6 saat
+    } else if (p.includes('pharmacies') || p.includes('finance') || p.includes('fuel')) {
+      res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=3600'); // 30 dk
+    } else if (p.includes('events') || p.includes('daily-briefing') || p.includes('obituaries')) {
+      res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=3600'); // 30 dk
+    } else if (p.includes('weather') || p.includes('outages') || p.includes('road-closures') || p.includes('instagram')) {
+      res.setHeader('Cache-Control', 'public, max-age=900, stale-while-revalidate=1800'); // 15 dk
+    } else if (p.includes('news')) {
+      res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600'); // 5 dk
+    } else if (p.includes('earthquakes')) {
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120'); // 1 dk
+    } else if (p.includes('app-version')) {
+      res.setHeader('Cache-Control', 'public, max-age=43200, stale-while-revalidate=86400'); // 12 saat
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=300');
+    }
+  }
+  next();
+});
 // Akşam AI Muhabir & Gündem Yapay Zeka bülteni uyandırma kancası (Render uyku modu sonrasında ilk kullanıcı isteğinde tetikle)
 let lastOnDemandReporterCheck = 0;
 app.use('/api', (req, res, next) => {
