@@ -7629,7 +7629,7 @@
   "aiNewsSettings": {
     "lastBeautifyAt": "2026-08-22T13:24:05.522Z",
     "lastBeautifyOk": true,
-    "lastReporterAt": "2026-10-27T19:16:58.128Z",
+    "lastReporterAt": "2026-10-27T19:31:58.236Z",
     "lastReporterOk": false,
     "beautifyScraped": true,
     "reporterEnabled": true,
@@ -7871,19 +7871,6 @@
       "source": "Bubilet"
     },
     {
-      "id": "bubilet-adana-adana-etkinlik-yung-ouzo-konseri",
-      "title": "Yung Ouzo Konseri",
-      "category": "Konser",
-      "city": "Adana",
-      "district": "Holly Stone Performance Hall Adana",
-      "location": "Holly Stone Performance Hall Adana",
-      "date": "2026-10-27T19:00:00.000Z",
-      "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/yung-ouzo--konseri-20260913115256192-f4c741b46829.jpg",
-      "price": "800₺",
-      "link": "https://www.bubilet.com.tr/adana/etkinlik/yung-ouzo--konseri-",
-      "source": "Bubilet"
-    },
-    {
       "id": "bubilet-adana-adana-etkinlik-melis-fis-konseri",
       "title": "Melis Fis Konseri",
       "category": "Konser",
@@ -7918,7 +7905,7 @@
       "location": "Çukurova Üniversitesi Kongre Merkezi",
       "date": "2026-10-30T17:30:00.000Z",
       "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/candela-concert-adana-cukurova-universitesi-acikhava-tiyatrosu-20261021100022900-641323eaa1e3.png",
-      "price": "800₺",
+      "price": "30800₺",
       "link": "https://www.bubilet.com.tr/adana/etkinlik/candela-concert-adana-cukurova-universitesi-acikhava-tiyatrosu",
       "source": "Bubilet"
     },
@@ -7946,6 +7933,19 @@
       "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/emre-aydin-konseri-15596.jpg",
       "price": "00900₺",
       "link": "https://www.bubilet.com.tr/adana/etkinlik/emre-aydin-konseri",
+      "source": "Bubilet"
+    },
+    {
+      "id": "bubilet-adana-adana-etkinlik-kizkiza-gecesi",
+      "title": "KızKıza Gecesi",
+      "category": "Kültür & Sanat",
+      "city": "Adana",
+      "district": "Rovers Gastropub & Live Music",
+      "location": "Rovers Gastropub & Live Music",
+      "date": "2026-10-28T17:30:00.000Z",
+      "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/kizkiza-gecesi-20261013113344340-26f2736e4df5.jpg",
+      "price": "301250₺",
+      "link": "https://www.bubilet.com.tr/adana/etkinlik/kizkiza-gecesi",
       "source": "Bubilet"
     },
     {
@@ -8131,19 +8131,6 @@
       "source": "Bubilet"
     },
     {
-      "id": "bubilet-gaziantep-gaziantep-etkinlik-room41-halloween-party",
-      "title": "Room41 Halloween Party",
-      "category": "Kültür & Sanat",
-      "city": "Gaziantep",
-      "district": "Tudyahan 1874",
-      "location": "Tudyahan 1874",
-      "date": "2026-10-31T16:00:00.000Z",
-      "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/room41-halloween-party-20261013063422180-719fec1628ca.png",
-      "price": "00900₺",
-      "link": "https://www.bubilet.com.tr/gaziantep/etkinlik/room41-halloween-party",
-      "source": "Bubilet"
-    },
-    {
       "id": "bubilet-gaziantep-gaziantep-etkinlik-masumiyet-muzesi",
       "title": "Masumiyet Müzesi",
       "category": "Kültür & Sanat",
@@ -8261,19 +8248,6 @@
       "source": "Bubilet"
     },
     {
-      "id": "bubilet-mersin-mersin-etkinlik-stabil-konseri",
-      "title": "Stabil Konseri",
-      "category": "Konser",
-      "city": "Mersin",
-      "district": "Social Hall Mersin",
-      "location": "Social Hall Mersin",
-      "date": "2026-10-27T18:45:00.000Z",
-      "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/stabil-konseri-15253.jfif",
-      "price": "399₺",
-      "link": "https://www.bubilet.com.tr/mersin/etkinlik/stabil-konseri",
-      "source": "Bubilet"
-    },
-    {
       "id": "bubilet-mersin-mersin-etkinlik-halloween",
       "title": "Halloween",
       "category": "Kültür & Sanat",
@@ -8339,6 +8313,19 @@
       "source": "Bubilet"
     },
     {
+      "id": "bubilet-mersin-mersin-etkinlik-hallo-ween-party",
+      "title": "Halloween Party",
+      "category": "Kültür & Sanat",
+      "city": "Mersin",
+      "district": "Social Hall Mersin",
+      "location": "Social Hall Mersin",
+      "date": "2026-10-28T17:30:00.000Z",
+      "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/hallo-ween-party-20261020142610834-92c4c611b026.jpg",
+      "price": "30400₺",
+      "link": "https://www.bubilet.com.tr/mersin/etkinlik/hallo-ween-party",
+      "source": "Bubilet"
+    },
+    {
       "id": "bubilet-mersin-mersin-etkinlik-zubeyde-bir-annenin-mirasi",
       "title": "Zübeyde ''Bir Annenin Mirası''",
       "category": "Kültür & Sanat",
@@ -8375,19 +8362,6 @@
       "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/anna-karenina-20260716094549186-35bd8f1cf8ea.png",
       "price": "200₺",
       "link": "https://www.bubilet.com.tr/mersin/etkinlik/anna-karenina-",
-      "source": "Bubilet"
-    },
-    {
-      "id": "bubilet-mersin-mersin-etkinlik-gece-yarisi-kutuphanesi",
-      "title": "Gece Yarısı Kütüphanesi",
-      "category": "Kültür & Sanat",
-      "city": "Mersin",
-      "district": "Pera Sahne Sanatları",
-      "location": "Pera Sahne Sanatları",
-      "date": "2026-10-31T16:30:00.000Z",
-      "imageUrl": "https://cdn.bubilet.com.tr/cdn-cgi/image/width=480,quality=80/files/Etkinlik/gece-yarisi-kutuphanesi-83983.png",
-      "price": "30200₺",
-      "link": "https://www.bubilet.com.tr/mersin/etkinlik/gece-yarisi-kutuphanesi",
       "source": "Bubilet"
     },
     {
