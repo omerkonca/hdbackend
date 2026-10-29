@@ -35,7 +35,7 @@ async function upsertDeviceToken({
         token,
         platform,
         appVersion || null,
-        marketingOptIn !== false,
+        marketingOptIn === true || marketingOptIn === 'true',
         isPlus === true || isPlus === 'true',
         mahalle ? String(mahalle).trim() : null,
         sokak ? String(sokak).trim() : null,
@@ -55,7 +55,7 @@ async function upsertDeviceToken({
       token,
       platform,
       app_version: appVersion ?? null,
-      marketing_opt_in: marketingOptIn ?? true,
+      marketing_opt_in: marketingOptIn === true || marketingOptIn === 'true',
       updated_at: new Date().toISOString(),
     };
     if (isPlus !== undefined) updateData.is_plus = isPlus === true || isPlus === 'true';

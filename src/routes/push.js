@@ -35,7 +35,7 @@ router.post('/register', async (req, res) => {
       token: token.trim(),
       platform,
       appVersion,
-      marketingOptIn: marketingOptIn !== false,
+      marketingOptIn: marketingOptIn === true || marketingOptIn === 'true',
       isPlus,
       mahalle,
       sokak,

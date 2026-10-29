@@ -5,6 +5,7 @@ const config = require('../config');
 const { requireAdminToken } = require('../middlewares/auth');
 const citizenReportService = require('../services/citizenReportService');
 const emailService = require('../services/emailService');
+const { logTrafficEvent } = require('../utils/trafficLogger');
 
 const router = express.Router();
 
@@ -136,6 +137,17 @@ router.post('/', (req, res, next) => {
       fcmToken: fcmToken || null,
     });
 
+    await logTrafficEvent(req, {
+      action: 'citizen_report_create',
+      resourceType: 'citizen_report',
+      resourceId: row.id,
+      metadata: {
+        category,
+        imageCount: imageUrls.length,
+        platform: platform || null,
+      },
+    });
+
     const emailResult = await emailService.sendCitizenReportEmail(row);
     if (!emailResult?.ok) {
       console.error(
@@ -189,5 +201,68 @@ const handleUpdateStatus = async (req, res) => {
 
 router.patch('/:id/status', requireAdminToken, handleUpdateStatus);
 router.patch('/:id', requireAdminToken, handleUpdateStatus);
+
+router.delete('/:id', requireAdminToken, async (req, res) => {
+  try {
+    const result = await citizenReportService.delete(req.params.id);
+    await logTrafficEvent(req, {
+      action: 'citizen_report_delete',
+      resourceType: 'citizen_report',
+      resourceId: req.params.id,
+      metadata: { removedFiles: result.removedFiles },
+    });
+    return res.json({ ok: true, ...result });
+  } catch (e) {
+    return res.status(400).json({ ok: false, message: e.message });
+  }
+});
+
+router.post('/ugc-flag', async (req, res) => {
+  try {
+    const contentType = String(req.body?.contentType || 'ugc').trim();
+    const contentId = String(req.body?.contentId || '').trim();
+    const authorName = String(req.body?.authorName || '').trim();
+    const excerpt = String(req.body?.excerpt || '').trim();
+    const reason = String(req.body?.reason || 'Uygunsuz veya hukuka aykırı içerik').trim();
+    const platform = String(req.body?.platform || '').trim();
+    const appVersion = String(req.body?.appVersion || '').trim();
+
+    const formattedMessage = [
+      `[5651/5846 İÇERİK ŞİKAYETİ]`,
+      `Tür: ${contentType}`,
+      contentId ? `İçerik ID: ${contentId}` : null,
+      authorName ? `Paylaşan: ${authorName}` : null,
+      `Şikayet Nedeni: ${reason}`,
+      excerpt ? `İçerik Özeti: "${excerpt.slice(0, 500)}"` : null,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const row = await citizenReportService.create({
+      category: 'problem',
+      message: formattedMessage,
+      contactName: 'İçerik Denetim Bildirimi',
+      platform: platform || null,
+      appVersion: appVersion || null,
+    });
+
+    await logTrafficEvent(req, {
+      action: 'ugc_flag_report',
+      resourceType: contentType,
+      resourceId: contentId || row.id,
+      metadata: { reportId: row.id, reason },
+    });
+
+    emailService.sendCitizenReportEmail(row).catch(() => {});
+
+    return res.json({
+      ok: true,
+      id: row.id,
+      message: 'Bildiriminiz alındı. İçerik en geç 24 saat içinde incelenecektir.',
+    });
+  } catch (e) {
+    return res.status(400).json({ ok: false, message: e.message });
+  }
+});
 
 module.exports = router;

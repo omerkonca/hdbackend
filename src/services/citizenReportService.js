@@ -125,6 +125,48 @@ class CitizenReportService {
     return data;
   }
 
+  async delete(id) {
+    if (!id) throw new Error('Geçersiz bildirim kimliği.');
+    const db = requireSupabaseAdmin();
+
+    const { data: existing, error: fetchError } = await db
+      .from('citizen_reports')
+      .select('id, image_urls')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (fetchError) throw new Error(fetchError.message);
+    if (!existing) throw new Error('Kayıt bulunamadı.');
+
+    // 5846 FSEK / 5651 kapsamında yüklenen görselleri depolama alanından da kalıcı olarak kaldır
+    const urls = Array.isArray(existing.image_urls) ? existing.image_urls : [];
+    const storagePaths = urls
+      .map((u) => {
+        if (typeof u !== 'string') return null;
+        const marker = '/city-assets/';
+        const idx = u.indexOf(marker);
+        if (idx === -1) return null;
+        return decodeURIComponent(u.slice(idx + marker.length).split('?')[0]);
+      })
+      .filter(Boolean);
+
+    if (storagePaths.length > 0) {
+      try {
+        await db.storage.from('city-assets').remove(storagePaths);
+      } catch (storageErr) {
+        console.warn('[citizen-reports] Storage file removal warning:', storageErr.message);
+      }
+    }
+
+    const { error: deleteError } = await db
+      .from('citizen_reports')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) throw new Error(deleteError.message);
+    return { deleted: true, id, removedFiles: storagePaths.length };
+  }
+
   async _sendStatusNotification(report) {
     if (!report?.fcm_token) return;
     try {
