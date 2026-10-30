@@ -452,7 +452,19 @@ class EventService {
       { city: 'Adana', title: 'Yaz Konserleri: Fatma Turgut', cat: 'Konser', date: '2026-10-25T21:00:00Z', loc: 'Merkez Park' },
     ];
 
-    const all = [...augustEvents, ...septemberEvents, ...octoberEvents];
+    const novemberEvents = [
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Sagopa Kajmer', cat: 'Konser', date: '2026-11-07T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Ahmet Şafak', cat: 'Konser', date: '2026-11-08T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Sefo', cat: 'Konser', date: '2026-11-09T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+      { city: 'Adana', title: "10 Kasım Atatürk'ü Anma Özel Senfoni Konseri", cat: 'Konser', date: '2026-11-10T20:00:00Z', loc: '01 Burda PGM Sahnesi' },
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Serkan Kaya', cat: 'Konser', date: '2026-11-11T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Simge', cat: 'Konser', date: '2026-11-12T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Ebru Yaşar', cat: 'Konser', date: '2026-11-13T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Demet Akalın', cat: 'Konser', date: '2026-11-14T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+      { city: 'Adana', title: 'Adana Kültür Yolu Festivali: Murat Boz - Kapanış Konseri', cat: 'Konser', date: '2026-11-15T21:00:00Z', loc: 'Merkez Park Ana Sahne' },
+    ];
+
+    const all = [...augustEvents, ...septemberEvents, ...octoberEvents, ...novemberEvents];
     
     return all.map((e, i) => ({
       id: `manual-seed-${e.city.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${i}`,
@@ -471,6 +483,18 @@ class EventService {
 
   getImageForEvent(title = '', cat = '', index = 0) {
     const t = title.toLowerCase();
+    // Kültür Yolu & Özel Sanatçılar
+    if (t.includes('sagopa')) return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80';
+    if (t.includes('sefo')) return 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80';
+    if (t.includes('simge')) return 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&q=80';
+    if (t.includes('murat boz')) return 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80';
+    if (t.includes('ebru yaşar') || t.includes('ebru yasar')) return 'https://images.unsplash.com/photo-1520523839898-5071282543e1?w=800&q=80';
+    if (t.includes('demet akalın') || t.includes('demet akalin')) return 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80';
+    if (t.includes('serkan kaya')) return 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80';
+    if (t.includes('ahmet şafak') || t.includes('ahmet safak')) return 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80';
+    if (t.includes('senfoni') || t.includes('atatürk')) return 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80';
+    if (t.includes('kültür yolu') || t.includes('kultur yolu')) return 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80';
+
     
     // Spesifik Etkinlik & Sanatçı Eşleşmeleri
     if (t.includes('lezzet festival') || t.includes('gastronomi') || t.includes('yöresel')) {
