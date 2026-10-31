@@ -13,7 +13,7 @@ const newEvents = [
     location: 'Adana Merkez Park & Müze Kompleksi',
     date: '2026-11-07T07:00:00.000Z',
     imageUrl: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -25,8 +25,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-07T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/861348e7f8b6d93d3e2fff5ea6df2dcd/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -38,8 +38,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-08T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/ba6f1e389ca36222103e6de126e50ac5/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -51,8 +51,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-09T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/b0154dcf6895bb174cc2ba061f20481c/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -65,7 +65,7 @@ const newEvents = [
     location: '01 Burda PGM Sahne / Çukurova Senfoni',
     date: '2026-11-10T17:00:00.000Z',
     imageUrl: 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -77,8 +77,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-11T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/c43d3699dfa50df42d94046db842a61b/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -90,8 +90,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-12T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/447ea3938718f0cd3e9c89df7108384a/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -103,8 +103,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-13T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/cd56aa712d6acbcd6cff8b9bd4fbf0d1/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -116,8 +116,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-14T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/ebab8e6c7363af438d3f06036884dd66/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -129,8 +129,8 @@ const newEvents = [
     district: 'Seyhan',
     location: 'Adana Merkez Park Ana Sahnesi',
     date: '2026-11-15T18:00:00.000Z',
-    imageUrl: 'https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    imageUrl: 'https://cdn-images.dzcdn.net/images/artist/0e7e78c2174d6fc9ec72626f87142383/1000x1000-000000-80-0-0.jpg',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -143,7 +143,7 @@ const newEvents = [
     location: 'Adana Yeni Müze Kompleksi (Milli Mensucat)',
     date: '2026-11-07T08:00:00.000Z',
     imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   },
@@ -156,7 +156,7 @@ const newEvents = [
     location: 'Adana Merkez Park Çocuk Alanı',
     date: '2026-11-08T10:00:00.000Z',
     imageUrl: 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?w=800&q=80',
-    price: 'Ücretsiz (Halka Açık)',
+    price: 'Ücretsiz',
     link: 'https://kulturyolufestivali.com',
     source: 'T.C. Kültür ve Turizm Bakanlığı'
   }
@@ -196,7 +196,7 @@ async function updateAll() {
       dbData,
       new Date().toISOString()
     ]);
-    console.log('🎉 Successfully updated Supabase database with Adana Kültür Yolu Festivali events!');
+    console.log('🎉 Successfully updated Supabase database with real artist photos for Adana Kültür Yolu Festivali!');
     await client.end();
   }
 }
@@ -205,4 +205,3 @@ updateAll().catch(err => {
   console.error('❌ Error updating:', err);
   process.exit(1);
 });
-

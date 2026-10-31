@@ -483,15 +483,26 @@ class EventService {
 
   getImageForEvent(title = '', cat = '', index = 0) {
     const t = title.toLowerCase();
-    // Kültür Yolu & Özel Sanatçılar
-    if (t.includes('sagopa')) return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80';
-    if (t.includes('sefo')) return 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80';
-    if (t.includes('simge')) return 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=800&q=80';
-    if (t.includes('murat boz')) return 'https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=800&q=80';
-    if (t.includes('ebru yaşar') || t.includes('ebru yasar')) return 'https://images.unsplash.com/photo-1520523839898-5071282543e1?w=800&q=80';
-    if (t.includes('demet akalın') || t.includes('demet akalin')) return 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80';
-    if (t.includes('serkan kaya')) return 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80';
-    if (t.includes('ahmet şafak') || t.includes('ahmet safak')) return 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80';
+    // Kültür Yolu & Gerçek Sanatçı Portreleri (Deezer CDN)
+    if (t.includes('sagopa')) return 'https://cdn-images.dzcdn.net/images/artist/861348e7f8b6d93d3e2fff5ea6df2dcd/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('sefo')) return 'https://cdn-images.dzcdn.net/images/artist/b0154dcf6895bb174cc2ba061f20481c/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('simge')) return 'https://cdn-images.dzcdn.net/images/artist/447ea3938718f0cd3e9c89df7108384a/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('murat boz')) return 'https://cdn-images.dzcdn.net/images/artist/0e7e78c2174d6fc9ec72626f87142383/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('ebru yaşar') || t.includes('ebru yasar')) return 'https://cdn-images.dzcdn.net/images/artist/cd56aa712d6acbcd6cff8b9bd4fbf0d1/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('demet akalın') || t.includes('demet akalin')) return 'https://cdn-images.dzcdn.net/images/artist/ebab8e6c7363af438d3f06036884dd66/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('serkan kaya')) return 'https://cdn-images.dzcdn.net/images/artist/c43d3699dfa50df42d94046db842a61b/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('ahmet şafak') || t.includes('ahmet safak')) return 'https://cdn-images.dzcdn.net/images/artist/ba6f1e389ca36222103e6de126e50ac5/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('madrigal')) return 'https://cdn-images.dzcdn.net/images/artist/8705441c2e05aef465c76186af096845/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('gökhan türkmen') || t.includes('gokhan turkmen')) return 'https://cdn-images.dzcdn.net/images/artist/637222df104c0fa3b1bf4ae6f9797aea/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('duman')) return 'https://cdn-images.dzcdn.net/images/artist/420bd789cacec4d562f981f6eae6c76e/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('zeynep bastık') || t.includes('zeynep bastik')) return 'https://cdn-images.dzcdn.net/images/artist/641b9164594081e14059fdf87404eb8d/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('sertab')) return 'https://cdn-images.dzcdn.net/images/artist/27bd9f43e71221d9ec1ad16cd0e0aa18/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('cem adrian')) return 'https://cdn-images.dzcdn.net/images/artist/eb3231ea3ca901fbd90cf6e4f17a18f3/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('adamlar')) return 'https://cdn-images.dzcdn.net/images/artist/80cc98a7616cdede86fb44304a106bde/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('karsu')) return 'https://cdn-images.dzcdn.net/images/artist/505b6e71728a2e75ec54a254733223b2/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('yüzyüzeyken') || t.includes('yuzyuzeyken')) return 'https://cdn-images.dzcdn.net/images/artist/5aae600b68638b1c1b045ea15c7a7bcf/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('mabel matiz')) return 'https://cdn-images.dzcdn.net/images/artist/200a518f2a5b6e5c3f215111275bac10/1000x1000-000000-80-0-0.jpg';
+    if (t.includes('fatma turgut')) return 'https://cdn-images.dzcdn.net/images/artist/6cd73b1a945efdc107480ca72fd30bc9/1000x1000-000000-80-0-0.jpg';
     if (t.includes('senfoni') || t.includes('atatürk')) return 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=800&q=80';
     if (t.includes('kültür yolu') || t.includes('kultur yolu')) return 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=80';
 
