@@ -20,10 +20,11 @@ function mapItem(raw) {
 
   // Never assign an MP4 video url to thumbnailUrl
   const isVideoMedia = String(raw.media_type || '').toUpperCase() === 'VIDEO';
+  const isMp4 = mediaUrl.toLowerCase().includes('.mp4');
   if (!thumbnailUrl) {
-    if (!isVideoMedia && mediaUrl) {
+    if ((!isVideoMedia || !isMp4) && mediaUrl) {
       thumbnailUrl = mediaUrl;
-    } else if (children.length > 0 && !children[0].includes('.mp4')) {
+    } else if (children.length > 0 && !children[0].toLowerCase().includes('.mp4')) {
       thumbnailUrl = children[0];
     }
   }
@@ -77,7 +78,8 @@ class InstagramFeedService {
     let stories = [];
     if (storyRes.ok) {
       const storyJson = await storyRes.json();
-      stories = (storyJson.data || []).map(mapItem).filter((item) => item.id || item.mediaUrl);
+      // Hikayelerde en az bir oynatılabilir görsel/video veya doğrudan Instagram bağlantısı olanları kabul et
+      stories = (storyJson.data || []).map(mapItem).filter((item) => item.id || item.mediaUrl || item.thumbnailUrl);
     }
 
     const payload = { ok: true, configured: true, stories, posts, reels };
