@@ -718,6 +718,14 @@
           </label>
         </div>
         <input type="text" id="inputSource" class="input-box" value="Sabır Gazetesi" placeholder="Örn: Sabır Gazetesi, Hasret Gazetesi, İHA" oninput="updateSource(this.value)">
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
+          <button type="button" class="btn" style="padding:3px 8px; font-size:11px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);" onclick="setStudioSource('Sabır Gazetesi')">Sabır Gazetesi</button>
+          <button type="button" class="btn" style="padding:3px 8px; font-size:11px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);" onclick="setStudioSource('Hasret Gazetesi')">Hasret Gazetesi</button>
+          <button type="button" class="btn" style="padding:3px 8px; font-size:11px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);" onclick="setStudioSource('İHA')">İHA</button>
+          <button type="button" class="btn" style="padding:3px 8px; font-size:11px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);" onclick="setStudioSource('DHA')">DHA</button>
+          <button type="button" class="btn" style="padding:3px 8px; font-size:11px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);" onclick="setStudioSource('AA')">AA</button>
+          <button type="button" class="btn" style="padding:3px 8px; font-size:11px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);" onclick="setStudioSource('Özel')">Özel</button>
+        </div>
       </div>
 
       <!-- Manşet Başlığı -->
@@ -881,12 +889,20 @@
 
     
     function cleanDisplaySource(val) {
-      let s = (val || '').trim().toUpperCase();
+      let s = (val || '').trim();
       s = s.replace(/^KAYNAK:\s*/i, '');
-      s = s.replace(/\s+GAZETES[İI]\b/i, '');
-      s = s.replace(/\s+HABER\b/i, '');
-      s = s.replace(/\s+DÜZİÇİ\b/i, '');
-      return s ? 'KAYNAK: ' + s.trim() : '';
+      s = s.replace(/^KAYNAK\s*-\s*/i, '');
+      s = s.replace(/^KAYNAK\s+/i, '');
+      return s.trim().toUpperCase();
+    }
+
+    function setStudioSource(name) {
+      const input = document.getElementById('inputSource');
+      if (input) {
+        input.value = name;
+        document.getElementById('checkShowSource').checked = true;
+        updateSource(name);
+      }
     }
 
     function updateSource(val) {
@@ -901,7 +917,7 @@
       if (dot) dot.style.display = (isShow && clean) ? 'inline-block' : 'none';
 
       if (brandEl) {
-        brandEl.innerHTML = (isShow && clean) ? '<b>Hepsi Düziçi</b>' : '<b>Hepsi Düziçi</b> • Mobil Uygulaması';
+        brandEl.innerHTML = (isShow && clean) ? '<b style="font-weight:900;">Hepsi Düziçi</b>' : '<b style="font-weight:900;">Hepsi Düziçi</b> • Mobil Uygulaması';
       }
     }
 
@@ -916,7 +932,7 @@
       if (dot) dot.style.display = (show && clean) ? 'inline-block' : 'none';
 
       if (brandEl) {
-        brandEl.innerHTML = (show && clean) ? '<b>Hepsi Düziçi</b>' : '<b>Hepsi Düziçi</b> • Mobil Uygulaması';
+        brandEl.innerHTML = (show && clean) ? '<b style="font-weight:900;">Hepsi Düziçi</b>' : '<b style="font-weight:900;">Hepsi Düziçi</b> • Mobil Uygulaması';
       }
     }
 
@@ -1379,7 +1395,7 @@
 
         // Uygulama Adı
         curX += 12;
-        ctx.font = '700 20px Inter, sans-serif';
+        ctx.font = '900 22px Inter, sans-serif';
         ctx.fillStyle = '#0F172A';
         ctx.fillText(brandText, curX, 0);
         ctx.restore();
@@ -1820,7 +1836,7 @@
           ctx.fill();
           ctx.restore();
 
-          ctx.font = '700 20px Inter, sans-serif';
+          ctx.font = '900 22px Inter, sans-serif';
           ctx.fillStyle = '#0F172A';
           ctx.fillText(brandText, dotX + 12, 0);
           ctx.restore();
