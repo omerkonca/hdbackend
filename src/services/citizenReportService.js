@@ -114,15 +114,22 @@ class CitizenReportService {
     if (error) throw new Error(error.message);
 
     // Yalnızca bu ihbarı gönderen cihaza gider; konu/genel push yok.
+    let pushResult = null;
     if (data?.fcm_token) {
-      this._sendStatusNotification(data).catch((err) => {
+      try {
+        pushResult = await this._sendStatusNotification(data);
+      } catch (err) {
         console.error('[citizen-reports] Push bildirim gönderim hatası:', err.message);
-      });
+      }
     } else if (data) {
       console.warn(`[citizen-reports] Push atlandı, fcm_token yok: ${data.id}`);
     }
 
-    return data;
+    return {
+      ...data,
+      pushSent: Boolean(pushResult?.success),
+      pushResult,
+    };
   }
 
   async delete(id) {
@@ -197,10 +204,10 @@ class CitizenReportService {
         : resolutionNote;
 
       const title = shortReply
-        ? 'İhbarınıza yanıt geldi'
+        ? `İhbar Yanıtlandı: ${statusLabel}`
         : (statusTitles[report.status] || 'İhbarınızın durumu güncellendi');
       const body = shortReply
-        ? `${statusLabel}: ${shortReply}`
+        ? shortReply
         : (statusBodies[report.status] || 'İhbarınızın durumu güncellendi. Takip için dokunun.');
 
       const reportId = String(report.id || '');
@@ -219,8 +226,10 @@ class CitizenReportService {
       });
 
       console.log(`[citizen-reports] Push notification sent for report ${report.id}:`, result);
+      return result;
     } catch (err) {
       console.error('[citizen-reports] Push notification error:', err.message);
+      return { success: false, error: err.message };
     }
   }
 }

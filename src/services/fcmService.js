@@ -92,6 +92,13 @@ async function sendToTopic(topic, { title, body, data = {}, collapseKey = null }
       data: stringData,
       android: {
         priority: 'high',
+        notification: {
+          channelId: 'push_broadcast',
+          sound: 'default',
+          priority: 'max',
+          defaultSound: true,
+          defaultVibrateTimings: true,
+        },
         ...(collapseKey ? { collapseKey: String(collapseKey) } : {}),
       },
       apns: {
