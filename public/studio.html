@@ -880,21 +880,44 @@
     }
 
     
+    function cleanDisplaySource(val) {
+      let s = (val || '').trim().toUpperCase();
+      s = s.replace(/^KAYNAK:\s*/i, '');
+      s = s.replace(/\s+GAZETES[İI]\b/i, '');
+      s = s.replace(/\s+HABER\b/i, '');
+      s = s.replace(/\s+DÜZİÇİ\b/i, '');
+      return s ? 'KAYNAK: ' + s.trim() : '';
+    }
+
     function updateSource(val) {
       const el = document.getElementById('stripSourceBadge');
       const dot = document.getElementById('stripSourceDot');
       const isShow = document.getElementById('checkShowSource').checked;
-      if (el) el.innerText = val ? 'KAYNAK: ' + val.toUpperCase() : '';
-      if (el) el.style.display = (isShow && val) ? 'inline' : 'none';
-      if (dot) dot.style.display = (isShow && val) ? 'inline-block' : 'none';
+      const brandEl = document.querySelector('.strip-brand');
+      const clean = cleanDisplaySource(val);
+
+      if (el) el.innerText = clean;
+      if (el) el.style.display = (isShow && clean) ? 'inline' : 'none';
+      if (dot) dot.style.display = (isShow && clean) ? 'inline-block' : 'none';
+
+      if (brandEl) {
+        brandEl.innerHTML = (isShow && clean) ? '<b>Hepsi Düziçi</b>' : '<b>Hepsi Düziçi</b> • Mobil Uygulaması';
+      }
     }
 
     function toggleSource(show) {
       const el = document.getElementById('stripSourceBadge');
       const dot = document.getElementById('stripSourceDot');
       const val = document.getElementById('inputSource').value.trim();
-      if (el) el.style.display = (show && val) ? 'inline' : 'none';
-      if (dot) dot.style.display = (show && val) ? 'inline-block' : 'none';
+      const brandEl = document.querySelector('.strip-brand');
+      const clean = cleanDisplaySource(val);
+
+      if (el) el.style.display = (show && clean) ? 'inline' : 'none';
+      if (dot) dot.style.display = (show && clean) ? 'inline-block' : 'none';
+
+      if (brandEl) {
+        brandEl.innerHTML = (show && clean) ? '<b>Hepsi Düziçi</b>' : '<b>Hepsi Düziçi</b> • Mobil Uygulaması';
+      }
     }
 
     function updateLocation(val) {
@@ -1295,8 +1318,9 @@
         const rawTop = document.getElementById('stripLocText').innerText || 'DÜZİÇİ';
         const locText = rawTop.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
         const isSourceVisible = document.getElementById('checkShowSource') ? document.getElementById('checkShowSource').checked : true;
-        const sourceVal = (document.getElementById('inputSource')?.value || '').trim().toUpperCase();
-        const brandText = 'HEPSİ DÜZİÇİ • MOBİL UYGULAMASI';
+        const sourceVal = (document.getElementById('inputSource')?.value || '').trim();
+        const cleanSource = cleanDisplaySource(sourceVal);
+        const brandText = (isSourceVisible && cleanSource) ? 'HEPSİ DÜZİÇİ' : 'HEPSİ DÜZİÇİ • MOBİL UYGULAMASI';
 
         const stripBottom = 154 + stripHeight;
         ctx.save();
@@ -1329,7 +1353,7 @@
         let curX = 20 + ctx.measureText(locText).width + 10;
 
         // Kaynak Rozeti Varsa Çiz
-        if (isSourceVisible && sourceVal) {
+        if (isSourceVisible && cleanSource) {
           ctx.save();
           ctx.fillStyle = '#475569';
           ctx.beginPath();
@@ -1340,7 +1364,7 @@
           curX += 12;
           ctx.font = '800 20px Inter, sans-serif';
           ctx.fillStyle = '#B45309';
-          const srcText = 'KAYNAK: ' + sourceVal;
+          const srcText = cleanSource;
           ctx.fillText(srcText, curX, 0);
           curX += ctx.measureText(srcText).width + 10;
         }
@@ -1616,7 +1640,10 @@
         const quote = document.getElementById('cardQuote').innerText.trim();
         const rawTop = document.getElementById('stripLocText').innerText || 'DÜZİÇİ';
         const locText = rawTop.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
-        const brandText = 'HEPSİ DÜZİÇİ • MOBİL UYGULAMASI';
+        const isSourceVisible = document.getElementById('checkShowSource') ? document.getElementById('checkShowSource').checked : true;
+        const sourceVal = (document.getElementById('inputSource')?.value || '').trim();
+        const cleanSource = cleanDisplaySource(sourceVal);
+        const brandText = (isSourceVisible && cleanSource) ? 'HEPSİ DÜZİÇİ' : 'HEPSİ DÜZİÇİ • MOBİL UYGULAMASI';
         const t = themes[currentThemeIndex];
 
         const logoImg = new Image();
@@ -1767,9 +1794,25 @@
 
           ctx.fillStyle = '#0F172A';
           ctx.fillText(locText, 20, 0);
-          const locW = ctx.measureText(locText).width;
+          let curX = 20 + ctx.measureText(locText).width + 10;
 
-          const dotX = 20 + locW + 10;
+          // Kaynak Rozeti Varsa Çiz
+          if (isSourceVisible && cleanSource) {
+            ctx.save();
+            ctx.fillStyle = '#475569';
+            ctx.beginPath();
+            ctx.arc(curX, 0, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+            curX += 12;
+            ctx.font = '800 20px Inter, sans-serif';
+            ctx.fillStyle = '#B45309';
+            const srcText = cleanSource;
+            ctx.fillText(srcText, curX, 0);
+            curX += ctx.measureText(srcText).width + 10;
+          }
+
+          const dotX = curX;
           ctx.save();
           ctx.fillStyle = '#475569';
           ctx.beginPath();
@@ -1778,6 +1821,7 @@
           ctx.restore();
 
           ctx.font = '700 20px Inter, sans-serif';
+          ctx.fillStyle = '#0F172A';
           ctx.fillText(brandText, dotX + 12, 0);
           ctx.restore();
 
