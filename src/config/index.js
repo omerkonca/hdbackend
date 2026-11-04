@@ -55,11 +55,11 @@ const config = {
     // Bildirim yalnızca bu süre içinde yayınlanmış haberler için gönderilir.
     PUSH_MAX_AGE_HOURS: Number(process.env.NEWS_PUSH_MAX_AGE_HOURS || 36),
     SOURCES: [
-      { url: 'https://www.sabirgazetesi.com/rss/duzici', name: 'Sabır Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
-      { url: 'https://www.hasretgazetesi.com.tr/rss/duzici', name: 'Hasret Gazetesi Düziçi', scope: 'duzici', filterDuzici: false },
+      { url: 'https://www.sabirgazetesi.com/rss/duzici', name: 'Sabır Gazetesi Düziçi', scope: 'duzici', filterDuzici: true },
+      { url: 'https://www.hasretgazetesi.com.tr/rss/duzici', name: 'Hasret Gazetesi Düziçi', scope: 'duzici', filterDuzici: true },
       { url: 'https://www.sabirgazetesi.com/rss', name: 'Sabır Gazetesi', scope: 'osmaniye' },
       { url: 'https://www.hasretgazetesi.com.tr/rss', name: 'Hasret Gazetesi', scope: 'osmaniye' },
-      { url: 'https://www.akdenizgazetesi.com/rss/duzici', name: 'Akdeniz Gazetesi Düziçi', scope: 'duzici', filterDuzici: false, isActive: false },
+      { url: 'https://www.akdenizgazetesi.com/rss/duzici', name: 'Akdeniz Gazetesi Düziçi', scope: 'duzici', filterDuzici: true, isActive: false },
       { url: 'https://www.akdenizgazetesi.com/rss', name: 'Akdeniz Gazetesi', scope: 'osmaniye', isActive: false },
       {
         url: 'https://www.aa.com.tr/tr/rss/default?cat=guncel',

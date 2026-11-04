@@ -611,6 +611,8 @@
               <!-- Amber Renk Konum İğnesi -->
               <svg width="9" height="9" viewBox="0 0 24 24" fill="#D97706"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
               <span id="stripLocText">DÜZİÇİ</span>
+              <span class="strip-dot" id="stripSourceDot"></span>
+              <span id="stripSourceBadge" style="color:#B45309; font-weight:800;">KAYNAK: SABIR GAZETESİ</span>
               <span class="strip-dot"></span>
               <span class="strip-brand"><b>Hepsi Düziçi</b> • Mobil Uygulaması</span>
             </div>
@@ -682,6 +684,17 @@
           <input type="text" id="inputStripTop" class="input-box" value="DÜZİÇİ" placeholder="Örn: DÜZİÇİ, OSMANİYE" oninput="updateLocation(this.value)">
           <button class="btn btn-secondary" style="padding:4px 12px; font-size:11.5px; flex:none;" onclick="resetKadraj()">🔄 Kadrajı Sıfırla</button>
         </div>
+      </div>
+
+      <!-- Haber Kaynağı Kontrolü -->
+      <div style="background:rgba(0,0,0,0.25); border:1px solid var(--border); border-radius:10px; padding:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="panel-title" style="font-size:11px; margin-bottom:0;">📰 Haber Kaynağı (Gazete)</span>
+          <label style="font-size:11px; color:#FBBF24; cursor:pointer; display:flex; align-items:center; gap:4px;">
+            <input type="checkbox" id="checkShowSource" checked onchange="toggleSource(this.checked)"> Şeritte Göster
+          </label>
+        </div>
+        <input type="text" id="inputSource" class="input-box" value="Sabır Gazetesi" placeholder="Örn: Sabır Gazetesi, Hasret Gazetesi, İHA" oninput="updateSource(this.value)">
       </div>
 
       <!-- Manşet Başlığı -->
@@ -834,6 +847,24 @@
       )`;
     }
 
+    
+    function updateSource(val) {
+      const el = document.getElementById('stripSourceBadge');
+      const dot = document.getElementById('stripSourceDot');
+      const isShow = document.getElementById('checkShowSource').checked;
+      if (el) el.innerText = val ? 'KAYNAK: ' + val.toUpperCase() : '';
+      if (el) el.style.display = (isShow && val) ? 'inline' : 'none';
+      if (dot) dot.style.display = (isShow && val) ? 'inline-block' : 'none';
+    }
+
+    function toggleSource(show) {
+      const el = document.getElementById('stripSourceBadge');
+      const dot = document.getElementById('stripSourceDot');
+      const val = document.getElementById('inputSource').value.trim();
+      if (el) el.style.display = (show && val) ? 'inline' : 'none';
+      if (dot) dot.style.display = (show && val) ? 'inline-block' : 'none';
+    }
+
     function updateLocation(val) {
       const clean = val.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase() || 'DÜZİÇİ';
       document.getElementById('stripLocText').innerText = clean;
@@ -913,6 +944,9 @@
       if (cat.includes('osmaniye')) loc = 'OSMANİYE';
       else if (cat.includes('türkiye')) loc = 'TÜRKİYE';
       document.getElementById('inputStripTop').value = loc;
+      const cleanSrc = (item.sourceName || 'Sabır Gazetesi').replace(/\s+Düziçi$/i, '').trim();
+      document.getElementById('inputSource').value = cleanSrc;
+      updateSource(cleanSrc);
       updateLocation(loc);
 
       // Fotoğrafı uygula
@@ -1165,6 +1199,8 @@
         // 5. Şerit İçi Dikey Yazı & Vektör İkonlar
         const rawTop = document.getElementById('stripLocText').innerText || 'DÜZİÇİ';
         const locText = rawTop.replace(/^[^\w\sğüşıöçĞÜŞİÖÇ]+/, '').trim().toUpperCase();
+        const isSourceVisible = document.getElementById('checkShowSource') ? document.getElementById('checkShowSource').checked : true;
+        const sourceVal = (document.getElementById('inputSource')?.value || '').trim().toUpperCase();
         const brandText = 'HEPSİ DÜZİÇİ • MOBİL UYGULAMASI';
 
         const stripBottom = 154 + stripHeight;
@@ -1195,20 +1231,38 @@
 
         ctx.fillStyle = '#0F172A';
         ctx.fillText(locText, 20, 0);
-        const locW = ctx.measureText(locText).width;
+        let curX = 20 + ctx.measureText(locText).width + 10;
+
+        // Kaynak Rozeti Varsa Çiz
+        if (isSourceVisible && sourceVal) {
+          ctx.save();
+          ctx.fillStyle = '#475569';
+          ctx.beginPath();
+          ctx.arc(curX, 0, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+
+          curX += 12;
+          ctx.font = '800 20px Inter, sans-serif';
+          ctx.fillStyle = '#B45309';
+          const srcText = 'KAYNAK: ' + sourceVal;
+          ctx.fillText(srcText, curX, 0);
+          curX += ctx.measureText(srcText).width + 10;
+        }
 
         // Nokta Ayırıcı
-        const dotX = 20 + locW + 10;
         ctx.save();
         ctx.fillStyle = '#475569';
         ctx.beginPath();
-        ctx.arc(dotX, 0, 3.5, 0, Math.PI * 2);
+        ctx.arc(curX, 0, 3.5, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
         // Uygulama Adı
+        curX += 12;
         ctx.font = '700 20px Inter, sans-serif';
-        ctx.fillText(brandText, dotX + 12, 0);
+        ctx.fillStyle = '#0F172A';
+        ctx.fillText(brandText, curX, 0);
         ctx.restore();
 
         // 6. Başlık & Spot Metni Çizimi

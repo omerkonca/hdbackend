@@ -62,9 +62,11 @@ async function discoverActiveGeminiModels(apiKey) {
 function geminiModelCandidates() {
   const preferred = [
     'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
     'gemini-3.5-flash-lite',
     'gemini-flash-latest',
     'gemini-flash-lite-latest',
+    'gemini-3.5-flash-lite',
     'gemini-3.5-flash',
     'gemini-2.5-pro',
   ];
@@ -82,6 +84,7 @@ function geminiModelCandidates() {
   if (_discoveredGeminiModels) {
     for (const d of _discoveredGeminiModels) pushUnique(d);
   }
+  return ordered.length ? ordered : ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-flash-lite'];
   return ordered.length ? ordered : ['gemini-2.5-flash', 'gemini-3.5-flash-lite', 'gemini-flash-latest'];
 }
 
