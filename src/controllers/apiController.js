@@ -2104,6 +2104,17 @@ kaynaktan (örn. Diyanet Kur'an Meali, sunnah.com, tanzil.net) kontrol ederek el
       return res.status(500).json({ ok: false, message: 'Silme başarısız: ' + err.message });
     }
   }
+
+  async getDetailedAnalytics(req, res) {
+    try {
+      const analyticsService = require('../services/analyticsService');
+      const data = await analyticsService.getDetailedAnalytics();
+      return res.json(data);
+    } catch (err) {
+      console.error('[detailed-analytics] error:', err.message);
+      return res.status(500).json({ ok: false, message: err.message });
+    }
+  }
 }
 
 function isSandboxRecord(row) {
