@@ -79,16 +79,17 @@ async function wasEarthquakeAlerted(quake) {
     }
 
     // 2. Uzamsal-Zamansal Eşleşme (Revize veya AFAD/Kandilli çiftleşmesi):
-    // Zaman farkı <= 6 dakika VE Merkez üssü mesafesi <= 40 km ise AYNI DEPREMDİR!
+    // AFAD ve Kandilli zaman farkı 12 dakikaya, merkez üssü tahmini 80 km'ye kadar sapabilir.
+    // Zaman farkı <= 12 dakika VE Merkez üssü mesafesi <= 80 km ise AYNI DEPREMDİR, asla tekrar bildirim atma!
     const prevTs = Number(prev.timestamp || 0);
     const timeDiffMin = Math.abs(quakeTs - prevTs) / (60 * 1000);
 
-    if (timeDiffMin <= 6) {
+    if (timeDiffMin <= 12) {
       const prevLat = Number(prev.latitude || 0);
       const prevLng = Number(prev.longitude || 0);
       if (prevLat && prevLng && quakeLat && quakeLng) {
         const dist = calculateDistanceKm(quakeLat, quakeLng, prevLat, prevLng);
-        if (dist <= 40) {
+        if (dist <= 80) {
           return true;
         }
       }
