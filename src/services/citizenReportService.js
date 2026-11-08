@@ -5,6 +5,7 @@ const VALID_STATUSES = new Set(['new', 'reviewing', 'resolved', 'dismissed']);
 
 class CitizenReportService {
   async create({
+    id = null,
     category,
     message,
     contactName,
@@ -36,27 +37,33 @@ class CitizenReportService {
     const cleanLng = (typeof longitude === 'number' && Number.isFinite(longitude)) ? longitude : (longitude ? parseFloat(longitude) : null);
     const cleanLocUrl = locationUrl?.trim() || (cleanLat && cleanLng ? `https://www.google.com/maps/search/?api=1&query=${cleanLat},${cleanLng}` : null);
 
+    const insertPayload = {
+      category,
+      message: trimmed,
+      contact_name: contactName?.trim() || null,
+      contact_email: contactEmail?.trim() || null,
+      address: address?.trim() || null,
+      latitude: cleanLat,
+      longitude: cleanLng,
+      location_url: cleanLocUrl,
+      image_urls: imageUrls.filter(Boolean),
+      platform: platform || null,
+      app_version: appVersion || null,
+      status: 'new',
+      is_plus: isPlus === true || isPlus === 'true',
+      is_supporter: isSupporter === true || isSupporter === 'true',
+      user_badge: userBadge?.trim() || null,
+      fcm_token: fcmToken?.trim() || null,
+    };
+
+    if (id && typeof id === 'string' && id.trim().length > 0) {
+      insertPayload.id = id.trim();
+    }
+
     const db = requireSupabaseAdmin();
     const { data, error } = await db
       .from('citizen_reports')
-      .insert({
-        category,
-        message: trimmed,
-        contact_name: contactName?.trim() || null,
-        contact_email: contactEmail?.trim() || null,
-        address: address?.trim() || null,
-        latitude: cleanLat,
-        longitude: cleanLng,
-        location_url: cleanLocUrl,
-        image_urls: imageUrls.filter(Boolean),
-        platform: platform || null,
-        app_version: appVersion || null,
-        status: 'new',
-        is_plus: isPlus === true || isPlus === 'true',
-        is_supporter: isSupporter === true || isSupporter === 'true',
-        user_badge: userBadge?.trim() || null,
-        fcm_token: fcmToken?.trim() || null,
-      })
+      .insert(insertPayload)
       .select('*')
       .single();
 

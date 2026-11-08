@@ -74,6 +74,7 @@ router.post('/', (req, res, next) => {
   });
 }, async (req, res) => {
   try {
+    const reportId = String(req.body?.id || req.body?.reportId || '').trim();
     const category = String(req.body?.category || '').trim();
     const message = String(req.body?.message || '').trim();
     const contactName = String(req.body?.contactName || '').trim();
@@ -89,10 +90,93 @@ router.post('/', (req, res, next) => {
     const locationUrl = String(req.body?.locationUrl || '').trim();
     const fcmToken = String(req.body?.fcmToken || req.body?.fcm_token || '').trim();
 
+    const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
+    const db = requireSupabaseAdmin();
+
+    // 1. Flutter istemcisi doğrudan Supabase'e ekledikten sonra (id ile) arka plan bildirimi yaptıysa:
+    if (reportId) {
+      const { data: existingReport } = await db
+        .from('citizen_reports')
+        .select('*')
+        .eq('id', reportId)
+        .maybeSingle();
+
+      if (existingReport) {
+        // Zaten istemci tarafından kaydedilmiş, ikinci kez satır açma!
+        await logTrafficEvent(req, {
+          action: 'citizen_report_create',
+          resourceType: 'citizen_report',
+          resourceId: existingReport.id,
+          metadata: {
+            category: existingReport.category,
+            imageCount: Array.isArray(existingReport.image_urls) ? existingReport.image_urls.length : 0,
+            platform: existingReport.platform || platform || null,
+            preInserted: true,
+          },
+        });
+
+        // FCM token veya eksik alanlar varsa güncelle
+        if (fcmToken && !existingReport.fcm_token) {
+          await db
+            .from('citizen_reports')
+            .update({ fcm_token: fcmToken })
+            .eq('id', existingReport.id);
+          existingReport.fcm_token = fcmToken;
+        }
+
+        const emailResult = await emailService.sendCitizenReportEmail(existingReport);
+        if (!emailResult?.ok) {
+          console.error(
+            '[citizen-reports] e-posta gönderilemedi (pre-inserted):',
+            emailResult?.reason,
+            emailResult?.detail || '',
+          );
+        }
+
+        return res.json({
+          ok: true,
+          id: existingReport.id,
+          createdAt: existingReport.created_at,
+          emailSent: emailResult?.ok === true,
+          duplicatePrevented: true,
+          message: 'Bildiriminiz alındı. Teşekkür ederiz.',
+        });
+      }
+    }
+
+    // 2. Çift tıklama / mükerrer gönderim koruması (Aynı kategori ve mesaj son 60 saniyede geldiyse mükerrer oluşturma)
+    if (message && category) {
+      const windowStart = new Date(Date.now() - 60000).toISOString();
+      const { data: recentDuplicate } = await db
+        .from('citizen_reports')
+        .select('*')
+        .eq('category', category)
+        .eq('message', message)
+        .gte('created_at', windowStart)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (recentDuplicate) {
+        if (fcmToken && !recentDuplicate.fcm_token) {
+          await db
+            .from('citizen_reports')
+            .update({ fcm_token: fcmToken })
+            .eq('id', recentDuplicate.id);
+        }
+        return res.json({
+          ok: true,
+          id: recentDuplicate.id,
+          createdAt: recentDuplicate.created_at,
+          duplicatePrevented: true,
+          message: 'Bildiriminiz alındı. Teşekkür ederiz.',
+        });
+      }
+    }
+
     const imageUrls = [];
     if (useSupabaseStorage && req.files && req.files.length > 0) {
-      const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
-      const supabase = requireSupabaseAdmin();
+      const supabase = db;
       for (const file of req.files) {
         const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
         const filename = `report-${unique}${mimeToExt(file.mimetype, file.originalname)}`;
@@ -120,6 +204,7 @@ router.post('/', (req, res, next) => {
     }
 
     const row = await citizenReportService.create({
+      id: reportId || null,
       category,
       message,
       contactName: contactName || null,
