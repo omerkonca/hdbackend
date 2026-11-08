@@ -209,11 +209,24 @@ class OutageService {
     };
     this._lastFingerprint = '';
     this._isFetching = false;
+    this._lastTopicPushAt = 0;
 
-    // Arka planda her 2.5 dakikada bir otomatik taze tut (Kullanıcı asla beklemesin)
+    // Arka planda her 5 dakikada bir otomatik taze tut (Kullanıcı asla beklemesin)
     setInterval(() => {
       this._fetchFreshOutages().catch(() => {});
-    }, 2.5 * 60 * 1000);
+    }, 5 * 60 * 1000);
+  }
+
+  /// 🔒 Kesintinin Mahalle + Tür + Tarih bazlı benzersiz kimliğini üretir (Başlık değişse bile spamı engeller)
+  _getOutageSemanticKey(item) {
+    if (!item) return '';
+    const type = String(item.type || 'ELEKTRIK').toUpperCase();
+    const dateKey = turkeyDateKey(new Date(item.startAt || item.date || Date.now()).getTime());
+    const affected = extractAffectedMahalleler(item);
+    const mahallePart = affected.length > 0
+      ? affected.map((m) => m.key).sort().join('_')
+      : normalizeTr(item.area || item.title || '').slice(0, 30).replace(/\s+/g, '_');
+    return `outage_semantic_${type}_${mahallePart}_${dateKey}`;
   }
 
   /// 👑 PLUS ÜYELERE ÖZEL: Mahalle ve Sokağa Göre Planlı Kesinti Bildirimi
@@ -222,7 +235,18 @@ class OutageService {
 
     const now = Date.now();
     const plannedItems = activeItems.filter((item) => {
-      if (!item) return false;
+      if (!item || !item.title) return false;
+      const id = String(item.id || '');
+      const sourceKind = String(item.sourceKind || '').toLowerCase();
+      // Haberlerden veya yapay zeka çıkarımlarından gelen içerikler ASLA otomatik push atamaz!
+      if (
+        sourceKind === 'news' ||
+        sourceKind === 'extracted' ||
+        id.startsWith('extracted_') ||
+        id.startsWith('news_')
+      ) {
+        return false;
+      }
       const isExplicitlyPlanned =
         item.status === 'Planlandı' ||
         String(item.type || '').toUpperCase() === 'PLANLI';
@@ -259,11 +283,15 @@ class OutageService {
           } catch (_) {}
         }
 
+        const semanticKey = this._getOutageSemanticKey(outage);
         for (const device of targetedDevices) {
           const token = device.token;
           if (!token) continue;
 
-          if (await outagePushLog.wasPlusPushed(outageId, token)) {
+          if (
+            (await outagePushLog.wasPlusPushed(outageId, token)) ||
+            (semanticKey && (await outagePushLog.wasPlusPushed(semanticKey, token)))
+          ) {
             continue;
           }
 
@@ -328,6 +356,9 @@ class OutageService {
 
             if (res.success) {
               await outagePushLog.markPlusPushed(outageId, token);
+              if (semanticKey) {
+                await outagePushLog.markPlusPushed(semanticKey, token);
+              }
             }
           }
         }
@@ -344,13 +375,42 @@ class OutageService {
 
     if (!fcmService.isFcmConfigured()) return;
 
-    // 1. Önce Plus üyelere özel mahalle/sokak bildirimlerini gönder
-    await this.pushPlannedOutagesToPlusUsers(activeItems);
+    // Yalnızca resmi, doğrulanmış kaynaklar otomatik push atabilir (Haber ve AI çıkarımları ASLA push atamaz)
+    const eligibleItems = activeItems.filter((item) => {
+      if (!item || !item.title) return false;
+      const id = String(item.id || '');
+      const sourceKind = String(item.sourceKind || '').toLowerCase();
+      if (
+        sourceKind === 'news' ||
+        sourceKind === 'extracted' ||
+        id.startsWith('extracted_') ||
+        id.startsWith('news_')
+      ) {
+        return false;
+      }
+      return true;
+    });
 
-    // 2. Genel genel konu bildirimi
-    for (const item of activeItems.slice(0, 3)) {
+    if (eligibleItems.length === 0) return;
+
+    // 1. Önce Plus üyelere özel mahalle/sokak bildirimlerini gönder
+    await this.pushPlannedOutagesToPlusUsers(eligibleItems);
+
+    // 2. Genel konu bildirimi (Topic: outages_duzici)
+    const now = Date.now();
+    for (const item of eligibleItems.slice(0, 3)) {
       const id = item.id || `outage_${item.title}`;
+      const semanticKey = this._getOutageSemanticKey(item);
+
+      // İster ID bazlı ister Mahalle+Tür+Tarih bazlı daha önce atılmışsa ASLA tekrar atma!
       if (await outagePushLog.wasPushed(id)) continue;
+      if (semanticKey && (await outagePushLog.wasPushed(semanticKey))) continue;
+
+      // Spam koruması: Son genel kesinti push'unun üzerinden en az 30 dakika geçmeli
+      if (this._lastTopicPushAt && now - this._lastTopicPushAt < 30 * 60 * 1000) {
+        console.warn('[outages] Topic push atlandı: Son kesinti bildiriminin üzerinden henüz 30 dk geçmedi (Spam önleme).');
+        break;
+      }
 
       const isGas = String(item.type).toUpperCase().includes('GAZ');
       const isWater = String(item.type).toUpperCase() === 'SU';
@@ -370,8 +430,12 @@ class OutageService {
       });
 
       if (result.success) {
+        this._lastTopicPushAt = Date.now();
         await outagePushLog.markPushed(id);
-        console.log(`[outages] push gönderildi: ${item.title}`);
+        if (semanticKey) {
+          await outagePushLog.markPushed(semanticKey);
+        }
+        console.log(`[outages] push gönderildi: ${item.title} (Key: ${semanticKey})`);
       }
     }
   }
@@ -446,41 +510,16 @@ class OutageService {
         }
       }
 
-      const [belediye, toroslar, cityData, recentNews] = await Promise.all([
+      const [belediye, toroslar, cityData] = await Promise.all([
         municipalityAnnouncementScraper.fetchOutageAnnouncements({ max: 40 }),
         toroslarOutageScraper.fetchDuziciOutages(),
         fileService.readCityContent().catch(() => ({})),
-        newsService.getNews({ max: 30 }).catch(() => []),
       ]);
 
-      const newsExtractedOutages = [];
-      if (Array.isArray(recentNews)) {
-        for (const item of recentNews) {
-          const text = `${item.title || ''}\n${item.summary || ''}\n${item.fullText || ''}`;
-          if (/kesinti|su kesint|elektrik kesint|doğalgaz|dogalgaz|aksa gaz|şebeke bakım|su hattı|ana boru|arıza onarım|sular akmıyor|sular kesilecek|elektrikler kesilecek|toroslar edaş|aski/i.test(text)) {
-            try {
-              const ext = await outageExtractorService.extractFromText(text);
-              if (ext.outages && ext.outages.length > 0) {
-                const todayKeyStr = turkeyDateKey();
-                for (const o of ext.outages) {
-                  const oDate = o.startAt || o.date;
-                  if (!oDate) continue;
-                  const oDateKey = turkeyDateKey(new Date(oDate).getTime());
-                  if (oDateKey < todayKeyStr) continue; // Eski haber kesintilerini asla bugüne alma
-                  o.source = o.source || item.sourceName || 'Düziçi Yerel Haber';
-                  o.announcementUrl = item.sourceUrl || '';
-                  newsExtractedOutages.push(o);
-                }
-              }
-            } catch (err) {
-              console.warn('[outage-service] Haberden kesinti çıkarırken hata:', err.message);
-            }
-          }
-        }
-      }
-
+      // Kesintiler yalnızca resmi kaynaklardan beslenir (Toroslar EDAŞ, Belediye ve Admin Veritabanı)
+      // Genel haber metinlerinden otomatik arka plan çıkarımı spam ve mükerrer bildirimlere yol açtığı için kaldırıldı.
       const manualOutages = Array.isArray(cityData?.outages) ? cityData.outages : [];
-      const merged = mergeOutages([dbOutages, manualOutages, belediye, toroslar, newsExtractedOutages]);
+      const merged = mergeOutages([dbOutages, manualOutages, belediye, toroslar]);
       const now = new Date();
       const nowMs = now.getTime();
       const todayKey = turkeyDateKey();
