@@ -412,6 +412,24 @@ class OutageService {
         break;
       }
 
+      // Veritabanı tabanlı küresel spam koruması (Render yeniden başlasa dahi son 60 dk içinde kayıt varsa atlama)
+      try {
+        const { getDbPool } = require('../utils/dbPool');
+        const pool = getDbPool();
+        if (pool) {
+          const res = await pool.query(
+            "SELECT created_at FROM push_logs WHERE target = 'topic:outages_duzici' ORDER BY created_at DESC LIMIT 1;"
+          );
+          if (res?.rows?.[0]?.created_at) {
+            const lastDbPush = new Date(res.rows[0].created_at).getTime();
+            if (now - lastDbPush < 60 * 60 * 1000) {
+              console.warn('[outages] Topic push atlandı: Veritabanında son 60 dk içinde kayıtlı kesinti bildirimi var.');
+              break;
+            }
+          }
+        }
+      } catch (_) {}
+
       const isGas = String(item.type).toUpperCase().includes('GAZ');
       const isWater = String(item.type).toUpperCase() === 'SU';
       const title = isGas
@@ -435,6 +453,16 @@ class OutageService {
         if (semanticKey) {
           await outagePushLog.markPushed(semanticKey);
         }
+        try {
+          const { getDbPool } = require('../utils/dbPool');
+          const pool = getDbPool();
+          if (pool) {
+            await pool.query(
+              "INSERT INTO push_logs (id, title, body, target, sent_count, failed_count, created_at) VALUES (gen_random_uuid(), $1, $2, 'topic:outages_duzici', 1, 0, NOW());",
+              [title, body]
+            );
+          }
+        } catch (_) {}
         console.log(`[outages] push gönderildi: ${item.title} (Key: ${semanticKey})`);
       }
     }
