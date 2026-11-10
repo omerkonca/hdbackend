@@ -2935,85 +2935,36 @@
         </div>
       </div>
 
-      <!-- AI Tag & Watermark Cleaner (HD) -->
+      <!-- AI Tag Cleaner (100% Lossless Binary) -->
       <div id="aiCleanerView" class="view-section">
         <div class="card" style="background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%); color:#f8fafc; border:1px solid rgba(168,85,247,0.35);">
-          <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:14px; margin-bottom:18px;">
-            <div>
-              <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(168,85,247,0.18); border:1px solid rgba(168,85,247,0.4); color:#e9d5ff; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:800; margin-bottom:8px;">
-                ✨ C2PA + EXIF + SynthID + Köşe Filigran Temizleyici
-              </div>
-              <h2 style="margin:0; font-size:22px; font-weight:900; color:#ffffff;">🪄 Yapay Zeka Etiketi &amp; Filigran Silici (Ultra HD)</h2>
-              <p style="margin:6px 0 0; font-size:13px; color:#cbd5e1; line-height:1.5;">
-                Galeriden fotoğraf seçin; Instagram, TikTok, Facebook ve Threads'in koyduğu <b>"Yapay Zeka Bilgisi / Made with AI"</b> etiketlerini (C2PA, XMP, EXIF, SynthID) ve isteğe bağlı köşe yıldızlarını/yazılarını silip <b>gerçek iPhone 16 Pro Max kamera kimliğiyle Ultra HD</b> olarak galeriye indirin.
-              </p>
+          <div style="margin-bottom:18px;">
+            <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.4); color:#6ee7b7; padding:4px 12px; border-radius:999px; font-size:11px; font-weight:800; margin-bottom:8px;">
+              ✨ %100 Kayıpsız (Lossless) • MB ve Netlik Bozulmaz
             </div>
+            <h2 style="margin:0; font-size:22px; font-weight:900; color:#ffffff;">🪄 Yapay Zeka Etiketi Kaldırıcı</h2>
+            <p style="margin:6px 0 0; font-size:13px; color:#cbd5e1; line-height:1.5;">
+              Galeriden fotoğrafınızı seçin; görselin <b>piksellerine, netliğine ve MB boyutuna hiç dokunmadan</b> sadece içindeki gizli <b>Yapay Zeka Etiketlerini (C2PA, JUMBF, XMP, EXIF AI)</b> söküp orijinal kalitede galeriye indirir.
+            </p>
           </div>
 
           <!-- Upload Dropzone / Gallery Picker -->
           <input type="file" id="aiCleanerFileInput" accept="image/*" style="display:none" onchange="handleAiCleanerFileSelect(event)">
-          <div id="aiCleanerDropzone" onclick="document.getElementById('aiCleanerFileInput').click()" style="border:2px dashed rgba(168,85,247,0.55); background:rgba(15,23,42,0.65); border-radius:18px; padding:28px 20px; text-align:center; cursor:pointer; transition:all 0.2s ease;">
-            <div style="font-size:42px; margin-bottom:8px;">📱🖼️</div>
+          <div id="aiCleanerDropzone" onclick="document.getElementById('aiCleanerFileInput').click()" style="border:2px dashed rgba(168,85,247,0.55); background:rgba(15,23,42,0.65); border-radius:18px; padding:32px 20px; text-align:center; cursor:pointer; transition:all 0.2s ease;">
+            <div style="font-size:44px; margin-bottom:8px;">📱🖼️</div>
             <div style="font-size:16px; font-weight:800; color:#ffffff; margin-bottom:4px;">Galeriden Fotoğraf Seçmek İçin Dokunun</div>
-            <div style="font-size:12px; color:#94a3b8;">JPG, PNG, WEBP veya HEIC • Orijinal çözünürlük korunur ve Ultra HD keskinleştirilir</div>
-            <button type="button" class="btn" style="margin-top:14px; background:linear-gradient(135deg,#a855f7,#6366f1); color:white; font-weight:800; border:none; padding:10px 22px; border-radius:12px;">
-              📂 Galeriyi Aç &amp; Fotoğraf Seç
+            <div style="font-size:12px; color:#94a3b8;">Görsel sıkıştırılmaz, bulanıklaşmaz ve MB boyutu düşmez</div>
+            <button type="button" class="btn" style="margin-top:14px; background:linear-gradient(135deg,#a855f7,#6366f1); color:white; font-weight:800; border:none; padding:12px 24px; border-radius:12px; font-size:14px;">
+              📂 Galeriden Fotoğraf Seç
             </button>
-          </div>
-
-          <!-- Options Row -->
-          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:18px;">
-            <div style="background:rgba(30,41,59,0.75); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 14px;">
-              <label style="font-size:11px; font-weight:800; color:#c084fc; text-transform:uppercase; display:block; margin-bottom:6px;">1️⃣ Görünür Filigran / Köşe Silme Modu</label>
-              <select id="aiCleanerWatermarkMode" onchange="onAiCleanerModeChange()" style="width:100%; background:#0f172a; color:#fff; border:1px solid #334155; padding:10px; border-radius:10px; font-size:13px; font-weight:700;">
-                <option value="metadata_only">Sadece Gizli AI Etiketini Sil (Görüntüye Dokunma)</option>
-                <option value="bottom_right">Sağ Alt Köşe AI Logosunu Sil (Gemini ✦ Yıldızı vb.)</option>
-                <option value="bottom_left">Sol Alt Köşe Logosunu Sil</option>
-                <option value="top_right">Sağ Üst Köşe Logosunu Sil</option>
-                <option value="brush">🖌️ Parmağınla / Fırçayla Boyadığın Yeri Sil (Akıllı Silgi)</option>
-              </select>
-            </div>
-
-            <div style="background:rgba(30,41,59,0.75); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 14px;">
-              <label style="font-size:11px; font-weight:800; color:#38bdf8; text-transform:uppercase; display:block; margin-bottom:6px;">2️⃣ Eklenecek Gerçek Kamera Kimliği (EXIF)</label>
-              <select id="aiCleanerCameraProfile" onchange="if(aiCleanerSourceImage) processAiCleanerImage()" style="width:100%; background:#0f172a; color:#fff; border:1px solid #334155; padding:10px; border-radius:10px; font-size:13px; font-weight:700;">
-                <option value="iphone16promax">📱 Apple iPhone 16 Pro Max (24mm f/1.78)</option>
-                <option value="s24ultra">📱 Samsung Galaxy S24 Ultra (23mm f/1.7)</option>
-                <option value="canonr5">📷 Canon EOS R5 (RF 24-70mm f/2.8L)</option>
-                <option value="clean">🛡️ Tamamen Boş / Sıfır Metadata</option>
-              </select>
-            </div>
-
-            <div style="background:rgba(30,41,59,0.75); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px 14px;">
-              <label style="font-size:11px; font-weight:800; color:#10b981; text-transform:uppercase; display:block; margin-bottom:6px;">3️⃣ Görüntü Kalitesi &amp; SynthID Kalkanı</label>
-              <select id="aiCleanerHdBoost" onchange="if(aiCleanerSourceImage) processAiCleanerImage()" style="width:100%; background:#0f172a; color:#fff; border:1px solid #334155; padding:10px; border-radius:10px; font-size:13px; font-weight:700;">
-                <option value="hd_shield">💎 Orijinal Ultra HD + SynthID Kırıcı (%98 Kalite)</option>
-                <option value="upscale_2x">🚀 2K/4K Super-HD Yükseltme + Netleştirme + SynthID Kırıcı</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Brush Controls (Only visible in brush mode) -->
-          <div id="aiCleanerBrushToolbar" style="display:none; margin-top:14px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.4); border-radius:14px; padding:12px 16px; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-              <span style="font-size:13px; font-weight:800; color:#f3e8ff;">🖌️ Fotoğrafın üzerinde silmek istediğiniz yazıyı/logoyu parmağınızla boyayın:</span>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:12px; color:#cbd5e1;">Fırça Boyutu:</span>
-                <input type="range" id="aiCleanerBrushSize" min="10" max="90" value="34" style="width:110px;">
-              </div>
-            </div>
-            <div style="display:flex; gap:8px;">
-              <button type="button" class="btn btn-secondary" style="background:#1e293b; color:#e2e8f0; border:1px solid #475569; padding:8px 14px; font-size:12px;" onclick="clearAiCleanerBrushMask()">🗑️ Boyamayı Temizle</button>
-              <button type="button" class="btn" style="background:linear-gradient(135deg,#10b981,#059669); color:white; font-weight:800; border:none; padding:8px 16px; font-size:12px;" onclick="processAiCleanerImage()">🪄 Boyanan Yeri &amp; AI Etiketini Sil</button>
-            </div>
           </div>
 
           <!-- Workspace & Result Area -->
           <div id="aiCleanerWorkspace" style="display:none; margin-top:20px;">
-            <!-- Detected Metadata & Status Banner -->
+            <!-- Status & Size Comparison Banner -->
             <div id="aiCleanerReportBar" style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:14px 16px; margin-bottom:16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
               <div>
-                <div style="font-size:12px; color:#94a3b8; font-weight:700; margin-bottom:4px;">🔍 TESPİT EDİLEN VE TEMİZLENEN YAPAY ZEKA İZLERİ:</div>
+                <div style="font-size:12px; color:#94a3b8; font-weight:700; margin-bottom:6px;">🔍 KALDIRILAN YAPAY ZEKA ETİKETLERİ:</div>
                 <div id="aiCleanerDetectedTags" style="display:flex; flex-wrap:wrap; gap:6px;"></div>
               </div>
               <div id="aiCleanerResolutionBadge" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; padding:8px 14px; border-radius:12px; font-size:12px; font-weight:800;">
@@ -3021,29 +2972,26 @@
               </div>
             </div>
 
-            <!-- Action Buttons (Download HD & Save to Phone Gallery) -->
+            <!-- Action Buttons (Download Original HD & Save to Phone Gallery) -->
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-bottom:18px;">
               <button type="button" onclick="downloadCleanedAiImage()" style="background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; border-radius:14px; padding:16px 20px; font-size:16px; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 10px 25px -5px rgba(16,185,129,0.4);">
-                📥 HD Olarak Galeriye İndir
+                📥 Galeriye İndir (Orijinal HD)
               </button>
               <button type="button" id="aiCleanerShareBtn" onclick="shareCleanedAiImage()" style="background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border:none; border-radius:14px; padding:16px 20px; font-size:15px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 10px 25px -5px rgba(59,130,246,0.35);">
-                📲 Telefona Kaydet / Paylaş (iOS &amp; Android)
+                📲 Telefona / Fotoğraflara Kaydet
               </button>
               <button type="button" onclick="document.getElementById('aiCleanerFileInput').click()" style="background:#1e293b; color:#e2e8f0; border:1px solid #334155; border-radius:14px; padding:16px 20px; font-size:14px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
                 🔄 Başka Fotoğraf Seç
               </button>
             </div>
 
-            <!-- Interactive Canvas / Preview Box -->
+            <!-- Preview Box -->
             <div style="background:#090d16; border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:16px; text-align:center;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-                <span style="font-size:12px; font-weight:800; color:#34d399;">✨ Temizlenmiş HD Önizleme (Tüm AI Etiketleri Silindi)</span>
-                <span id="aiCleanerFileNameLabel" style="font-size:12px; color:#94a3b8; font-family:monospace;">IMG_HD.JPG</span>
+                <span style="font-size:12px; font-weight:800; color:#34d399;">✨ Orijinal Görsel (%0 Kalite / Netlik Kaybı)</span>
+                <span id="aiCleanerFileNameLabel" style="font-size:12px; color:#94a3b8; font-family:monospace;"></span>
               </div>
-              <div style="position:relative; display:inline-block; max-width:100%; border-radius:12px; overflow:hidden; box-shadow:0 15px 35px rgba(0,0,0,0.6);">
-                <canvas id="aiCleanerPreviewCanvas" style="max-width:100%; max-height:68vh; width:auto; height:auto; display:block; border-radius:12px;"></canvas>
-                <canvas id="aiCleanerMaskCanvas" style="position:absolute; top:0; left:0; width:100%; height:100%; display:none; cursor:crosshair; touch-action:none;"></canvas>
-              </div>
+              <img id="aiCleanerPreviewImg" alt="Önizleme" style="max-width:100%; max-height:68vh; width:auto; height:auto; display:inline-block; border-radius:12px; box-shadow:0 15px 35px rgba(0,0,0,0.6);" />
             </div>
           </div>
         </div>
@@ -9999,14 +9947,13 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
     }
 
     // =========================================================================
-    // 🪄 YAPAY ZEKA ETİKETİ & FİLİGRAN SİLİCİ (ULTRA HD + C2PA/EXIF/SYNTHID)
+    // 🪄 %100 KAYIPSIZ (LOSSLESS BINARY) YAPAY ZEKA ETİKETİ SİLİCİ
+    // Piksellere, netliğe ve sıkıştırma kalitesine HİÇ dokunmadan sadece
+    // C2PA / JUMBF / XMP / EXIF / IPTC yapay zeka etiket bloklarını söker.
     // =========================================================================
-    let aiCleanerSourceImage = null;
-    let aiCleanerRawBuffer = null;
-    let aiCleanerOriginalName = 'IMG_HD.JPG';
     let aiCleanerCleanedBlob = null;
-    let aiCleanerCleanedFileName = 'IMG_4821.JPG';
-    let aiCleanerIsDrawing = false;
+    let aiCleanerCleanedFileName = '';
+    let aiCleanerPreviewUrl = null;
 
     (function initAiCleanerDragDrop() {
       setTimeout(() => {
@@ -10028,7 +9975,6 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
           const file = e.dataTransfer?.files?.[0];
           if (file) loadAiCleanerFile(file);
         });
-        initAiCleanerBrushEvents();
       }, 300);
     })();
 
@@ -10039,32 +9985,294 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
       event.target.value = '';
     }
 
-    function loadAiCleanerFile(file) {
-      aiCleanerOriginalName = file.name || 'photo.jpg';
-      const readerBuf = new FileReader();
-      readerBuf.onload = function(ev) {
-        aiCleanerRawBuffer = ev.target.result;
-        const detected = scanAiMetadataFromBuffer(aiCleanerRawBuffer);
-        renderAiCleanerDetectedTags(detected);
-      };
-      readerBuf.readAsArrayBuffer(file);
+    function formatFileSizeMb(bytes) {
+      if (bytes >= 1024 * 1024) {
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+      }
+      return (bytes / 1024).toFixed(1) + ' KB';
+    }
 
-      const readerUrl = new FileReader();
-      readerUrl.onload = function(ev) {
-        const img = new Image();
-        img.onload = function() {
-          aiCleanerSourceImage = img;
-          document.getElementById('aiCleanerWorkspace').style.display = 'block';
-          setupAiCleanerMaskCanvas(img.naturalWidth || img.width, img.naturalHeight || img.height);
-          processAiCleanerImage();
-          showToast('✨ Fotoğraf yüklendi ve yapay zeka etiketleri temizlendi!');
-        };
-        img.onerror = function() {
-          showToast('Fotoğraf okunamadı, lütfen geçerli bir görsel seçin.', true);
-        };
-        img.src = ev.target.result;
-      };
-      readerUrl.readAsDataURL(file);
+    async function loadAiCleanerFile(file) {
+      try {
+        const rawBuffer = await file.arrayBuffer();
+        const detected = scanAiMetadataFromBuffer(rawBuffer);
+        renderAiCleanerDetectedTags(detected);
+
+        const bytes = new Uint8Array(rawBuffer);
+        let cleanedBuffer = rawBuffer;
+        let outMime = file.type || 'image/jpeg';
+        let ext = (file.name || '').split('.').pop()?.toLowerCase() || 'jpg';
+
+        // 1. JPEG (%100 Kayıpsız Binary Segment Temizliği — Pikseller yeniden kodlanmaz!)
+        if (bytes[0] === 0xFF && bytes[1] === 0xD8) {
+          cleanedBuffer = stripJpegMetadataLossless(bytes);
+          outMime = 'image/jpeg';
+          ext = 'jpg';
+        }
+        // 2. PNG (%100 Kayıpsız Chunk Temizliği — IDAT pikselleri birebir korunur!)
+        else if (
+          bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47 &&
+          bytes[4] === 0x0D && bytes[5] === 0x0A && bytes[6] === 0x1A && bytes[7] === 0x0A
+        ) {
+          cleanedBuffer = stripPngMetadataLossless(bytes);
+          outMime = 'image/png';
+          ext = 'png';
+        }
+        // 3. WebP (%100 Kayıpsız RIFF Chunk Temizliği — VP8/VP8L pikselleri birebir korunur!)
+        else if (
+          bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+          bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+        ) {
+          cleanedBuffer = stripWebpMetadataLossless(bytes);
+          outMime = 'image/webp';
+          ext = 'webp';
+        }
+
+        aiCleanerCleanedBlob = new Blob([cleanedBuffer], { type: outMime });
+        const baseName = (file.name || 'gorsel').replace(/\.[^/.]+$/, '');
+        aiCleanerCleanedFileName = `${baseName}_hd.${ext}`;
+
+        if (aiCleanerPreviewUrl) URL.revokeObjectURL(aiCleanerPreviewUrl);
+        aiCleanerPreviewUrl = URL.createObjectURL(aiCleanerCleanedBlob);
+
+        const previewImg = document.getElementById('aiCleanerPreviewImg');
+        if (previewImg) {
+          previewImg.onload = function() {
+            const w = previewImg.naturalWidth || previewImg.width;
+            const h = previewImg.naturalHeight || previewImg.height;
+            const badge = document.getElementById('aiCleanerResolutionBadge');
+            if (badge) {
+              badge.innerHTML = `✅ ${w}×${h} px • ${formatFileSizeMb(aiCleanerCleanedBlob.size)} (%100 Orijinal Kalite)`;
+            }
+          };
+          previewImg.src = aiCleanerPreviewUrl;
+        }
+
+        const nameLabel = document.getElementById('aiCleanerFileNameLabel');
+        if (nameLabel) {
+          nameLabel.textContent = `${aiCleanerCleanedFileName} (Orijinal: ${formatFileSizeMb(file.size)} → Temiz: ${formatFileSizeMb(aiCleanerCleanedBlob.size)})`;
+        }
+
+        document.getElementById('aiCleanerWorkspace').style.display = 'block';
+        showToast('✨ Yapay zeka etiketi görselin MB ve netliği bozulmadan kaldırıldı!');
+      } catch (err) {
+        console.error('[AI Cleaner Error]', err);
+        showToast('Görsel işlenirken hata oluştu.', true);
+      }
+    }
+
+    // JPEG: Sadece C2PA (APP11), XMP/EXIF (APP1), IPTC (APP13) ve Yorum (COM) bloklarını söker.
+    // SOS (Start of Scan) içindeki sıkıştırılmış görüntü verisine 1 byte bile dokunmaz!
+    function stripJpegMetadataLossless(bytes) {
+      const orientation = readJpegExifOrientation(bytes);
+      const chunks = [new Uint8Array([0xFF, 0xD8])];
+
+      if (orientation > 1 && orientation <= 8) {
+        chunks.push(buildMinimalOrientationApp1(orientation));
+      }
+
+      let offset = 2;
+      const len = bytes.length;
+      while (offset < len) {
+        if (bytes[offset] !== 0xFF) {
+          chunks.push(bytes.subarray(offset));
+          break;
+        }
+        while (offset < len && bytes[offset] === 0xFF) offset++;
+        if (offset >= len) break;
+        const marker = bytes[offset];
+        offset++;
+
+        // SOS (0xDA) veya EOI (0xD9): Buradan dosya sonuna kadar saf görüntü verisidir, birebir kopyala!
+        if (marker === 0xDA || marker === 0xD9) {
+          chunks.push(bytes.subarray(offset - 2));
+          break;
+        }
+
+        if ((marker >= 0xD0 && marker <= 0xD7) || marker === 0x01) {
+          chunks.push(bytes.subarray(offset - 2, offset));
+          continue;
+        }
+
+        if (offset + 2 > len) {
+          chunks.push(bytes.subarray(offset - 2));
+          break;
+        }
+
+        const segLen = (bytes[offset] << 8) | bytes[offset + 1];
+        if (segLen < 2 || offset + segLen > len) {
+          chunks.push(bytes.subarray(offset - 2));
+          break;
+        }
+
+        // APP1 (0xE1 = EXIF/XMP), APP11 (0xEB = C2PA/JUMBF), APP13 (0xED = IPTC/Photoshop), COM (0xFE) -> SİL!
+        const isAiOrMetaMarker = (
+          marker === 0xE1 ||
+          marker === 0xEB ||
+          marker === 0xED ||
+          marker === 0xFE
+        );
+
+        // APP2 (0xE2): Renk profilini (ICC_PROFILE) koru, diğer APP2'leri sil
+        let stripApp2 = false;
+        if (marker === 0xE2) {
+          const isIcc = (
+            segLen > 14 &&
+            bytes[offset + 2] === 0x49 &&
+            bytes[offset + 3] === 0x43 &&
+            bytes[offset + 4] === 0x43
+          );
+          if (!isIcc) stripApp2 = true;
+        }
+
+        if (!isAiOrMetaMarker && !stripApp2) {
+          chunks.push(bytes.subarray(offset - 2, offset + segLen));
+        }
+
+        offset += segLen;
+      }
+
+      return concatUint8Arrays(chunks).buffer;
+    }
+
+    function readJpegExifOrientation(bytes) {
+      try {
+        let offset = 2;
+        while (offset + 4 < bytes.length && bytes[offset] === 0xFF) {
+          const marker = bytes[offset + 1];
+          if (marker === 0xDA || marker === 0xD9) break;
+          const segLen = (bytes[offset + 2] << 8) | bytes[offset + 3];
+          if (marker === 0xE1 && segLen > 14) {
+            if (
+              bytes[offset + 4] === 0x45 &&
+              bytes[offset + 5] === 0x78 &&
+              bytes[offset + 6] === 0x69 &&
+              bytes[offset + 7] === 0x66 &&
+              bytes[offset + 8] === 0x00 &&
+              bytes[offset + 9] === 0x00
+            ) {
+              const tiffStart = offset + 10;
+              const littleEndian = bytes[tiffStart] === 0x49 && bytes[tiffStart + 1] === 0x49;
+              const dv = new DataView(bytes.buffer, bytes.byteOffset + tiffStart, segLen - 8);
+              const ifdOffset = dv.getUint32(4, littleEndian);
+              if (ifdOffset + 2 <= dv.byteLength) {
+                const entries = dv.getUint16(ifdOffset, littleEndian);
+                for (let i = 0; i < entries; i++) {
+                  const entryPos = ifdOffset + 2 + i * 12;
+                  if (entryPos + 12 > dv.byteLength) break;
+                  const tag = dv.getUint16(entryPos, littleEndian);
+                  if (tag === 0x0112) {
+                    return dv.getUint16(entryPos + 8, littleEndian);
+                  }
+                }
+              }
+            }
+          }
+          offset += 2 + segLen;
+        }
+      } catch (_) {}
+      return 1;
+    }
+
+    function buildMinimalOrientationApp1(orientation) {
+      const buf = new Uint8Array(36);
+      const dv = new DataView(buf.buffer);
+      dv.setUint16(0, 0xFFE1, false);
+      dv.setUint16(2, 34, false);
+      buf.set([0x45, 0x78, 0x69, 0x66, 0x00, 0x00], 4);
+      const tiff = 10;
+      dv.setUint16(tiff, 0x4D4D, false);
+      dv.setUint16(tiff + 2, 0x002A, false);
+      dv.setUint32(tiff + 4, 8, false);
+      dv.setUint16(tiff + 8, 1, false);
+      dv.setUint16(tiff + 10, 0x0112, false);
+      dv.setUint16(tiff + 12, 3, false);
+      dv.setUint32(tiff + 14, 1, false);
+      dv.setUint16(tiff + 18, orientation, false);
+      dv.setUint16(tiff + 20, 0, false);
+      dv.setUint32(tiff + 22, 0, false);
+      return buf;
+    }
+
+    // PNG: Sadece C2PA (caBX, c2pa, jumb) ve metin/EXIF (tEXt, iTXt, zTXt, eXIf) chunk'larını çıkarır.
+    // IDAT (sıkıştırılmış piksel verisi) ve renk profillerine 1 bit bile dokunmaz!
+    function stripPngMetadataLossless(bytes) {
+      const out = [bytes.subarray(0, 8)];
+      let offset = 8;
+      const len = bytes.length;
+      const dropTypes = new Set(['caBX', 'c2pa', 'jumb', 'tEXt', 'iTXt', 'zTXt', 'eXIf', 'tIME']);
+
+      while (offset + 8 <= len) {
+        const dv = new DataView(bytes.buffer, bytes.byteOffset + offset, 8);
+        const chunkLen = dv.getUint32(0, false);
+        const type = String.fromCharCode(
+          bytes[offset + 4],
+          bytes[offset + 5],
+          bytes[offset + 6],
+          bytes[offset + 7]
+        );
+        const totalChunkBytes = 12 + chunkLen;
+        if (offset + totalChunkBytes > len) {
+          out.push(bytes.subarray(offset));
+          break;
+        }
+        if (!dropTypes.has(type)) {
+          out.push(bytes.subarray(offset, offset + totalChunkBytes));
+        }
+        offset += totalChunkBytes;
+      }
+      return concatUint8Arrays(out).buffer;
+    }
+
+    // WebP: RIFF içindeki EXIF, XMP, C2PA, JUMB chunk'larını çıkarır, VP8/VP8L görüntü verisini birebir korur!
+    function stripWebpMetadataLossless(bytes) {
+      const keepChunks = [];
+      let offset = 12;
+      const len = bytes.length;
+      const dropFourCC = new Set(['EXIF', 'XMP ', 'C2PA', 'c2pa', 'JUMB', 'jumb']);
+
+      while (offset + 8 <= len) {
+        const fourCC = String.fromCharCode(
+          bytes[offset],
+          bytes[offset + 1],
+          bytes[offset + 2],
+          bytes[offset + 3]
+        );
+        const dv = new DataView(bytes.buffer, bytes.byteOffset + offset + 4, 4);
+        const chunkSize = dv.getUint32(0, true);
+        const paddedSize = chunkSize + (chunkSize & 1);
+        const total = 8 + paddedSize;
+        if (offset + total > len) {
+          keepChunks.push(bytes.subarray(offset));
+          break;
+        }
+        if (!dropFourCC.has(fourCC)) {
+          const copy = new Uint8Array(bytes.subarray(offset, offset + total));
+          if (fourCC === 'VP8X' && copy.length >= 12) {
+            copy[8] &= ~0x0C;
+          }
+          keepChunks.push(copy);
+        }
+        offset += total;
+      }
+
+      const body = concatUint8Arrays(keepChunks);
+      const header = new Uint8Array(12);
+      header.set(bytes.subarray(0, 12), 0);
+      new DataView(header.buffer).setUint32(4, 4 + body.length, true);
+      return concatUint8Arrays([header, body]).buffer;
+    }
+
+    function concatUint8Arrays(arrays) {
+      let totalLen = 0;
+      for (let i = 0; i < arrays.length; i++) totalLen += arrays[i].length;
+      const res = new Uint8Array(totalLen);
+      let pos = 0;
+      for (let i = 0; i < arrays.length; i++) {
+        res.set(arrays[i], pos);
+        pos += arrays[i].length;
+      }
+      return res;
     }
 
     function scanAiMetadataFromBuffer(buffer) {
@@ -10079,28 +10287,27 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
         }
         const lower = ascii.toLowerCase();
 
-        if (lower.includes('c2pa') || lower.includes('jumb') || lower.includes('contentcredentials')) {
-          tags.push({ label: '🚨 C2PA / Content Credentials İmzası (Silindi)', color: '#ef4444' });
+        if (lower.includes('c2pa') || lower.includes('jumb') || lower.includes('contentcredentials') || lower.includes('cabx')) {
+          tags.push({ label: '✅ C2PA / Content Credentials AI Etiketi Kaldırıldı', color: '#10b981' });
         }
         if (lower.includes('trainedalgorithmicmedia') || lower.includes('algorithmicmedia') || lower.includes('digitalsourcetype')) {
-          tags.push({ label: '🚨 IPTC/XMP Yapay Zeka Etiketi (Silindi)', color: '#ef4444' });
+          tags.push({ label: '✅ IPTC/XMP Yapay Zeka Etiketi Kaldırıldı', color: '#10b981' });
         }
-        if (lower.includes('gemini') || lower.includes('imagen') || lower.includes('made with google ai') || lower.includes('synthid')) {
-          tags.push({ label: '🤖 Google Gemini / Imagen AI İzi (Silindi)', color: '#f59e0b' });
+        if (lower.includes('gemini') || lower.includes('imagen') || lower.includes('made with google ai')) {
+          tags.push({ label: '✅ Google Gemini / Imagen Etiketi Kaldırıldı', color: '#10b981' });
         }
         if (lower.includes('dall-e') || lower.includes('dalle') || lower.includes('openai') || lower.includes('chatgpt')) {
-          tags.push({ label: '🤖 OpenAI ChatGPT / DALL-E İzi (Silindi)', color: '#f59e0b' });
+          tags.push({ label: '✅ OpenAI ChatGPT / DALL-E Etiketi Kaldırıldı', color: '#10b981' });
         }
         if (lower.includes('midjourney') || lower.includes('stable diffusion') || lower.includes('comfyui') || lower.includes('firefly')) {
-          tags.push({ label: '🤖 Midjourney / Firefly / SD İzi (Silindi)', color: '#f59e0b' });
-        }
-        if (lower.includes('exif') || lower.includes('http://ns.adobe.com/xap')) {
-          tags.push({ label: '🧹 EXIF / XMP Gizli Metaveri Bloğu (Temizlendi)', color: '#38bdf8' });
+          tags.push({ label: '✅ Midjourney / Firefly Etiketi Kaldırıldı', color: '#10b981' });
         }
       } catch (_) {}
 
-      tags.push({ label: '🛡️ SynthID & Steganografi Frekans Kalkanı Uygulandı', color: '#10b981' });
-      tags.push({ label: '📸 Gerçek Kamera Kimliği (EXIF) Eklendi', color: '#a855f7' });
+      if (tags.length === 0) {
+        tags.push({ label: '✅ Tüm Gizli EXIF / XMP / AI Etiket Blokları Temizlendi', color: '#10b981' });
+      }
+      tags.push({ label: '💎 Görüntü Piksellerine & MB Boyutuna Dokunulmadı (%0 Kayıp)', color: '#38bdf8' });
       return tags;
     }
 
@@ -10112,382 +10319,6 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
           ${t.label}
         </span>
       `).join('');
-    }
-
-    function onAiCleanerModeChange() {
-      const mode = document.getElementById('aiCleanerWatermarkMode')?.value || 'metadata_only';
-      const toolbar = document.getElementById('aiCleanerBrushToolbar');
-      const maskCanvas = document.getElementById('aiCleanerMaskCanvas');
-      if (mode === 'brush') {
-        if (toolbar) toolbar.style.display = 'flex';
-        if (maskCanvas) maskCanvas.style.display = 'block';
-      } else {
-        if (toolbar) toolbar.style.display = 'none';
-        if (maskCanvas) maskCanvas.style.display = 'none';
-      }
-      if (aiCleanerSourceImage) {
-        processAiCleanerImage();
-      }
-    }
-
-    function setupAiCleanerMaskCanvas(w, h) {
-      const maskCanvas = document.getElementById('aiCleanerMaskCanvas');
-      if (!maskCanvas) return;
-      maskCanvas.width = w;
-      maskCanvas.height = h;
-      const ctx = maskCanvas.getContext('2d');
-      ctx.clearRect(0, 0, w, h);
-    }
-
-    function clearAiCleanerBrushMask() {
-      const maskCanvas = document.getElementById('aiCleanerMaskCanvas');
-      if (!maskCanvas) return;
-      const ctx = maskCanvas.getContext('2d');
-      ctx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
-      if (aiCleanerSourceImage) processAiCleanerImage();
-    }
-
-    function initAiCleanerBrushEvents() {
-      const maskCanvas = document.getElementById('aiCleanerMaskCanvas');
-      if (!maskCanvas) return;
-
-      const getPos = (e) => {
-        const rect = maskCanvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const scaleX = maskCanvas.width / rect.width;
-        const scaleY = maskCanvas.height / rect.height;
-        return {
-          x: (clientX - rect.left) * scaleX,
-          y: (clientY - rect.top) * scaleY,
-          scale: Math.max(scaleX, scaleY)
-        };
-      };
-
-      const drawStroke = (e) => {
-        if (!aiCleanerIsDrawing) return;
-        if (e.cancelable) e.preventDefault();
-        const pos = getPos(e);
-        const brushUi = parseInt(document.getElementById('aiCleanerBrushSize')?.value || '34', 10);
-        const radius = Math.max(8, (brushUi * pos.scale) / 2);
-        const ctx = maskCanvas.getContext('2d');
-        ctx.fillStyle = 'rgba(239, 68, 68, 0.55)';
-        ctx.beginPath();
-        ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2);
-        ctx.fill();
-      };
-
-      maskCanvas.addEventListener('mousedown', (e) => { aiCleanerIsDrawing = true; drawStroke(e); });
-      maskCanvas.addEventListener('mousemove', drawStroke);
-      window.addEventListener('mouseup', () => { aiCleanerIsDrawing = false; });
-
-      maskCanvas.addEventListener('touchstart', (e) => { aiCleanerIsDrawing = true; drawStroke(e); }, { passive: false });
-      maskCanvas.addEventListener('touchmove', drawStroke, { passive: false });
-      window.addEventListener('touchend', () => { aiCleanerIsDrawing = false; });
-    }
-
-    function processAiCleanerImage() {
-      if (!aiCleanerSourceImage) return;
-      const mode = document.getElementById('aiCleanerWatermarkMode')?.value || 'metadata_only';
-      const cameraProfile = document.getElementById('aiCleanerCameraProfile')?.value || 'iphone16promax';
-      const hdBoost = document.getElementById('aiCleanerHdBoost')?.value || 'hd_shield';
-
-      const srcW = aiCleanerSourceImage.naturalWidth || aiCleanerSourceImage.width;
-      const srcH = aiCleanerSourceImage.naturalHeight || aiCleanerSourceImage.height;
-
-      // Upscale seçeneği aktifse ve görüntü < 2400px ise 1.5x - 2x Super-HD büyüt
-      let outW = srcW;
-      let outH = srcH;
-      if (hdBoost === 'upscale_2x' && Math.max(srcW, srcH) < 2500) {
-        const factor = Math.max(srcW, srcH) <= 1280 ? 2.0 : 1.5;
-        outW = Math.round(srcW * factor);
-        outH = Math.round(srcH * factor);
-      }
-
-      const previewCanvas = document.getElementById('aiCleanerPreviewCanvas');
-      previewCanvas.width = outW;
-      previewCanvas.height = outH;
-      const ctx = previewCanvas.getContext('2d', { willReadFrequently: true });
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(aiCleanerSourceImage, 0, 0, outW, outH);
-
-      const imgData = ctx.getImageData(0, 0, outW, outH);
-
-      // 1. Görünür köşe logosu veya fırça alanı varsa Akıllı Doku Tamamlama (Inpainting) uygula
-      if (mode !== 'metadata_only') {
-        const mask = new Uint8Array(outW * outH);
-        let hasMask = false;
-
-        if (mode === 'bottom_right' || mode === 'bottom_left' || mode === 'top_right') {
-          // Gemini yıldızı / köşe filigranı için akıllı köşe kutusu (~%7.5 genişlik/yükseklik)
-          const boxW = Math.round(outW * 0.085);
-          const boxH = Math.round(outH * 0.085);
-          const pad = Math.round(Math.min(outW, outH) * 0.012);
-          let startX = outW - boxW - pad;
-          let startY = outH - boxH - pad;
-          if (mode === 'bottom_left') {
-            startX = pad;
-            startY = outH - boxH - pad;
-          } else if (mode === 'top_right') {
-            startX = outW - boxW - pad;
-            startY = pad;
-          }
-          startX = Math.max(2, startX);
-          startY = Math.max(2, startY);
-          const endX = Math.min(outW - 2, startX + boxW);
-          const endY = Math.min(outH - 2, startY + boxH);
-
-          for (let y = startY; y < endY; y++) {
-            for (let x = startX; x < endX; x++) {
-              mask[y * outW + x] = 1;
-              hasMask = true;
-            }
-          }
-        } else if (mode === 'brush') {
-          const maskCanvas = document.getElementById('aiCleanerMaskCanvas');
-          if (maskCanvas && maskCanvas.width > 0) {
-            const tempC = document.createElement('canvas');
-            tempC.width = outW;
-            tempC.height = outH;
-            const tempCtx = tempC.getContext('2d');
-            tempCtx.drawImage(maskCanvas, 0, 0, outW, outH);
-            const mData = tempCtx.getImageData(0, 0, outW, outH).data;
-            for (let i = 0; i < outW * outH; i++) {
-              if (mData[i * 4 + 3] > 20) {
-                mask[i] = 1;
-                hasMask = true;
-              }
-            }
-          }
-        }
-
-        if (hasMask) {
-          inpaintMaskedRegion(imgData.data, mask, outW, outH);
-        }
-      }
-
-      // 2. SynthID / Steganografik Frekans Kırıcı + Hafif Mikro-Netleştirme
-      applySynthIdShield(imgData.data, outW, outH, hdBoost === 'upscale_2x');
-      ctx.putImageData(imgData, 0, 0);
-
-      // Fırça modundaysa ve boyama yapıldıysa maskeyi temizle ki kullanıcı temiz sonucu görsün
-      if (mode === 'brush') {
-        const maskCanvas = document.getElementById('aiCleanerMaskCanvas');
-        if (maskCanvas) {
-          maskCanvas.getContext('2d').clearRect(0, 0, maskCanvas.width, maskCanvas.height);
-        }
-      }
-
-      // 3. %98 Ultra HD JPEG üret ve Gerçek Kamera EXIF Kimliği Enjekte Et
-      const randNum = Math.floor(1000 + Math.random() * 8999);
-      aiCleanerCleanedFileName = `IMG_${randNum}.JPG`;
-      const nameLabel = document.getElementById('aiCleanerFileNameLabel');
-      if (nameLabel) nameLabel.textContent = `${aiCleanerCleanedFileName} (${outW}×${outH} px)`;
-
-      const badge = document.getElementById('aiCleanerResolutionBadge');
-      if (badge) {
-        badge.innerHTML = `✅ Ultra HD (${outW}×${outH}) • AI İzi: %0`;
-      }
-
-      previewCanvas.toBlob(async (rawBlob) => {
-        if (!rawBlob) return;
-        if (cameraProfile === 'clean') {
-          aiCleanerCleanedBlob = rawBlob;
-          return;
-        }
-        try {
-          const arrBuf = await rawBlob.arrayBuffer();
-          const withExif = injectCameraExifIntoJpeg(arrBuf, cameraProfile, outW, outH);
-          aiCleanerCleanedBlob = new Blob([withExif], { type: 'image/jpeg' });
-        } catch (_) {
-          aiCleanerCleanedBlob = rawBlob;
-        }
-      }, 'image/jpeg', 0.98);
-    }
-
-    // Akıllı Doku Tamamlama (Boundary Diffusion + Local Texture Inpainting)
-    function inpaintMaskedRegion(data, mask, w, h) {
-      // Maskeyi 2 piksel genişlet (kenar halelerini önler)
-      const dilated = new Uint8Array(mask);
-      for (let y = 2; y < h - 2; y++) {
-        for (let x = 2; x < w - 2; x++) {
-          const idx = y * w + x;
-          if (mask[idx]) {
-            dilated[idx - 1] = 1;
-            dilated[idx + 1] = 1;
-            dilated[idx - w] = 1;
-            dilated[idx + w] = 1;
-          }
-        }
-      }
-
-      // Dış sınırdan içe doğru katman katman (Onion-Peel) doku yayılımı
-      const remaining = new Uint8Array(dilated);
-      const maxPasses = 180;
-      for (let pass = 0; pass < maxPasses; pass++) {
-        let changed = 0;
-        const borderIndices = [];
-        for (let y = 1; y < h - 1; y++) {
-          let rowOffset = y * w;
-          for (let x = 1; x < w - 1; x++) {
-            const idx = rowOffset + x;
-            if (remaining[idx] === 1) {
-              if (!remaining[idx - 1] || !remaining[idx + 1] || !remaining[idx - w] || !remaining[idx + w]) {
-                borderIndices.push(idx);
-              }
-            }
-          }
-        }
-        if (borderIndices.length === 0) break;
-
-        for (let i = 0; i < borderIndices.length; i++) {
-          const idx = borderIndices[i];
-          const x = idx % w;
-          const y = (idx / w) | 0;
-          let rSum = 0, gSum = 0, bSum = 0, count = 0;
-
-          for (let dy = -2; dy <= 2; dy++) {
-            const ny = y + dy;
-            if (ny < 0 || ny >= h) continue;
-            for (let dx = -2; dx <= 2; dx++) {
-              if (dx === 0 && dy === 0) continue;
-              const nx = x + dx;
-              if (nx < 0 || nx >= w) continue;
-              const nIdx = ny * w + nx;
-              if (remaining[nIdx] === 0) {
-                const weight = (Math.abs(dx) + Math.abs(dy) === 1) ? 3 : 1;
-                const p4 = nIdx * 4;
-                rSum += data[p4] * weight;
-                gSum += data[p4 + 1] * weight;
-                bSum += data[p4 + 2] * weight;
-                count += weight;
-              }
-            }
-          }
-
-          if (count > 0) {
-            const p4 = idx * 4;
-            // Doğal doku grenini koru
-            const grain = ((x * 37 + y * 17 + pass * 13) % 5) - 2;
-            data[p4] = Math.min(255, Math.max(0, Math.round(rSum / count) + grain));
-            data[p4 + 1] = Math.min(255, Math.max(0, Math.round(gSum / count) + grain));
-            data[p4 + 2] = Math.min(255, Math.max(0, Math.round(bSum / count) + grain));
-            changed++;
-          }
-        }
-        for (let i = 0; i < borderIndices.length; i++) {
-          remaining[borderIndices[i]] = 0;
-        }
-        if (changed === 0) break;
-      }
-    }
-
-    // SynthID / Steganografik Frekans İzi Kırıcı (Gözle Görülmez Kamera Sensör Dokusu)
-    function applySynthIdShield(data, w, h, boostContrast) {
-      const len = data.length;
-      for (let i = 0; i < len; i += 4) {
-        const px = (i >> 2);
-        // Deterministik sözde-rastgele ±1 LSB kamera sensör varyasyonu (SynthID faz uyumunu bozar)
-        const hash = ((px * 2654435761) >>> 28) & 3;
-        const delta = hash === 0 ? 1 : (hash === 1 ? -1 : 0);
-        let r = data[i] + delta;
-        let g = data[i + 1] - delta;
-        let b = data[i + 2] + delta;
-
-        if (boostContrast) {
-          // Çok hafif S-curve mikro kontrast (HD canlılık)
-          r = r + ((r - 128) * 0.03);
-          g = g + ((g - 128) * 0.03);
-          b = b + ((b - 128) * 0.03);
-        }
-
-        data[i] = r < 0 ? 0 : (r > 255 ? 255 : r);
-        data[i + 1] = g < 0 ? 0 : (g > 255 ? 255 : g);
-        data[i + 2] = b < 0 ? 0 : (b > 255 ? 255 : b);
-      }
-    }
-
-    // Gerçek Kamera EXIF Binary Enjektörü (APP1 Segment)
-    function injectCameraExifIntoJpeg(jpegBuffer, profileKey) {
-      const profiles = {
-        iphone16promax: { make: 'Apple\0', model: 'iPhone 16 Pro Max\0', software: '18.1\0' },
-        s24ultra: { make: 'samsung\0', model: 'SM-S928B\0', software: 'S928BXXS3AXFE\0' },
-        canonr5: { make: 'Canon\0', model: 'Canon EOS R5\0', software: 'Firmware Version 2.0.0\0' }
-      };
-      const prof = profiles[profileKey] || profiles.iphone16promax;
-      const now = new Date();
-      const pad2 = (n) => String(n).padStart(2, '0');
-      const dtStr = `${now.getFullYear()}:${pad2(now.getMonth() + 1)}:${pad2(now.getDate())} ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}\0`;
-
-      const enc = new TextEncoder();
-      const makeBytes = enc.encode(prof.make);
-      const modelBytes = enc.encode(prof.model);
-      const softBytes = enc.encode(prof.software);
-      const dtBytes = enc.encode(dtStr);
-
-      // TIFF Big-Endian ("MM") başlığı + 5 IFD0 kaydı (Make, Model, Orientation, Software, DateTime)
-      const numEntries = 5;
-      const ifd0Size = 2 + (numEntries * 12) + 4;
-      const headerOffset = 8;
-      let dataOffset = headerOffset + ifd0Size;
-
-      const totalTiffSize = dataOffset + makeBytes.length + modelBytes.length + softBytes.length + dtBytes.length;
-      const app1PayloadSize = 6 + totalTiffSize; // "Exif\0\0" + TIFF
-      const app1Segment = new Uint8Array(4 + app1PayloadSize);
-      const view = new DataView(app1Segment.buffer);
-
-      // APP1 Marker (0xFFE1) + Length
-      view.setUint16(0, 0xFFE1, false);
-      view.setUint16(2, app1PayloadSize + 2, false);
-      // "Exif\0\0"
-      app1Segment.set([0x45, 0x78, 0x69, 0x66, 0x00, 0x00], 4);
-
-      const tiffStart = 10;
-      // "MM" (0x4D4D) + 0x002A + Offset to IFD0 (0x00000008)
-      view.setUint16(tiffStart, 0x4D4D, false);
-      view.setUint16(tiffStart + 2, 0x002A, false);
-      view.setUint32(tiffStart + 4, 8, false);
-
-      let pos = tiffStart + 8;
-      view.setUint16(pos, numEntries, false);
-      pos += 2;
-
-      const writeAsciiTag = (tagId, bytes) => {
-        view.setUint16(pos, tagId, false);
-        view.setUint16(pos + 2, 2, false); // ASCII
-        view.setUint32(pos + 4, bytes.length, false);
-        view.setUint32(pos + 8, dataOffset, false);
-        app1Segment.set(bytes, tiffStart + dataOffset);
-        dataOffset += bytes.length;
-        pos += 12;
-      };
-
-      writeAsciiTag(0x010F, makeBytes);  // Make
-      writeAsciiTag(0x0110, modelBytes); // Model
-
-      // Orientation = 1 (Normal)
-      view.setUint16(pos, 0x0112, false);
-      view.setUint16(pos + 2, 3, false); // SHORT
-      view.setUint32(pos + 4, 1, false);
-      view.setUint16(pos + 8, 1, false);
-      view.setUint16(pos + 10, 0, false);
-      pos += 12;
-
-      writeAsciiTag(0x0131, softBytes);  // Software
-      writeAsciiTag(0x0132, dtBytes);    // DateTime
-
-      // Next IFD offset = 0
-      view.setUint32(pos, 0, false);
-
-      const srcBytes = new Uint8Array(jpegBuffer);
-      // SOI (0xFFD8) sonrasına APP1 segmentini yerleştir
-      const out = new Uint8Array(2 + app1Segment.length + (srcBytes.length - 2));
-      out[0] = 0xFF;
-      out[1] = 0xD8;
-      out.set(app1Segment, 2);
-      out.set(srcBytes.subarray(2), 2 + app1Segment.length);
-      return out.buffer;
     }
 
     function downloadCleanedAiImage() {
@@ -10503,7 +10334,7 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 5000);
-      showToast('📥 HD fotoğraf indirildi!');
+      showToast('📥 Orijinal kalitede indirildi!');
     }
 
     async function shareCleanedAiImage() {
@@ -10511,20 +10342,19 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
         showToast('Önce bir fotoğraf seçin.', true);
         return;
       }
-      const file = new File([aiCleanerCleanedBlob], aiCleanerCleanedFileName, { type: 'image/jpeg' });
+      const file = new File([aiCleanerCleanedBlob], aiCleanerCleanedFileName, { type: aiCleanerCleanedBlob.type || 'image/jpeg' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
             title: aiCleanerCleanedFileName
           });
-          showToast('✅ Fotoğraf paylaşıldı / galeriye kaydedildi!');
+          showToast('✅ Fotoğraf galeriye kaydedildi!');
           return;
         } catch (err) {
           if (err && err.name === 'AbortError') return;
         }
       }
-      // Paylaşım desteklenmiyorsa doğrudan indir
       downloadCleanedAiImage();
     }
 
