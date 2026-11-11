@@ -166,7 +166,7 @@ async function logPush({ title, body, target, sent, failed }) {
   if (pool) {
     try {
       await pool.query(`
-        CREATE TABLE IF NOT EXISTS push_logs (
+        CREATE TABLE IF NOT EXISTS public.push_logs (
           id SERIAL PRIMARY KEY,
           title TEXT,
           body TEXT,
@@ -174,7 +174,8 @@ async function logPush({ title, body, target, sent, failed }) {
           sent_count INT,
           failed_count INT,
           created_at TIMESTAMPTZ DEFAULT NOW()
-        )
+        );
+        ALTER TABLE public.push_logs ENABLE ROW LEVEL SECURITY;
       `);
       await pool.query(
         'INSERT INTO push_logs (title, body, target, sent_count, failed_count) VALUES ($1, $2, $3, $4, $5)',

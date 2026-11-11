@@ -4,6 +4,7 @@ const path = require('path');
 const { getDbPool } = require('./dbPool');
 
 const LOG_DIR = path.join(__dirname, '..', '..', 'logs');
+let trafficTableEnsured = false;
 
 function extractClientIp(req) {
   const xff = req?.headers?.['x-forwarded-for'];
@@ -46,22 +47,35 @@ async function logTrafficEvent(req, { action, resourceType, resourceId, metadata
     const pool = getDbPool();
     if (pool) {
       try {
-        await pool.query(`
-          CREATE TABLE IF NOT EXISTS traffic_logs_5651 (
-            id BIGSERIAL PRIMARY KEY,
-            action TEXT NOT NULL,
-            resource_type TEXT NOT NULL,
-            resource_id TEXT,
-            client_ip TEXT,
-            ip_hash TEXT,
-            client_port INT,
-            user_agent TEXT,
-            metadata JSONB DEFAULT '{}'::jsonb,
-            created_at TIMESTAMPTZ DEFAULT NOW()
-          )
-        `);
+        if (!trafficTableEnsured) {
+          await pool.query(`
+            CREATE TABLE IF NOT EXISTS public.traffic_logs_5651 (
+              id BIGSERIAL PRIMARY KEY,
+              action TEXT NOT NULL,
+              resource_type TEXT NOT NULL,
+              resource_id TEXT,
+              client_ip TEXT,
+              ip_hash TEXT,
+              client_port INT,
+              user_agent TEXT,
+              metadata JSONB DEFAULT '{}'::jsonb,
+              created_at TIMESTAMPTZ DEFAULT NOW()
+            );
+            ALTER TABLE public.traffic_logs_5651 ENABLE ROW LEVEL SECURITY;
+            DO $$
+            BEGIN
+              IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+                REVOKE ALL ON TABLE public.traffic_logs_5651 FROM anon;
+              END IF;
+              IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'authenticated') THEN
+                REVOKE ALL ON TABLE public.traffic_logs_5651 FROM authenticated;
+              END IF;
+            END $$;
+          `);
+          trafficTableEnsured = true;
+        }
         await pool.query(
-          `INSERT INTO traffic_logs_5651 (
+          `INSERT INTO public.traffic_logs_5651 (
             action, resource_type, resource_id, client_ip, ip_hash, client_port, user_agent, metadata
           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
           [
