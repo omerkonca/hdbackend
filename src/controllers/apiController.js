@@ -839,9 +839,11 @@ class ApiController {
         const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
         const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
 
+        const collapseKey = `news_${String(newArticle.id).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 56)}`;
         pushResult = await fcmService.sendToTopic(topic, {
           title: pushTitle,
           body: newArticle.title,
+          collapseKey,
           data: {
             route: String(newArticle.id),
           },
@@ -849,6 +851,12 @@ class ApiController {
           console.error('[push] FCM push failed:', e.message);
           return { ok: false, detail: e.message };
         });
+
+        if (pushResult?.success) {
+          const newsPushLog = require('../utils/newsPushLog');
+          const titleKey = newsService.normalizeNewsTitleKey(newArticle.title);
+          await newsPushLog.markPushed(newArticle.id, titleKey, newArticle.title, topic).catch(() => {});
+        }
       }
 
       try {

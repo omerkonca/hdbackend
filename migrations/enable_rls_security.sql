@@ -100,12 +100,16 @@ DROP POLICY IF EXISTS "Public read outages" ON public.outages;
 CREATE POLICY "Public Read Access for outages" ON public.outages
   FOR SELECT TO anon, authenticated USING (true);
 
--- 13. 5651 Traffic Logs (Backend-only; deny all public Data API access)
+-- 13. 5651 Traffic Logs & News Push Logs (Backend-only; deny all public Data API access)
 ALTER TABLE IF EXISTS public.traffic_logs_5651 ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public.news_push_logs ENABLE ROW LEVEL SECURITY;
 DO $$
 BEGIN
   IF to_regclass('public.traffic_logs_5651') IS NOT NULL THEN
     REVOKE ALL ON TABLE public.traffic_logs_5651 FROM anon, authenticated;
+  END IF;
+  IF to_regclass('public.news_push_logs') IS NOT NULL THEN
+    REVOKE ALL ON TABLE public.news_push_logs FROM anon, authenticated;
   END IF;
 END $$;
 

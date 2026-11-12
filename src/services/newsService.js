@@ -1084,15 +1084,26 @@ KURALLAR:
 
       let existing = [];
       let existingByUrl = [];
+      let recentRows = [];
 
       if (pool) {
         try {
-          const resIds = await pool.query('SELECT id, title, source_url FROM news_items WHERE id = ANY($1::text[])', [ids]);
+          const resIds = await pool.query('SELECT id, title, source_url, created_at FROM news_items WHERE id = ANY($1::text[])', [ids]);
           existing = resIds.rows || [];
           if (urls.length > 0) {
-            const resUrls = await pool.query('SELECT id, title, source_url FROM news_items WHERE source_url = ANY($1::text[])', [urls]);
+            const resUrls = await pool.query('SELECT id, title, source_url, created_at FROM news_items WHERE source_url = ANY($1::text[])', [urls]);
             existingByUrl = resUrls.rows || [];
           }
+          // Farklı kaynaklardan (ör. Sabır vs Hasret vs İHA) farklı id/url ile gelen
+          // aynı konudaki haberleri yakalamak için son 72 saatlik başlıkları da kontrol et
+          const resRecent = await pool.query(
+            `SELECT id, title, source_url, created_at
+             FROM news_items
+             WHERE created_at >= NOW() - INTERVAL '72 hours'
+             ORDER BY created_at DESC
+             LIMIT 300`,
+          );
+          recentRows = resRecent.rows || [];
         } catch (pgErr) {
           console.error('[news] PG existing check error:', pgErr.message);
         }
@@ -1100,8 +1111,16 @@ KURALLAR:
         try {
           const { requireSupabaseAdmin } = require('../utils/supabaseAdmin');
           const db = requireSupabaseAdmin();
-          const { data } = await db.from('news_items').select('id, title, source_url').in('id', ids);
+          const { data } = await db.from('news_items').select('id, title, source_url, created_at').in('id', ids);
           if (data) existing = data;
+          const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+          const { data: rec } = await db
+            .from('news_items')
+            .select('id, title, source_url, created_at')
+            .gte('created_at', cutoff)
+            .order('created_at', { ascending: false })
+            .limit(300);
+          if (rec) recentRows = rec;
         } catch (_) {}
       }
 
@@ -1111,11 +1130,11 @@ KURALLAR:
         ]);
         const existingUrls = new Set(existingByUrl.map((row) => row.source_url).filter(Boolean));
         const existingTitleKeys = new Set(
-        [...existing, ...existingByUrl]
+        [...existing, ...existingByUrl, ...recentRows]
             .map((row) => this.normalizeNewsTitleKey(row.title))
             .filter(Boolean),
         );
-      const existingRows = [...existing, ...existingByUrl];
+      const existingRows = [...existing, ...existingByUrl, ...recentRows];
 
       const newItems = syncItems.filter((item) => {
           if (existingIds.has(item.id)) return false;
@@ -1256,24 +1275,38 @@ KURALLAR:
                 }
 
               const isDuzici = this.isDuziciNewsItem(item.title, item.summary);
-
                 const topic = isDuzici ? 'news_duzici' : 'news_osmaniye';
                 const pushTitle = isDuzici ? "Düziçi'nde Yeni Gelişme 📰" : "Osmaniye'de Yeni Gelişme 📰";
+
+              const claimed = await newsPushLog.claimPush({
+                id: item.id,
+                titleKey,
+                title: item.title,
+                topic,
+                createdAt: item.createdAt,
+              });
+              if (!claimed) {
+                console.log(`[news] push atlandı (DB kilit / benzer başlık daha önce atıldı): "${item.title}"`);
+                continue;
+              }
+              if (titleKey) pushedKeysThisRun.add(titleKey);
+
+              const collapseKey = `news_${String(item.id || titleKey).replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 56)}`;
 
                 console.log(`[news] FCM bildirim gönderiliyor: "${item.title}" -> Konu: ${topic}`);
                 const result = await fcmService.sendToTopic(topic, {
                   title: pushTitle,
                   body: item.title,
+                  collapseKey,
                   data: {
                     route: String(item.id),
                   },
                 });
 
                 if (result.success) {
-                await newsPushLog.markPushed(item.id, titleKey);
-                if (titleKey) pushedKeysThisRun.add(titleKey);
                   pushCount += 1;
                 } else {
+                  await newsPushLog.releasePush(item.id);
                   console.error(`[news] FCM başarısız (${item.id}):`, result.error);
                 }
               }
