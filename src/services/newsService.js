@@ -18,6 +18,9 @@ const {
 
 const { getDbPool } = require('../utils/dbPool');
 
+/** Uzun döngülerde diğer isteklerin (ör. /health) çalışabilmesi için sıra verir. */
+const yieldToEventLoop = () => new Promise((resolve) => setImmediate(resolve));
+
 class NewsService {
   constructor() {
     this.cache = {
@@ -300,6 +303,15 @@ class NewsService {
     if (item?.category === 'Türkiye' || item?.scope === 'turkey') {
       return false; // Türkiye haberlerine ASLA push bildirim gönderilmez
     }
+    // "Düziçi/Osmaniye'de Yeni Gelişme" bildirimi yalnızca içerikte yerel bağ varsa gider.
+    if (
+      !this.isOwnPublisherItem(item) &&
+      !this.isDuziciRelated(item?.title, item?.summary) &&
+      !this.isOsmaniyeRelated(item?.title, item?.summary)
+    ) {
+      console.log(`[news] push atlandı (yerel bağ yok): "${item?.title || ''}"`);
+      return false;
+    }
     const maxAgeMs = (config.NEWS.PUSH_MAX_AGE_HOURS || 36) * 60 * 60 * 1000;
     const publishedAt = item?.createdAt ? new Date(item.createdAt).getTime() : NaN;
     if (!Number.isFinite(publishedAt) || publishedAt <= 0) {
@@ -473,7 +485,7 @@ KURALLAR:
   }
 
   osmaniyeKeywordRe() {
-    return /\b(osmaniye|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|yarbasi|ellek|atalan|haruniye|cevdetiye|zorkun|karacay|kastabala|aslantas|camici|cebelibereket|yedi ocak|korkut ata|erdinc yilmaz|serdengecti|osmaniyespor|fistikcilar|yer fistigi|karatepe)\b/;
+    return /\b(osmaniye|osmaniyeli|kadirli|bah[cç]e|hasanbeyli|toprakkale|s[uü]mba[sş]|d[uü]zi[cç]i|duzici|yarbasi|ellek|atalan|haruniye|cevdetiye|zorkun|karacay|kastabala|aslantas|camici|cebelibereket|yedi ocak|korkut ata|oku|otso|erdinc yilmaz|serdengecti|cenet|kastal|osmaniyespor|fistikcilar|yer fistigi|karatepe)\b/;
   }
 
   nationalNoiseRe() {
@@ -540,13 +552,21 @@ KURALLAR:
     return false;
   }
 
+  /**
+   * Haber kategorisi içeriğe göre belirlenir; kaynağın adı tek başına yetmez.
+   * Örn. "Hasret Gazetesi Düziçi" beslemesi genel/ulusal haber de yayınlıyor
+   * ("Dev banka altın senaryoları", "TOBB ekim rakamları"); bunlar Düziçi sayılıp
+   * "Osmaniye'de Yeni Gelişme" bildirimiyle gidiyordu.
+   */
   inferNewsCategory(title = '', summary = '', sourceName = '', { scope = 'auto' } = {}) {
     if (scope === 'turkey') return 'Türkiye';
     if (this.isDuziciRelated(title, summary)) return 'Düziçi';
-    if (scope === 'duzici') return 'Düziçi';
     if (this.isOsmaniyeRelated(title, summary)) return 'Osmaniye';
-    if (scope === 'osmaniye') return 'Osmaniye';
     const source = normalizeForCompare(sourceName || '');
+    // Yer adı geçmese de gerçekten Düziçi'ye ait yayın yapan kaynaklar.
+    if (/hepsi duzici|sabir gazetesi duzici/.test(source)) return 'Düziçi';
+    // Yerel gazetelerin yer adı geçmeyen haberleri genelde ulusal gündemdir.
+    if (scope === 'duzici' || scope === 'osmaniye') return 'Türkiye';
     if (/hepsi|duzici|haruniye/.test(source)) return 'Düziçi';
     return 'Osmaniye';
   }
@@ -1136,14 +1156,19 @@ KURALLAR:
         );
       const existingRows = [...existing, ...existingByUrl, ...recentRows];
 
-      const newItems = syncItems.filter((item) => {
-          if (existingIds.has(item.id)) return false;
-          if (item.sourceUrl && existingUrls.has(item.sourceUrl)) return false;
-          const titleKey = this.normalizeNewsTitleKey(item.title);
-          if (titleKey && existingTitleKeys.has(titleKey)) return false;
-          if (existingRows.some((row) => this.areDuplicateNews(row, item))) return false;
-          return true;
-        });
+      // Her yeni haber yüzlerce mevcut kayıtla karşılaştırılır; ücretsiz sunucuda
+      // olay döngüsü kilitlenmesin diye her birkaç haberde bir başka isteklere sıra verilir.
+      const newItems = [];
+      for (let i = 0; i < syncItems.length; i++) {
+        if (i > 0 && i % 15 === 0) await yieldToEventLoop();
+        const item = syncItems[i];
+        if (existingIds.has(item.id)) continue;
+        if (item.sourceUrl && existingUrls.has(item.sourceUrl)) continue;
+        const titleKey = this.normalizeNewsTitleKey(item.title);
+        if (titleKey && existingTitleKeys.has(titleKey)) continue;
+        if (existingRows.some((row) => this.areDuplicateNews(row, item))) continue;
+        newItems.push(item);
+      }
 
       // Aynı sync turunda Sabır+Hasret gibi kopyaları tekilleştir (ilk kalan)
       const uniqueNewItems = [];
@@ -1181,16 +1206,17 @@ KURALLAR:
       }
 
       // DB'ye yazarken: mevcut kayıtlara konu-kopyası olan YENİ satırları atla (Hasret vs Sabır)
-      const skipInsertIds = new Set(
-        syncItems
-          .filter((item) => {
-            if (existingIds.has(item.id)) return false;
-            const titleKey = this.normalizeNewsTitleKey(item.title);
-            if (titleKey && existingTitleKeys.has(titleKey)) return true;
-            return existingRows.some((row) => this.areDuplicateNews(row, item));
-          })
-          .map((item) => item.id),
-      );
+      const skipInsertIds = new Set();
+      for (let i = 0; i < syncItems.length; i++) {
+        if (i > 0 && i % 15 === 0) await yieldToEventLoop();
+        const item = syncItems[i];
+        if (existingIds.has(item.id)) continue;
+        const titleKey = this.normalizeNewsTitleKey(item.title);
+        if ((titleKey && existingTitleKeys.has(titleKey)) ||
+            existingRows.some((row) => this.areDuplicateNews(row, item))) {
+          skipInsertIds.add(item.id);
+        }
+      }
       if (skipInsertIds.size > 0) {
         console.log(`[news] ${skipInsertIds.size} kopya haber DB'ye yazılmadı (benzer başlık).`);
       }
