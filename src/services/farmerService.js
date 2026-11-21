@@ -381,7 +381,9 @@ class FarmerService {
     if (this._inflight) return this._inflight;
     this._inflight = this._build()
       .then((data) => {
-        this.cache = { fetchedAt: Date.now(), data };
+        // Haber önbelleği henüz dolmadıysa (sunucu yeni açıldı) kısa süre sonra yeniden dene.
+        const newsEmpty = !data.announcements.length && !data.market.length;
+        this.cache = { fetchedAt: newsEmpty ? Date.now() - CACHE_MS + 2 * 60 * 1000 : Date.now(), data };
         return data;
       })
       .catch((err) => {
