@@ -1458,9 +1458,7 @@
         ],
         "population": 3800,
         "description": "Atalan, Yeşilyurt ve Dümbürdek yerleşimlerinin birleşimiyle belde olan Böcekli, Roma dönemi su kemerleri kalıntılarına ev sahipliği yapar. Düziçi'nin en geniş sulak tarım arazilerine sahiptir.",
-        "headmanName": "Mustafa Karaman",
         "weatherTemp": "26°C",
-        "headmanPhone": "0543 566 25 74",
         "minibusRoutes": [
           {
             "fee": "15 ₺",
@@ -1499,9 +1497,7 @@
         ],
         "population": 6500,
         "description": "1969 yılında kurulan Ellek Beldesi, Peçenek Türk boylarının yerleşim mirasını taşır. Tarihi taş ve ahşap dokulu evleri ile Çukurova mimarisinin örneklerini sunar.",
-        "headmanName": "Ergen Çıplak",
         "weatherTemp": "24°C",
-        "headmanPhone": "0538 310 51 80",
         "minibusRoutes": [
           {
             "fee": "20 ₺",
@@ -1542,9 +1538,7 @@
         ],
         "population": 3600,
         "description": "Karaçarlı ve Atatürk mahallelerinin birleşimiyle belde olan Yarbaşı, Çukurova efsanelerindeki Karacaoğlan şiir mirasını ve anı alanını yaşatan önemli bir kültür merkezidir.",
-        "headmanName": "Mehmet Karabaş",
         "weatherTemp": "25°C",
-        "headmanPhone": "0531 848 38 85",
         "minibusRoutes": [
           {
             "fee": "15 ₺",
@@ -1584,9 +1578,7 @@
         ],
         "population": 1200,
         "description": "Ceyhan ve Sabun Çayı sulama havzasındaki verimli ovada yer alan Atalan Köyü, pamuk, mısır ve dokumacılık geleneğine sahip bereketli ova yerleşimlerindendir.",
-        "headmanName": "Serkan Özdemir",
         "weatherTemp": "27°C",
-        "headmanPhone": "0541 604 81 80",
         "minibusRoutes": [
           {
             "fee": "25 ₺",
@@ -3997,9 +3989,7 @@
         ],
         "population": 3800,
         "description": "1990 yılında Atalan, Yeşilyurt ve Dümbürdek yerleşimlerinin birleşmesiyle belde olan Böcekli, Roma dönemi su kemerleri kalıntılarına ev sahipliği yapar. Düziçi'nin en geniş sulak tarım arazilerine sahiptir.",
-        "headmanName": "Mustafa Karaman",
         "weatherTemp": "26°C",
-        "headmanPhone": "0543 566 25 74",
         "minibusRoutes": [
           {
             "fee": "15 ₺",
@@ -4038,9 +4028,7 @@
         ],
         "population": 6500,
         "description": "1969 yılında Ellek ve Peçenek köylerinin birleşmesiyle kurulan Ellek Beldesi, Peçenek Türk boylarının yerleşim mirasını taşır. Tarihi taş ve ahşap dokulu evleri ile Çukurova mimarisinin örneklerini sunar.",
-        "headmanName": "Ergen Çıplak",
         "weatherTemp": "24°C",
-        "headmanPhone": "0538 310 51 80",
         "minibusRoutes": [
           {
             "fee": "20 ₺",
@@ -4081,9 +4069,7 @@
         ],
         "population": 3600,
         "description": "1999'da Karaçarlı ve Atatürk mahallelerinin birleşimiyle belde olan Yarbaşı, Çukurova efsanelerindeki Karacaoğlan şiir mirasını ve anı alanını yaşatan önemli bir kültür ve sanat merkezidir.",
-        "headmanName": "Mehmet Karabaş",
         "weatherTemp": "25°C",
-        "headmanPhone": "0531 848 38 85",
         "minibusRoutes": [
           {
             "fee": "15 ₺",
@@ -4123,9 +4109,7 @@
         ],
         "population": 1200,
         "description": "Ceyhan ve Sabun Çayı sulama havzasındaki verimli ovada yer alan Atalan Köyü, Cumhuriyet öncesi pamuk ve dokumacılık geleneğine sahip ova köylerimizdendir.",
-        "headmanName": "Serkan Özdemir",
         "weatherTemp": "27°C",
-        "headmanPhone": "0541 604 81 80",
         "minibusRoutes": [
           {
             "fee": "25 ₺",
@@ -6022,9 +6006,7 @@
       ],
       "population": 3800,
       "description": "Atalan, Yeşilyurt ve Dümbürdek yerleşimlerinin birleşimiyle belde olan Böcekli, Roma dönemi su kemerleri kalıntılarına ev sahipliği yapar. Düziçi'nin en geniş sulak tarım arazilerine sahiptir.",
-      "headmanName": "Mustafa Karaman",
       "weatherTemp": "26°C",
-      "headmanPhone": "0543 566 25 74",
       "minibusRoutes": [
         {
           "fee": "15 ₺",
@@ -6063,9 +6045,7 @@
       ],
       "population": 6500,
       "description": "1969 yılında kurulan Ellek Beldesi, Peçenek Türk boylarının yerleşim mirasını taşır. Tarihi taş ve ahşap dokulu evleri ile Çukurova mimarisinin örneklerini sunar.",
-      "headmanName": "Ergen Çıplak",
       "weatherTemp": "24°C",
-      "headmanPhone": "0538 310 51 80",
       "minibusRoutes": [
         {
           "fee": "20 ₺",
@@ -6106,9 +6086,7 @@
       ],
       "population": 3600,
       "description": "Karaçarlı ve Atatürk mahallelerinin birleşimiyle belde olan Yarbaşı, Çukurova efsanelerindeki Karacaoğlan şiir mirasını ve anı alanını yaşatan önemli bir kültür merkezidir.",
-      "headmanName": "Mehmet Karabaş",
       "weatherTemp": "25°C",
-      "headmanPhone": "0531 848 38 85",
       "minibusRoutes": [
         {
           "fee": "15 ₺",
@@ -6148,9 +6126,7 @@
       ],
       "population": 1200,
       "description": "Ceyhan ve Sabun Çayı sulama havzasındaki verimli ovada yer alan Atalan Köyü, pamuk, mısır ve dokumacılık geleneğine sahip bereketli ova yerleşimlerindendir.",
-      "headmanName": "Serkan Özdemir",
       "weatherTemp": "27°C",
-      "headmanPhone": "0541 604 81 80",
       "minibusRoutes": [
         {
           "fee": "25 ₺",
