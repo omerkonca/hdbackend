@@ -3831,6 +3831,7 @@
       try {
         const qs = filter && filter !== 'all' ? `?status=${encodeURIComponent(filter)}` : '';
         const res = await fetch(`/api/citizen-reports${qs}`, {
+          cache: 'no-store',
           headers: { 'x-admin-token': currentToken },
         });
         const data = await res.json();

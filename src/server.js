@@ -86,8 +86,16 @@ app.use(express.static(config.PATHS.PUBLIC_DIR, {
 app.use('/api', (req, res, next) => {
   if (req.method === 'GET') {
     const p = req.path;
-    // Admin, Studio ve anlık canlı kontrol rotaları önbelleklenmez
-    if (p.startsWith('/admin') || p.startsWith('/studio') || p.includes('felt')) {
+    // Admin, Studio, ihbar yönetimi ve anlık canlı kontrol rotaları önbelleklenmez.
+    // Yönetici anahtarıyla gelen her istek kişisel/canlı veri döndürür: asla önbelleğe alınmaz.
+    const isAdminRequest = Boolean(req.headers['x-admin-token'] || req.headers.authorization);
+    if (
+      isAdminRequest ||
+      p.startsWith('/admin') ||
+      p.startsWith('/studio') ||
+      p.startsWith('/citizen-reports') ||
+      p.includes('felt')
+    ) {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
     } else if (p.includes('prayers')) {
       res.setHeader('Cache-Control', 'public, max-age=21600, stale-while-revalidate=86400'); // 6 saat
