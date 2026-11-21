@@ -9,6 +9,7 @@ const eventService = require('../services/eventService');
 const outageService = require('../services/outageService');
 const roadClosureService = require('../services/roadClosureService');
 const weatherService = require('../services/weatherService');
+const farmerService = require('../services/farmerService');
 const prayerService = require('../services/prayerService');
 const obituaryService = require('../services/obituaryService');
 const dailyBriefingService = require('../services/dailyBriefingService');
@@ -619,6 +620,18 @@ class ApiController {
     } catch (error) {
       console.error('❌ getWeather error:', error);
       res.status(500).json({ ok: false, message: 'Hava durumu alinamadi.', detail: error.message });
+    }
+  }
+
+  async getFarmer(req, res) {
+    try {
+      const forceRefresh = req.query.refresh === '1' || req.query.refresh === 'true';
+      const data = await farmerService.getData({ forceRefresh });
+      res.set('Cache-Control', 'public, max-age=300');
+      res.json({ ok: true, ...data });
+    } catch (error) {
+      console.error('❌ getFarmer error:', error);
+      res.status(500).json({ ok: false, message: 'Çiftçi verileri alınamadı.', detail: error.message });
     }
   }
 

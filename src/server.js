@@ -334,4 +334,11 @@ const server = app.listen(config.PORT, '0.0.0.0', () => {
     setInterval(runDailyBriefingJob, intervals.dailyBriefingMs);
     setInterval(runAiReporterJob, 15 * 60 * 1000); // Check every 15 minutes, same as daily briefing check interval
   }
+
+  // Çiftçi uyarıları (don, dolu, fırtına, kuvvetli yağış): saatte bir, her modda.
+  const farmerService = require('./services/farmerService');
+  const runFarmerAlerts = () =>
+    farmerService.checkAndPushAlerts().catch((err) => console.warn('[farmer] uyarı işi hatası:', err.message));
+  setTimeout(runFarmerAlerts, 3 * 60 * 1000);
+  setInterval(runFarmerAlerts, 60 * 60 * 1000);
 });

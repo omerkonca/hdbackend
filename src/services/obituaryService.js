@@ -252,7 +252,13 @@ class ObituaryService {
     const $ = cheerio.load(html);
     const items = [];
     const pageDateText = $('body').text().match(/Cenaze Bilgi Sistemi\s*TARİH:\s*([^\n|]+)/i);
-    const pageDate = this.parseDate(pageDateText?.[1] || '');
+    // Sayfa metnindeki tarih (farklı karakter kodlaması yüzünden) çoğu zaman okunamıyor;
+    // okunamazsa tarihi sayfa adresinden al (ör. .../20-kasim-2026-cuma.html).
+    // Eskiden bu durumda "şu an" yazılıyor, bütün ilanlar bugünün tarihini alıyordu.
+    const pageDate =
+      this.tryParseDate(pageDateText?.[1] || '') ||
+      this.tryParseDateFromSlug(pageUrl) ||
+      new Date().toISOString();
 
     $('table').each((_, table) => {
       const rows = $(table).find('tr');
@@ -358,6 +364,39 @@ class ObituaryService {
   extractBurial(detail = '') {
     const match = detail.match(/Cenazesi\s+(.+?)\s+defnedilecektir/i);
     return match ? match[1].trim() : '';
+  }
+
+  /** Tarih okunamazsa null döner (parseDate'in aksine "şu an"a düşmez). */
+  tryParseDate(raw = '') {
+    if (!raw) return null;
+    const iso = raw.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) return new Date(`${iso[1]}-${iso[2]}-${iso[3]}T12:00:00.000Z`).toISOString();
+    const dotted = raw.match(/(\d{1,2})[./](\d{1,2})[./](\d{4})/);
+    if (dotted) {
+      return new Date(`${dotted[3]}-${dotted[2].padStart(2, '0')}-${dotted[1].padStart(2, '0')}T12:00:00.000Z`).toISOString();
+    }
+    // "20 Kasım 2026"
+    const named = raw
+      .toLowerCase()
+      .replace(/ı/g, 'i').replace(/ş/g, 's').replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u').replace(/ö/g, 'o').replace(/ç/g, 'c')
+      .match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
+    if (named) {
+      const month = MONTHS.indexOf(named[2]);
+      if (month > 0) {
+        return new Date(`${named[3]}-${String(month).padStart(2, '0')}-${named[1].padStart(2, '0')}T12:00:00.000Z`).toISOString();
+      }
+    }
+    return null;
+  }
+
+  /** ".../20-kasim-2026-cuma.html" gibi adreslerden tarih; bulunamazsa null. */
+  tryParseDateFromSlug(url = '') {
+    const slug = String(url).match(/(\d{1,2})-([a-z]+)-(\d{4})-/i);
+    if (!slug) return null;
+    const month = MONTHS.indexOf(slug[2].toLowerCase());
+    if (month <= 0) return null;
+    return new Date(`${slug[3]}-${String(month).padStart(2, '0')}-${slug[1].padStart(2, '0')}T12:00:00.000Z`).toISOString();
   }
 
   parseDate(raw = '') {

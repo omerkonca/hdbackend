@@ -17,6 +17,7 @@ router.get('/events', apiController.getEvents);
 router.get('/outages', apiController.getOutages);
 router.get('/road-closures', apiController.getRoadClosures);
 router.get('/weather', apiController.getWeather);
+router.get('/farmer', apiController.getFarmer);
 router.get('/prayers', apiController.getPrayerTimes);
 router.get('/obituaries', apiController.getObituaries);
 router.get('/daily-briefing', apiController.getDailyBriefing);
