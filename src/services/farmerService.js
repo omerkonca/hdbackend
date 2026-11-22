@@ -121,16 +121,122 @@ function weatherText(code) {
   return 'Değişken';
 }
 
+/** Europe/Istanbul saatine göre "YYYY-MM-DD" ve "YYYY-MM-DDTHH:00". */
+function istanbulNow() {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hour12: false,
+    })
+      .formatToParts(new Date())
+      .map((p) => [p.type, p.value]),
+  );
+  const date = `${parts.year}-${parts.month}-${parts.day}`;
+  const hour = parts.hour === '24' ? '00' : parts.hour;
+  return { date, hourIso: `${date}T${hour}:00` };
+}
+
+/**
+ * Kayıtlı tahmini bugünden başlatır: geçmiş günleri atar ve "şu an" değerlerini
+ * saatlik tahminin bu saatine ait değerleriyle değiştirir.
+ */
+function shiftForecastToToday(raw) {
+  const f = JSON.parse(JSON.stringify(raw));
+  const { date, hourIso } = istanbulNow();
+  const start = f.daily.time.indexOf(date);
+  if (start > 0) {
+    for (const key of Object.keys(f.daily)) {
+      if (Array.isArray(f.daily[key])) f.daily[key] = f.daily[key].slice(start);
+    }
+  }
+  const i = f.hourly.time.indexOf(hourIso);
+  if (i >= 0) {
+    f.current = {
+      ...f.current,
+      time: hourIso,
+      temperature_2m: f.hourly.temperature_2m[i],
+      relative_humidity_2m: f.hourly.relative_humidity_2m[i],
+      wind_speed_10m: f.hourly.wind_speed_10m[i],
+      weather_code: f.hourly.weather_code[i],
+    };
+  }
+  return f;
+}
+
 class FarmerService {
   constructor() {
     this.cache = { fetchedAt: 0, data: null };
     this._inflight = null;
   }
 
+  /**
+   * Open-Meteo tahminini getirir. Render'ın paylaşılan IP'si yüzünden zaman zaman
+   * 429 (çok fazla istek) dönebiliyor: kısa aralıklarla tekrar dener, yine olmazsa
+   * veritabanında saklanan son başarılı tahmini (36 saate kadar) bugüne kaydırarak kullanır.
+   */
   async _fetchForecast() {
-    const res = await fetchWithTimeout(FORECAST_URL, { headers: { Accept: 'application/json' } }, 15000);
-    if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
-    return res.json();
+    let lastErr;
+    for (const waitMs of [0, 1500, 4000]) {
+      if (waitMs) await new Promise((r) => setTimeout(r, waitMs));
+      try {
+        const res = await fetchWithTimeout(FORECAST_URL, { headers: { Accept: 'application/json' } }, 15000);
+        if (res.ok) {
+          const raw = await res.json();
+          this._saveForecast(raw).catch(() => {});
+          return { raw, fetchedAt: new Date().toISOString(), stale: false };
+        }
+        lastErr = new Error(`Open-Meteo HTTP ${res.status}`);
+        if (res.status !== 429 && res.status < 500) break;
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+    const saved = await this._loadForecast();
+    if (saved) {
+      console.warn(`[farmer] ${lastErr?.message}; kayıtlı tahmin kullanılıyor (${saved.fetchedAt}).`);
+      return { raw: shiftForecastToToday(saved.raw), fetchedAt: saved.fetchedAt, stale: true };
+    }
+    throw lastErr || new Error('Open-Meteo erişilemedi');
+  }
+
+  async _ensureCacheTable(pool) {
+    if (this._cacheTableReady) return;
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS public.service_cache (
+        key text PRIMARY KEY,
+        data jsonb NOT NULL,
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+      ALTER TABLE public.service_cache ENABLE ROW LEVEL SECURITY;
+      REVOKE ALL ON public.service_cache FROM anon, authenticated;
+    `);
+    this._cacheTableReady = true;
+  }
+
+  async _saveForecast(raw) {
+    const pool = getDbPool();
+    if (!pool) return;
+    await this._ensureCacheTable(pool);
+    await pool.query(
+      `INSERT INTO public.service_cache (key, data, updated_at) VALUES ('farmer_forecast', $1, now())
+       ON CONFLICT (key) DO UPDATE SET data = EXCLUDED.data, updated_at = now()`,
+      [JSON.stringify(raw)],
+    );
+  }
+
+  async _loadForecast() {
+    try {
+      const pool = getDbPool();
+      if (!pool) return null;
+      await this._ensureCacheTable(pool);
+      const res = await pool.query(
+        `SELECT data, updated_at FROM public.service_cache
+          WHERE key = 'farmer_forecast' AND updated_at > now() - interval '36 hours'`,
+      );
+      if (!res.rows.length) return null;
+      return { raw: res.rows[0].data, fetchedAt: new Date(res.rows[0].updated_at).toISOString() };
+    } catch (_) {
+      return null;
+    }
   }
 
   /** Bir günün riskleri (şiddet: 'severe' | 'warning'). */
@@ -269,7 +375,8 @@ class FarmerService {
   }
 
   async _build() {
-    const f = await this._fetchForecast();
+    const fc = await this._fetchForecast();
+    const f = fc.raw;
     const d = f.daily;
     const h = f.hourly;
     const todayStr = d.time[0];
@@ -355,7 +462,8 @@ class FarmerService {
 
     return {
       location: 'Düziçi',
-      fetchedAt: new Date().toISOString(),
+      fetchedAt: fc.fetchedAt,
+      stale: fc.stale,
       source: 'Open-Meteo',
       current: {
         temp: f.current.temperature_2m,
@@ -433,6 +541,8 @@ class FarmerService {
     if (hour >= 22 || hour < 7) return { skipped: 'quiet-hours' };
 
     const data = await this.getData({ forceRefresh: true });
+    // Kayıtlı (eski) tahminle uyarı gönderme; yalnızca taze veriyle bildirim at.
+    if (data.stale) return { skipped: 'stale-forecast' };
     const pushable = new Set(['frost', 'hail', 'storm', 'rain']);
     const sent = [];
     for (const day of data.days.slice(0, 2)) {
