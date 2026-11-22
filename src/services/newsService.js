@@ -33,6 +33,16 @@ class NewsService {
     this.ARTICLE_TIMEOUT_MS = 25000;
     this.SLOW_HOST_TIMEOUT_MS = 30000;
     this._currentRefreshPromise = null;
+    // Yayıncı/AI haberleri için bellek önbelleği. Her /news isteğinde veritabanından
+    // tam metinli 30 haber çekmek Supabase veri çıkışı (egress) kotasını tüketiyordu.
+    this._publisherCache = { at: 0, limit: 0, items: [] };
+    this._publisherInflight = null;
+    this.PUBLISHER_CACHE_MS = 5 * 60 * 1000;
+  }
+
+  /** Yeni haber eklendiğinde/silindiğinde yayıncı önbelleğini boşaltır. */
+  invalidatePublisherCache() {
+    this._publisherCache = { at: 0, limit: 0, items: [] };
   }
 
   getFetchTimeoutMs(url = '') {
@@ -64,6 +74,30 @@ class NewsService {
   }
 
   async getPublisherNewsFromDb(limit = 40) {
+    const c = this._publisherCache;
+    if (c.at && Date.now() - c.at < this.PUBLISHER_CACHE_MS && c.limit >= limit) {
+      return c.items.slice(0, limit);
+    }
+    // Aynı anda gelen istekler tek bir veritabanı sorgusunu paylaşır.
+    if (this._publisherInflight) {
+      const items = await this._publisherInflight;
+      return items.slice(0, limit);
+    }
+    const fetchLimit = Math.max(limit, 40);
+    this._publisherInflight = this._loadPublisherNewsFromDb(fetchLimit)
+      .then((items) => {
+        // Boş sonuç (bağlantı hatası) önbelleğe yazılmaz; bir sonraki istek tekrar dener.
+        if (items.length) this._publisherCache = { at: Date.now(), limit: fetchLimit, items };
+        return items;
+      })
+      .finally(() => {
+        this._publisherInflight = null;
+      });
+    const items = await this._publisherInflight;
+    return items.slice(0, limit);
+  }
+
+  async _loadPublisherNewsFromDb(limit = 40) {
     const pool = getDbPool();
     if (pool) {
       try {
@@ -97,6 +131,7 @@ class NewsService {
   }
 
   prependToCache(item) {
+    this.invalidatePublisherCache();
     if (!item?.id) return;
     const rest = (this.cache.items || []).filter((x) => x.id !== item.id);
     this.cache = {

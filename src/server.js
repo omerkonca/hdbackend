@@ -349,4 +349,11 @@ const server = app.listen(config.PORT, '0.0.0.0', () => {
     farmerService.checkAndPushAlerts().catch((err) => console.warn('[farmer] uyarı işi hatası:', err.message));
   setTimeout(runFarmerAlerts, 3 * 60 * 1000);
   setInterval(runFarmerAlerts, 60 * 60 * 1000);
+
+  // Depodaki büyük görselleri günde bir kez küçültür (Supabase veri kotasını korur).
+  const { runStorageOptimizer } = require('./services/storageOptimizerService');
+  const runImageOptimizer = () =>
+    runStorageOptimizer().catch((err) => console.warn('[storage-optimizer] hata:', err.message));
+  setTimeout(runImageOptimizer, 15 * 60 * 1000);
+  setInterval(runImageOptimizer, 24 * 60 * 60 * 1000);
 });

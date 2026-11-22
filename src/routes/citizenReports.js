@@ -177,15 +177,22 @@ router.post('/', (req, res, next) => {
     const imageUrls = [];
     if (useSupabaseStorage && req.files && req.files.length > 0) {
       const supabase = db;
+      const { optimizeImage } = require('../utils/imageOptimizer');
       for (const file of req.files) {
+        const opt = await optimizeImage(file.buffer, file.mimetype);
+        if (opt.optimized) {
+          file.buffer = opt.buffer;
+          file.mimetype = opt.mimetype;
+        }
         const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        const filename = `report-${unique}${mimeToExt(file.mimetype, file.originalname)}`;
+        const filename = `report-${unique}${opt.ext || mimeToExt(file.mimetype, file.originalname)}`;
 
         const { error } = await supabase.storage
           .from('city-assets')
           .upload(filename, file.buffer, {
             contentType: file.mimetype,
             upsert: true,
+            cacheControl: '31536000',
           });
 
         if (error) {

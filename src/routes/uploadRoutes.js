@@ -44,8 +44,18 @@ router.post('/', requireAdminToken, (req, res, next) => {
     return res.status(400).json({ ok: false, message: 'Dosya seçilmedi.' });
   }
 
+  // Fotoğrafları telefona uygun boyuta küçült (veri kotasını ve yükleme süresini korur).
+  const { optimizeImage } = require('../utils/imageOptimizer');
+  const originalSize = req.file.buffer.length;
+  const opt = await optimizeImage(req.file.buffer, req.file.mimetype);
+  if (opt.optimized) {
+    req.file.buffer = opt.buffer;
+    req.file.mimetype = opt.mimetype;
+    console.log(`[Upload] Görsel küçültüldü: ${Math.round(originalSize / 1024)} KB → ${Math.round(opt.buffer.length / 1024)} KB`);
+  }
+
   const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-  const ext = mimeToExt(req.file.mimetype, req.file.originalname);
+  const ext = opt.ext || mimeToExt(req.file.mimetype, req.file.originalname);
   const filename = `file-${uniqueSuffix}${ext}`;
 
   // 1. Önce Supabase Storage Dene
@@ -58,6 +68,8 @@ router.post('/', requireAdminToken, (req, res, next) => {
       .upload(filename, req.file.buffer, {
         contentType: req.file.mimetype,
         upsert: true,
+        // Dosya adı her yüklemede benzersiz: telefon bir kez indirip bir yıl saklayabilir.
+        cacheControl: '31536000',
       });
 
     if (!error) {
