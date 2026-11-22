@@ -22,20 +22,29 @@ ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS address text;
 ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS latitude double precision;
 ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS longitude double precision;
 ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS location_url text;
+ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS resolution_message text;
+ALTER TABLE public.citizen_reports ADD COLUMN IF NOT EXISTS fcm_token text;
 
 CREATE INDEX IF NOT EXISTS idx_citizen_reports_created ON public.citizen_reports(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_citizen_reports_status ON public.citizen_reports(status);
 
+-- ------------------------------------------------------------
+-- Güvenlik (supabase/migrations/20261118120000_fix_critical_rls_leaks.sql ile birebir).
+-- Bu dosya backend her açıldığında çalışır; bu yüzden burada ASLA anon/authenticated
+-- için SELECT/UPDATE/DELETE politikası ya da koşulsuz INSERT politikası OLUŞTURULMAZ.
+-- Uygulama yalnızca INSERT yapar; durum sorgusu get_citizen_report_status() RPC'si ile,
+-- admin güncellemeleri backend'in service_role bağlantısı ile yapılır.
+-- ------------------------------------------------------------
 ALTER TABLE public.citizen_reports ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS citizen_reports_select_anon ON public.citizen_reports;
+DROP POLICY IF EXISTS citizen_reports_update_anon ON public.citizen_reports;
+DROP POLICY IF EXISTS citizen_reports_delete_anon ON public.citizen_reports;
+
+REVOKE SELECT, UPDATE, DELETE, TRUNCATE ON public.citizen_reports FROM anon, authenticated;
+GRANT INSERT ON public.citizen_reports TO anon, authenticated;
 
 DROP POLICY IF EXISTS citizen_reports_insert_anon ON public.citizen_reports;
 CREATE POLICY citizen_reports_insert_anon ON public.citizen_reports
-  FOR INSERT TO anon, authenticated WITH CHECK (true);
-
-DROP POLICY IF EXISTS citizen_reports_select_anon ON public.citizen_reports;
-CREATE POLICY citizen_reports_select_anon ON public.citizen_reports
-  FOR SELECT TO anon, authenticated USING (true);
-
-DROP POLICY IF EXISTS citizen_reports_update_anon ON public.citizen_reports;
-CREATE POLICY citizen_reports_update_anon ON public.citizen_reports
-  FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (status = 'new' AND resolution_message IS NULL);
