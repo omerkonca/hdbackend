@@ -182,7 +182,7 @@ class FarmerService {
         if (res.ok) {
           const raw = await res.json();
           this._saveForecast(raw).catch(() => {});
-          return { raw, fetchedAt: new Date().toISOString(), stale: false };
+          return { raw, fetchedAt: new Date().toISOString(), stale: false, source: 'Open-Meteo' };
         }
         lastErr = new Error(`Open-Meteo HTTP ${res.status}`);
         if (res.status !== 429 && res.status < 500) break;
@@ -190,10 +190,21 @@ class FarmerService {
         lastErr = err;
       }
     }
+    // İkinci kaynak: MET Norway (farklı sağlayıcı, farklı kota).
+    try {
+      const { fetchMetNorwayAsOpenMeteo } = require('./metNorwayForecast');
+      const raw = await fetchMetNorwayAsOpenMeteo(LAT, LNG);
+      console.warn(`[farmer] ${lastErr?.message}; MET Norway kullanıldı.`);
+      this._saveForecast(raw).catch(() => {});
+      return { raw, fetchedAt: new Date().toISOString(), stale: false, source: 'MET Norway' };
+    } catch (metErr) {
+      console.warn('[farmer] MET Norway da alınamadı:', metErr.message);
+    }
+
     const saved = await this._loadForecast();
     if (saved) {
       console.warn(`[farmer] ${lastErr?.message}; kayıtlı tahmin kullanılıyor (${saved.fetchedAt}).`);
-      return { raw: shiftForecastToToday(saved.raw), fetchedAt: saved.fetchedAt, stale: true };
+      return { raw: shiftForecastToToday(saved.raw), fetchedAt: saved.fetchedAt, stale: true, source: 'Kayıtlı tahmin' };
     }
     throw lastErr || new Error('Open-Meteo erişilemedi');
   }
@@ -464,7 +475,7 @@ class FarmerService {
       location: 'Düziçi',
       fetchedAt: fc.fetchedAt,
       stale: fc.stale,
-      source: 'Open-Meteo',
+      source: fc.source || 'Open-Meteo',
       current: {
         temp: f.current.temperature_2m,
         humidity: f.current.relative_humidity_2m,
