@@ -31,6 +31,7 @@ router.get('/instagram', async (req, res) => {
   }
 });
 router.use('/citizen-reports', require('./citizenReports'));
+router.use('/listing-requests', require('./listingRequests'));
 router.use('/discover', require('./discoverRoutes'));
 router.use('/places', require('./placesRoutes'));
 router.use('/announcements', require('./announcements'));

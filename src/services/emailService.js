@@ -281,6 +281,113 @@ async function sendCitizenReportEmail(report) {
   }
 }
 
+const LISTING_TYPE_LABELS = {
+  real_estate: 'Emlak',
+  auto: 'Galeri / Araç',
+  handyman: 'Usta',
+  job: 'İş İlanı',
+  other: 'Diğer',
+};
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+async function sendListingRequestEmail(request) {
+  if (!isEmailConfigured()) {
+    return { ok: false, reason: 'email_not_configured' };
+  }
+
+  const typeLabel = LISTING_TYPE_LABELS[request.listing_type] || request.listing_type;
+  const phoneDigits = String(request.phone || '').replace(/\D/g, '');
+  const waNumber = phoneDigits.startsWith('90')
+    ? phoneDigits
+    : phoneDigits.startsWith('0')
+      ? `90${phoneDigits.slice(1)}`
+      : `90${phoneDigits}`;
+  const created = new Date(request.created_at || Date.now()).toLocaleString('tr-TR');
+
+  const text = [
+    `Yeni ilan talebi (${typeLabel})`,
+    request.profession ? `Meslek: ${request.profession}` : null,
+    `Ad: ${request.contact_name}`,
+    `Telefon: ${request.phone}`,
+    request.note ? `Not: ${request.note}` : null,
+    `Tarih: ${created}`,
+    `Talep ID: ${request.id}`,
+  ].filter(Boolean).join('\n');
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:640px">
+      <h2 style="color:#0F2744">Yeni İlan Talebi — ${escapeHtml(typeLabel)}</h2>
+      ${request.profession ? `<p><strong>Meslek:</strong> ${escapeHtml(request.profession)}</p>` : ''}
+      <p><strong>Ad:</strong> ${escapeHtml(request.contact_name)}</p>
+      <p><strong>Telefon:</strong> ${escapeHtml(request.phone)}</p>
+      ${request.note ? `<p style="white-space:pre-wrap"><strong>Not:</strong> ${escapeHtml(request.note)}</p>` : ''}
+      <p>
+        <a href="tel:${escapeHtml(phoneDigits)}" style="display:inline-block;background:#2563EB;color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:bold;margin-right:8px">📞 Ara</a>
+        <a href="https://wa.me/${escapeHtml(waNumber)}" style="display:inline-block;background:#16A34A;color:#fff;padding:8px 14px;border-radius:6px;text-decoration:none;font-weight:bold">💬 WhatsApp</a>
+      </p>
+      <p style="color:#666;font-size:12px">${escapeHtml(created)} · Talep ID: ${escapeHtml(request.id)} · ${escapeHtml(request.platform || '-')} v${escapeHtml(request.app_version || '-')}</p>
+    </div>
+  `;
+
+  try {
+    return await deliverEmail({
+      subject: `[Hepsi Düziçi] Yeni ilan talebi: ${typeLabel}`,
+      text,
+      html,
+    });
+  } catch (err) {
+    console.error('[email] İlan talebi maili gönderilemedi:', err.message);
+    return { ok: false, reason: 'send_failed', detail: err.message };
+  }
+}
+
+async function sendListingExpiryDigestEmail(items) {
+  if (!isEmailConfigured()) {
+    return { ok: false, reason: 'email_not_configured' };
+  }
+  const fmt = (iso) => new Date(iso).toLocaleDateString('tr-TR', { timeZone: 'Europe/Istanbul' });
+  const text = [
+    `Süresi ${items.length} ilanda yakında doluyor:`,
+    ...items.map((i) => `- [${i.kind}] ${i.title} · ${i.seller || '-'} · ${i.contact || '-'} · bitiş ${fmt(i.expiresAt)}`),
+    '',
+    'Yenilemek için ilanı admin panelde açıp bitiş tarihini ileri al.',
+  ].join('\n');
+  const rows = items.map((i) => `
+      <tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee">${escapeHtml(i.kind)}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee"><strong>${escapeHtml(i.title)}</strong><br><span style="color:#666">${escapeHtml(i.seller || '')}</span></td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee">${escapeHtml(i.contact || '-')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap">${escapeHtml(fmt(i.expiresAt))}</td>
+      </tr>`).join('');
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:680px">
+      <h2 style="color:#0F2744">⏳ Süresi dolmak üzere olan ilanlar (${items.length})</h2>
+      <p>Bu ilanların süresi ${'3'} gün içinde doluyor. İlan sahibini arayıp yenileme teklif edebilirsin.</p>
+      <table style="border-collapse:collapse;width:100%;font-size:14px">
+        <tr style="background:#f1f5f9;text-align:left"><th style="padding:6px 8px">Tür</th><th style="padding:6px 8px">İlan</th><th style="padding:6px 8px">İletişim</th><th style="padding:6px 8px">Bitiş</th></tr>
+        ${rows}
+      </table>
+      <p style="color:#666;font-size:12px">Yenilemek için ilanı admin panelde açıp bitiş tarihini ileri al. Süresi dolan ilan uygulamadan otomatik kalkar.</p>
+    </div>`;
+  try {
+    return await deliverEmail({
+      subject: `[Hepsi Düziçi] ${items.length} ilanın süresi doluyor`,
+      text,
+      html,
+    });
+  } catch (err) {
+    return { ok: false, reason: 'send_failed', detail: err.message };
+  }
+}
+
 async function sendTestEmail() {
   if (!isEmailConfigured()) {
     return { ok: false, reason: 'email_not_configured' };
@@ -326,6 +433,8 @@ function getEmailStatus() {
 
 module.exports = {
   sendCitizenReportEmail,
+  sendListingRequestEmail,
+  sendListingExpiryDigestEmail,
   sendTestEmail,
   getEmailStatus,
   isEmailConfigured,

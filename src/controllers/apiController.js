@@ -15,6 +15,7 @@ const obituaryService = require('../services/obituaryService');
 const dailyBriefingService = require('../services/dailyBriefingService');
 const config = require('../config');
 const { enrichExploreWithCorrections } = require('../utils/mapCorrections');
+const listingLifecycleService = require('../services/listingLifecycleService');
 
 function isFakeListing(item) {
   if (!item || typeof item !== 'object') return false;
@@ -76,6 +77,7 @@ class ApiController {
       let data = await fileService.readCityContent();
       data = sanitizeListings(data);
       data = sanitizeAssetUrls(data);
+      data = listingLifecycleService.filterExpiredListings(data);
       try {
         data = enrichExploreWithCorrections(data);
       } catch (err) {
@@ -102,8 +104,15 @@ class ApiController {
       if (!fileService.isValidCityContent(payload)) {
         return res.status(400).json({ ok: false, message: 'Gecersiz city content formati.' });
       }
+      let previous = null;
+      try {
+        previous = JSON.parse(JSON.stringify(await fileService.readCityContent({ forceRefresh: true })));
+      } catch (_) {
+        previous = null;
+      }
       const backupPath = await fileService.createBackupBeforeWrite();
       await fileService.writeCityContent(payload);
+      if (previous) listingLifecycleService.onCityContentSaved(previous, payload);
       res.json({ ok: true, message: 'City content guncellendi.', backupPath });
     } catch (error) {
       res.status(500).json({ ok: false, message: 'City content yazilamadi.', detail: error.message });

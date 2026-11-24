@@ -79,8 +79,35 @@ async function ensureRlsSecurityOnAllTables() {
   }
 }
 
+async function ensureListingRequestsTable() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.warn('[migrate] DATABASE_URL yok — listing_requests tablosu otomatik kurulmadı.');
+    return;
+  }
+
+  const sqlPath = path.resolve(__dirname, '../../migrations/listing_requests.sql');
+  if (!fs.existsSync(sqlPath)) return;
+  const sql = fs.readFileSync(sqlPath, 'utf8');
+  const client = new Client({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
+
+  try {
+    await client.connect();
+    await client.query(sql);
+    console.log('[migrate] listing_requests tablosu hazır.');
+  } catch (err) {
+    console.error('[migrate] listing_requests kurulumu başarısız:', err.message);
+  } finally {
+    await client.end().catch(() => {});
+  }
+}
+
 module.exports = {
   ensureCitizenReportsTable,
+  ensureListingRequestsTable,
   ensurePopupAnnouncementsTable,
   ensureRlsSecurityOnAllTables,
 };

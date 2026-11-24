@@ -1309,6 +1309,7 @@
       <div class="menu-group-items" id="groupExplore">
         <div class="nav-item" onclick="switchView('explore')">🌍 Gezi Rehberi</div>
         <div class="nav-item" onclick="switchView('autoGallery')">🚗 Oto Galeri İlanları</div>
+        <div class="nav-item" onclick="switchView('listingRequests')">📨 İlan Talepleri</div>
         <div class="nav-item" onclick="switchView('realEstate')">🏠 Emlak İlanları</div>
         <div class="nav-item" onclick="switchView('jobListings')">💼 İş İlanları</div>
         <div class="nav-item" onclick="switchView('lostFound')">🔍 Kayıp &amp; Bulunan</div>
@@ -2153,6 +2154,29 @@
           </div>
           <div id="pushResult" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
           <button type="button" class="btn btn-primary" id="pushSendBtn" onclick="sendPushNotification()">📤 Tüm kullanıcılara gönder</button>
+        </div>
+      </div>
+
+      <!-- Listing Requests -->
+      <div id="listingRequestsView" class="view-section">
+        <div class="card">
+          <div class="section-title">📨 İlan Talepleri</div>
+          <p style="color:var(--text-muted); font-size:14px; margin-top:0">
+            Uygulamadaki <strong>"+ İlan Ver"</strong> formundan gelen talepler. Kişiyi arayın / WhatsApp'tan yazın, paketi ve ücreti anlatın.
+            Ödeme alınca ilanı ilgili sekmeden (Emlak, Oto Galeri, İş İlanları, Keşfet › Ustalar) ekleyip burada <strong>Yayınlandı</strong> olarak işaretleyin.
+          </p>
+          <div class="row" style="margin-bottom:16px; flex-wrap:wrap; gap:8px">
+            <select id="listingRequestFilter" onchange="loadListingRequests()" style="min-width:180px">
+              <option value="new" selected>Yeni</option>
+              <option value="contacted">Görüşüldü</option>
+              <option value="published">Yayınlandı</option>
+              <option value="dismissed">Vazgeçildi</option>
+              <option value="all">Tümü</option>
+            </select>
+            <button type="button" class="btn btn-secondary" onclick="loadListingRequests()">🔄 Yenile</button>
+          </div>
+          <div id="listingRequestsStatus" style="min-height:20px; margin-bottom:12px; font-size:13px; font-weight:600; color:var(--text-muted)"></div>
+          <div id="listingRequestsList"></div>
         </div>
       </div>
 
@@ -3749,6 +3773,124 @@
       dismissed: 'Kapatıldı',
     };
 
+    const LISTING_REQUEST_TYPE_LABELS = {
+      real_estate: '🏠 Emlak',
+      auto: '🚗 Galeri / Araç',
+      handyman: '🔧 Usta',
+      job: '💼 İş İlanı',
+      other: '📌 Diğer',
+    };
+    const LISTING_REQUEST_STATUS_LABELS = {
+      new: 'Yeni',
+      contacted: 'Görüşüldü',
+      published: 'Yayınlandı',
+      dismissed: 'Vazgeçildi',
+    };
+
+    function listingRequestWaNumber(phone) {
+      const d = String(phone || '').replace(/\D/g, '');
+      if (d.startsWith('90')) return d;
+      if (d.startsWith('0')) return '90' + d.slice(1);
+      return '90' + d;
+    }
+
+    function renderListingRequestCard(item) {
+      const id = escapeHtml(item.id);
+      const type = escapeHtml(LISTING_REQUEST_TYPE_LABELS[item.listing_type] || item.listing_type || '—');
+      const created = item.created_at ? escapeHtml(new Date(item.created_at).toLocaleString('tr-TR')) : '—';
+      const current = item.status || 'new';
+      const options = Object.entries(LISTING_REQUEST_STATUS_LABELS)
+        .map(([value, label]) => `<option value="${value}" ${value === current ? 'selected' : ''}>${label}</option>`)
+        .join('');
+      const phoneDigits = String(item.phone || '').replace(/\D/g, '');
+      const waText = encodeURIComponent(`Merhaba ${item.contact_name || ''}, Hepsi Düziçi uygulamasındaki ilan talebiniz için yazıyorum.`);
+      const faded = current === 'published' || current === 'dismissed' ? 'opacity:0.75; background:#f8fafc;' : '';
+      return `
+        <div class="card" style="margin-bottom:12px; padding:16px; border:1px solid var(--border); ${faded}">
+          <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:8px">
+            <div>
+              <strong style="font-size:15px">${type}</strong>
+              ${item.profession ? `<span style="background:#fff7ed; color:#c2410c; font-weight:700; padding:2px 8px; border-radius:6px; font-size:12px; margin-left:6px">${escapeHtml(item.profession)}</span>` : ''}
+              <div style="font-size:12px; color:var(--text-muted); margin-top:4px">${created} · ${escapeHtml(item.platform || '-')} v${escapeHtml(item.app_version || '-')}</div>
+            </div>
+            <div class="row" style="gap:8px; align-items:center">
+              <select id="lr-status-${id}" style="min-width:140px">${options}</select>
+              <button type="button" class="btn btn-primary" onclick="updateListingRequest('${id}')">Kaydet</button>
+              <button type="button" class="btn btn-secondary" onclick="deleteListingRequest('${id}')" title="Talebi sil">🗑️</button>
+            </div>
+          </div>
+          <div style="font-size:15px; font-weight:700; margin:6px 0">${escapeHtml(item.contact_name || '')} · ${escapeHtml(item.phone || '')}</div>
+          ${item.note ? `<p style="margin:6px 0; white-space:pre-wrap; font-size:14px">${escapeHtml(item.note)}</p>` : ''}
+          <div class="row" style="gap:8px; margin:10px 0">
+            <a class="btn" href="tel:${escapeHtml(phoneDigits)}" style="background:#2563eb; color:#fff; text-decoration:none">📞 Ara</a>
+            <a class="btn" href="https://wa.me/${escapeHtml(listingRequestWaNumber(item.phone))}?text=${waText}" target="_blank" rel="noopener" style="background:#16a34a; color:#fff; text-decoration:none">💬 WhatsApp</a>
+          </div>
+          <div class="form-group" style="margin:0">
+            <label>Not (sadece sen görürsün: fiyat, ödeme durumu vb.)</label>
+            <textarea id="lr-note-${id}" rows="2" style="width:100%; padding:10px; border-radius:12px; border:1px solid var(--border); font-family:inherit; font-size:14px">${escapeHtml(item.admin_note || '')}</textarea>
+          </div>
+        </div>`;
+    }
+
+    async function loadListingRequests() {
+      const listEl = document.getElementById('listingRequestsList');
+      const statusEl = document.getElementById('listingRequestsStatus');
+      const filter = document.getElementById('listingRequestFilter')?.value || 'new';
+      if (!listEl) return;
+      listEl.innerHTML = '<p style="color:var(--text-muted)">Yükleniyor...</p>';
+      if (statusEl) statusEl.textContent = '';
+      try {
+        const qs = filter !== 'all' ? `?status=${encodeURIComponent(filter)}` : '';
+        const res = await fetch(`/api/listing-requests${qs}`, {
+          cache: 'no-store',
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Talepler yüklenemedi');
+        const items = data.items || [];
+        if (statusEl) statusEl.textContent = `${items.length} talep listeleniyor`;
+        listEl.innerHTML = items.length
+          ? items.map(renderListingRequestCard).join('')
+          : '<p style="color:var(--text-muted)">Bu filtrede talep yok.</p>';
+      } catch (e) {
+        listEl.innerHTML = `<p style="color:var(--danger)">${escapeHtml(e.message || 'Hata')}</p>`;
+      }
+    }
+
+    async function updateListingRequest(id) {
+      const status = document.getElementById(`lr-status-${id}`)?.value;
+      const adminNote = document.getElementById(`lr-note-${id}`)?.value ?? '';
+      try {
+        const res = await fetch(`/api/listing-requests/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', 'x-admin-token': currentToken },
+          body: JSON.stringify({ status, adminNote }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Güncellenemedi');
+        showToast('İlan talebi güncellendi.');
+        loadListingRequests();
+      } catch (e) {
+        showToast(e.message || 'Güncellenemedi', true);
+      }
+    }
+
+    async function deleteListingRequest(id) {
+      if (!confirm('Bu ilan talebi kalıcı olarak silinsin mi?')) return;
+      try {
+        const res = await fetch(`/api/listing-requests/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: { 'x-admin-token': currentToken },
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.message || 'Silinemedi');
+        showToast('Talep silindi.');
+        loadListingRequests();
+      } catch (e) {
+        showToast(e.message || 'Silinemedi', true);
+      }
+    }
+
     function isOpenCitizenReport(status) {
       return status === 'new' || status === 'reviewing';
     }
@@ -4064,6 +4206,7 @@
         outageRoadAi: ['Kesinti & Yol Çalışması (Yapay Zeka)', 'WhatsApp, Facebook veya basın bülteni metinlerini saniyeler içinde ayrıştırıp uygulamada yayınlayın.'],
         push: ['Toplu Bildirim', 'Tüm kullanıcılara push bildirim gönderin.'],
         citizenReports: ['İhbar Yönetimi', 'Vatandaş ihbarlarını inceleyin ve durumlarını güncelleyin.'],
+        listingRequests: ['İlan Talepleri', '"İlan Ver" formundan gelen talepleri arayın, ücretlendirin ve yayınlayın.'],
         backups: ['Yedekler', 'Veri güvenliği ve geri yükleme merkezi.'],
         json: ['Gelişmiş Düzenleyici', 'JSON verilerine doğrudan müdahale edin.'],
         autoGallery: ['Oto Galeri İlanları', 'Esnafların satılık/kiralık araç ilanlarını yönetin.'],
@@ -4098,6 +4241,9 @@
       }
       if (view === 'citizenReports') {
         loadCitizenReports();
+      }
+      if (view === 'listingRequests') {
+        loadListingRequests();
       }
       if (view === 'popups') {
         loadPopupsAdminList();
@@ -6804,6 +6950,9 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
           <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
             <input type="checkbox" id="vIsPaid" ${d.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
           </label>
+          <label style="display:flex; flex-direction:column; gap:4px; margin:0 0 0 12px; font-weight:700; font-size:12px">İlan bitiş tarihi
+            <input type="date" id="vExpiresAt" value="${d.expiresAt ? String(d.expiresAt).slice(0, 10) : (!d.id ? new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10) : '')}" style="width:auto; padding:6px 8px" title="Boş bırakılırsa ilan süresiz yayında kalır">
+          </label>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
@@ -6973,6 +7122,8 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
       const contact = document.getElementById('vContact').value.trim();
       const isPaid = document.getElementById('vIsPaid').checked;
       const isActive = document.getElementById('vIsActive').checked;
+      const expiresRaw = (document.getElementById('vExpiresAt')?.value || '').trim();
+      const expiresAt = expiresRaw ? `${expiresRaw}T23:59:59+03:00` : null;
 
       if (!title || !brand) return showToast('İlan başlığı ve marka zorunludur!', true);
 
@@ -6982,7 +7133,7 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
         id: (currentVehicleIndex !== -1 ? rawData.explore.autoVehicles[currentVehicleIndex].id : null) || 'v_' + Date.now(),
         title, brand, model, year, km, price, color,
         fuelType, gearType, bodyType, description,
-        sellerName, contact, isPaid, isActive,
+        sellerName, contact, isPaid, isActive, expiresAt,
         images: [...tempVehicleGallery],
         image: tempVehicleGallery[0] || '',
         createdAt: (currentVehicleIndex !== -1 ? rawData.explore.autoVehicles[currentVehicleIndex].createdAt : null) || new Date().toISOString()
@@ -7092,6 +7243,9 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
           </div>
           <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
             <input type="checkbox" id="reIsPaid" ${d.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
+          </label>
+          <label style="display:flex; flex-direction:column; gap:4px; margin:0 0 0 12px; font-weight:700; font-size:12px">İlan bitiş tarihi
+            <input type="date" id="reExpiresAt" value="${d.expiresAt ? String(d.expiresAt).slice(0, 10) : (!d.id ? new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10) : '')}" style="width:auto; padding:6px 8px" title="Boş bırakılırsa ilan süresiz yayında kalır">
           </label>
         </div>
 
@@ -7238,6 +7392,8 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
       const contact = document.getElementById('reContact').value.trim();
       const isPaid = document.getElementById('reIsPaid').checked;
       const isActive = document.getElementById('reIsActive').checked;
+      const expiresRaw = (document.getElementById('reExpiresAt')?.value || '').trim();
+      const expiresAt = expiresRaw ? `${expiresRaw}T23:59:59+03:00` : null;
 
       if (!title) return showToast('İlan başlığı zorunludur!', true);
 
@@ -7246,7 +7402,7 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
       const estateData = {
         id: (currentRealEstateIndex !== -1 ? rawData.explore.realEstates[currentRealEstateIndex].id : null) || 're_' + Date.now(),
         title, type, category, price, area, roomCount, address, description,
-        sellerName, contact, isPaid, isActive,
+        sellerName, contact, isPaid, isActive, expiresAt,
         images: [...tempRealEstateGallery],
         image: tempRealEstateGallery[0] || '',
         createdAt: (currentRealEstateIndex !== -1 ? rawData.explore.realEstates[currentRealEstateIndex].createdAt : null) || new Date().toISOString()
@@ -8079,6 +8235,9 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
           <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer; font-weight:700; font-size:13px">
             <input type="checkbox" id="jlIsPaid" ${data.isPaid ? 'checked' : ''} style="width:auto; accent-color:var(--primary); width:18px; height:18px"> Öne Çıkar
           </label>
+          <label style="display:flex; flex-direction:column; gap:4px; margin:0 0 0 12px; font-weight:700; font-size:12px">İlan bitiş tarihi
+            <input type="date" id="jlExpiresAt" value="${data.expiresAt ? String(data.expiresAt).slice(0, 10) : (!data.id ? new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10) : '')}" style="width:auto; padding:6px 8px" title="Boş bırakılırsa ilan süresiz yayında kalır">
+          </label>
         </div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
@@ -8211,6 +8370,8 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
       const whatsapp = document.getElementById('jlWhatsapp').value.trim();
       const isPaid = document.getElementById('jlIsPaid').checked;
       const isActive = document.getElementById('jlIsActive').checked;
+      const expiresRaw = (document.getElementById('jlExpiresAt')?.value || '').trim();
+      const expiresAt = expiresRaw ? `${expiresRaw}T23:59:59+03:00` : null;
 
       if (!title || !companyName) return showToast('İlan başlığı ve firma adı zorunludur!', true);
 
@@ -8219,7 +8380,7 @@ Nöbetçi eczaneler, elektrik & su kesintileri, vefat ilanları, son dakika habe
       const jobData = {
         id: (currentJobListingIndex !== -1 ? rawData.explore.jobListings[currentJobListingIndex].id : null) || 'jl_' + Date.now(),
         title, companyName, category, jobType, salary, description, address,
-        contact, whatsapp, isPaid, isActive,
+        contact, whatsapp, isPaid, isActive, expiresAt,
         imageUrl: tempJobListingPhoto,
         image: tempJobListingPhoto,
         createdAt: (currentJobListingIndex !== -1 ? rawData.explore.jobListings[currentJobListingIndex].createdAt : null) || new Date().toISOString()

@@ -27,7 +27,7 @@ const weatherService = require('./services/weatherService');
 const dailyBriefingService = require('./services/dailyBriefingService');
 const outageService = require('./services/outageService');
 const aiReporterService = require('./services/aiReporterService');
-const { ensureCitizenReportsTable, ensurePopupAnnouncementsTable, ensureRlsSecurityOnAllTables } = require('./utils/runMigrations');
+const { ensureCitizenReportsTable, ensureListingRequestsTable, ensurePopupAnnouncementsTable, ensureRlsSecurityOnAllTables } = require('./utils/runMigrations');
 const emailService = require('./services/emailService');
 
 const app = express();
@@ -94,6 +94,7 @@ app.use('/api', (req, res, next) => {
       p.startsWith('/admin') ||
       p.startsWith('/studio') ||
       p.startsWith('/citizen-reports') ||
+      p.startsWith('/listing-requests') ||
       p.includes('felt')
     ) {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -205,6 +206,14 @@ const server = app.listen(config.PORT, '0.0.0.0', () => {
   console.log(`🛠️  [city-content-api] admin panel: http://localhost:${config.PORT}/admin\n`);
 
   ensureCitizenReportsTable().catch(() => {});
+  ensureListingRequestsTable().catch(() => {});
+  try {
+    const listingLifecycleService = require('./services/listingLifecycleService');
+    const fileService = require('./services/fileService');
+    listingLifecycleService.startExpiryDigestCron(() => fileService.readCityContent({ forceRefresh: true }));
+  } catch (e) {
+    console.warn('[listings] Süre bitimi kontrolü başlatılamadı:', e.message);
+  }
   ensurePopupAnnouncementsTable().catch(() => {});
   ensureRlsSecurityOnAllTables().catch(() => {});
 
