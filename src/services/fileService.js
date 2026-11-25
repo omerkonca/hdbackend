@@ -1,5 +1,6 @@
 const fs = require('fs/promises');
 const path = require('path');
+const crypto = require('crypto');
 const config = require('../config');
 const { getDbPool } = require('../utils/dbPool');
 const supabase = require('../utils/supabaseClient');
@@ -11,6 +12,11 @@ class FileService {
     this._lastRead = 0;
     // 5 dakikalık RAM önbelleği (Supabase egress'i ve disk G/Ç'yi sıfıra indirmek için)
     this._cacheTtlMs = 5 * 60 * 1000;
+    // Render ücretsiz planında giden trafik 5 GB/ay ile sınırlı. city_content ~350 KB;
+    // aynı içeriği tekrar göndermemek ve otomatik yazmaları seyreltmek için:
+    this._lastSyncedHash = null;
+    this._pendingSyncTimer = null;
+    this._automatedSyncDelayMs = 15 * 60 * 1000;
   }
 
   /**
@@ -93,38 +99,70 @@ class FileService {
    * Veritabanı (Supabase/Postgres) eşitlemesini arka planda (non-blocking) dener,
    * böylece Supabase kotası dolsa bile admin paneli ve uygulama ASLA kilitlenmez.
    */
-  async writeCityContent(content) {
+  async writeCityContent(content, options = {}) {
     if (!this.isValidCityContent(content)) {
       throw new Error('Geçersiz şehir içeriği verisi.');
     }
+    // automated: arka plan işlerinin (etkinlik taraması, AI sayaçları, muhabir durumu)
+    // yazmaları. DB'ye yedek satırı eklenmez ve senkron en fazla 15 dk'da bir yapılır.
+    const automated = options.automated === true;
 
-    // 1. Önce mevcut halini yerel yedek klasörüne kaydet
-    await this.createBackupBeforeWrite().catch((e) => {
-      console.warn('[fileService] Yerel yedek alınırken hata oluştu (yazmaya devam ediliyor):', e.message);
-    });
+    // 1. Önce mevcut halini yerel yedek klasörüne kaydet (admin yazmalarında)
+    if (!automated) {
+      await this.createBackupBeforeWrite().catch((e) => {
+        console.warn('[fileService] Yerel yedek alınırken hata oluştu (yazmaya devam ediliyor):', e.message);
+      });
+    }
 
     // 2. Birincil Kaynak: Yerel JSON dosyasına yaz
-    const pretty = `${JSON.stringify(content, null, 2)}\n`;
+    const pretty = `${JSON.stringify(content, null, 2)}
+`;
     await fs.writeFile(config.PATHS.CITY_CONTENT, pretty, 'utf8');
 
     // 3. RAM Önbelleğini anında güncelle
     this._cachedContent = content;
     this._lastRead = Date.now();
 
-    // 4. Arka planda Supabase/PostgreSQL senkronizasyonu (Asenkron & Hata durumunda ana işlemi durdurmaz)
-    setImmediate(async () => {
-      const pool = getDbPool();
-      if (pool) {
-        try {
-          const sql = `
-            INSERT INTO city_contents (id, data, updated_at)
-            VALUES (1, $1, NOW())
-            ON CONFLICT (id) DO UPDATE SET
-              data = EXCLUDED.data,
-              updated_at = NOW()
-          `;
-          await pool.query(sql, [content]);
+    // 4. Arka planda Supabase/PostgreSQL senkronizasyonu
+    if (automated) {
+      if (!this._pendingSyncTimer) {
+        this._pendingSyncTimer = setTimeout(() => {
+          this._pendingSyncTimer = null;
+          this._syncToDatabase(this._cachedContent, { backup: false }).catch(() => {});
+        }, this._automatedSyncDelayMs);
+        this._pendingSyncTimer.unref?.();
+      }
+      return;
+    }
 
+    if (this._pendingSyncTimer) {
+      clearTimeout(this._pendingSyncTimer);
+      this._pendingSyncTimer = null;
+    }
+    setImmediate(() => {
+      this._syncToDatabase(content, { backup: true }).catch(() => {});
+    });
+  }
+
+  async _syncToDatabase(content, { backup }) {
+    if (!content) return;
+    const hash = crypto.createHash('sha1').update(JSON.stringify(content)).digest('hex');
+    if (hash === this._lastSyncedHash) return;
+
+    const pool = getDbPool();
+    if (pool) {
+      try {
+        const sql = `
+          INSERT INTO city_contents (id, data, updated_at)
+          VALUES (1, $1, NOW())
+          ON CONFLICT (id) DO UPDATE SET
+            data = EXCLUDED.data,
+            updated_at = NOW()
+        `;
+        await pool.query(sql, [content]);
+        this._lastSyncedHash = hash;
+
+        if (backup) {
           // DB yedeği (Son 25 adet)
           await pool.query(
             'INSERT INTO city_content_backups (data, description, created_at) VALUES ($1, $2, NOW())',
@@ -133,24 +171,25 @@ class FileService {
           await pool.query(
             'DELETE FROM city_content_backups WHERE id NOT IN (SELECT id FROM city_content_backups ORDER BY created_at DESC LIMIT 25)'
           ).catch(() => {});
-          return;
-        } catch (pgErr) {
-          console.warn('⚠️ [fileService] Arka plan PG senkronizasyonu başarısız (yerel dosya korundu):', pgErr.message);
         }
+        return;
+      } catch (pgErr) {
+        console.warn('⚠️ [fileService] Arka plan PG senkronizasyonu başarısız (yerel dosya korundu):', pgErr.message);
       }
+    }
 
-      // Supabase REST fallback senkronizasyonu
-      try {
-        const db = requireSupabaseAdmin();
-        if (db) {
-          await db
-            .from('city_contents')
-            .upsert({ id: 1, data: content, updated_at: new Date().toISOString() });
-        }
-      } catch (supaErr) {
-        console.warn('⚠️ [fileService] Arka plan Supabase senkronizasyonu başarısız (yerel dosya korundu):', supaErr.message);
+    // Supabase REST fallback senkronizasyonu
+    try {
+      const db = requireSupabaseAdmin();
+      if (db) {
+        const { error } = await db
+          .from('city_contents')
+          .upsert({ id: 1, data: content, updated_at: new Date().toISOString() });
+        if (!error) this._lastSyncedHash = hash;
       }
-    });
+    } catch (supaErr) {
+      console.warn('⚠️ [fileService] Arka plan Supabase senkronizasyonu başarısız (yerel dosya korundu):', supaErr.message);
+    }
   }
 
   async ensureBackupsDir() {

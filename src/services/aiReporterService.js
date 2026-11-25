@@ -295,7 +295,7 @@ class AiReporterService {
         ...patch,
         lastReporterAt: new Date().toISOString(),
       };
-      await fileService.writeCityContent(city);
+      await fileService.writeCityContent(city, { automated: true });
     } catch (err) {
       console.warn('[ai-reporter] status save failed:', err.message);
     }

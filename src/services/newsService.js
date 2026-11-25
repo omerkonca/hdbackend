@@ -1143,7 +1143,12 @@ KURALLAR:
 
       if (pool) {
         try {
-          const resIds = await pool.query('SELECT id, title, source_url, created_at FROM news_items WHERE id = ANY($1::text[])', [ids]);
+          const resIds = await pool.query(
+            `SELECT id, title, summary, category, image_url, source_url, created_at,
+                    (full_text IS NOT NULL) AS has_full_text
+             FROM news_items WHERE id = ANY($1::text[])`,
+            [ids],
+          );
           existing = resIds.rows || [];
           if (urls.length > 0) {
             const resUrls = await pool.query('SELECT id, title, source_url, created_at FROM news_items WHERE source_url = ANY($1::text[])', [urls]);
@@ -1255,8 +1260,22 @@ KURALLAR:
       if (skipInsertIds.size > 0) {
         console.log(`[news] ${skipInsertIds.size} kopya haber DB'ye yazılmadı (benzer başlık).`);
       }
+      // Render ücretsiz planında giden trafik 5 GB ile sınırlı: DB'de zaten aynı
+      // haliyle duran haberleri her 10 dakikada bir yeniden yazma.
+      const existingById = new Map(existing.map((row) => [row.id, row]));
+      const isUnchanged = (item) => {
+        const row = existingById.get(item.id);
+        if (!row) return false;
+        return (
+          (row.title || '') === (item.title || '') &&
+          (row.summary || '') === (item.summary || '') &&
+          (row.category || 'Düziçi') === (item.category || 'Düziçi') &&
+          (!item.fullText || row.has_full_text === true) &&
+          (!item.imageUrl || row.image_url === item.imageUrl)
+        );
+      };
       const filteredSync = this.dedupeNewsList(
-        syncItems.filter((item) => !skipInsertIds.has(item.id)),
+        syncItems.filter((item) => !skipInsertIds.has(item.id) && !isUnchanged(item)),
       );
 
       if (pool && filteredSync.length > 0) {
@@ -1558,7 +1577,7 @@ KURALLAR:
                     settings.lastBeautifyAt = new Date().toISOString();
                     settings.lastBeautifyOk = true;
                     cityContent.aiNewsSettings = settings;
-                    await fileService.writeCityContent(cityContent).catch(() => {});
+                    await fileService.writeCityContent(cityContent, { automated: true }).catch(() => {});
                   }
                 }
               } catch (aiErr) {

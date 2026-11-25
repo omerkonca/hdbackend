@@ -345,9 +345,11 @@ class EventService {
       if (bubiletEvents.length > 0) {
         try {
           const content = await fileService.readCityContent();
-          content.scrapedEvents = bubiletEvents;
-          await fileService.writeCityContent(content);
-          console.log('[EventService] Successfully saved scraped Bubilet events to Supabase.');
+          if (JSON.stringify(content.scrapedEvents || []) !== JSON.stringify(bubiletEvents)) {
+            content.scrapedEvents = bubiletEvents;
+            await fileService.writeCityContent(content, { automated: true });
+            console.log('[EventService] Scraped Bubilet events changed; saved.');
+          }
         } catch (dbErr) {
           console.warn('[EventService] Failed to write scraped events to database:', dbErr.message);
         }
